@@ -23,7 +23,7 @@ install: | Deployment backup-old-iterm
 install-presets:
 	cp "${ITERM_PRESETS_DIR}/${PRESETS_FILE}" \
 	 "${ITERM_PRESETS_DIR}/${PRESETS_FILE}.bak"
-	cp "${NEW_PRESETS_FILE}" "${ITERM_PRESETS_DIR}"
+	cp "${NEW_PRESETS_FILE}" "${ITERM_PRESETS_DIR}/${PRESETS_FILE}"
 
 Development:
 	echo "Using PATH for build: $(PATH)"
