@@ -63,7 +63,7 @@ sub contains_shift {
     return ($mod & SHIFT) ? 1 : 0;
 }
 
-sub contains_alt {
+sub contains_meta {
     my ($mod) = @_;
     return ($mod & META) ? 1 : 0;
 }
@@ -77,6 +77,7 @@ sub generate {
 
     my @modifiers
       = (
+         0, # none
          SHIFT,
          META,
          CTRL,
@@ -90,7 +91,7 @@ sub generate {
         );
 
     foreach my $modifier (@modifiers) {
-        foreach my $char ('a' .. 'z') {
+        foreach my $char ('a' .. 'z', 'A' .. 'Z') {
 
             if (contains_shift($modifier)) {
                 $char = uc($char);
@@ -100,7 +101,7 @@ sub generate {
 
 
             my $iterm_charcode;
-            my $iterm_modifier;
+            my $iterm_modifier = 0;
 
             if (contains_shift($modifier)) {
                 $iterm_modifier |= I_SHIFT;
@@ -133,10 +134,10 @@ sub generate {
             my $output;
             $output .= "<key>$iterm_id</key>\n";
             $output .= "<dict>\n";
-            $output .= "    <key>Action</key>";
-            $output .= "    <integer>10</integer>";
-            $output .= "    <key>Text</key>";
-            $output .= "    <string>$fixterm_csi</string>";
+            $output .= "    <key>Action</key>\n";
+            $output .= "    <integer>10</integer>\n";
+            $output .= "    <key>Text</key>\n";
+            $output .= "    <string>$fixterm_csi</string>\n";
             $output .= "</dict>\n";
 
             print $output;
