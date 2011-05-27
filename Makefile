@@ -5,8 +5,12 @@ PATH := /usr/bin:/bin:/usr/sbin:/sbin
 ITERM_PID=$(shell pgrep "iTerm")
 APPS := /Applications
 ITERM_CONF_PLIST = $(HOME)/Library/Preferences/com.googlecode.iterm2.plist
+ITERM_PRESETS_DIR = ${APPS}/iTerm.app/Contents/Resources
+PRESETS_FILE = PresetKeyMappings.plist
+NEW_PRESETS_FILE = PresetKeyMappings.plist.tmp
 
-.PHONY: clean all backup-old-iterm restart
+
+.PHONY: clean all backup-old-iterm restart install-presets
 
 all: Deployment
 
@@ -15,6 +19,11 @@ TAGS:
 
 install: | Deployment backup-old-iterm
 	cp -r build/Deployment/iTerm.app $(APPS)
+
+install-presets:
+	cp "${ITERM_PRESETS_DIR}/${PRESETS_FILE}" \
+	 "${ITERM_PRESETS_DIR}/${PRESETS_FILE}.bak"
+	cp "${NEW_PRESETS_FILE}" "${ITERM_PRESETS_DIR}"
 
 Development:
 	echo "Using PATH for build: $(PATH)"
