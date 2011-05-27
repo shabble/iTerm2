@@ -1,26 +1,49 @@
 #!/usr/bin/env perl
 
+=head1 NAME generate_fixterms-mappings - create an xml output file suitable for
+loading into iTerm as a preset list conforming to the fixterms specification.
+
+=cut
+
+
 use strict;
 use warnings;
 
 use Data::Dumper;
 use feature qw/say/;
 
+
 my $presets_plist     = "PresetKeyMappings.plist";
 my $presets_plist_tmp = "PresetKeyMappings.plist.tmp";
-my $presets_data;
-# generate some xml keybindings for iterm2 according to the 'fixterms'
-# specification at http://www.leonerd.org.uk/hacks/fixterms/
 
-my @fixterm_entries;
 
 # some handy constants.
 
 sub CSI () { "\e[" }
 
+
 sub SHIFT () { 1 }
 sub META  () { 2 }
 sub CTRL  () { 4 }
+
+# all combinations of modifiers.
+# not all should be used for all characters.
+
+sub MODIFIERS () {
+    return (
+
+            SHIFT,
+            META,
+            CTRL,
+
+            SHIFT + META,
+            SHIFT + CTRL,
+            SHIFT + META + CTRL,
+
+            META  + CTRL
+
+           );
+}
 
 # Modifiers:
 #
@@ -28,6 +51,7 @@ sub CTRL  () { 4 }
 # Ctrl   : 0x040000
 # Option : 0x080000
 # Cmd    : 0x100000
+
 sub I_ARROW () { 0x200000 }
 sub I_SHIFT () { 0x020000 }
 sub I_CTRL  () { 0x040000 }
@@ -35,12 +59,62 @@ sub I_OPT   () { 0x080000 }
 sub I_CMD   () { 0x100000 }
 
 
-sub generate_CSI_tilde {
-    my ($keycode, $modifiers) = @_;
-    return sprintf('%s%d;%s%s', CSI, $keycode, $modifiers, '~');
+sub main {
+    my @entries;
+    push @entries, @{ generate_lower_case_entries() };
+    # push @entries, @{ generate_upper_case_entries() };
+    # push @entries, @{ generate_specials() };
+    # push @entries, @{ generate_extra_specials() };
+
+    save_to_plist(\@entries);
+}
+
+
+
+sub generate_lower_case_entries {
+    my @output;
+
+    my @mods = (
+                 META,
+                 META +  CTRL,
+               );
+
+    for my $modifiers (@mods) {
+        for my $char ('a'..'z') {
+            my $keycode = ord($char);
+
+            my $i_key = construct_iterm_key($keycode, $modifiers);
+            my $csi_u = construct_fixterm_csi_u($keycode, $modifiers);
+            push @output, [$i_key, $csi_u];
+
+            #($keycode, $modifiers, $i_key, $csi_u) = @_;
+            say 'creating: ' . to_string($keycode, $modifiers, $i_key, $csi_u);
+        }
+    }
+
+    return \@output;
+}
+
+
+sub generate_upper_case_entries {
+
+    my @output;
+    for my $char ('A'..'Z') {
+        my $keycode = ord($char);
+
+
+        push @output, [$keycode, $char];
+    }
+
+    return \@output;
 }
 
 sub generate_specials {
+
+    return [];
+}
+
+sub generate_extra_specials {
 
     my $specials_iterm
       = {
@@ -75,28 +149,38 @@ sub generate_specials {
 
     # format for these specials is: CSI 1;[modifier] {ABCDFHPQRS}
     # where 1;1 is redundant. All others apply.
+    return [];
 }
 
 sub save_to_plist {
+    my ($entries) = @_;
+
+    #say Dumper($entries);
+    return;
+
     open my $in_fh, '<', $presets_plist
       or die "Couldn't open $presets_plist for reading: $!";
     open my $out_fh, '>', $presets_plist_tmp
       or die "Couldn't open $presets_plist_tmp for writing: $!";
 
-    generate_alpha();
-
     my $inserted = 0;
     while (my $line = <$in_fh>) {
         print $out_fh $line;
         if (($inserted == 0) and ($line =~ m/<dict>/)) {
-            print $out_fh $_ for @fixterm_entries;
+            print $out_fh header();
+            print $out_fh entry( @{ $_ } ) for @$entries;
+            print $out_fh footer();
+
             $inserted = 1;
         }
     }
-    close $in_fh;
-    close $out_fh;
 
-    # move tmp to real?
+    close $in_fh  or die "Couldn't close input filehandle: $!";
+    close $out_fh or die "Couldn't close output filehandle: $!";
+}
+
+sub is_arrow {
+    return 0;
 }
 
 sub contains_shift {
@@ -114,120 +198,180 @@ sub contains_ctrl {
     return ($mod & CTRL) ? 1 : 0;
 }
 
-sub mods_to_str {
+sub modifiers_to_string {
     my ($mod) = @_;
     my @mods;
-    push @mods, 'shift' if (contains_shift($mod));
-    push @mods, 'meta'  if (contains_meta($mod));
-    push @mods, 'ctrl'  if (contains_ctrl($mod));
+    push @mods, 'SHIFT' if (contains_shift($mod));
+    push @mods, 'META'  if (contains_meta($mod));
+    push @mods, 'CTRL'  if (contains_ctrl($mod));
 
     my $str = join(" | ", @mods);
     return $str;
 }
 
-sub generate_alpha {
 
-    my @modifiers
-      = (
-         SHIFT,
-         META,
-         CTRL,
+sub construct_iterm_key {
+    my ($keycode, $modifiers) = @_;
 
-         SHIFT + META,
-         SHIFT + CTRL,
-         SHIFT + META + CTRL,
+    my $mod_num = 0;
 
-         META  + CTRL
+    $mod_num += I_SHIFT  if contains_shift($modifiers);
+    $mod_num += I_OPT    if contains_meta ($modifiers);
+    $mod_num += I_CTRL   if contains_ctrl ($modifiers);
 
-        );
-    my $hash = {};
+    $mod_num += I_ARROW  if is_arrow($keycode);
 
-    foreach my $modifier (@modifiers) {
-        foreach my $char (('A' .. 'Z'), ('a' .. 'z')) {
-
-            my $fixterm_modifier = $modifier + 1;
-            my $uc_char = uc($char);
-
-            my $keycode    = ord($char);
-            my $uc_keycode = ord($uc_char);
-            # print STDERR sprintf("Processing: %-3s %-3s %03d, %s %d\n",
-            #                      $actual_char, $keycode,
-            #                      $modifier, mods_to_str($modifier),
-            #                      contains_shift($modifier));
-
-            my $iterm_charcode;
-            my $iterm_modifier = 0;
-
-            if (contains_shift($modifier)) {
-                $iterm_modifier |= I_SHIFT;
-            }
-
-            if (contains_meta($modifier)) {
-                $iterm_modifier |= I_OPT;
-            }
-
-            if (contains_ctrl($modifier)) {
-                $iterm_modifier |= I_CTRL;
-            }
-
-            # skip ctrl-only for lower-case letters.
-            if (($modifier & CTRL) == CTRL) {
-                next if ($char ne $uc_char);
-                say "ctrl-only for: $char";
-            }
-
-            $iterm_modifier = sprintf('0x%x', $iterm_modifier);
-
-            if (contains_shift($modifier)) {
-                $iterm_charcode = sprintf('0x%x', $uc_keycode);
-            } else {
-                $iterm_charcode = sprintf('0x%x', $keycode);
-            }
-
-            my $iterm_id = "$iterm_charcode-$iterm_modifier";
-
-
-            # iTerm action 10 provides the \e escape for the CSI.
-            my $fixterm_csi = '[' . $keycode;
-
-            if ($fixterm_modifier != 1) {
-                $fixterm_csi .= ";$fixterm_modifier";
-            }
-
-            $fixterm_csi .= 'u';
-
-            $hash->{$iterm_id} = $fixterm_csi;
-        }
-    }
-
-    push @fixterm_entries, "    <key>Fixterm</key>\n";
-    push @fixterm_entries, "    <dict>\n";
-    foreach my $key (sort keys %$hash) {
-        my $val = $hash->{$key};
-        my $output;
-        $output .= "        <key>$key</key>\n";
-        $output .= "        <dict>\n";
-		$output .= "			<key>Action</key>\n";
-		$output .= "			<integer>10</integer>\n";
-		$output .= "			<key>Text</key>\n";
-		$output .= "			<string>$val</string>\n";
-		$output .= "		</dict>\n";
-
-        push @fixterm_entries, $output;
-    }
-    push @fixterm_entries, "    </dict>\n";
+    return sprintf('0x%x-0x%x', $keycode, $mod_num);
 }
 
-save_to_plist();
+sub construct_fixterm_csi_u {
+    my ($keycode, $modifiers) = @_;
+
+    my $mod_value = 1;
+
+    if ($modifiers) {
+
+        $mod_value += SHIFT  if contains_shift($modifiers);
+        $mod_value += META   if contains_meta ($modifiers);
+        $mod_value += CTRL   if contains_ctrl ($modifiers);
+
+        $mod_value = ';' . $mod_value;
+    } else {
+        $mod_value = '';
+    }
+
+    return sprintf('[%s%su', $keycode, $mod_value);
+}
+
+sub to_string {
+    my ($keycode, $modifiers, $i_key, $csi_u) = @_;
+    return sprintf('key: %s keycode: %-3d %-15s %-10s %-10s',
+                   chr($keycode), $keycode,
+                   modifiers_to_string($modifiers),
+                   $i_key, $csi_u);
+}
+
+################################################################################
+
+
+sub header {
+    return
+      "    <key>Fixterm</key>\n".
+      "    <dict>\n";
+}
+
+sub entry {
+    my ($iterm_key, $fixterm_val) = @_;
+
+    my @output
+      = (
+         "        <key>$iterm_key</key>\n",
+         "        <dict>\n",
+         "            <key>Action</key>\n",
+         "            <integer>10</integer>\n",
+         "            <key>Text</key>\n",
+		 "            <string>$fixterm_val</string>\n",
+         "        </dict>\n",
+        );
+
+    return join '', @output;
+}
+
+sub footer {
+    return "    </dict>\n";
+}
+
+################################################################################
+
+say 'Running fixterm generator script...';
+main();
+say 'Done';
+
+################################################################################
+
+
+
+
+# sub generate_alpha {
+#     my @output;
+
+#     my $hash = {};
+
+#     foreach my $modifier (@modifiers) {
+#         foreach my $char (('A'..'Z'),('a' .. 'z'),(0..9)) {
+
+#             my $fixterm_modifier = $modifier + 1;
+
+#             my $uc_char = uc($char);
+
+#             my $keycode    = ord($char);
+#             my $uc_keycode = ord($uc_char);
+
+
+#             my $iterm_charcode;
+#             my $iterm_modifier = 0;
+
+#             if (contains_shift($modifier)) {
+#                 $iterm_modifier |= I_SHIFT;
+#             }
+
+#             if (contains_meta($modifier)) {
+#                 $iterm_modifier |= I_OPT;
+#             }
+
+#             if (contains_ctrl($modifier)) {
+#                 $iterm_modifier |= I_CTRL;
+#             }
+
+#             # skip ctrl-only for lower-case letters.
+#             if ($modifier == CTRL) {
+#                 next if ($char ne $uc_char);
+#                 say "ctrl-only ok for: $char";
+#             }
+
+#             $iterm_modifier = sprintf('0x%x', $iterm_modifier);
+
+#             if (contains_shift($modifier)) {
+#                 $iterm_charcode = sprintf('0x%x', $uc_keycode);
+#             } else {
+#                 $iterm_charcode = sprintf('0x%x', $keycode);
+#             }
+
+#             my $iterm_id = "$iterm_charcode-$iterm_modifier";
+
+
+#             # iTerm action 10 provides the \e escape for the CSI.
+#             my $fixterm_csi = '[' . $keycode;
+
+#             if ($fixterm_modifier != 1) {
+#                 $fixterm_csi .= ";$fixterm_modifier";
+#             }
+
+#             $fixterm_csi .= 'u';
+
+#             print STDERR sprintf("Processing: %-3s %-3s %s, %s %d\n",
+#                                  $char, $keycode,
+#                                  $fixterm_csi, mods_to_str($modifier),
+#                                  contains_shift($modifier));
+
+#             $hash->{$iterm_id} = $fixterm_csi;
+#         }
+#     }
+#     foreach my $key (sort keys %$hash) {
+#         my $val = $hash->{$key};
+#         push @output, [$key, $val];
+
+
+#         push @fixterm_entries, $output;
+#     }
+# }
+
+
 
 __END__
 
 # TODO:
-# * decode how key is specified in plist
-# * write Data::Plist::XMLReader?
-# * complete functions above.
-# * Make it all work.
-#
+
 #
 # sample of PresetKeyMappings plist
 # <key>xterm Defaults</key> <-- name of preset

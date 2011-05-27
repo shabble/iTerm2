@@ -8,9 +8,9 @@ ITERM_CONF_PLIST = $(HOME)/Library/Preferences/com.googlecode.iterm2.plist
 ITERM_PRESETS_DIR = ${APPS}/iTerm.app/Contents/Resources
 PRESETS_FILE = PresetKeyMappings.plist
 NEW_PRESETS_FILE = PresetKeyMappings.plist.tmp
+PERL = /opt/local/bin/perl
 
-
-.PHONY: clean all backup-old-iterm restart install-presets
+.PHONY: clean all backup-old-iterm restart install-presets generate-fixterm-presets
 
 all: Deployment
 
@@ -20,7 +20,10 @@ TAGS:
 install: | Deployment backup-old-iterm
 	cp -r build/Deployment/iTerm.app $(APPS)
 
-install-presets:
+generate-fixterm-presets:
+	$(PERL) generate-fixterm-mappings.pl
+
+install-presets: generate-fixterm-mappings
 	cp "${ITERM_PRESETS_DIR}/${PRESETS_FILE}" \
 	 "${ITERM_PRESETS_DIR}/${PRESETS_FILE}.bak"
 	cp "${NEW_PRESETS_FILE}" "${ITERM_PRESETS_DIR}/${PRESETS_FILE}"
