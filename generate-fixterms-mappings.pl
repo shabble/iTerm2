@@ -3,8 +3,6 @@
 use strict;
 use warnings;
 
-use Data::Plist;
-use Data::Plist::XMLReader;
 use Data::Dumper;
 use feature qw/say/;
 
@@ -181,3 +179,136 @@ __END__
 #		  <string>[1;6D</string>
 #	  </dict>
 # <dict>
+
+# Modifiers:
+# 
+# Shift  : 0x020000 (Also affects the actual char)
+# Ctrl   : 0x040000
+# Option : 0x080000
+# Cmd    : 0x100000
+
+# Keys:
+
+
+#"Keyboard Map" =		                  	  {
+#		  "0x41-0x20000" = shift a				   {
+#			  Action = 11;
+#			  Text = "0x1 0x1";
+#		  };
+#		  "0x41-0xa0000" = 'shift meta a'		   {
+#			  Action = 11;
+#			  Text = "0x3 0x1";
+#		  };
+#		  "0x61-0x0" = 'a'				   {
+#			  Action = 11;
+#			  Text = 0x01;
+#		  };
+#		  "0x61-0x100000" = 'cmd a'					{
+#			  Action = 11;
+#			  Text = "0x8 0x1";
+#		  };
+#		  "0x61-0x40000" = 'ctrl a'				   {
+#			  Action = 11;
+#			  Text = "0x04 0x01";
+#		  };
+#		  "0x61-0x80000" = 'opt a'		   {
+#			  Action = 11;
+#			  Text = "0x2 0x1";
+#		  };
+#		  "0x62-0x0" = 'b'			   {
+#			  Action = 11;
+#			  Text = 0x2;
+#		  };
+#	  };
+
+      "Keyboard Map" =             {
+                "0x1b-0x0" =                 {
+                    Action = 12;
+                    Text = escape;
+                };
+                "0x41-0x20000" =                 {
+                    Action = 11;
+                    Text = "0x1 0x1";
+                };
+                "0x41-0xa0000" =                 {
+                    Action = 11;
+                    Text = "0x3 0x1";
+                };
+                "0x61-0x0" =                 {
+                    Action = 11;
+                    Text = 0x01;
+                };
+                "0x61-0x100000" =                 {
+                    Action = 11;
+                    Text = "0x8 0x1";
+                };
+                "0x61-0x40000" =                 {
+                    Action = 11;
+                    Text = "0x04 0x01";
+                };
+                "0x61-0x80000" =                 {
+                    Action = 11;
+
+                    Text = "0x2 0x1";
+                };
+                "0x62-0x0" =                 {
+                    Action = 11;
+                    Text = 0x2;
+                };
+                "0x7f-0x0" =                 {
+                    Action = 12;
+                    Text = backspace;
+                };
+                "0x9-0x0" =                 {
+                    Action = 12;
+                    Text = tab;
+                };
+                "0xf700-0x200000" =                 {
+                    Action = 12;
+                    Text = uparrow;
+                };
+                "0xf701-0x200000" =                 {
+                    Action = 12;
+                    Text = downarrow;
+                };
+                "0xf702-0x200000" =                 {
+                    Action = 12;
+                    Text = leftarrow;
+                };
+                "0xf703-0x200000" =                 {
+                    Action = 12;
+                    Text = rightarrow;
+                };
+                "0xf704-0x0" =                 {
+                    Action = 12;
+                    Text = f1;
+                };
+                "0xf705-0x0" =                 {
+                    Action = 12;
+                    Text = f2;
+                };
+                "0xf706-0x0" =                 {
+                    Action = 12;
+                    Text = f3;
+                };
+                "0xf707-0x0" =                 {
+                    Action = 12;
+                    Text = f4;
+                };
+                "0xf708-0x0" =                 {
+                    Action = 12;
+                    Text = f5;
+                };
+                "0xf709-0x0" =                 {
+                    Action = 12;
+                    Text = f6;
+                };
+                "0xf72c-0x0" =                 {
+                    Action = 12;
+                    Text = pgup;
+                };
+                "0xf72d-0x0" =                 {
+                    Action = 12;
+                    Text = pgdown;
+                };
+            };
