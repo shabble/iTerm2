@@ -18,16 +18,21 @@ my $presets_data;
 sub CSI () { "\e[" }
 
 sub SHIFT () { 1 }
-sub ALT   () { 2 }
+sub META  () { 2 }
 sub CTRL  () { 4 }
 
+# Modifiers:
+# 
+# Shift  : 0x020000 (Also affects the actual char)
+# Ctrl   : 0x040000
+# Option : 0x080000
+# Cmd    : 0x100000
 
-sub read_plist {
-    my $xml_reader = Data::Plist::XMLReader->new;
-    my $data_plist = $xml_reader->open_file($presets_plist);
-    
-    $presets_data = $data_plist->raw_data;
-}
+sub I_SHIFT () { 0x020000 }
+sub I_CTRL  () { 0x040000 }
+sub I_OPT   () { 0x080000 }
+sub I_CMD   () { 0x100000 }
+
 
 sub modifier_value {
     my (@modifiers) = @_;
@@ -53,8 +58,93 @@ sub generate_specials {
 sub save_to_plist {
 }
 
-read_plist();
-say Dumper($presets_data);
+sub contains_shift {
+    my ($mod) = @_;
+    return ($mod & SHIFT) ? 1 : 0;
+}
+
+sub contains_alt {
+    my ($mod) = @_;
+    return ($mod & META) ? 1 : 0;
+}
+
+sub contains_ctrl {
+    my ($mod) = @_;
+    return ($mod & CTRL) ? 1 : 0;
+}
+
+sub generate {
+
+    my @modifiers
+      = (
+         SHIFT,
+         META,
+         CTRL,
+
+         SHIFT | META,
+         SHIFT | CTRL,
+         SHIFT | META | CTRL,
+
+         META  | CTRL
+
+        );
+
+    foreach my $modifier (@modifiers) {
+        foreach my $char ('a' .. 'z') {
+
+            if (contains_shift($modifier)) {
+                $char = uc($char);
+            }
+
+            my $keycode = ord($char);
+
+
+            my $iterm_charcode;
+            my $iterm_modifier;
+
+            if (contains_shift($modifier)) {
+                $iterm_modifier |= I_SHIFT;
+            }
+
+            if (contains_meta($modifier)) {
+                $iterm_modifier |= I_OPT;
+            }
+
+            if (contains_ctrl($modifier)) {
+                $iterm_modifier |= I_CTRL;
+            }
+
+            $iterm_modifier = sprintf("0x%06x", $iterm_modifier);
+            $iterm_charcode = sprintf("0x%02x", $keycode);
+
+            my $iterm_id = "$iterm_charcode-$iterm_modifier";
+
+            my $fixterm_modifier = $modifier + 1;
+
+            # iTerm action 10 provides the \e escape for the CSI.
+            my $fixterm_csi = '[' . $keycode;
+
+            if ($fixterm_modifier != 1) {
+                $fixterm_csi .= ";$fixterm_modifier";
+            }
+
+            $fixterm_csi .= 'u';
+
+            my $output;
+            $output .= "<key>$iterm_id</key>\n";
+            $output .= "<dict>\n";
+            $output .= "    <key>Action</key>";
+            $output .= "    <integer>10</integer>";
+            $output .= "    <key>Text</key>";
+            $output .= "    <string>$fixterm_csi</string>";
+            $output .= "</dict>\n";
+
+            print $output;
+        }
+    }
+}
+
+generate();
 
 __END__
 
