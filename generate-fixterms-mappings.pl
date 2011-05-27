@@ -4,16 +4,46 @@ use strict;
 use warnings;
 
 use Data::Plist;
+use Data::Plist::XMLReader;
+use Data::Dumper;
+use feature qw/say/;
 
 my $presets_plist = "PresetKeyMappings.plist";
-
+my $presets_data;
 # generate some xml keybindings for iterm2 according to the 'fixterms'
 # specification at http://www.leonerd.org.uk/hacks/fixterms/
 
+# some handy constants.
+
+sub CSI () { "\e[" }
+
+sub SHIFT () { 1 }
+sub ALT   () { 2 }
+sub CTRL  () { 4 }
+
+
+sub read_plist {
+    my $xml_reader = Data::Plist::XMLReader->new;
+    my $data_plist = $xml_reader->open_file($presets_plist);
+    
+    $presets_data = $data_plist->raw_data;
+}
+
+sub modifier_value {
+    my (@modifiers) = @_;
+    my $result = 1;
+    $result += $_ for @modifiers;
+    return $result == 1 ? '' : $result;
+}
+
 sub generate_CSI_u {
+    my ($keycode, $modifiers) = @_;
+    return sprintf('%s%d;%s%s', CSI, $keycode, $modifiers, 'u');
 }
 
 sub generate_CSI_tilde {
+    my ($keycode, $modifiers) = @_;
+    return sprintf('%s%d;%s%s', CSI, $keycode, $modifiers, '~');
 }
 
 sub generate_specials {
@@ -22,6 +52,9 @@ sub generate_specials {
 
 sub save_to_plist {
 }
+
+read_plist();
+say Dumper($presets_data);
 
 __END__
 
