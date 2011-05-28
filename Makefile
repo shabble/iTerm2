@@ -10,7 +10,7 @@ PRESETS_FILE = PresetKeyMappings.plist
 NEW_PRESETS_FILE = PresetKeyMappings.plist.tmp
 PERL = /opt/local/bin/perl
 
-.PHONY: clean all backup-old-iterm restart install-presets generate-fixterm-presets
+.PHONY: clean all backup-old-iterm restart presets-install generate-fixterm-presets
 
 all: Deployment
 
@@ -21,9 +21,9 @@ install: | Deployment backup-old-iterm
 	cp -r build/Deployment/iTerm.app $(APPS)
 
 generate-fixterm-presets:
-	$(PERL) generate-fixterm-mappings.pl
+	$(PERL) generate-fixterms-mappings.pl
 
-install-presets: generate-fixterm-mappings
+presets-install: generate-fixterm-presets
 	cp "${ITERM_PRESETS_DIR}/${PRESETS_FILE}" \
 	 "${ITERM_PRESETS_DIR}/${PRESETS_FILE}.bak"
 	cp "${NEW_PRESETS_FILE}" "${ITERM_PRESETS_DIR}/${PRESETS_FILE}"

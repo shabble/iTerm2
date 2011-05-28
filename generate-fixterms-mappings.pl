@@ -62,9 +62,9 @@ sub I_CMD   () { 0x100000 }
 sub main {
     my @entries;
     push @entries, @{ generate_lower_case_entries() };
-    # push @entries, @{ generate_upper_case_entries() };
-    # push @entries, @{ generate_specials() };
-    # push @entries, @{ generate_extra_specials() };
+    push @entries, @{ generate_upper_case_entries() };
+    push @entries, @{ generate_specials() };
+    push @entries, @{ generate_very_specials() };
 
     save_to_plist(\@entries);
 }
@@ -75,8 +75,8 @@ sub generate_lower_case_entries {
     my @output;
 
     my @mods = (
-                 META,
-                 META +  CTRL,
+                META,
+                META + CTRL,
                );
 
     for my $modifiers (@mods) {
@@ -87,8 +87,7 @@ sub generate_lower_case_entries {
             my $csi_u = construct_fixterm_csi_u($keycode, $modifiers);
             push @output, [$i_key, $csi_u];
 
-            #($keycode, $modifiers, $i_key, $csi_u) = @_;
-            say 'creating: ' . to_string($keycode, $modifiers, $i_key, $csi_u);
+            say 'LC: creating: ' . to_string($keycode, $modifiers, $i_key, $csi_u);
         }
     }
 
@@ -99,35 +98,78 @@ sub generate_lower_case_entries {
 sub generate_upper_case_entries {
 
     my @output;
-    for my $char ('A'..'Z') {
-        my $keycode = ord($char);
 
+    my @mods = (
+                SHIFT + CTRL,
+                SHIFT + META,
+                SHIFT + META + CTRL,
+               );
 
-        push @output, [$keycode, $char];
+    for my $modifiers (@mods) {
+
+        for my $char ('A'..'Z') {
+            my $keycode = ord($char);
+
+            my $i_key = construct_iterm_key($keycode, $modifiers);
+
+            my $remove_shift = $modifiers & ~SHIFT;
+            my $csi_u = construct_fixterm_csi_u($keycode, $remove_shift);
+
+            push @output, [$i_key, $csi_u];
+
+            say 'UC: creating: ' . to_string($keycode, $modifiers, $i_key, $csi_u);
+
+        }
+    }
+    return \@output;
+}
+
+sub generate_specials {
+    #Ctrl-H = CSI 104;5 u	Ctrl-Shift-H = CSI  72;5 u	Backspace = 0x08
+    #Ctrl-I = CSI 105;5 u	Ctrl-Shift-I = CSI  73;5 u	Tab       = 0x09
+    #Ctrl-M = CSI 109;5 u	Ctrl-Shift-M = CSI  77;5 u	Enter     = 0x0d
+    #Ctrl-[ = CSI  91;5 u	Ctrl-{       = CSI 123;5 u	Escape    = 0x1b
+    my @output;
+
+    my @chars = ( '{', '}', '[', ']', "\\", '/', (0 .. 9) );
+
+    my @mods = (
+                META,
+                CTRL,
+                META + CTRL,
+               );
+
+    for my $modifiers (@mods) {
+        for my $char (@chars) {
+            my $keycode = ord($char);
+
+            my $i_key = construct_iterm_key($keycode, $modifiers);
+            my $csi_u = construct_fixterm_csi_u($keycode, $modifiers);
+            push @output, [$i_key, $csi_u];
+
+            say 'GS: creating: ' . to_string($keycode, $modifiers, $i_key, $csi_u);
+        }
     }
 
     return \@output;
 }
 
-sub generate_specials {
+sub generate_very_specials {
 
-    return [];
-}
-
-sub generate_extra_specials {
+    my @output;
 
     my $specials_iterm
       = {
-         Up    => 0xf700, # arrows need I_ARROW added to their
-         Down  => 0xf701, # modifiers in the <key> field.
-         Left  => 0xf702, # eg: '0xf702-0x200000'
+         Up    => 0xf700,       # arrows need I_ARROW added to their
+         Down  => 0xf701,       # modifiers in the <key> field.
+         Left  => 0xf702,       # eg: '0xf702-0x200000'
          Right => 0xf703,
          End   => 0xf72b,
          Home  => 0xf729,
          F1    => 0xf704,
          F2    => 0xf705,
          F3    => 0xf706,
-         F4    => 0xf707, # F-keys appear to keep incrementing, F6 = f709...
+         F4    => 0xf707,     # F-keys appear to keep incrementing, F6 = f709...
          PgUp  => 0xf72c,
          PgDn  => 0xf72d,
         };
@@ -146,17 +188,43 @@ sub generate_extra_specials {
          F4    => 'S',
         };
 
-
+    my @mods = (
+                SHIFT,
+                META,
+                CTRL,
+                SHIFT + META,
+                SHIFT + CTRL,
+                SHIFT + CTRL + META,
+                CTRL  + META
+               );
     # format for these specials is: CSI 1;[modifier] {ABCDFHPQRS}
     # where 1;1 is redundant. All others apply.
-    return [];
+
+    foreach my $modifiers (@mods) {
+        foreach my $key (sort keys %$specials_fixterm) {
+            my $fix_val = $specials_fixterm->{$key};
+            my $i_val   = $specials_iterm->{$key};
+
+            my $i_key = construct_iterm_key($i_val, $modifiers);
+
+            #my $remove_shift = $modifiers & ~SHIFT;
+            my $fix_seq  = construct_csi_very_special($fix_val, $modifiers);
+
+            push @output, [$i_key, $fix_seq];
+
+            say 'VS: creating: ' . to_string(ord($fix_val),
+                                             $modifiers, $i_key, $fix_seq);
+        }
+    }
+
+    return \@output;
 }
 
 sub save_to_plist {
     my ($entries) = @_;
 
     #say Dumper($entries);
-    return;
+    #return;
 
     open my $in_fh, '<', $presets_plist
       or die "Couldn't open $presets_plist for reading: $!";
@@ -180,22 +248,33 @@ sub save_to_plist {
 }
 
 sub is_arrow {
-    return 0;
+    my ($key) = @_;
+    if (($key >= 0xf700) and ($key <= 0xf703)) {
+        return 1;
+    } else {
+        return 0;
+    }
 }
 
 sub contains_shift {
     my ($mod) = @_;
-    return ($mod & SHIFT) ? 1 : 0;
+    return ($mod & SHIFT)
+      ? 1
+      : 0;
 }
 
 sub contains_meta {
     my ($mod) = @_;
-    return ($mod & META) ? 1 : 0;
+    return ($mod & META)
+      ? 1
+      : 0;
 }
 
 sub contains_ctrl {
     my ($mod) = @_;
-    return ($mod & CTRL) ? 1 : 0;
+    return ($mod & CTRL)
+      ? 1
+      : 0;
 }
 
 sub modifiers_to_string {
@@ -226,6 +305,19 @@ sub construct_iterm_key {
 
 sub construct_fixterm_csi_u {
     my ($keycode, $modifiers) = @_;
+    return construct_fixterm_csi($keycode, $modifiers, 'u');
+}
+
+sub construct_csi_very_special {
+    my ($keystr, $modifiers) = @_;
+    my $mod_value = fixterm_modvalue($modifiers);
+    $mod_value = '1' . $mod_value if $mod_value;
+
+    return '[' . $mod_value . $keystr;
+}
+
+sub fixterm_modvalue {
+    my ($modifiers) = @_;
 
     my $mod_value = 1;
 
@@ -240,12 +332,21 @@ sub construct_fixterm_csi_u {
         $mod_value = '';
     }
 
-    return sprintf('[%s%su', $keycode, $mod_value);
+    return $mod_value;
+}
+
+sub construct_fixterm_csi {
+    my ($keycode, $modifiers, $term_char) = @_;
+
+    $term_char //= '';
+    my $mod_value = fixterm_modvalue($modifiers);
+
+    return '[' . $keycode . $mod_value . $term_char;
 }
 
 sub to_string {
     my ($keycode, $modifiers, $i_key, $csi_u) = @_;
-    return sprintf('key: %s keycode: %-3d %-15s %-10s %-10s',
+    return sprintf('key: %s keycode: %-3d %-25s %-16s %-10s',
                    chr($keycode), $keycode,
                    modifiers_to_string($modifiers),
                    $i_key, $csi_u);
@@ -440,137 +541,137 @@ __END__
 #		  };
 #	  };
 
-      "Keyboard Map" =             {
-                "0x1b-0x0" =                 {
-                    Action = 12;
-                    Text = escape;
-                };
-                "0x41-0x20000" =                 {
-                    Action = 11;
-                    Text = "0x1 0x1";
-                };
-                "0x41-0xa0000" =                 {
-                    Action = 11;
-                    Text = "0x3 0x1";
-                };
-                "0x61-0x0" =                 {
-                    Action = 11;
-                    Text = 0x01;
-                };
-                "0x61-0x100000" =                 {
-                    Action = 11;
-                    Text = "0x8 0x1";
-                };
-                "0x61-0x40000" =                 {
-                    Action = 11;
-                    Text = "0x04 0x01";
-                };
-                "0x61-0x80000" =                 {
-                    Action = 11;
+"Keyboard Map" =             {
+                              "0x1b-0x0" =                 {
+                                                            Action = 12;
+                                                            Text = escape;
+                                                           };
+                              "0x41-0x20000" =                 {
+                                                                Action = 11;
+                                                                Text = "0x1 0x1";
+                                                               };
+                              "0x41-0xa0000" =                 {
+                                                                Action = 11;
+                                                                Text = "0x3 0x1";
+                                                               };
+                              "0x61-0x0" =                 {
+                                                            Action = 11;
+                                                            Text = 0x01;
+                                                           };
+                              "0x61-0x100000" =                 {
+                                                                 Action = 11;
+                                                                 Text = "0x8 0x1";
+                                                                };
+                              "0x61-0x40000" =                 {
+                                                                Action = 11;
+                                                                Text = "0x04 0x01";
+                                                               };
+                              "0x61-0x80000" =                 {
+                                                                Action = 11;
 
-                    Text = "0x2 0x1";
-                };
-                "0x62-0x0" =                 {
-                    Action = 11;
-                    Text = 0x2;
-                };
-                "0x7f-0x0" =                 {
-                    Action = 12;
-                    Text = backspace;
-                };
-                "0x9-0x0" =                 {
-                    Action = 12;
-                    Text = tab;
-                };
-                "0xf700-0x200000" =                 {
-                    Action = 12;
-                    Text = uparrow;
-                };
-                "0xf701-0x200000" =                 {
-                    Action = 12;
-                    Text = downarrow;
-                };
-                "0xf702-0x200000" =                 {
-                    Action = 12;
-                    Text = leftarrow;
-                };
-                "0xf703-0x200000" =                 {
-                    Action = 12;
-                    Text = rightarrow;
-                };
-                "0xf704-0x0" =                 {
-                    Action = 12;
-                    Text = f1;
-                };
-                "0xf705-0x0" =                 {
-                    Action = 12;
-                    Text = f2;
-                };
-                "0xf706-0x0" =                 {
-                    Action = 12;
-                    Text = f3;
-                };
-                "0xf707-0x0" =                 {
-                    Action = 12;
-                    Text = f4;
-                };
-                "0xf708-0x0" =                 {
-                    Action = 12;
-                    Text = f5;
-                };
-                "0xf709-0x0" =                 {
-                    Action = 12;
-                    Text = f6;
-                };
-                "0xf72c-0x0" =                 {
-                    Action = 12;
-                    Text = pgup;
-                };
-                "0xf72d-0x0" =                 {
-                    Action = 12;
-                    Text = pgdown;
-                };
-            };
+                                                                Text = "0x2 0x1";
+                                                               };
+                              "0x62-0x0" =                 {
+                                                            Action = 11;
+                                                            Text = 0x2;
+                                                           };
+                              "0x7f-0x0" =                 {
+                                                            Action = 12;
+                                                            Text = backspace;
+                                                           };
+                              "0x9-0x0" =                 {
+                                                           Action = 12;
+                                                           Text = tab;
+                                                          };
+                              "0xf700-0x200000" =                 {
+                                                                   Action = 12;
+                                                                   Text = uparrow;
+                                                                  };
+                              "0xf701-0x200000" =                 {
+                                                                   Action = 12;
+                                                                   Text = downarrow;
+                                                                  };
+                              "0xf702-0x200000" =                 {
+                                                                   Action = 12;
+                                                                   Text = leftarrow;
+                                                                  };
+                              "0xf703-0x200000" =                 {
+                                                                   Action = 12;
+                                                                   Text = rightarrow;
+                                                                  };
+                              "0xf704-0x0" =                 {
+                                                              Action = 12;
+                                                              Text = f1;
+                                                             };
+                              "0xf705-0x0" =                 {
+                                                              Action = 12;
+                                                              Text = f2;
+                                                             };
+                              "0xf706-0x0" =                 {
+                                                              Action = 12;
+                                                              Text = f3;
+                                                             };
+                              "0xf707-0x0" =                 {
+                                                              Action = 12;
+                                                              Text = f4;
+                                                             };
+                              "0xf708-0x0" =                 {
+                                                              Action = 12;
+                                                              Text = f5;
+                                                             };
+                              "0xf709-0x0" =                 {
+                                                              Action = 12;
+                                                              Text = f6;
+                                                             };
+                              "0xf72c-0x0" =                 {
+                                                              Action = 12;
+                                                              Text = pgup;
+                                                             };
+                              "0xf72d-0x0" =                 {
+                                                              Action = 12;
+                                                              Text = pgdown;
+                                                             };
+                             };
 
 
 
 
 
 "0x1b-0x0" =                 {
-    Action = 12;
-    Text = escape;
-};
+                              Action = 12;
+                              Text = escape;
+                             };
 "0x41-0x20000" =                 {
-    Action = 12;
-    Text = "shift a";
-};
+                                  Action = 12;
+                                  Text = "shift a";
+                                 };
 "0x41-0x60000" =                 {
-    Action = 12;
-    Text = "ctrl-shift-a";
-};
+                                  Action = 12;
+                                  Text = "ctrl-shift-a";
+                                 };
 "0x41-0xa0000" =                 {
-    Action = 12;
-    Text = "meta-shift-a";
-};
+                                  Action = 12;
+                                  Text = "meta-shift-a";
+                                 };
 "0x41-0xe0000" =                 {
-    Action = 12;
-    Text = "ctrl-meta-shift-a";
-};
+                                  Action = 12;
+                                  Text = "ctrl-meta-shift-a";
+                                 };
 "0x61-0x0" =                 {
-    Action = 12;
-    Text = a;
-};
+                              Action = 12;
+                              Text = a;
+                             };
 "0x61-0xc0000" =                 {
-    Action = 12;
-    Text = "ctrl-meta-a";
-};
+                                  Action = 12;
+                                  Text = "ctrl-meta-a";
+                                 };
 "0x7f-0x0" =                 {
-    Action = 12;
-    Text = backspace;
-};
+                              Action = 12;
+                              Text = backspace;
+                             };
 "0x9-0x0" =                 {
-    Action = 12;
-    Text = tab;
-};
+                             Action = 12;
+                             Text = tab;
+                            };
 "0xf700-0x200000" =                 {
-    Action = 12;
+                                     Action = 12;
