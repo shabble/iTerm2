@@ -12,11 +12,14 @@ use warnings;
 use Data::Dumper;
 use feature qw/say/;
 use Getopt::Long;
+use File::Spec;
+use File::Copy;
 
 my $presets_plist     = "PresetKeyMappings.plist";
 my $presets_plist_tmp = "PresetKeyMappings.plist.tmp";
 
-
+my $install_target = File::Spec->catfile('/', 'Applications', 'iTerm.app',
+                                         'Contents', 'Resources', $presets_plist);
 
 # some handy constants.
 
@@ -61,17 +64,20 @@ sub I_CMD   () { 0x100000 }
 
 
 sub main {
+    my $install = 0;
     my ($ctrl_i, $ctrl_h, $ctrl_m, $ctrl_j);
 
     # preload from env hash slice.
     ($ctrl_i, $ctrl_h, $ctrl_m, $ctrl_j) = @ENV{qw/USE_CTRL_I USE_CTRL_H
                                                    USE_CTRL_M USE_CTRL_J/};
 
-    my @options = ('ctrl-i!' => \$ctrl_i, 'ctrl-h!' => \$ctrl_h,
-                   'ctrl-m!' => \$ctrl_m, 'ctrl-j!' => \$ctrl_j);
+    my @options = (
+                   'ctrl-i!'  => \$ctrl_i, 'ctrl-h!' => \$ctrl_h,
+                   'ctrl-m!'  => \$ctrl_m, 'ctrl-j!' => \$ctrl_j,
+                   'install!' => \$install
+                  );
 
     GetOptions(@options);
-
 
 
     my @which;
@@ -93,6 +99,12 @@ sub main {
 
 
     save_to_plist(\@entries);
+
+    if ($install) {
+        copy($presets_plist_tmp, $install_target)
+          or die "Failed to copy to install dir: $install_target: $!";
+        say "Installed into '$install_target'";
+    }
 }
 
 
