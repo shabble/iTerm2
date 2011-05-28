@@ -11,10 +11,11 @@ use warnings;
 
 use Data::Dumper;
 use feature qw/say/;
-
+use Getopt::Long;
 
 my $presets_plist     = "PresetKeyMappings.plist";
 my $presets_plist_tmp = "PresetKeyMappings.plist.tmp";
+
 
 
 # some handy constants.
@@ -60,11 +61,36 @@ sub I_CMD   () { 0x100000 }
 
 
 sub main {
+    my ($ctrl_i, $ctrl_h, $ctrl_m, $ctrl_j);
+
+    # preload from env hash slice.
+    ($ctrl_i, $ctrl_h, $ctrl_m, $ctrl_j) = @ENV{qw/USE_CTRL_I USE_CTRL_H
+                                                   USE_CTRL_M USE_CTRL_J/};
+
+    my @options = ('ctrl-i!' => \$ctrl_i, 'ctrl-h!' => \$ctrl_h,
+                   'ctrl-m!' => \$ctrl_m, 'ctrl-j!' => \$ctrl_j);
+
+    GetOptions(@options);
+
+
+
+    my @which;
+
+    push @which, 'i' if $ctrl_i;
+    push @which, 'h' if $ctrl_h;
+    push @which, 'm' if $ctrl_m;
+    push @which, 'j' if $ctrl_j;
+
+
     my @entries;
+    push @entries, @{ generate_numbers() };
     push @entries, @{ generate_lower_case_entries() };
     push @entries, @{ generate_upper_case_entries() };
-    push @entries, @{ generate_specials() };
+    push @entries, @{ generate_symbols() };
+    push @entries, @{ generate_shifted_symbols() };
     push @entries, @{ generate_very_specials() };
+    push @entries, @{ generate_ctrl_contested(@which) };
+
 
     save_to_plist(\@entries);
 }
@@ -94,6 +120,54 @@ sub generate_lower_case_entries {
     return \@output;
 }
 
+sub generate_ctrl_contested {
+    my (@contested) = @_;
+
+    my @output;
+
+    my @mods = (
+                CTRL
+               );
+
+    for my $modifiers (@mods) {
+        for my $char (@contested) {
+            my $keycode = ord($char);
+
+            my $i_key = construct_iterm_key($keycode, $modifiers);
+            my $csi_u = construct_fixterm_csi_u($keycode, $modifiers);
+            push @output, [$i_key, $csi_u];
+
+            say '!!: creating: ' . to_string($keycode, $modifiers, $i_key, $csi_u);
+        }
+    }
+
+    return \@output;
+}
+
+sub generate_numbers {
+    my @output;
+
+    my @mods = (
+                CTRL,
+                META,
+                META + CTRL,
+               );
+
+    for my $modifiers (@mods) {
+        for my $char (0..9) {
+            my $keycode = ord($char);
+
+            my $i_key = construct_iterm_key($keycode, $modifiers);
+            my $csi_u = construct_fixterm_csi_u($keycode, $modifiers);
+            push @output, [$i_key, $csi_u];
+
+            say '09: creating: ' . to_string($keycode, $modifiers, $i_key, $csi_u);
+        }
+    }
+
+    return \@output;
+}
+
 
 sub generate_upper_case_entries {
 
@@ -104,6 +178,8 @@ sub generate_upper_case_entries {
                 SHIFT + META,
                 SHIFT + META + CTRL,
                );
+
+
 
     for my $modifiers (@mods) {
 
@@ -124,19 +200,22 @@ sub generate_upper_case_entries {
     return \@output;
 }
 
-sub generate_specials {
+sub generate_symbols {
     #Ctrl-H = CSI 104;5 u	Ctrl-Shift-H = CSI  72;5 u	Backspace = 0x08
     #Ctrl-I = CSI 105;5 u	Ctrl-Shift-I = CSI  73;5 u	Tab       = 0x09
     #Ctrl-M = CSI 109;5 u	Ctrl-Shift-M = CSI  77;5 u	Enter     = 0x0d
     #Ctrl-[ = CSI  91;5 u	Ctrl-{       = CSI 123;5 u	Escape    = 0x1b
     my @output;
 
-    my @chars = ( '{', '}', '[', ']', "\\", '/', (0 .. 9) );
+    my @chars   = (
+                   '[', ']', "\\", '/', "'",
+                   '=', '-', ';', ',', '.', '`',
+                  );
 
     my @mods = (
-                META,
                 CTRL,
-                META + CTRL,
+                META,
+                CTRL + META,
                );
 
     for my $modifiers (@mods) {
@@ -147,7 +226,36 @@ sub generate_specials {
             my $csi_u = construct_fixterm_csi_u($keycode, $modifiers);
             push @output, [$i_key, $csi_u];
 
-            say 'GS: creating: ' . to_string($keycode, $modifiers, $i_key, $csi_u);
+            say '[]: creating: ' . to_string($keycode, $modifiers, $i_key, $csi_u);
+        }
+    }
+
+    return \@output;
+}
+
+sub generate_shifted_symbols {
+    my @output;
+    my @shifted = (
+                   '{', '}', '?', '<', '>', '+', '~', '#', ':',
+                   '|', '"', '_', '!'
+                  );
+    my @mods = (
+                SHIFT + CTRL,
+                SHIFT + CTRL + META,
+                SHIFT + META,
+                CTRL,
+                META + CTRL,
+               );
+
+    for my $modifiers (@mods) {
+        for my $char (@shifted) {
+            my $keycode = ord($char);
+
+            my $i_key = construct_iterm_key($keycode, $modifiers);
+            my $csi_u = construct_fixterm_csi_u($keycode, $modifiers);
+            push @output, [$i_key, $csi_u];
+
+            say '<>: creating: ' . to_string($keycode, $modifiers, $i_key, $csi_u);
         }
     }
 
