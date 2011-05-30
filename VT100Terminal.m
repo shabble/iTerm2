@@ -45,7 +45,7 @@
 
 @implementation VT100Terminal
 
-#define iscontrol(c)  ((c) <= 0x1f)
+#define iscontrol(c)  (((c) <= 0x1f) || (((c) == 0x9b) || ((c) == 0x9d)))
 
 /*
  Traditional Chinese (Big5)
@@ -57,23 +57,31 @@
  2nd   0x40-0x7e || 0x80-0xfe
  */
 #define iseuccn(c)   ((c) >= 0x81 && (c) <= 0xfe)
+
 #define isbig5(c)    ((c) >= 0xa1 && (c) <= 0xfe)
+
 #define issjiskanji(c)  (((c) >= 0x81 && (c) <= 0x9f) ||  \
                          ((c) >= 0xe0 && (c) <= 0xef))
+
 #define iseuckr(c)   ((c) >= 0xa1 && (c) <= 0xfe)
 
 #define isGBEncoding(e)     ((e)==0x80000019||(e)==0x80000421|| \
                              (e)==0x80000631||(e)==0x80000632|| \
                              (e)==0x80000930)
+
 #define isBig5Encoding(e)   ((e)==0x80000002||(e)==0x80000423|| \
                              (e)==0x80000931||(e)==0x80000a03|| \
                              (e)==0x80000a06)
+
 #define isJPEncoding(e)     ((e)==0x80000001||(e)==0x8||(e)==0x15)
+
 #define isSJISEncoding(e)   ((e)==0x80000628||(e)==0x80000a01)
+
 #define isKREncoding(e)     ((e)==0x80000422||(e)==0x80000003|| \
                              (e)==0x80000840||(e)==0x80000940)
 #define ESC  0x1b
 #define DEL  0x7f
+#define HIGHBIT_CSI 0x9b
 
 #define CURSOR_SET_DOWN      "\033OB"
 #define CURSOR_SET_UP        "\033OA"
@@ -160,7 +168,10 @@ static VT100TCC decode_string(unsigned char *, size_t, size_t *,
 
 static BOOL isCSI(unsigned char *code, size_t len)
 {
-    if (len >= 2 && code[0] == ESC && (code[1] == '[')) {
+    if (len >= 1 && code[0] == HIGHBIT_CSI) {
+        //NSLog(@"HIGHBIT CSI Spotted.");
+        return YES;
+    } else if (len >= 2 && code[0] == ESC && (code[1] == '[')) {
         return YES;
     }
     return NO;
@@ -229,10 +240,18 @@ static size_t getCSIParam(unsigned char *datap,
     for (i = 0; i < VT100CSIPARAM_MAX; ++i )
         param->p[i] = -1;
 
-    NSCParameterAssert(datap[0] == ESC);
-    NSCParameterAssert(datap[1] == '[');
-    datap += 2;
-    datalen -= 2;
+    NSCParameterAssert(datap[0] == ESC || datap[0] == HIGHBIT_CSI);
+    
+    if (datap[0] != HIGHBIT_CSI) {
+        NSCParameterAssert(datap[1] == '[');
+        datap += 2;
+        datalen -= 2;
+        //NSLog(@"Oridinary CSI");
+    } else {
+        datap += 1;
+        datalen -= 1;
+        //NSLog(@"HIGHBIT CSI");
+    }
 
     if (datalen > 0 && *datap == '?') {
         param->question = YES;
