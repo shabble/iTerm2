@@ -38,17 +38,18 @@ void	UKCrashReporterCheckForCrash()
 {
 	NSAutoreleasePool*	pool = [[NSAutoreleasePool alloc] init];
 	
-	NS_DURING
+	@try {
 		// Try whether the classes we need to talk to the CGI are present:
-		Class			NSMutableURLRequestClass = NSClassFromString( @"NSMutableURLRequest" );
-		Class			NSURLConnectionClass = NSClassFromString( @"NSURLConnection" );
+		Class NSMutableURLRequestClass = NSClassFromString( @"NSMutableURLRequest" );
+		Class NSURLConnectionClass = NSClassFromString( @"NSURLConnection" );
+
 		if( NSMutableURLRequestClass == Nil || NSURLConnectionClass == Nil )
 		{
 			[pool release];
-			NS_VOIDRETURN;
+			return;
 		}
 		
-		long	sysvMajor = 0, sysvMinor = 0, sysvBugfix = 0;
+		SInt32	sysvMajor = 0, sysvMinor = 0, sysvBugfix = 0;
 		UKGetSystemVersionComponents( &sysvMajor, &sysvMinor, &sysvBugfix );
 		BOOL	isTenFiveOrBetter = sysvMajor >= 10 && sysvMinor >= 5;
 		
@@ -89,11 +90,11 @@ void	UKCrashReporterCheckForCrash()
 				[[UKCrashReporter alloc] initWithLogString: currentReport];
 			}
 		}
-	NS_HANDLER
-		NSLog(@"Error during check for crash: %@",localException);
-	NS_ENDHANDLER
-	
-	[pool release];
+    } @catch (NSException *exception) {
+		NSLog(@"Error during check for crash: %@", exception);
+    } @finally {
+        [pool release];
+    }
 }
 
 NSString*	UKCrashReporterFindTenFiveCrashReportPath( NSString* appName, NSString* crashLogsFolder )
@@ -174,14 +175,20 @@ NSString*	gCrashLogString = nil;
 {
 	// Insert the app name into the explanation message:
 	NSString*			appName = [[NSFileManager defaultManager] displayNameAtPath: [[NSBundle mainBundle] bundlePath]];
-	NSMutableString*	expl = nil;
-	if( gCrashLogString )
-		expl = [[[explanationField stringValue] mutableCopy] autorelease];
-	else
-		expl = [[NSLocalizedStringFromTable(@"FEEDBACK_EXPLANATION_TEXT",@"UKCrashReporter",@"") mutableCopy] autorelease];
-	[expl replaceOccurrencesOfString: @"%%APPNAME" withString: appName
-				options: 0 range: NSMakeRange(0, [expl length])];
-	[explanationField setStringValue: expl];
+	NSMutableString*	explanation = nil;
+	if(gCrashLogString) {
+		explanation = [[[explanationField stringValue] mutableCopy] autorelease];
+    }else {
+		explanation = [[NSLocalizedStringFromTable
+                         (@"FEEDBACK_EXPLANATION_TEXT",
+                          @"UKCrashReporter",@"") mutableCopy] autorelease];
+    }
+
+	[explanation replaceOccurrencesOfString: @"%%APPNAME"
+                                 withString: appName
+                                    options: 0
+                                      range: NSMakeRange(0, [explanation length])];
+	[explanationField setStringValue: explanation];
 	
 	// Insert user name and e-mail address into the information field:
 	NSMutableString*	userMessage = nil;
