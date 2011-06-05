@@ -26,26 +26,14 @@
  */
 
 #import <Cocoa/Cocoa.h>
+#import "Prefs/PreferencesModel.h"
 #import "Profiles/BookmarkModel.h"
 #import "Profiles/BookmarkListView.h"
 
-#define OPT_NORMAL 0
-#define OPT_META   1
-#define OPT_ESC    2
 
-// Modifier tags
-#define MOD_TAG_CONTROL 1
-#define MOD_TAG_LEFT_OPTION 2
-#define MOD_TAG_RIGHT_OPTION 3
-#define MOD_TAG_ANY_COMMAND 4
-#define MOD_TAG_OPTION 5  // refers to any option key
-#define MOD_TAG_CMD_OPT 6  // both cmd and opt at the same time
-#define MOD_TAG_LEFT_COMMAND 7
-#define MOD_TAG_RIGHT_COMMAND 8
 
 @class iTermController;
 
-typedef enum { CURSOR_UNDERLINE, CURSOR_VERTICAL, CURSOR_BOX } ITermCursorType;
 
 @interface PreferencePanelController : NSWindowController <BookmarkTableDelegate>
 {
@@ -437,7 +425,7 @@ typedef enum { BulkCopyColors, BulkCopyDisplay, BulkCopyWindow, BulkCopyTerminal
 + (PreferencePanelController *)sessionsInstance;
 + (BOOL)migratePreferences;
 - (id)initWithDataSource:(BookmarkModel*)model userDefaults:(NSUserDefaults*)userDefaults;
-- (void)setOneBokmarkOnly;
+- (void)setOneBookmarkOnly;
 - (void)awakeFromNib;
 - (void)handleWindowWillCloseNotification:(NSNotification *)notification;
 - (void)genericCloseSheet:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;

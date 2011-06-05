@@ -162,7 +162,7 @@ static float versionNumber;
     }
 }
 
-- (void)setOneBokmarkOnly
+- (void)setOneBookmarkOnly
 {
     oneBookmarkOnly = YES;
     [self showBookmarks];
@@ -520,7 +520,7 @@ static float versionNumber;
                                              selector:@selector(handleWindowWillCloseNotification:)
                                                  name:NSWindowWillCloseNotification object: [self window]];
     if (oneBookmarkMode) {
-        [self setOneBokmarkOnly];
+        [self setOneBookmarkOnly];
     }
     [[tags cell] setDelegate:self];
     [tags setDelegate:self];
