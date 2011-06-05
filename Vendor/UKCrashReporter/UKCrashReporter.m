@@ -1,6 +1,8 @@
 //
 //  UKCrashReporter.m
 //  NiftyFeatures
+//  Minor changes (converting to try/catch, renaming expl which shadows a math function
+//  -- Tom Feist, 5/6/2011
 //
 //  Created by Uli Kusterer on Sat Feb 04 2006.
 //  Copyright (c) 2006 M. Uli Kusterer. All rights reserved.

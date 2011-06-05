@@ -1,7 +1,8 @@
 //
 //  UKCrashReporter.h
 //  NiftyFeatures
-//
+//  Minor changes to function declarations to remove warnings 
+//    -- Tom Feist, 5/6/2011
 //  Created by Uli Kusterer on Sat Feb 04 2006.
 //  Copyright (c) 2006 M. Uli Kusterer. All rights reserved.
 //
