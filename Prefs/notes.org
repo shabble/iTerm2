@@ -1,0 +1,77 @@
+* View
+  The view is an NSPanel created by the controller and defined entirely
+  by the .xib (interface builder file)
+
+* Model
+** PreferencesModel
+
+   The model provides a clean interface to preferences, offering
+   accessors like -[PreferenceModel openProfilesWindowOnStartup] that are
+   used throughout the application. No direct access to NSUserDefaults
+   should occur outside the model. It would post notifications when prefs
+   change. Any existing code in PreferencePanel.m that deals strictly
+   with data would go here.
+
+* Controller
+** PreferencePanelController
+
+   This is a subclass of NSWindowController. It's responsible for initializing
+   the view and communicating changes between model & views bidirectionally. A
+   lot of this work could be done with Cocoa Bindings
+   (http://developer.apple.com/library/mac/#documentation/Cocoa/Conceptual/CocoaBindings/CocoaBindings.html).
+   The current PreferencePanel.m is mostly controller code, actually.
+
+* Helpers
+  The controller is really big, so I'd suggest breaking it up into a
+  bunch of helpers. Here's a suggested division of labor, but I'm not
+  married to it:
+  
+** PrefsProfilesHelper
+  - Duplicate profile
+  - Bulk copy
+  - Initialize dict for new profile
+  - Assigning shortcuts and maintaining their uniqueness
+  - Delegate for BookmarksListView
+  - URL handler management
+  - Creating a default profile for the hotkey window.
+  - pushing changes out to objects that care by posting notifications
+  - keeping items in views up to date (e.g., initializing the list ofscreens in
+    the "Screen" popup button or maintaining the "shortcuts" popup button in
+    profiles->general)
+  - updating views when the selected profile changes (e.g., by reordering them in
+    the profiles window)
+  - enabling/disabling items (e.g., when a saved window arrangement comes into
+    being, the option to use it becomes enabled in prefs)
+  - managing color presets (load, import, export, delete, visit gallery)
+
+** PrefsKeyBindingsHelper
+  - Delegate for NSTableView of key bindings (both of them, global and
+    per-profile)
+  - Enable/disable hotkey
+  - managing the  "edit key mapping" sheet, which exists in both a
+    profiles-version and a global version (same UI), including various
+    warnings about global & per-profile settings conflicting. Communicates
+    with iTermKeyBindingMgr about changes to key mappings.
+  - keeping keybindings up to date when another class change them
+(currently, PTYsession can do this in one oddball case)
+
+** PrefsGlobalHelper
+  - Global enabling/disabling of growl
+  - Posting notifications when a setting changes (in settingChanged:)
+  - Providing getters for prefs that aren't per profile
+  - Setting the state of controls to match the defaults when the prefs
+    window is opened (in run)
+  - Saving prefs to NSUserDefaults (in savePreferences)
+  - Assigning default values to prefs and offering accessors for them
+    (done in readPreferences for prefs that aren't per-profile)
+  - Managing the "toolbar" in the prefs window that is used like a
+    tabbar for selecting which pane you're seeing (general, appearance,
+    etc.)
+  - pushing changes out to objects that care by posting notifications
+  - keeping items in views up to date (e.g., initializing the list of
+    screens in the "Screen" popup button or maintaining the "shortcuts"
+    popup button in profiles->general)
+  - migrating older versions of preferences
+  - enabling/disabling items (e.g., when a saved window arrangement
+    comes into being, the option to use it becomes enabled in prefs)
+  - modifying the view for the "one bookmark only" case (the cmd-I menu)

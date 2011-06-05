@@ -242,6 +242,10 @@
 		2CE2758D139B0923005797CA /* iTerm_Framework.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2CE27583139B0923005797CA /* iTerm_Framework.plist */; };
 		2CE275DC139B2469005797CA /* termios in Resources */ = {isa = PBXBuildFile; fileRef = 2CE275D9139B2469005797CA /* termios */; };
 		2CE275DE139B247C005797CA /* xterm-terminfo.txt in Resources */ = {isa = PBXBuildFile; fileRef = 2CE275DD139B247C005797CA /* xterm-terminfo.txt */; };
+		2CE2761C139B296D005797CA /* PreferencesModel.h in Headers */ = {isa = PBXBuildFile; fileRef = 2CE2761B139B296D005797CA /* PreferencesModel.h */; };
+		2CE2761E139B2977005797CA /* PreferencesModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CE2761D139B2977005797CA /* PreferencesModel.m */; };
+		2CE2762C139B2A82005797CA /* PreferencePanelController.h in Headers */ = {isa = PBXBuildFile; fileRef = 2CE2762B139B2A82005797CA /* PreferencePanelController.h */; };
+		2CE2762E139B2A87005797CA /* PreferencePanelController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CE2762D139B2A87005797CA /* PreferencePanelController.m */; };
 		49A6E4091211CC6000D9AD6F /* Compatability.h in Headers */ = {isa = PBXBuildFile; fileRef = 49A6E4081211CC6000D9AD6F /* Compatability.h */; };
 		874206520564169600CFC3F1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0464AB30006CD2EC7F000001 /* Foundation.framework */; };
 		874206530564169600CFC3F1 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0464AB2F006CD2EC7F000001 /* AppKit.framework */; };
@@ -533,6 +537,10 @@
 		2CE27583139B0923005797CA /* iTerm_Framework.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = iTerm_Framework.plist; path = properties/iTerm_Framework.plist; sourceTree = "<group>"; };
 		2CE275D9139B2469005797CA /* termios */ = {isa = PBXFileReference; lastKnownFileType = folder; path = termios; sourceTree = "<group>"; };
 		2CE275DD139B247C005797CA /* xterm-terminfo.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "xterm-terminfo.txt"; path = "termios/xterm-terminfo.txt"; sourceTree = "<group>"; };
+		2CE2761B139B296D005797CA /* PreferencesModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PreferencesModel.h; path = Prefs/PreferencesModel.h; sourceTree = "<group>"; };
+		2CE2761D139B2977005797CA /* PreferencesModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PreferencesModel.m; path = Prefs/PreferencesModel.m; sourceTree = "<group>"; };
+		2CE2762B139B2A82005797CA /* PreferencePanelController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PreferencePanelController.h; path = Prefs/PreferencePanelController.h; sourceTree = "<group>"; };
+		2CE2762D139B2A87005797CA /* PreferencePanelController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PreferencePanelController.m; path = Prefs/PreferencePanelController.m; sourceTree = "<group>"; };
 		49A6E4081211CC6000D9AD6F /* Compatability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Compatability.h; sourceTree = "<group>"; };
 		8742065A0564169600CFC3F1 /* iTerm.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iTerm.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9325FF3D0FB54DF1004EC67C /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/PseudoTerminal.xib; sourceTree = "<group>"; };
@@ -650,6 +658,8 @@
 		0464AB15006CD2EC7F000001 /* Headers */ = {
 			isa = PBXGroup;
 			children = (
+				2CE2762B139B2A82005797CA /* PreferencePanelController.h */,
+				2CE2761B139B296D005797CA /* PreferencesModel.h */,
 				2C7EE2E6139607FB000305E6 /* GTMCarbonEvent.h */,
 				2C7EE32B13960C0C000305E6 /* iTerm.h */,
 				2C7EE2E7139607FB000305E6 /* GTMDebugSelectorValidation.h */,
@@ -851,6 +861,8 @@
 		2C2761F01395DAA100D340AA /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				2CE2762D139B2A87005797CA /* PreferencePanelController.m */,
+				2CE2761D139B2977005797CA /* PreferencesModel.m */,
 				2C7EE2E4139607DF000305E6 /* GTMCarbonEvent.m */,
 				2C7EE32913960BFA000305E6 /* main.m */,
 				2C2761EE1395DA8A00D340AA /* DVR.m */,
@@ -1182,6 +1194,8 @@
 				2C7EE2EE139607FB000305E6 /* GTMObjectSingleton.h in Headers */,
 				2C7EE2EF139607FB000305E6 /* GTMTypeCasting.h in Headers */,
 				2C7EE32C13960C0C000305E6 /* iTerm.h in Headers */,
+				2CE2761C139B296D005797CA /* PreferencesModel.h in Headers */,
+				2CE2762C139B2A82005797CA /* PreferencePanelController.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1471,6 +1485,8 @@
 				2C2761EF1395DA8A00D340AA /* DVR.m in Sources */,
 				2C7EE2E5139607DF000305E6 /* GTMCarbonEvent.m in Sources */,
 				2C7EE32A13960BFA000305E6 /* main.m in Sources */,
+				2CE2761E139B2977005797CA /* PreferencesModel.m in Sources */,
+				2CE2762E139B2A87005797CA /* PreferencePanelController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
