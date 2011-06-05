@@ -30,7 +30,7 @@
 #import "PasteboardHistory.h"
 #import "App/iTermController.h"
 #import "Misc/NSDateFormatterExtras.h"
-#import "Prefs/PreferencePanel.h"
+#import "Prefs/PreferencePanelController.h"
 
 #define kPasteboardHistoryDidChange @"PasteboardHistoryDidChange"
 #define PBHKEY_ENTRIES @"Entries"
@@ -128,7 +128,7 @@
 
 - (void)_writeHistoryToDisk
 {
-    if ([[PreferencePanel sharedInstance] savePasteHistory]) {
+    if ([[PreferencePanelController sharedInstance] savePasteHistory]) {
         [NSKeyedArchiver archiveRootObject:[self _entriesToDict] toFile:path_];
     }
 }

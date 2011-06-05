@@ -31,7 +31,7 @@
 #import "Session/PTYScrollView.h";
 #import "Session/VT100Screen.h"
 #import "Session/VT100Terminal.h"
-#import "Prefs/PreferencePanel.h"
+#import "Prefs/PreferencePanelController.h"
 #import "Window/WindowControllerInterface.h"
 #import "App/iTermController.h"
 #import "Window/PseudoTerminal.h"
@@ -294,7 +294,7 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
     // Allocate a scrollview
     SCROLLVIEW = [[PTYScrollView alloc] initWithFrame: NSMakeRect(0, 0, aRect.size.width, aRect.size.height)];
     [SCROLLVIEW setHasVerticalScroller:(![parent fullScreen] &&
-                                        ![[PreferencePanel sharedInstance] hideScrollbar])];
+                                        ![[PreferencePanelController sharedInstance] hideScrollbar])];
     NSParameterAssert(SCROLLVIEW != nil);
     [SCROLLVIEW setAutoresizingMask: NSViewWidthSizable|NSViewHeightSizable];
 
@@ -349,7 +349,7 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
         [SCROLLVIEW setLineScroll:[TEXTVIEW lineHeight]];
         [SCROLLVIEW setPageScroll:2*[TEXTVIEW lineHeight]];
         [SCROLLVIEW setHasVerticalScroller:(![parent fullScreen] &&
-                                            ![[PreferencePanel sharedInstance] hideScrollbar])];
+                                            ![[PreferencePanelController sharedInstance] hideScrollbar])];
 
         ai_code=0;
         [antiIdleTimer release];
@@ -1514,7 +1514,7 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
           __FILE__, __LINE__);
 #endif
 
-    if ([[PreferencePanel sharedInstance] copySelection]) {
+    if ([[PreferencePanelController sharedInstance] copySelection]) {
         [TEXTVIEW copy: self];
     }
 }
@@ -1615,7 +1615,7 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
     if ([aDict objectForKey:KEY_SMART_CURSOR_COLOR]) {
         scc = [[aDict objectForKey:KEY_SMART_CURSOR_COLOR] boolValue];
     } else {
-        scc = [[PreferencePanel sharedInstance] legacySmartCursorColor];
+        scc = [[PreferencePanelController sharedInstance] legacySmartCursorColor];
     }
     [self setSmartCursorColor:scc];
 
@@ -1623,7 +1623,7 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
     if ([aDict objectForKey:KEY_MINIMUM_CONTRAST]) {
         mc = [[aDict objectForKey:KEY_MINIMUM_CONTRAST] floatValue];
     } else {
-        mc = [[PreferencePanel sharedInstance] legacyMinimumContrast];
+        mc = [[PreferencePanelController sharedInstance] legacyMinimumContrast];
     }
     [self setMinimumContrast:mc];
 
@@ -1678,7 +1678,7 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
     [SCREEN setBlinkingCursor:[[aDict objectForKey: KEY_BLINKING_CURSOR] boolValue]];
     [TEXTVIEW setBlinkAllowed:[[aDict objectForKey:KEY_BLINK_ALLOWED] boolValue]];
     [TEXTVIEW setBlinkingCursor:[[aDict objectForKey: KEY_BLINKING_CURSOR] boolValue]];
-    [TEXTVIEW setCursorType:([aDict objectForKey:KEY_CURSOR_TYPE] ? [[aDict objectForKey:KEY_CURSOR_TYPE] intValue] : [[PreferencePanel sharedInstance] legacyCursorType])];
+    [TEXTVIEW setCursorType:([aDict objectForKey:KEY_CURSOR_TYPE] ? [[aDict objectForKey:KEY_CURSOR_TYPE] intValue] : [[PreferencePanelController sharedInstance] legacyCursorType])];
 
     PTYTab* currentTab = [[[self tab] parentWindow] currentTab];
     if (currentTab == nil || currentTab == [self tab]) {
@@ -1737,7 +1737,7 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
 - (NSString*)formattedName:(NSString*)base
 {
     BOOL baseIsBookmarkName = [base isEqualToString:bookmarkName];
-    PreferencePanel* panel = [PreferencePanel sharedInstance];
+    PreferencePanelController* panel = [PreferencePanelController sharedInstance];
     if ([panel jobName] && jobName_) {
         if (baseIsBookmarkName && ![panel showBookmarkName]) {
             return [NSString stringWithString:[self jobName]];
@@ -2608,8 +2608,8 @@ static long long timeInTenthsOfSeconds(struct timeval t)
     [[BookmarkModel sessionsInstance] setBookmark:[self addressBookEntry] withGuid:guid];
 
     // Update an existing one-bookmark prefs dialog, if open.
-    if ([[[PreferencePanel sessionsInstance] window] isVisible]) {
-        [[PreferencePanel sessionsInstance] underlyingBookmarkDidChange];
+    if ([[[PreferencePanelController sessionsInstance] window] isVisible]) {
+        [[PreferencePanelController sessionsInstance] underlyingBookmarkDidChange];
     }
 }
 

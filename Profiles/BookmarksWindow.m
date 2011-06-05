@@ -25,7 +25,7 @@
 #import "BookmarksWindow.h"
 #import "Profiles/BookmarkModel.h"
 #import "App/iTermController.h"
-#import "Prefs/PreferencePanel.h"
+#import "Prefs/PreferencePanelController.h"
 #import "Window/PseudoTerminal.h"
 #import "Window/PTYTab.h"
 
@@ -196,15 +196,15 @@ typedef enum {
 
 - (IBAction)editBookmarks:(id)sender
 {
-    [[PreferencePanel sharedInstance] run];
-    [[PreferencePanel sharedInstance] showBookmarks];
+    [[PreferencePanelController sharedInstance] run];
+    [[PreferencePanelController sharedInstance] showBookmarks];
 }
 
 - (IBAction)editSelectedBookmark:(id)sender
 {
     NSString* guid = [tableView_ selectedGuid];
     if (guid) {
-        [[PreferencePanel sharedInstance] openToBookmark:guid];
+        [[PreferencePanelController sharedInstance] openToBookmark:guid];
     }
 }
 

@@ -30,7 +30,7 @@
 #import "App/iTermApplicationDelegate.h"
 #import "App/iTermController.h"
 #import "Profiles/ITAddressBookMgr.h"
-#import "Prefs/PreferencePanel.h"
+#import "Prefs/PreferencePanelController.h"
 #import "Window/PseudoTerminal.h"
 #import "Session/PTYSession.h"
 #import "Session/VT100Terminal.h"
@@ -85,9 +85,9 @@ int gDebugLogFile = -1;
         [self buildScriptMenu:nil];
 
         // read preferences
-    [PreferencePanel migratePreferences];
+    [PreferencePanelController migratePreferences];
     [ITAddressBookMgr sharedInstance];
-    [PreferencePanel sharedInstance];
+    [PreferencePanelController sharedInstance];
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
@@ -102,7 +102,7 @@ int gDebugLogFile = -1;
                              CFSTR(""),
                              kCFPreferencesCurrentApplication);
 
-    PreferencePanel* ppanel = [PreferencePanel sharedInstance];
+    PreferencePanelController* ppanel = [PreferencePanelController sharedInstance];
     if ([ppanel hotkey]) {
         [[iTermController sharedInstance] registerHotkey:[ppanel hotkeyCode] modifiers:[ppanel hotkeyModifiers]];
     }
@@ -124,10 +124,10 @@ int gDebugLogFile = -1;
 
     int numTerminals = [terminals count];
     int numNontrivialWindows = numTerminals;
-    BOOL promptOnQuit = quittingBecauseLastWindowClosed_ ? NO : (numNontrivialWindows > 0 && [[PreferencePanel sharedInstance] promptOnQuit]);
+    BOOL promptOnQuit = quittingBecauseLastWindowClosed_ ? NO : (numNontrivialWindows > 0 && [[PreferencePanelController sharedInstance] promptOnQuit]);
     quittingBecauseLastWindowClosed_ = NO;
-    BOOL promptOnClose = [[PreferencePanel sharedInstance] promptOnClose];
-    BOOL onlyWhenMoreTabs = [[PreferencePanel sharedInstance] onlyWhenMoreTabs];
+    BOOL promptOnClose = [[PreferencePanelController sharedInstance] promptOnClose];
+    BOOL onlyWhenMoreTabs = [[PreferencePanelController sharedInstance] onlyWhenMoreTabs];
     int numTabs = 0;
     if (numTerminals > 0) {
         numTabs = [[[[iTermController sharedInstance] currentTerminal] tabView] numberOfTabViewItems];
@@ -153,7 +153,7 @@ int gDebugLogFile = -1;
     [iTermController sharedInstanceRelease];
 
     // save preferences
-    [[PreferencePanel sharedInstance] savePreferences];
+    [[PreferencePanelController sharedInstance] savePreferences];
 
     return YES;
 }
@@ -207,13 +207,13 @@ int gDebugLogFile = -1;
         [autoLaunchScript executeAndReturnError: &errorInfo];
         [autoLaunchScript release];
     } else {
-        if ([[PreferencePanel sharedInstance] openBookmark]) {
+        if ([[PreferencePanelController sharedInstance] openBookmark]) {
             [self showBookmarkWindow:nil];
-            if ([[PreferencePanel sharedInstance] openArrangementAtStartup]) {
+            if ([[PreferencePanelController sharedInstance] openArrangementAtStartup]) {
                 // Open both bookmark window and arrangement!
                 [[iTermController sharedInstance] loadWindowArrangement];
             }
-        } else if ([[PreferencePanel sharedInstance] openArrangementAtStartup]) {
+        } else if ([[PreferencePanelController sharedInstance] openArrangementAtStartup]) {
             [[iTermController sharedInstance] loadWindowArrangement];
         } else {
             [self newWindow:nil];
@@ -230,13 +230,13 @@ int gDebugLogFile = -1;
     if ([[NSDate date] timeIntervalSinceDate:launchTime_] < kMinRunningTime) {
         return NO;
     }
-    quittingBecauseLastWindowClosed_ = [[PreferencePanel sharedInstance] quitWhenAllWindowsClosed];
+    quittingBecauseLastWindowClosed_ = [[PreferencePanelController sharedInstance] quitWhenAllWindowsClosed];
     return quittingBecauseLastWindowClosed_;
 }
 
 - (BOOL)applicationShouldHandleReopen:(NSApplication *)theApplication hasVisibleWindows:(BOOL)flag
 {
-    PreferencePanel* prefPanel = [PreferencePanel sharedInstance];
+    PreferencePanelController* prefPanel = [PreferencePanelController sharedInstance];
     if ([prefPanel hotkey] &&
         [prefPanel hotkeyTogglesWindow]) {
         // The hotkey window is configured.
@@ -326,7 +326,7 @@ int gDebugLogFile = -1;
     NSURL *url = [NSURL URLWithString: urlStr];
     NSString *urlType = [url scheme];
 
-    id bm = [[PreferencePanel sharedInstance] handlerBookmarkForURL:urlType];
+    id bm = [[PreferencePanelController sharedInstance] handlerBookmarkForURL:urlType];
     if (bm) {
         [[iTermController sharedInstance] launchBookmark:bm
                                               inTerminal:[[iTermController sharedInstance] currentTerminal] withURL:urlStr];
@@ -369,7 +369,7 @@ int gDebugLogFile = -1;
 
 - (IBAction)showPrefWindow:(id)sender
 {
-    [[PreferencePanel sharedInstance] run];
+    [[PreferencePanelController sharedInstance] run];
 }
 
 - (IBAction)showBookmarkWindow:(id)sender

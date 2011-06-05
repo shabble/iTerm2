@@ -34,7 +34,7 @@
 #import "iTerm/iTerm.h"
 #import "Session/PTYScrollView.h"
 #import "Session/PTYTextView.h"
-#import "Prefs/PreferencePanel.h"
+#import "Prefs/PreferencePanelController.h"
 
 @implementation PTYScroller
 

@@ -32,7 +32,7 @@
 #import "Window/WindowControllerInterface.h"
 #import "Session/SessionView.h"
 #import "Window/FakeWindow.h"
-#import "Prefs/PreferencePanel.h"
+#import "Prefs/PreferencePanelController.h"
 #import "App/iTermGrowlDelegate.h"
 #import "Session/PTYScrollView.h"
 #import "PSMTabBarControl.h"
@@ -318,7 +318,7 @@ static const BOOL USE_THIN_SPLITTERS = YES;
             [[realParentWindow_ window] makeFirstResponder:[session TEXTVIEW]];
         }
         [[session view] setDimmed:NO];
-        if (oldSession && [[PreferencePanel sharedInstance] dimInactiveSplitPanes]) {
+        if (oldSession && [[PreferencePanelController sharedInstance] dimInactiveSplitPanes]) {
             [[oldSession view] setDimmed:YES];
         }
     }
@@ -460,7 +460,7 @@ static const BOOL USE_THIN_SPLITTERS = YES;
 
 - (int)objectCount
 {
-    return [[PreferencePanel sharedInstance] useCompactLabel] ? 0 : objectCount_;
+    return [[PreferencePanelController sharedInstance] useCompactLabel] ? 0 : objectCount_;
 }
 
 - (void)setObjectCount:(int)value
@@ -1143,7 +1143,7 @@ static NSString* FormatRect(NSRect r) {
     size.width = [session columns] * [[session TEXTVIEW] charWidth] + MARGIN * 2;
     size.height = [session rows] * [[session TEXTVIEW] lineHeight] + VMARGIN * 2;
 
-    BOOL hasScrollbar = ![parentWindow_ fullScreen] && ![[PreferencePanel sharedInstance] hideScrollbar];
+    BOOL hasScrollbar = ![parentWindow_ fullScreen] && ![[PreferencePanelController sharedInstance] hideScrollbar];
     NSSize scrollViewSize = [PTYScrollView frameSizeForContentSize:size
                                              hasHorizontalScroller:NO
                                                hasVerticalScroller:hasScrollbar
@@ -1158,7 +1158,7 @@ static NSString* FormatRect(NSRect r) {
     size.width = MIN_SESSION_COLUMNS * [[session TEXTVIEW] charWidth] + MARGIN * 2;
     size.height = MIN_SESSION_ROWS * [[session TEXTVIEW] lineHeight] + VMARGIN * 2;
 
-    BOOL hasScrollbar = ![parentWindow_ fullScreen] && ![[PreferencePanel sharedInstance] hideScrollbar];
+    BOOL hasScrollbar = ![parentWindow_ fullScreen] && ![[PreferencePanelController sharedInstance] hideScrollbar];
     NSSize scrollViewSize = [PTYScrollView frameSizeForContentSize:size
                                              hasHorizontalScroller:NO
                                                hasVerticalScroller:hasScrollbar
@@ -1445,7 +1445,7 @@ static NSString* FormatRect(NSRect r) {
 
     float yOrigin = 0;
     if (withSpaceForFrame && 
-        [[PreferencePanel sharedInstance] tabViewType] == PSMTab_BottomTab) {
+        [[PreferencePanelController sharedInstance] tabViewType] == PSMTab_BottomTab) {
         yOrigin += tabFrame.size.height;
     }
 
@@ -1455,7 +1455,7 @@ static NSString* FormatRect(NSRect r) {
     [viewImage lockFocus];
     [[NSColor windowBackgroundColor] set];
     if (withSpaceForFrame &&
-        [[PreferencePanel sharedInstance] tabViewType] == PSMTab_TopTab) {
+        [[PreferencePanelController sharedInstance] tabViewType] == PSMTab_TopTab) {
         tabFrame.origin.y += [viewImage size].height;
     }
     if (withSpaceForFrame) {
@@ -1481,7 +1481,7 @@ static NSString* FormatRect(NSRect r) {
 {
     PtyLog(@"PTYTab fitSessionToCurrentViewSzie");
     PtyLog(@"fitSessionToCurrentViewSize begins");
-    BOOL hasScrollbar = ![parentWindow_ fullScreen] && ![[PreferencePanel sharedInstance] hideScrollbar];
+    BOOL hasScrollbar = ![parentWindow_ fullScreen] && ![[PreferencePanelController sharedInstance] hideScrollbar];
     [[aSession SCROLLVIEW] setHasVerticalScroller:hasScrollbar];
     NSSize size = [[aSession SCROLLVIEW] documentVisibleRect].size;
     int width = (size.width - MARGIN*2) / [[aSession TEXTVIEW] charWidth];
@@ -2500,7 +2500,7 @@ static void SetAgainstGrainDim(BOOL isVertical, NSSize* dest, CGFloat value)
 - (void)_setLabelAttributesForActiveBackgroundTab
 {
     if ([self isProcessing] == NO &&
-        ![[PreferencePanel sharedInstance] useCompactLabel]) {
+        ![[PreferencePanelController sharedInstance] useCompactLabel]) {
         [self setIsProcessing:YES];
     }
 
