@@ -46,7 +46,7 @@
 #import "Session/PTYSession.h"
 #import "Session/VT100Screen.h"
 #import "Window/PTYTabView.h"
-#import "Prefs/PreferencePanel.h"
+#import "Prefs/PreferencePanelController.h"
 #import "App/iTermController.h"
 #import "Session/PTYTask.h"
 #import "Session/PTYTextView.h"
@@ -306,7 +306,7 @@ NSString *sessionsKey = @"sessions";
     NSRect aRect = [[[self window] contentView] bounds];
     aRect.size.height = 22;
     tabBarControl = [[PSMTabBarControl alloc] initWithFrame:aRect];
-    PreferencePanel* pp = [PreferencePanel sharedInstance];
+    PreferencePanelController* pp = [PreferencePanelController sharedInstance];
     [tabBarControl setModifier:[pp modifierTagToMask:[pp switchTabModifier]]];
     [tabBarControl setAutoresizingMask:(NSViewWidthSizable | NSViewMinYMargin)];
     if (!_fullScreen) {
@@ -416,7 +416,7 @@ NSString *sessionsKey = @"sessions";
 
 - (void)setTabBarStyle
 {
-    switch ([[PreferencePanel sharedInstance] windowStyle]) {
+    switch ([[PreferencePanelController sharedInstance] windowStyle]) {
         case 0:
             [tabBarControl setStyleNamed:@"Metal"];
             break;
@@ -506,9 +506,9 @@ NSString *sessionsKey = @"sessions";
     }
 
     BOOL mustAsk = NO;
-    if (numClosing > 0 && [[PreferencePanel sharedInstance] promptOnClose]) {
+    if (numClosing > 0 && [[PreferencePanelController sharedInstance] promptOnClose]) {
         if (numClosing == 1) {
-            if (![[PreferencePanel sharedInstance] onlyWhenMoreTabs]) {
+            if (![[PreferencePanelController sharedInstance] onlyWhenMoreTabs]) {
                 mustAsk = YES;
             }
         } else {
@@ -612,8 +612,8 @@ NSString *sessionsKey = @"sessions";
         return;
     }
     if ([aSession exited] ||
-        ![[PreferencePanel sharedInstance] promptOnClose] ||
-        [[PreferencePanel sharedInstance] onlyWhenMoreTabs] ||
+        ![[PreferencePanelController sharedInstance] promptOnClose] ||
+        [[PreferencePanelController sharedInstance] onlyWhenMoreTabs] ||
         (NSRunAlertPanel([NSString stringWithFormat:@"%@ #%d",
                             [aSession name],
                             [[aSession tab] realObjectCount]],
@@ -736,7 +736,7 @@ NSString *sessionsKey = @"sessions";
     }
 
     NSUInteger number = [[iTermController sharedInstance] indexOfTerminal:self];
-    if ([[PreferencePanel sharedInstance] windowNumber] && number >= 0 && number < 9) {
+    if ([[PreferencePanelController sharedInstance] windowNumber] && number >= 0 && number < 9) {
         [[self window] setTitle:[NSString stringWithFormat:@"%d. %@", number_+1, title]];
     } else {
         [[self window] setTitle:title];
@@ -900,8 +900,8 @@ NSString *sessionsKey = @"sessions";
           __FILE__, __LINE__, aNotification);
 #endif
 
-    if ([[PreferencePanel sharedInstance] promptOnClose] &&
-        (![[PreferencePanel sharedInstance] onlyWhenMoreTabs] ||
+    if ([[PreferencePanelController sharedInstance] promptOnClose] &&
+        (![[PreferencePanelController sharedInstance] onlyWhenMoreTabs] ||
          [TABVIEW numberOfTabViewItems] > 1)) {
         return [self showCloseWindow];
     } else {
@@ -939,7 +939,7 @@ NSString *sessionsKey = @"sessions";
         if (![bottomBar isHidden]) {
             [self showHideInstantReplay];
         }
-        if ([[PreferencePanel sharedInstance] smartPlacement]) {
+        if ([[PreferencePanelController sharedInstance] smartPlacement]) {
             [[self window] saveFrameUsingName: [NSString stringWithFormat: WINDOW_NAME, 0]];
         } else {
             // Save frame position for window
@@ -947,7 +947,7 @@ NSString *sessionsKey = @"sessions";
             windowPositions[framePos] = NO;
         }
     } else {
-        if (![[PreferencePanel sharedInstance] smartPlacement]) {
+        if (![[PreferencePanelController sharedInstance] smartPlacement]) {
             // Save frame position for window
             [[self window] saveFrameUsingName: [NSString stringWithFormat: WINDOW_NAME, framePos]];
             windowPositions[framePos] = NO;
@@ -1081,7 +1081,7 @@ NSString *sessionsKey = @"sessions";
         // If a popup is opening, though, we shouldn't close ourselves.
         if (![[NSApp keyWindow] isKindOfClass:[PopupWindow class]] &&
             ![[[NSApp keyWindow] windowController] isKindOfClass:[BookmarksWindow class]] &&
-            ![[[NSApp keyWindow] windowController] isKindOfClass:[PreferencePanel class]]) {
+            ![[[NSApp keyWindow] windowController] isKindOfClass:[PreferencePanelController class]]) {
             PtyLog(@"windowDidResignKey: new key window isn't popup so hide myself");
             if ([[[NSApp keyWindow] windowController] isKindOfClass:[PseudoTerminal class]]) {
                 [[iTermController sharedInstance] doNotOrderOutWhenHidingHotkeyWindow];
@@ -1166,7 +1166,7 @@ NSString *sessionsKey = @"sessions";
     // Snap proposed tab size to grid.  The snapping uses a grid spaced to
     // match the current pane's character size and aligned so margins are
     // correct if all we have is a single pane.
-    BOOL hasScrollbar = !_fullScreen && ![[PreferencePanel sharedInstance] hideScrollbar];
+    BOOL hasScrollbar = !_fullScreen && ![[PreferencePanelController sharedInstance] hideScrollbar];
     NSSize contentSize = [PTYScrollView contentSizeForFrameSize:tabSize
                                         hasHorizontalScroller:NO
                                         hasVerticalScroller:hasScrollbar
@@ -1379,7 +1379,7 @@ NSString *sessionsKey = @"sessions";
             contentSize.height -= [newTerminal->bottomBar frame].size.height;
         }
         if ([newTerminal->TABVIEW numberOfTabViewItems] > 1 ||
-            ![[PreferencePanel sharedInstance] hideTab]) {
+            ![[PreferencePanelController sharedInstance] hideTab]) {
             contentSize.height -= [newTerminal->tabBarControl frame].size.height;
         }
         if ([newTerminal _haveLeftBorder]) {
@@ -1441,7 +1441,7 @@ NSString *sessionsKey = @"sessions";
     proposedFrame.origin.y = defaultFrame.origin.y;
     BOOL verticalOnly = NO;
 
-    if ([[PreferencePanel sharedInstance] maxVertically] ^
+    if ([[PreferencePanelController sharedInstance] maxVertically] ^
         (([[NSApp currentEvent] modifierFlags] & NSShiftKeyMask) != 0)) {
         verticalOnly = YES;
     }
@@ -1474,7 +1474,7 @@ NSString *sessionsKey = @"sessions";
         return;
     }
     if (([[[iTermController sharedInstance] terminals] count] == 1) ||
-        (![[PreferencePanel sharedInstance] smartPlacement])) {
+        (![[PreferencePanelController sharedInstance] smartPlacement])) {
         NSRect frame = [window frame];
         [self setFramePos];
         if ([window setFrameUsingName:[NSString stringWithFormat:WINDOW_NAME, framePos]]) {
@@ -1524,7 +1524,7 @@ NSString *sessionsKey = @"sessions";
         return;
     }
     NSString* newGuid = [session divorceAddressBookEntryFromPreferences];
-    [[PreferencePanel sessionsInstance] openToBookmark:newGuid];
+    [[PreferencePanelController sessionsInstance] openToBookmark:newGuid];
 }
 
 - (void)menuForEvent:(NSEvent *)theEvent menu:(NSMenu *)theMenu
@@ -1732,8 +1732,8 @@ NSString *sessionsKey = @"sessions";
     PTYTab *aTab = [tabViewItem identifier];
 
     return ([aTab allSessionsExited] ||
-            ![[PreferencePanel sharedInstance] promptOnClose] ||
-            [[PreferencePanel sharedInstance] onlyWhenMoreTabs] ||
+            ![[PreferencePanelController sharedInstance] promptOnClose] ||
+            [[PreferencePanelController sharedInstance] onlyWhenMoreTabs] ||
             (NSRunAlertPanel([NSString stringWithFormat:@"%@ #%d",
                               [[aTab activeSession] name],
                               [[[aTab activeSession] tab] realObjectCount]],
@@ -1822,7 +1822,7 @@ NSString *sessionsKey = @"sessions";
         [textview unlockFocus];
 
         [viewImage lockFocus];
-        if ([[PreferencePanel sharedInstance] tabViewType] == PSMTab_BottomTab) {
+        if ([[PreferencePanelController sharedInstance] tabViewType] == PSMTab_BottomTab) {
             viewRect.origin.y += tabHeight;
         }
         [tabViewImage compositeToPoint:viewRect.origin operation:NSCompositeSourceOver];
@@ -1831,7 +1831,7 @@ NSString *sessionsKey = @"sessions";
         // Draw over where the tab bar would usually be.
         [viewImage lockFocus];
         [[NSColor windowBackgroundColor] set];
-        if ([[PreferencePanel sharedInstance] tabViewType] == PSMTab_TopTab) {
+        if ([[PreferencePanelController sharedInstance] tabViewType] == PSMTab_TopTab) {
             tabFrame.origin.y += viewRect.size.height;
         }
         NSRectFill(tabFrame);
@@ -1847,7 +1847,7 @@ NSString *sessionsKey = @"sessions";
         [viewImage unlockFocus];
 
         offset->width = [(id <PSMTabStyle>)[tabBarControl style] leftMarginForTabBarControl];
-        if ([[PreferencePanel sharedInstance] tabViewType] == PSMTab_TopTab) {
+        if ([[PreferencePanelController sharedInstance] tabViewType] == PSMTab_TopTab) {
             offset->height = 22;
         } else {
             offset->height = viewRect.size.height + 22;
@@ -1858,7 +1858,7 @@ NSString *sessionsKey = @"sessions";
         viewImage = [[tabViewItem identifier] image:YES];
 
         offset->width = [(id <PSMTabStyle>)[tabBarControl style] leftMarginForTabBarControl];
-        if ([[PreferencePanel sharedInstance] tabViewType] == PSMTab_TopTab) {
+        if ([[PreferencePanelController sharedInstance] tabViewType] == PSMTab_TopTab) {
             offset->height = 22;
         }
         else {
@@ -1879,7 +1879,7 @@ NSString *sessionsKey = @"sessions";
 
     // check window size in case tabs have to be hidden or shown
     if (([TABVIEW numberOfTabViewItems] == 1) ||
-        ([[PreferencePanel sharedInstance] hideTab] && ([TABVIEW numberOfTabViewItems] > 1 && [tabBarControl isHidden]))) {
+        ([[PreferencePanelController sharedInstance] hideTab] && ([TABVIEW numberOfTabViewItems] > 1 && [tabBarControl isHidden]))) {
         PtyLog(@"tabViewDidChangeNumberOfTabViewItems - calling fitWindowToTab");
         PTYTab* firstTab = [[[TABVIEW tabViewItems] objectAtIndex:0] identifier];
         if (wasDraggedFromAnotherWindow_) {
@@ -1996,7 +1996,7 @@ NSString *sessionsKey = @"sessions";
     [[iTermController sharedInstance] addInTerminals: term];
 
     if (windowType_ == WINDOW_TYPE_NORMAL) {
-      if ([[PreferencePanel sharedInstance] tabViewType] == PSMTab_TopTab) {
+      if ([[PreferencePanelController sharedInstance] tabViewType] == PSMTab_TopTab) {
         [[term window] setFrameTopLeftPoint:point];
       } else {
         [[term window] setFrameOrigin:point];
@@ -2044,7 +2044,7 @@ NSString *sessionsKey = @"sessions";
 
 - (void)setLabelColor:(NSColor *)color forTabViewItem:tabViewItem
 {
-    if ([[PreferencePanel sharedInstance] highlightTabLabels]) {
+    if ([[PreferencePanelController sharedInstance] highlightTabLabels]) {
         [tabBarControl setLabelColor:color forTabViewItem:tabViewItem];
     } else {
         [tabBarControl setLabelColor:[NSColor blackColor] forTabViewItem:tabViewItem];
@@ -2384,7 +2384,7 @@ NSString *sessionsKey = @"sessions";
 
 - (IBAction)irPrev:(id)sender
 {
-    if (![[PreferencePanel sharedInstance] instantReplay]) {
+    if (![[PreferencePanelController sharedInstance] instantReplay]) {
         NSRunAlertPanel(@"Feature Disabled",
                         @"Instant Replay is disabled. Please turn it on in Preferences under the General tab.",
                         @"OK",
@@ -2434,7 +2434,7 @@ NSString *sessionsKey = @"sessions";
     if (![[self currentTab] canSplitVertically:isVertical withSize:newSessionSize]) {
         // Test if the window can afford to grow. First, compute the minimum growth possible based on
         // the font size of the new pane.
-        BOOL hasScrollbar = !_fullScreen && ![[PreferencePanel sharedInstance] hideScrollbar];
+        BOOL hasScrollbar = !_fullScreen && ![[PreferencePanelController sharedInstance] hideScrollbar];
         NSSize growth = NSMakeSize(isVertical ? newSessionSize.width : 0,
                                    isVertical ? 0 : newSessionSize.height);
         growth = [PTYScrollView frameSizeForContentSize:growth
@@ -2829,7 +2829,7 @@ NSString *sessionsKey = @"sessions";
     PtyLog(@"_refreshTerminal - calling fitWindowToTabs");
     [self fitWindowToTabs];
 
-    BOOL canDim = [[PreferencePanel sharedInstance] dimInactiveSplitPanes];
+    BOOL canDim = [[PreferencePanelController sharedInstance] dimInactiveSplitPanes];
     // Assign counts to each session. This causes tabs to show their tab number,
     // called an objectCount. When the "compact tab" pref is toggled, this makes
     // formerly countless tabs show their counts.
@@ -3021,7 +3021,7 @@ NSString *sessionsKey = @"sessions";
 
 - (BOOL)_haveLeftBorder
 {
-    if (![[PreferencePanel sharedInstance] showWindowBorder]) {
+    if (![[PreferencePanelController sharedInstance] showWindowBorder]) {
         return NO;
     } else if (_fullScreen || windowType_ == WINDOW_TYPE_TOP) {
         return NO;
@@ -3033,9 +3033,9 @@ NSString *sessionsKey = @"sessions";
 - (BOOL)_haveBottomBorder
 {
     BOOL tabBarVisible = ([TABVIEW numberOfTabViewItems] > 1 ||
-                          ![[PreferencePanel sharedInstance] hideTab]);
-    BOOL topTabBar = ([[PreferencePanel sharedInstance] tabViewType] == PSMTab_TopTab);
-    if (![[PreferencePanel sharedInstance] showWindowBorder]) {
+                          ![[PreferencePanelController sharedInstance] hideTab]);
+    BOOL topTabBar = ([[PreferencePanelController sharedInstance] tabViewType] == PSMTab_TopTab);
+    if (![[PreferencePanelController sharedInstance] showWindowBorder]) {
         return NO;
     } else if (_fullScreen || windowType_ == WINDOW_TYPE_TOP) {
         // Only normal windows can have a left border
@@ -3057,11 +3057,11 @@ NSString *sessionsKey = @"sessions";
 
 - (BOOL)_haveRightBorder
 {
-    if (![[PreferencePanel sharedInstance] showWindowBorder]) {
+    if (![[PreferencePanelController sharedInstance] showWindowBorder]) {
         return NO;
     } else if (_fullScreen || windowType_ == WINDOW_TYPE_TOP) {
         return NO;
-    } else if ([[PreferencePanel sharedInstance] hideScrollbar]) {
+    } else if ([[PreferencePanelController sharedInstance] hideScrollbar]) {
         // hidden scrollbar
         return YES;
     } else {
@@ -3075,7 +3075,7 @@ NSString *sessionsKey = @"sessions";
     NSSize contentSize = NSZeroSize;
 
     if ([TABVIEW numberOfTabViewItems] + tabViewItemsBeingAdded > 1 ||
-        ![[PreferencePanel sharedInstance] hideTab]) {
+        ![[PreferencePanelController sharedInstance] hideTab]) {
         contentSize.height += [tabBarControl frame].size.height;
     }
     if (![bottomBar isHidden]) {
@@ -3116,7 +3116,7 @@ NSString *sessionsKey = @"sessions";
     }
     [[[self window] contentView] addSubview:tabBarBackground];
 
-    if ([[PreferencePanel sharedInstance] tabViewType] == PSMTab_TopTab) {
+    if ([[PreferencePanelController sharedInstance] tabViewType] == PSMTab_TopTab) {
         [tabBarBackground setFrameOrigin:NSMakePoint(0, [[[self window] contentView] frame].size.height -  [tabBarBackground frame].size.height)];
         [tabBarBackground setAlphaValue:0];
         [[tabBarBackground animator] setAlphaValue:1];
@@ -3165,7 +3165,7 @@ NSString *sessionsKey = @"sessions";
     if ((modifierFlags & NSDeviceIndependentModifierFlagsMask) == NSCommandKeyMask &&  // you pressed exactly cmd
         ([tabBarBackground isHidden] || [tabBarBackground alphaValue] == 0) &&  // the tab bar is not visible
         fullScreenTabviewTimer_ == nil) {  // not in the middle of doing this already
-        fullScreenTabviewTimer_ = [[NSTimer scheduledTimerWithTimeInterval:[[PreferencePanel sharedInstance] fsTabDelay]
+        fullScreenTabviewTimer_ = [[NSTimer scheduledTimerWithTimeInterval:[[PreferencePanelController sharedInstance] fsTabDelay]
                                                                     target:self
                                                                   selector:@selector(cmdHeld:)
                                                                   userInfo:nil
@@ -3205,11 +3205,11 @@ NSString *sessionsKey = @"sessions";
         return;
     }
 
-    BOOL hasScrollbar = !_fullScreen && ![[PreferencePanel sharedInstance] hideScrollbar];
+    BOOL hasScrollbar = !_fullScreen && ![[PreferencePanelController sharedInstance] hideScrollbar];
     NSWindow *thisWindow = [self window];
     [thisWindow setShowsResizeIndicator:hasScrollbar];
     if ([TABVIEW numberOfTabViewItems] == 1 &&
-        [[PreferencePanel sharedInstance] hideTab]) {
+        [[PreferencePanelController sharedInstance] hideTab]) {
         // The tabBarControl should not be visible.
         [tabBarControl setHidden:YES];
         NSRect aRect;
@@ -3228,9 +3228,9 @@ NSString *sessionsKey = @"sessions";
         // The tabBar control is visible.
         PtyLog(@"repositionWidgets - tabs are visible. Adjusting window size...");
         [tabBarControl setHidden:NO];
-        [tabBarControl setTabLocation:[[PreferencePanel sharedInstance] tabViewType]];
+        [tabBarControl setTabLocation:[[PreferencePanelController sharedInstance] tabViewType]];
         NSRect aRect;
-        if ([[PreferencePanel sharedInstance] tabViewType] == PSMTab_TopTab) {
+        if ([[PreferencePanelController sharedInstance] tabViewType] == PSMTab_TopTab) {
             // Place tabs at the top.
             // Add 1px border
             aRect.origin.x = [self _haveLeftBorder] ? 1 : 0;
@@ -3271,14 +3271,14 @@ NSString *sessionsKey = @"sessions";
     // Update the tab style.
     [self setTabBarStyle];
 
-    [tabBarControl setDisableTabClose:[[PreferencePanel sharedInstance] useCompactLabel]];
-    if ([[PreferencePanel sharedInstance] useCompactLabel]) {
-        [tabBarControl setCellMinWidth:[[PreferencePanel sharedInstance] minCompactTabWidth]];
+    [tabBarControl setDisableTabClose:[[PreferencePanelController sharedInstance] useCompactLabel]];
+    if ([[PreferencePanelController sharedInstance] useCompactLabel]) {
+        [tabBarControl setCellMinWidth:[[PreferencePanelController sharedInstance] minCompactTabWidth]];
     } else {
-        [tabBarControl setCellMinWidth:[[PreferencePanel sharedInstance] minTabWidth]];
+        [tabBarControl setCellMinWidth:[[PreferencePanelController sharedInstance] minTabWidth]];
     }
-    [tabBarControl setSizeCellsToFit:[[PreferencePanel sharedInstance] useUnevenTabs]];
-    [tabBarControl setCellOptimumWidth:[[PreferencePanel sharedInstance] optimumTabWidth]];
+    [tabBarControl setSizeCellsToFit:[[PreferencePanelController sharedInstance] useUnevenTabs]];
+    [tabBarControl setCellOptimumWidth:[[PreferencePanelController sharedInstance] optimumTabWidth]];
 
     PtyLog(@"repositionWidgets - call fitBottomBarToWindow");
     [self fitBottomBarToWindow];
@@ -3426,7 +3426,7 @@ NSString *sessionsKey = @"sessions";
 
     if (windowType_ == WINDOW_TYPE_TOP) {
         NSRect windowFrame = [[self window] frame];
-        BOOL hasScrollbar = !_fullScreen && ![[PreferencePanel sharedInstance] hideScrollbar];
+        BOOL hasScrollbar = !_fullScreen && ![[PreferencePanelController sharedInstance] hideScrollbar];
         NSSize contentSize = [PTYScrollView contentSizeForFrameSize:windowFrame.size
                                               hasHorizontalScroller:NO
                                                 hasVerticalScroller:hasScrollbar
@@ -3441,7 +3441,7 @@ NSString *sessionsKey = @"sessions";
     }
     NSRect sessionRect;
     if (size != nil) {
-        BOOL hasScrollbar = !_fullScreen && ![[PreferencePanel sharedInstance] hideScrollbar];
+        BOOL hasScrollbar = !_fullScreen && ![[PreferencePanelController sharedInstance] hideScrollbar];
         NSSize contentSize = [PTYScrollView contentSizeForFrameSize:*size
                                               hasHorizontalScroller:NO
                                                 hasVerticalScroller:hasScrollbar
@@ -3484,7 +3484,7 @@ NSString *sessionsKey = @"sessions";
 - (void)safelySetSessionSize:(PTYSession*)aSession rows:(int)rows columns:(int)columns
 {
     PtyLog(@"safelySetSessionSize");
-    BOOL hasScrollbar = !_fullScreen && ![[PreferencePanel sharedInstance] hideScrollbar];
+    BOOL hasScrollbar = !_fullScreen && ![[PreferencePanelController sharedInstance] hideScrollbar];
     if (windowType_ == WINDOW_TYPE_NORMAL) {
         int width = columns;
         int height = rows;
@@ -3900,7 +3900,7 @@ NSString *sessionsKey = @"sessions";
         if (range.location == NSNotFound) {
             NSURL *url = [NSURL URLWithString: command];
             NSString *urlType = [url scheme];
-            id bm = [[PreferencePanel sharedInstance] handlerBookmarkForURL:urlType];
+            id bm = [[PreferencePanelController sharedInstance] handlerBookmarkForURL:urlType];
 
             if (bm) {
                 [[iTermController sharedInstance] launchBookmark:bm

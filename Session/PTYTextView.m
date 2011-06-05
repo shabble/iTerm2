@@ -46,7 +46,7 @@ static const int MAX_WORKING_DIR_COUNT = 50;
 #import "Session/PTYSession.h"
 #import "Session/VT100Screen.h"
 #import "Search/FindCommandHandler.h"
-#import "Prefs/PreferencePanel.h"
+#import "Prefs/PreferencePanelController.h"
 #import "Session/PTYScrollView.h"
 #import "Session/PTYTask.h"
 #import "App/iTermController.h"
@@ -227,8 +227,8 @@ static NSImage* wrapToBottomImage = nil;
                                                  name:@"iTermRefreshTerminal"
                                                object:nil];
 
-    advancedFontRendering = [[PreferencePanel sharedInstance] advancedFontRendering];
-    strokeThickness = [[PreferencePanel sharedInstance] strokeThickness];
+    advancedFontRendering = [[PreferencePanelController sharedInstance] advancedFontRendering];
+    strokeThickness = [[PreferencePanelController sharedInstance] strokeThickness];
     imeOffset = 0;
     resultMap_ = [[NSMutableDictionary alloc] init];
 
@@ -660,10 +660,10 @@ static NSImage* wrapToBottomImage = nil;
 
 - (void)changeFont:(id)fontManager
 {
-    if ([[PreferencePanel sharedInstance] onScreen]) {
-        [[PreferencePanel sharedInstance] changeFont:fontManager];
-    } else if ([[PreferencePanel sessionsInstance] onScreen]) {
-        [[PreferencePanel sessionsInstance] changeFont:fontManager];
+    if ([[PreferencePanelController sharedInstance] onScreen]) {
+        [[PreferencePanelController sharedInstance] changeFont:fontManager];
+    } else if ([[PreferencePanelController sessionsInstance] onScreen]) {
+        [[PreferencePanelController sessionsInstance] changeFont:fontManager];
     }
 }
 
@@ -1659,7 +1659,7 @@ static BOOL RectsEqual(NSRect* a, NSRect* b) {
         }
     }
 
-    if ([[PreferencePanel sharedInstance] pasteFromClipboard]) {
+    if ([[PreferencePanelController sharedInstance] pasteFromClipboard]) {
         [self paste: nil];
     } else {
         [self pasteSelection: nil];
@@ -1935,7 +1935,7 @@ static BOOL RectsEqual(NSRect* a, NSRect* b) {
 
 - (void)mouseEntered:(NSEvent *)event
 {
-    if ([[PreferencePanel sharedInstance] focusFollowsMouse] &&
+    if ([[PreferencePanelController sharedInstance] focusFollowsMouse] &&
             [[self window] alphaValue] > 0) {
         // Some windows automatically close when they lose key status and are
         // incompatible with FFM. Check if the key window or its controller implements
@@ -2263,7 +2263,7 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
         // Just a click in the window.
         startX=-1;
         if (cmdPressed &&
-            [[PreferencePanel sharedInstance] cmdSelection]) {
+            [[PreferencePanelController sharedInstance] cmdSelection]) {
             // Command click in place.
             NSString *url = [self _getURLForX:x y:y];
 
@@ -2288,7 +2288,7 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
 
     if (startX > -1 && _delegate) {
         // if we want to copy our selection, do so
-        if ([[PreferencePanel sharedInstance] copySelection]) {
+        if ([[PreferencePanelController sharedInstance] copySelection]) {
             [self copy: self];
         }
     }
@@ -2720,7 +2720,7 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
         [[frontTextView->dataSource session] tab] == [[dataSource session] tab] &&
         [theEvent type] == NSLeftMouseDown &&
         ([theEvent modifierFlags] & NSControlKeyMask) &&
-        [[PreferencePanel sharedInstance] passOnControlLeftClick]) {
+        [[PreferencePanelController sharedInstance] passOnControlLeftClick]) {
         // All the many conditions are met for having the click passed on via xterm mouse reporting.
         return nil;
     }
@@ -2819,7 +2819,7 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
 
 - (void)searchInBrowser:(id)sender
 {
-    NSString* url = [NSString stringWithFormat:[[PreferencePanel sharedInstance] searchCommand],
+    NSString* url = [NSString stringWithFormat:[[PreferencePanelController sharedInstance] searchCommand],
                               [[self selectedText] stringWithPercentEscape]];
     [self _openURL:url];
 }
@@ -5431,7 +5431,7 @@ static CGFloat PerceivedBrightness(CGFloat r, CGFloat g, CGFloat b) {
                ch == TAB_FILLER) {
         return CHARTYPE_WHITESPACE;
     } else if ([[NSCharacterSet alphanumericCharacterSet] longCharacterIsMember:longChar] ||
-               [[[PreferencePanel sharedInstance] wordChars] rangeOfString:aString].length != 0) {
+               [[[PreferencePanelController sharedInstance] wordChars] rangeOfString:aString].length != 0) {
         return CHARTYPE_WORDCHAR;
     } else {
         // Non-alphanumeric, non-whitespace, non-word, not double-width filler.
@@ -5900,7 +5900,7 @@ static bool IsUrlChar(NSString* str)
     url = [NSURL URLWithString:escapedString];
     [escapedString release];
 
-    Bookmark *bm = [[PreferencePanel sharedInstance] handlerBookmarkForURL:[url scheme]];
+    Bookmark *bm = [[PreferencePanelController sharedInstance] handlerBookmarkForURL:[url scheme]];
 
     if (bm != nil)  {
         [[iTermController sharedInstance] launchBookmark:bm
@@ -6023,8 +6023,8 @@ static bool IsUrlChar(NSString* str)
 
 - (void)_settingsChanged:(NSNotification *)notification
 {
-    advancedFontRendering = [[PreferencePanel sharedInstance] advancedFontRendering];
-    strokeThickness = [[PreferencePanel sharedInstance] strokeThickness];
+    advancedFontRendering = [[PreferencePanelController sharedInstance] advancedFontRendering];
+    strokeThickness = [[PreferencePanelController sharedInstance] strokeThickness];
     [self setNeedsDisplay:YES];
 }
 
@@ -6143,7 +6143,7 @@ static bool IsUrlChar(NSString* str)
     NSMutableString* dirtyDebug = [NSMutableString stringWithString:@"updateDirtyRects found these dirty lines:\n"];
     int screenindex=0;
 #endif
-    BOOL irEnabled = [[PreferencePanel sharedInstance] instantReplay];
+    BOOL irEnabled = [[PreferencePanelController sharedInstance] instantReplay];
     long long totalScrollbackOverflow = [dataSource totalScrollbackOverflow];
     for (int y = lineStart; y < lineEnd; y++) {
         NSMutableData* matches = [resultMap_ objectForKey:[NSNumber numberWithLongLong:y + totalScrollbackOverflow]];

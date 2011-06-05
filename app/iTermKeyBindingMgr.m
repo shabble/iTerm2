@@ -74,7 +74,7 @@
 #import "Profiles/ITAddressBookMgr.h"
 #import "App/iTermKeyBindingMgr.h"
 #import <Carbon/Carbon.h>
-#import "Prefs/PreferencePanel.h"
+#import "Prefs/PreferencePanelController.h"
 
 static NSDictionary* globalKeyMap;
 
@@ -788,67 +788,67 @@ static NSDictionary* globalKeyMap;
     }
 }
 
-+ (NSInteger)_cgMaskForLeftCommandKey:(PreferencePanel*)pp
++ (NSInteger)_cgMaskForLeftCommandKey:(PreferencePanelController*)pp
 {
     return [self _cgMaskForMod:[pp leftCommand]];
 }
 
-+ (NSInteger)_cgMaskForRightCommandKey:(PreferencePanel*)pp
++ (NSInteger)_cgMaskForRightCommandKey:(PreferencePanelController*)pp
 {
     return [self _cgMaskForMod:[pp rightCommand]];
 }
 
-+ (NSInteger)_nxMaskForLeftCommandKey:(PreferencePanel*)pp
++ (NSInteger)_nxMaskForLeftCommandKey:(PreferencePanelController*)pp
 {
     return [self _nxMaskForLeftMod:[pp leftCommand]];
 }
 
-+ (NSInteger)_nxMaskForRightCommandKey:(PreferencePanel*)pp
++ (NSInteger)_nxMaskForRightCommandKey:(PreferencePanelController*)pp
 {
     return [self _nxMaskForRightMod:[pp rightCommand]];
 }
 
-+ (NSInteger)_cgMaskForLeftAlternateKey:(PreferencePanel*)pp
++ (NSInteger)_cgMaskForLeftAlternateKey:(PreferencePanelController*)pp
 {
     return [self _cgMaskForMod:[pp leftOption]];
 }
 
-+ (NSInteger)_cgMaskForRightAlternateKey:(PreferencePanel*)pp
++ (NSInteger)_cgMaskForRightAlternateKey:(PreferencePanelController*)pp
 {
     return [self _cgMaskForMod:[pp rightOption]];
 }
 
-+ (NSInteger)_nxMaskForLeftAlternateKey:(PreferencePanel*)pp
++ (NSInteger)_nxMaskForLeftAlternateKey:(PreferencePanelController*)pp
 {
     return [self _nxMaskForLeftMod:[pp leftOption]];
 }
 
-+ (NSInteger)_nxMaskForRightAlternateKey:(PreferencePanel*)pp
++ (NSInteger)_nxMaskForRightAlternateKey:(PreferencePanelController*)pp
 {
     return [self _nxMaskForRightMod:[pp rightOption]];
 }
 
-+ (NSInteger)_cgMaskForLeftControlKey:(PreferencePanel*)pp
++ (NSInteger)_cgMaskForLeftControlKey:(PreferencePanelController*)pp
 {
     return [self _cgMaskForMod:[pp control]];
 }
 
-+ (NSInteger)_cgMaskForRightControlKey:(PreferencePanel*)pp
++ (NSInteger)_cgMaskForRightControlKey:(PreferencePanelController*)pp
 {
     return [self _cgMaskForMod:[pp control]];
 }
 
-+ (NSInteger)_nxMaskForLeftControlKey:(PreferencePanel*)pp
++ (NSInteger)_nxMaskForLeftControlKey:(PreferencePanelController*)pp
 {
     return [self _nxMaskForLeftMod:[pp control]];
 }
 
-+ (NSInteger)_nxMaskForRightControlKey:(PreferencePanel*)pp
++ (NSInteger)_nxMaskForRightControlKey:(PreferencePanelController*)pp
 {
     return [self _nxMaskForRightMod:[pp control]];
 }
 
-+ (CGEventRef)remapModifiersInCGEvent:(CGEventRef)cgEvent prefPanel:(PreferencePanel*)pp
++ (CGEventRef)remapModifiersInCGEvent:(CGEventRef)cgEvent prefPanel:(PreferencePanelController*)pp
 {
     // This function copied from cmd-key happy. See copyright notice at top.
     CGEventFlags flags = CGEventGetFlags(cgEvent);
@@ -899,7 +899,7 @@ static NSDictionary* globalKeyMap;
     return cgEvent;
 }
 
-+ (NSEvent*)remapModifiers:(NSEvent*)event prefPanel:(PreferencePanel*)pp
++ (NSEvent*)remapModifiers:(NSEvent*)event prefPanel:(PreferencePanelController*)pp
 {
     return [NSEvent eventWithCGEvent:[iTermKeyBindingMgr remapModifiersInCGEvent:[event CGEvent]
                                                                        prefPanel:pp]];

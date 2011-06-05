@@ -98,7 +98,6 @@
 		2C27617D1395D53200D340AA /* Autocomplete.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C27617A1395D53200D340AA /* Autocomplete.m */; };
 		2C27617E1395D53200D340AA /* PasteboardHistory.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C27617B1395D53200D340AA /* PasteboardHistory.m */; };
 		2C27617F1395D53200D340AA /* Popup.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C27617C1395D53200D340AA /* Popup.m */; };
-		2C2761831395D56500D340AA /* PreferencePanel.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2761821395D56500D340AA /* PreferencePanel.m */; };
 		2C27618A1395D57A00D340AA /* BookmarkListView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2761841395D57A00D340AA /* BookmarkListView.m */; };
 		2C27618B1395D57A00D340AA /* BookmarkModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2761851395D57A00D340AA /* BookmarkModel.m */; };
 		2C27618D1395D57A00D340AA /* BookmarksWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2761871395D57A00D340AA /* BookmarksWindow.m */; };
@@ -157,7 +156,6 @@
 		2C7EE23713960462000305E6 /* Autocomplete.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C7EE20813960462000305E6 /* Autocomplete.h */; };
 		2C7EE23813960462000305E6 /* PasteboardHistory.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C7EE20913960462000305E6 /* PasteboardHistory.h */; };
 		2C7EE23913960462000305E6 /* Popup.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C7EE20A13960462000305E6 /* Popup.h */; };
-		2C7EE23A13960462000305E6 /* PreferencePanel.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C7EE20B13960462000305E6 /* PreferencePanel.h */; };
 		2C7EE23B13960462000305E6 /* BookmarkListView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C7EE20C13960462000305E6 /* BookmarkListView.h */; };
 		2C7EE23C13960462000305E6 /* BookmarkModel.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C7EE20D13960462000305E6 /* BookmarkModel.h */; };
 		2C7EE23D13960462000305E6 /* BookmarksWindow.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C7EE20E13960462000305E6 /* BookmarksWindow.h */; };
@@ -404,7 +402,6 @@
 		2C27617A1395D53200D340AA /* Autocomplete.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Autocomplete.m; path = Popups/Autocomplete.m; sourceTree = "<group>"; };
 		2C27617B1395D53200D340AA /* PasteboardHistory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PasteboardHistory.m; path = Popups/PasteboardHistory.m; sourceTree = "<group>"; };
 		2C27617C1395D53200D340AA /* Popup.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Popup.m; path = Popups/Popup.m; sourceTree = "<group>"; };
-		2C2761821395D56500D340AA /* PreferencePanel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PreferencePanel.m; path = Prefs/PreferencePanel.m; sourceTree = "<group>"; };
 		2C2761841395D57A00D340AA /* BookmarkListView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = BookmarkListView.m; path = Profiles/BookmarkListView.m; sourceTree = "<group>"; };
 		2C2761851395D57A00D340AA /* BookmarkModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = BookmarkModel.m; path = Profiles/BookmarkModel.m; sourceTree = "<group>"; };
 		2C2761871395D57A00D340AA /* BookmarksWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = BookmarksWindow.m; path = Profiles/BookmarksWindow.m; sourceTree = "<group>"; };
@@ -447,7 +444,6 @@
 		2C7EE20813960462000305E6 /* Autocomplete.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Autocomplete.h; path = Popups/Autocomplete.h; sourceTree = "<group>"; };
 		2C7EE20913960462000305E6 /* PasteboardHistory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PasteboardHistory.h; path = Popups/PasteboardHistory.h; sourceTree = "<group>"; };
 		2C7EE20A13960462000305E6 /* Popup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Popup.h; path = Popups/Popup.h; sourceTree = "<group>"; };
-		2C7EE20B13960462000305E6 /* PreferencePanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PreferencePanel.h; path = Prefs/PreferencePanel.h; sourceTree = "<group>"; };
 		2C7EE20C13960462000305E6 /* BookmarkListView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BookmarkListView.h; path = Profiles/BookmarkListView.h; sourceTree = "<group>"; };
 		2C7EE20D13960462000305E6 /* BookmarkModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BookmarkModel.h; path = Profiles/BookmarkModel.h; sourceTree = "<group>"; };
 		2C7EE20E13960462000305E6 /* BookmarksWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BookmarksWindow.h; path = Profiles/BookmarksWindow.h; sourceTree = "<group>"; };
@@ -681,7 +677,6 @@
 				2C7EE20813960462000305E6 /* Autocomplete.h */,
 				2C7EE20913960462000305E6 /* PasteboardHistory.h */,
 				2C7EE20A13960462000305E6 /* Popup.h */,
-				2C7EE20B13960462000305E6 /* PreferencePanel.h */,
 				2C7EE20C13960462000305E6 /* BookmarkListView.h */,
 				2C7EE20D13960462000305E6 /* BookmarkModel.h */,
 				2C7EE20E13960462000305E6 /* BookmarksWindow.h */,
@@ -892,7 +887,6 @@
 				2C2761851395D57A00D340AA /* BookmarkModel.m */,
 				2C2761871395D57A00D340AA /* BookmarksWindow.m */,
 				2C2761881395D57A00D340AA /* ITAddressBookMgr.m */,
-				2C2761821395D56500D340AA /* PreferencePanel.m */,
 				2C27617A1395D53200D340AA /* Autocomplete.m */,
 				2C27617B1395D53200D340AA /* PasteboardHistory.m */,
 				2C27617C1395D53200D340AA /* Popup.m */,
@@ -1156,7 +1150,6 @@
 				2C7EE23713960462000305E6 /* Autocomplete.h in Headers */,
 				2C7EE23813960462000305E6 /* PasteboardHistory.h in Headers */,
 				2C7EE23913960462000305E6 /* Popup.h in Headers */,
-				2C7EE23A13960462000305E6 /* PreferencePanel.h in Headers */,
 				2C7EE23B13960462000305E6 /* BookmarkListView.h in Headers */,
 				2C7EE23C13960462000305E6 /* BookmarkModel.h in Headers */,
 				2C7EE23D13960462000305E6 /* BookmarksWindow.h in Headers */,
@@ -1456,7 +1449,6 @@
 				2C27617D1395D53200D340AA /* Autocomplete.m in Sources */,
 				2C27617E1395D53200D340AA /* PasteboardHistory.m in Sources */,
 				2C27617F1395D53200D340AA /* Popup.m in Sources */,
-				2C2761831395D56500D340AA /* PreferencePanel.m in Sources */,
 				2C27618A1395D57A00D340AA /* BookmarkListView.m in Sources */,
 				2C27618B1395D57A00D340AA /* BookmarkModel.m in Sources */,
 				2C27618D1395D57A00D340AA /* BookmarksWindow.m in Sources */,

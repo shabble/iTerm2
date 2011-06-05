@@ -30,7 +30,7 @@
 
 #import "iTerm/iTerm.h"
 #import "Window/PTYWindow.h"
-#import "Prefs/PreferencePanel.h"
+#import "Prefs/PreferencePanelController.h"
 #import "Window/PseudoTerminal.h"
 #import "App/iTermController.h"
 // This is included because the blurring code uses undocumented APIs to do its thing.

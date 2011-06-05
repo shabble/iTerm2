@@ -112,7 +112,7 @@
 #define KEY_ACTION_SPLIT_HORIZONTALLY_WITH_PROFILE 28
 #define KEY_ACTION_SPLIT_VERTICALLY_WITH_PROFILE 29
 
-@class PreferencePanel;
+@class PreferencePanelController;
 @interface iTermKeyBindingMgr : NSObject {
 }
 
@@ -214,10 +214,10 @@
 
 // Modify a keypress event, swapping modifiers as defined in the global settings.
 + (CGEventRef)remapModifiersInCGEvent:(CGEventRef)cgEvent
-                            prefPanel:(PreferencePanel*)pp;
+                            prefPanel:(PreferencePanelController*)pp;
 
 // Like remapModifiersInCGEvent:prefPanel: but for an NSEvent.
-+ (NSEvent*)remapModifiers:(NSEvent*)event prefPanel:(PreferencePanel*)pp;
++ (NSEvent*)remapModifiers:(NSEvent*)event prefPanel:(PreferencePanelController*)pp;
 
 // Returns the global keymap ("0xKeycode-0xModifiers"->{Action=int, [Text=str])
 + (NSDictionary*)globalKeyMap;

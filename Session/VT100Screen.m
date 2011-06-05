@@ -42,7 +42,7 @@
 #import "Misc/charmaps.h"
 #import "Session/PTYSession.h"
 #import "Session/PTYTask.h"
-#import "Prefs/PreferencePanel.h"
+#import "Prefs/PreferencePanelController.h"
 #import "App/iTermApplicationDelegate.h"
 #import "App/iTermGrowlDelegate.h"
 #import "Profiles/ITAddressBookMgr.h"
@@ -288,7 +288,7 @@ static __inline__ screen_char_t *incrementLinePointer(screen_char_t *buf_start, 
     gd = [iTermGrowlDelegate sharedInstance];
 
     dvr = [DVR alloc];
-    [dvr initWithBufferCapacity:[[PreferencePanel sharedInstance] irMemory] * 1024 * 1024];
+    [dvr initWithBufferCapacity:[[PreferencePanelController sharedInstance] irMemory] * 1024 * 1024];
     return self;
 }
 
@@ -1160,7 +1160,7 @@ static char* FormatCont(int c)
 // a per-profile option to be on as well as the global option.
 - (BOOL)_syncTitle
 {
-    if (![[PreferencePanel sharedInstance] showBookmarkName]) {
+    if (![[PreferencePanelController sharedInstance] showBookmarkName]) {
         return NO;
     }
     return [[[SESSION addressBookEntry] objectForKey:KEY_SYNC_TITLE] boolValue];
@@ -3383,7 +3383,7 @@ void DumpBuf(screen_char_t* p, int n) {
 
 - (void)saveToDvr
 {
-    if (!dvr || ![[PreferencePanel sharedInstance] instantReplay]) {
+    if (!dvr || ![[PreferencePanelController sharedInstance] instantReplay]) {
         return;
     }
 
