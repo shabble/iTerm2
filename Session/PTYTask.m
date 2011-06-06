@@ -44,7 +44,7 @@
 #include <libproc.h>
 
 #import "Session/PTYTask.h"
-#import "Prefs/PreferencePanel.h"
+#import "Prefs/PreferencePanelController.h"
 #import "App/ProcessCache.h"
 
 #include <dlfcn.h>
