@@ -866,67 +866,73 @@ static float versionNumber;
     
     defaultWindowStyle=[prefs objectForKey:@"WindowStyle"]?[prefs integerForKey:@"WindowStyle"]:0;
     defaultTabViewType=[prefs objectForKey:@"TabViewType"]?[prefs integerForKey:@"TabViewType"]:0;
+
     if (defaultTabViewType > 1) {
         defaultTabViewType = 0;
     }
-    defaultCopySelection=[prefs objectForKey:@"CopySelection"]?[[prefs objectForKey:@"CopySelection"] boolValue]:YES;
-    defaultPasteFromClipboard=[prefs objectForKey:@"PasteFromClipboard"]?[[prefs objectForKey:@"PasteFromClipboard"] boolValue]:YES;
-    defaultHideTab=[prefs objectForKey:@"HideTab"]?[[prefs objectForKey:@"HideTab"] boolValue]: YES;
-    defaultPromptOnQuit = [prefs objectForKey:@"PromptOnQuit"]?[[prefs objectForKey:@"PromptOnQuit"] boolValue]: YES;
-    defaultPromptOnClose = [prefs objectForKey:@"PromptOnClose"]?[[prefs objectForKey:@"PromptOnClose"] boolValue]: YES;
-    defaultOnlyWhenMoreTabs = [prefs objectForKey:@"OnlyWhenMoreTabs"]?[[prefs objectForKey:@"OnlyWhenMoreTabs"] boolValue]: YES;
-    defaultFocusFollowsMouse = [prefs objectForKey:@"FocusFollowsMouse"]?[[prefs objectForKey:@"FocusFollowsMouse"] boolValue]: NO;
-    defaultHotkeyTogglesWindow = [prefs objectForKey:@"HotKeyTogglesWindow"]?[[prefs objectForKey:@"HotKeyTogglesWindow"] boolValue]: NO;
-    defaultHotKeyBookmarkGuid = [[prefs objectForKey:@"HotKeyBookmark"] copy];
-    defaultEnableBonjour = [prefs objectForKey:@"EnableRendezvous"]?[[prefs objectForKey:@"EnableRendezvous"] boolValue]: NO;
-    defaultCmdSelection = [prefs objectForKey:@"CommandSelection"]?[[prefs objectForKey:@"CommandSelection"] boolValue]: YES;
-    defaultPassOnControlLeftClick = [prefs objectForKey:@"PassOnControlClick"]?[[prefs objectForKey:@"PassOnControlClick"] boolValue] : NO;
-    defaultMaxVertically = [prefs objectForKey:@"MaxVertically"] ? [[prefs objectForKey:@"MaxVertically"] boolValue] : NO;
-    defaultClosingHotkeySwitchesSpaces = [prefs objectForKey:@"ClosingHotkeySwitchesSpaces"] ? [[prefs objectForKey:@"ClosingHotkeySwitchesSpaces"] boolValue] : NO;
-    defaultUseCompactLabel = [prefs objectForKey:@"UseCompactLabel"]?[[prefs objectForKey:@"UseCompactLabel"] boolValue]: YES;
-    defaultHighlightTabLabels = [prefs objectForKey:@"HighlightTabLabels"]?[[prefs objectForKey:@"HighlightTabLabels"] boolValue]: YES;
-    defaultAdvancedFontRendering = [prefs objectForKey:@"HiddenAdvancedFontRendering"]?[[prefs objectForKey:@"HiddenAdvancedFontRendering"] boolValue] : NO;
-    defaultStrokeThickness = [prefs objectForKey:@"HiddenAFRStrokeThickness"] ? [[prefs objectForKey:@"HiddenAFRStrokeThickness"] floatValue] : 0;
-    defaultFsTabDelay = [prefs objectForKey:@"FsTabDelay"] ? [[prefs objectForKey:@"FsTabDelay"] floatValue] : 1.0;
+
+    defaultCopySelection               = [prefs objectForKey:@"CopySelection"]               ?[[prefs objectForKey:@"CopySelection"] boolValue]:YES;
+    defaultPasteFromClipboard          = [prefs objectForKey:@"PasteFromClipboard"]          ?[[prefs objectForKey:@"PasteFromClipboard"] boolValue]:YES;
+    defaultHideTab                     = [prefs objectForKey:@"HideTab"]                     ?[[prefs objectForKey:@"HideTab"] boolValue]: YES;
+    defaultPromptOnQuit                = [prefs objectForKey:@"PromptOnQuit"]                ?[[prefs objectForKey:@"PromptOnQuit"] boolValue]: YES;
+    defaultPromptOnClose               = [prefs objectForKey:@"PromptOnClose"]               ?[[prefs objectForKey:@"PromptOnClose"] boolValue]: YES;
+    defaultOnlyWhenMoreTabs            = [prefs objectForKey:@"OnlyWhenMoreTabs"]            ?[[prefs objectForKey:@"OnlyWhenMoreTabs"] boolValue]: YES;
+    defaultFocusFollowsMouse           = [prefs objectForKey:@"FocusFollowsMouse"]           ?[[prefs objectForKey:@"FocusFollowsMouse"] boolValue]: NO;
+    defaultHotkeyTogglesWindow         = [prefs objectForKey:@"HotKeyTogglesWindow"]         ?[[prefs objectForKey:@"HotKeyTogglesWindow"] boolValue]: NO;
+    defaultHotKeyBookmarkGuid          = [[prefs objectForKey:@"HotKeyBookmark"] copy];
+    defaultEnableBonjour               = [prefs objectForKey:@"EnableRendezvous"]            ?[[prefs objectForKey:@"EnableRendezvous"] boolValue]: NO;
+    defaultCmdSelection                = [prefs objectForKey:@"CommandSelection"]            ?[[prefs objectForKey:@"CommandSelection"] boolValue]: YES;
+    defaultPassOnControlLeftClick      = [prefs objectForKey:@"PassOnControlClick"]          ?[[prefs objectForKey:@"PassOnControlClick"] boolValue] : NO;
+    defaultMaxVertically               = [prefs objectForKey:@"MaxVertically"]               ?[[prefs objectForKey:@"MaxVertically"] boolValue] : NO;
+    defaultClosingHotkeySwitchesSpaces = [prefs objectForKey:@"ClosingHotkeySwitchesSpaces"] ?[[prefs objectForKey:@"ClosingHotkeySwitchesSpaces"] boolValue] : NO;
+    defaultUseCompactLabel             = [prefs objectForKey:@"UseCompactLabel"]             ?[[prefs objectForKey:@"UseCompactLabel"] boolValue]: YES;
+    defaultHighlightTabLabels          = [prefs objectForKey:@"HighlightTabLabels"]          ?[[prefs objectForKey:@"HighlightTabLabels"] boolValue]: YES;
+    defaultAdvancedFontRendering       = [prefs objectForKey:@"HiddenAdvancedFontRendering"] ?[[prefs objectForKey:@"HiddenAdvancedFontRendering"] boolValue] : NO;
+    defaultStrokeThickness             = [prefs objectForKey:@"HiddenAFRStrokeThickness"]    ? [[prefs objectForKey:@"HiddenAFRStrokeThickness"] floatValue] : 0;
+    defaultFsTabDelay                  = [prefs objectForKey:@"FsTabDelay"]                  ? [[prefs objectForKey:@"FsTabDelay"] floatValue] : 1.0;
+
     [defaultWordChars release];
-    defaultWordChars = [prefs objectForKey: @"WordCharacters"]?[[prefs objectForKey: @"WordCharacters"] retain]:@"/-+\\~_.";
-    defaultOpenBookmark = [prefs objectForKey:@"OpenBookmark"]?[[prefs objectForKey:@"OpenBookmark"] boolValue]: NO;
-    defaultQuitWhenAllWindowsClosed = [prefs objectForKey:@"QuitWhenAllWindowsClosed"]?[[prefs objectForKey:@"QuitWhenAllWindowsClosed"] boolValue]: NO;
-    defaultCheckUpdate = [prefs objectForKey:@"SUEnableAutomaticChecks"]?[[prefs objectForKey:@"SUEnableAutomaticChecks"] boolValue]: YES;
-    defaultHideScrollbar = [prefs objectForKey:@"HideScrollbar"]?[[prefs objectForKey:@"HideScrollbar"] boolValue]: NO;
-    defaultSmartPlacement = [prefs objectForKey:@"SmartPlacement"]?[[prefs objectForKey:@"SmartPlacement"] boolValue]: NO;
-    defaultWindowNumber = [prefs objectForKey:@"WindowNumber"]?[[prefs objectForKey:@"WindowNumber"] boolValue]: YES;
-    defaultJobName = [prefs objectForKey:@"JobName"]?[[prefs objectForKey:@"JobName"] boolValue]: YES;
-    defaultShowBookmarkName = [prefs objectForKey:@"ShowBookmarkName"]?[[prefs objectForKey:@"ShowBookmarkName"] boolValue] : NO;
-    defaultHotkey = [prefs objectForKey:@"Hotkey"]?[[prefs objectForKey:@"Hotkey"] boolValue]: NO;
-    defaultHotkeyCode = [prefs objectForKey:@"HotkeyCode"]?[[prefs objectForKey:@"HotkeyCode"] intValue]: 0;
-    defaultHotkeyChar = [prefs objectForKey:@"HotkeyChar"]?[[prefs objectForKey:@"HotkeyChar"] intValue]: 0;
-    defaultHotkeyModifiers = [prefs objectForKey:@"HotkeyModifiers"]?[[prefs objectForKey:@"HotkeyModifiers"] intValue]: 0;
-    defaultSavePasteHistory = [prefs objectForKey:@"SavePasteHistory"]?[[prefs objectForKey:@"SavePasteHistory"] boolValue]: NO;
+    defaultWordChars                   = [prefs objectForKey: @"WordCharacters"]             ?[[prefs objectForKey: @"WordCharacters"] retain]:@"/-+\\~_.";
+
+    defaultOpenBookmark                = [prefs objectForKey:@"OpenBookmark"]                ?[[prefs objectForKey:@"OpenBookmark"] boolValue]: NO;
+    defaultQuitWhenAllWindowsClosed    = [prefs objectForKey:@"QuitWhenAllWindowsClosed"]    ?[[prefs objectForKey:@"QuitWhenAllWindowsClosed"] boolValue]: NO;
+    defaultCheckUpdate                 = [prefs objectForKey:@"SUEnableAutomaticChecks"]     ?[[prefs objectForKey:@"SUEnableAutomaticChecks"] boolValue]: YES;
+    defaultHideScrollbar               = [prefs objectForKey:@"HideScrollbar"]               ?[[prefs objectForKey:@"HideScrollbar"] boolValue]: NO;
+    defaultSmartPlacement              = [prefs objectForKey:@"SmartPlacement"]              ?[[prefs objectForKey:@"SmartPlacement"] boolValue]: NO;
+    defaultWindowNumber                = [prefs objectForKey:@"WindowNumber"]                ?[[prefs objectForKey:@"WindowNumber"] boolValue]: YES;
+    defaultJobName                     = [prefs objectForKey:@"JobName"]                     ?[[prefs objectForKey:@"JobName"] boolValue]: YES;
+    defaultShowBookmarkName            = [prefs objectForKey:@"ShowBookmarkName"]            ?[[prefs objectForKey:@"ShowBookmarkName"] boolValue] : NO;
+    defaultHotkey                      = [prefs objectForKey:@"Hotkey"]                      ?[[prefs objectForKey:@"Hotkey"] boolValue]: NO;
+    defaultHotkeyCode                  = [prefs objectForKey:@"HotkeyCode"]                  ?[[prefs objectForKey:@"HotkeyCode"] intValue]: 0;
+    defaultHotkeyChar                  = [prefs objectForKey:@"HotkeyChar"]                  ?[[prefs objectForKey:@"HotkeyChar"] intValue]: 0;
+    defaultHotkeyModifiers             = [prefs objectForKey:@"HotkeyModifiers"]             ?[[prefs objectForKey:@"HotkeyModifiers"] intValue]: 0;
+    defaultSavePasteHistory            = [prefs objectForKey:@"SavePasteHistory"]            ?[[prefs objectForKey:@"SavePasteHistory"] boolValue]: NO;
+
     if ([[iTermController sharedInstance] hasWindowArrangement]) {
         defaultOpenArrangementAtStartup = [prefs objectForKey:@"OpenArrangementAtStartup"]?[[prefs objectForKey:@"OpenArrangementAtStartup"] boolValue]: NO;
     } else {
         defaultOpenArrangementAtStartup = NO;
     }
-    defaultIrMemory = [prefs objectForKey:@"IRMemory"]?[[prefs objectForKey:@"IRMemory"] intValue] : 4;
-    defaultCheckTestRelease = [prefs objectForKey:@"CheckTestRelease"]?[[prefs objectForKey:@"CheckTestRelease"] boolValue]: YES;
-    defaultDimInactiveSplitPanes = [prefs objectForKey:@"DimInactiveSplitPanes"]?[[prefs objectForKey:@"DimInactiveSplitPanes"] boolValue]: YES;
-    defaultShowWindowBorder = [[prefs objectForKey:@"UseBorder"] boolValue];
+    defaultIrMemory              = [prefs objectForKey:@"IRMemory"]              ?[[prefs objectForKey:@"IRMemory"] intValue] : 4;
+    defaultCheckTestRelease      = [prefs objectForKey:@"CheckTestRelease"]      ?[[prefs objectForKey:@"CheckTestRelease"] boolValue]: YES;
+    defaultDimInactiveSplitPanes = [prefs objectForKey:@"DimInactiveSplitPanes"] ?[[prefs objectForKey:@"DimInactiveSplitPanes"] boolValue]: YES;
+    defaultShowWindowBorder      = [[prefs objectForKey:@"UseBorder"] boolValue];
     
-    defaultControl = [prefs objectForKey:@"Control"] ? [[prefs objectForKey:@"Control"] intValue] : MOD_TAG_CONTROL;
-    defaultLeftOption = [prefs objectForKey:@"LeftOption"] ? [[prefs objectForKey:@"LeftOption"] intValue] : MOD_TAG_LEFT_OPTION;
-    defaultRightOption = [prefs objectForKey:@"RightOption"] ? [[prefs objectForKey:@"RightOption"] intValue] : MOD_TAG_RIGHT_OPTION;
-    defaultLeftCommand = [prefs objectForKey:@"LeftCommand"] ? [[prefs objectForKey:@"LeftCommand"] intValue] : MOD_TAG_LEFT_COMMAND;
-    defaultRightCommand = [prefs objectForKey:@"RightCommand"] ? [[prefs objectForKey:@"RightCommand"] intValue] : MOD_TAG_RIGHT_COMMAND;
+    defaultControl               = [prefs objectForKey:@"Control"]      ? [[prefs objectForKey:@"Control"] intValue] : MOD_TAG_CONTROL;
+    defaultLeftOption            = [prefs objectForKey:@"LeftOption"]   ? [[prefs objectForKey:@"LeftOption"] intValue] : MOD_TAG_LEFT_OPTION;
+    defaultRightOption           = [prefs objectForKey:@"RightOption"]  ? [[prefs objectForKey:@"RightOption"] intValue] : MOD_TAG_RIGHT_OPTION;
+    defaultLeftCommand           = [prefs objectForKey:@"LeftCommand"]  ? [[prefs objectForKey:@"LeftCommand"] intValue] : MOD_TAG_LEFT_COMMAND;
+    defaultRightCommand          = [prefs objectForKey:@"RightCommand"] ? [[prefs objectForKey:@"RightCommand"] intValue] : MOD_TAG_RIGHT_COMMAND;
     if ([self isAnyModifierRemapped]) {
         [[iTermController sharedInstance] beginRemappingModifiers];
     }
     defaultSwitchTabModifier = [prefs objectForKey:@"SwitchTabModifier"] ? [[prefs objectForKey:@"SwitchTabModifier"] intValue] : MOD_TAG_ANY_COMMAND;
     defaultSwitchWindowModifier = [prefs objectForKey:@"SwitchWindowModifier"] ? [[prefs objectForKey:@"SwitchWindowModifier"] intValue] : MOD_TAG_CMD_OPT;
     
-    NSString *appCast = defaultCheckTestRelease ?
-    [[NSBundle mainBundle] objectForInfoDictionaryKey:@"SUFeedURLForTesting"] :
-    [[NSBundle mainBundle] objectForInfoDictionaryKey:@"SUFeedURLForFinal"];
+    NSString *appCast = defaultCheckTestRelease
+      ? [[NSBundle mainBundle] objectForInfoDictionaryKey:@"SUFeedURLForTesting"] 
+      : [[NSBundle mainBundle] objectForInfoDictionaryKey:@"SUFeedURLForFinal"];
+
     [prefs setObject:appCast forKey:@"SUFeedURL"];
     
     if ([[prefs objectForKey:@"DeleteSendsCtrlH"] boolValue]) {
