@@ -32,10 +32,11 @@
   - Initialize dict for new profile
   - Assigning shortcuts and maintaining their uniqueness
   - Delegate for BookmarksListView
+    - In progress.
   - URL handler management
   - Creating a default profile for the hotkey window.
   - pushing changes out to objects that care by posting notifications
-  - keeping items in views up to date (e.g., initializing the list ofscreens in
+  - keeping items in views up to date (e.g., initializing the list of screens in
     the "Screen" popup button or maintaining the "shortcuts" popup button in
     profiles->general)
   - updating views when the selected profile changes (e.g., by reordering them in
@@ -75,3 +76,15 @@
   - enabling/disabling items (e.g., when a saved window arrangement
     comes into being, the option to use it becomes enabled in prefs)
   - modifying the view for the "one bookmark only" case (the cmd-I menu)
+** PrefsAppearanceHelper
+  - same as all teh others, but for the Appearance tab items.
+
+--
+ //opening the Universal Access Preference Pane.  
+
+I forget what I needed this for, but it looks useful.
+
+[[NSWorkspace sharedWorkspace]
+    openFile:@"/System/Library/PreferencePanes/UniversalAccessPref.prefPane"];
+
+http://cocoatutorial.grapewave.com/2010/01/opening-system-preferences-pane/
