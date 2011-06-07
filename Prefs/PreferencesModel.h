@@ -417,4 +417,8 @@ typedef enum { CURSOR_UNDERLINE, CURSOR_VERTICAL, CURSOR_BOX } ITermCursorType;
 @property (readwrite,assign) int defaultSwitchTabModifier;
 @property (readwrite,assign) int defaultSwitchWindowModifier;
 
+// TODO: 
+// * add +migrateProfiles
+// * add load/save code
+// * add obj instance to xib?
 @end

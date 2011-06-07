@@ -8,7 +8,7 @@
 		<string key="IBDocument.HIToolboxVersion">353.00</string>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="1923"/>
+			<integer value="1946"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -8384,6 +8384,9 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 				<string key="NSScreenRect">{{0, 0}, {1440, 878}}</string>
 				<string key="NSMaxSize">{3.40282e+38, 3.40282e+38}</string>
 			</object>
+			<object class="NSCustomObject" id="889983413">
+				<string key="NSClassName">PreferencesProfilesHelper</string>
+			</object>
 		</object>
 		<object class="IBObjectContainer" key="IBDocument.Objects">
 			<object class="NSMutableArray" key="connectionRecords">
@@ -9491,14 +9494,6 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 						<reference key="destination" ref="292187634"/>
 					</object>
 					<int key="connectionID">3275</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBOutletConnection" key="connection">
-						<string key="label">delegate_</string>
-						<reference key="source" ref="477047632"/>
-						<reference key="destination" ref="155244235"/>
-					</object>
-					<int key="connectionID">3276</int>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
@@ -12076,6 +12071,14 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 					</object>
 					<int key="connectionID">5316</int>
 				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">delegate_</string>
+						<reference key="source" ref="477047632"/>
+						<reference key="destination" ref="889983413"/>
+					</object>
+					<int key="connectionID">5334</int>
+				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
 				<object class="NSArray" key="orderedObjects">
@@ -12186,8 +12189,8 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 							<reference ref="292187634"/>
 							<reference ref="1072403251"/>
 							<reference ref="118227744"/>
-							<reference ref="477047632"/>
 							<reference ref="551361709"/>
+							<reference ref="477047632"/>
 						</object>
 						<reference key="parent" ref="745611275"/>
 					</object>
@@ -17320,6 +17323,12 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 						<reference key="object" ref="475314402"/>
 						<reference key="parent" ref="190237893"/>
 					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">5333</int>
+						<reference key="object" ref="889983413"/>
+						<reference key="parent" ref="739355747"/>
+						<string key="objectName">Profile Helper</string>
+					</object>
 				</object>
 			</object>
 			<object class="NSMutableDictionary" key="flattenedProperties">
@@ -18399,14 +18408,15 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 					<string>5329.IBPluginDependency</string>
 					<string>5330.IBPluginDependency</string>
 					<string>5331.IBPluginDependency</string>
+					<string>5333.IBPluginDependency</string>
 				</object>
 				<object class="NSMutableArray" key="dict.values">
 					<bool key="EncodedWithXMLCoder">YES</bool>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<reference ref="5"/>
-					<string>{{81, 86}, {800, 411}}</string>
+					<string>{{114, 1}, {800, 411}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{81, 86}, {800, 411}}</string>
+					<string>{{114, 1}, {800, 411}}</string>
 					<reference ref="5"/>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>{{413, 528}, {616, 0}}</string>
@@ -18941,9 +18951,9 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{333, 338}, {472, 398}}</string>
+					<string>{{217, 338}, {472, 398}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{333, 338}, {472, 398}}</string>
+					<string>{{217, 338}, {472, 398}}</string>
 					<reference ref="6"/>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -19705,6 +19715,7 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
+					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 				</object>
 			</object>
 			<object class="NSMutableDictionary" key="unlocalizedProperties">
@@ -19727,7 +19738,7 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 				</object>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">5331</int>
+			<int key="maxID">5334</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -19769,14 +19780,14 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 					<string key="className">NSObject</string>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">GTM/GTMCarbonEvent.h</string>
+						<string key="minorKey">Growl/GrowlApplicationBridge.h</string>
 					</object>
 				</object>
 				<object class="IBPartialClassDescription">
 					<string key="className">NSObject</string>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">Growl/GrowlApplicationBridge.h</string>
+						<string key="minorKey">Vendor/GTM/GTMCarbonEvent.h</string>
 					</object>
 				</object>
 				<object class="IBPartialClassDescription">
@@ -20263,473 +20274,15 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 					</object>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">Prefs/PreferencePanel.h</string>
+						<string key="minorKey">Prefs/PreferencePanelController.h</string>
 					</object>
 				</object>
 				<object class="IBPartialClassDescription">
-					<string key="className">PreferencePanelController</string>
-					<string key="superclassName">NSWindowController</string>
-					<object class="NSMutableDictionary" key="actions">
-						<bool key="EncodedWithXMLCoder">YES</bool>
-						<object class="NSMutableArray" key="dict.sortedKeys">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>_commonDisplaySelectFont:</string>
-							<string>actionChanged:</string>
-							<string>addBookmark:</string>
-							<string>addNewMapping:</string>
-							<string>bookmarkSettingChanged:</string>
-							<string>bookmarkUrlSchemeHandlerChanged:</string>
-							<string>cancelCopyBookmarks:</string>
-							<string>closeKeyMapping:</string>
-							<string>closeWindow:</string>
-							<string>copyBookmarks:</string>
-							<string>copyToProfile:</string>
-							<string>displaySelectFont:</string>
-							<string>duplicateBookmark:</string>
-							<string>editKeyMapping:</string>
-							<string>globalRemoveMapping:</string>
-							<string>loadColorPreset:</string>
-							<string>openCopyBookmarks:</string>
-							<string>presetKeyMappingsItemSelected:</string>
-							<string>removeBookmark:</string>
-							<string>removeMapping:</string>
-							<string>saveKeyMapping:</string>
-							<string>setAsDefault:</string>
-							<string>settingChanged:</string>
-							<string>showAppearanceTabView:</string>
-							<string>showBookmarksTabView:</string>
-							<string>showGlobalTabView:</string>
-							<string>showKeyboardTabView:</string>
-						</object>
-						<object class="NSMutableArray" key="dict.values">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-						</object>
-					</object>
-					<object class="NSMutableDictionary" key="outlets">
-						<bool key="EncodedWithXMLCoder">YES</bool>
-						<object class="NSMutableArray" key="dict.sortedKeys">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>action</string>
-							<string>actionColumn</string>
-							<string>addBookmarkButton</string>
-							<string>addNewMapping</string>
-							<string>advancedFontRendering</string>
-							<string>ansi0Color</string>
-							<string>ansi10Color</string>
-							<string>ansi11Color</string>
-							<string>ansi12Color</string>
-							<string>ansi13Color</string>
-							<string>ansi14Color</string>
-							<string>ansi15Color</string>
-							<string>ansi1Color</string>
-							<string>ansi2Color</string>
-							<string>ansi3Color</string>
-							<string>ansi4Color</string>
-							<string>ansi5Color</string>
-							<string>ansi6Color</string>
-							<string>ansi7Color</string>
-							<string>ansi8Color</string>
-							<string>ansi9Color</string>
-							<string>appearanceTabViewItem</string>
-							<string>appearanceToolbarItem</string>
-							<string>asciiAntiAliased</string>
-							<string>backgroundColor</string>
-							<string>backgroundImage</string>
-							<string>backgroundImagePreview</string>
-							<string>blinkAllowed</string>
-							<string>blinkingCursor</string>
-							<string>blur</string>
-							<string>boldColor</string>
-							<string>bookmarkCommand</string>
-							<string>bookmarkCommandLabel</string>
-							<string>bookmarkCommandType</string>
-							<string>bookmarkDirectory</string>
-							<string>bookmarkDirectoryLabel</string>
-							<string>bookmarkDirectoryType</string>
-							<string>bookmarkGrowlNotifications</string>
-							<string>bookmarkName</string>
-							<string>bookmarkPopupButton</string>
-							<string>bookmarkSettingsGeneralTab</string>
-							<string>bookmarkShortcutKey</string>
-							<string>bookmarkShortcutKeyLabel</string>
-							<string>bookmarkShortcutKeyModifiersLabel</string>
-							<string>bookmarkTagsLabel</string>
-							<string>bookmarkUrlSchemes</string>
-							<string>bookmarkUrlSchemesHeaderLabel</string>
-							<string>bookmarkUrlSchemesLabel</string>
-							<string>bookmarksPopup</string>
-							<string>bookmarksSettingsTabViewParent</string>
-							<string>bookmarksTabViewItem</string>
-							<string>bookmarksTableView</string>
-							<string>bookmarksToolbarItem</string>
-							<string>bulkCopyLabel</string>
-							<string>characterEncoding</string>
-							<string>checkColorInvertedCursor</string>
-							<string>checkTestRelease</string>
-							<string>checkUpdate</string>
-							<string>closeSessionsOnEnd</string>
-							<string>closingHotkeySwitchesSpaces</string>
-							<string>cmdSelection</string>
-							<string>columnsField</string>
-							<string>columnsLabel</string>
-							<string>controlButton</string>
-							<string>copyButton</string>
-							<string>copyColors</string>
-							<string>copyDisplay</string>
-							<string>copyKeyboard</string>
-							<string>copyPanel</string>
-							<string>copyTerminal</string>
-							<string>copyTo</string>
-							<string>copyToProfileButton</string>
-							<string>copyWindow</string>
-							<string>cursorColor</string>
-							<string>cursorColorLabel</string>
-							<string>cursorTextColor</string>
-							<string>cursorTextColorLabel</string>
-							<string>cursorType</string>
-							<string>deleteSendsCtrlHButton</string>
-							<string>dimInactiveSplitPanes</string>
-							<string>disableSmcupRmcup</string>
-							<string>disableWindowResizing</string>
-							<string>displayFontAccessoryView</string>
-							<string>displayFontSpacingHeight</string>
-							<string>displayFontSpacingWidth</string>
-							<string>displayFontsLabel</string>
-							<string>displayNAFontButton</string>
-							<string>displayRegularFontButton</string>
-							<string>editKeyMappingWindow</string>
-							<string>enableBonjour</string>
-							<string>escPlus</string>
-							<string>flashingBell</string>
-							<string>focusFollowsMouse</string>
-							<string>foregroundColor</string>
-							<string>fsTabDelay</string>
-							<string>globalActionColumn</string>
-							<string>globalAddNewMapping</string>
-							<string>globalKeyCombinationColumn</string>
-							<string>globalKeyMappings</string>
-							<string>globalRemoveMappingButton</string>
-							<string>globalTabViewItem</string>
-							<string>globalToolbarItem</string>
-							<string>hideScrollbar</string>
-							<string>hideTab</string>
-							<string>highlightTabLabels</string>
-							<string>hotkey</string>
-							<string>hotkeyBookmark</string>
-							<string>hotkeyField</string>
-							<string>hotkeyLabel</string>
-							<string>hotkeyTogglesWindow</string>
-							<string>idleCode</string>
-							<string>instantReplay</string>
-							<string>irMemory</string>
-							<string>jobName</string>
-							<string>keyCombinationColumn</string>
-							<string>keyMappings</string>
-							<string>keyPress</string>
-							<string>keyboardTabViewItem</string>
-							<string>keyboardToolbarItem</string>
-							<string>leftCommandButton</string>
-							<string>leftOptionButton</string>
-							<string>maxVertically</string>
-							<string>menuToSelect</string>
-							<string>middleButtonPastesFromClipboard</string>
-							<string>minimumContrast</string>
-							<string>modifyMappingOriginator</string>
-							<string>nameShortcutColumn</string>
-							<string>newWindowttributesHeader</string>
-							<string>nonAsciiDoubleWidth</string>
-							<string>nonAsciiFontField</string>
-							<string>nonasciiAntiAliased</string>
-							<string>normalFontField</string>
-							<string>onlyWhenMoreTabs</string>
-							<string>openArrangementAtStartup</string>
-							<string>openBookmark</string>
-							<string>optionKeySends</string>
-							<string>passOnControlLeftClick</string>
-							<string>presetsErrorLabel</string>
-							<string>presetsMenu</string>
-							<string>presetsPopupButton</string>
-							<string>profileLabel</string>
-							<string>promptOnClose</string>
-							<string>promptOnQuit</string>
-							<string>quitWhenAllWindowsClosed</string>
-							<string>removeBookmarkButton</string>
-							<string>removeMappingButton</string>
-							<string>rightCommandButton</string>
-							<string>rightOptionButton</string>
-							<string>rightOptionKeySends</string>
-							<string>rowsField</string>
-							<string>rowsLabel</string>
-							<string>savePasteHistory</string>
-							<string>screenButton</string>
-							<string>screenLabel</string>
-							<string>scrollbackLines</string>
-							<string>scrollbackWithStatusBar</string>
-							<string>selectedTextColor</string>
-							<string>selectionColor</string>
-							<string>selectionCopiesText</string>
-							<string>sendCodeWhenIdle</string>
-							<string>shellImageColumn</string>
-							<string>showBookmarkName</string>
-							<string>showWindowBorder</string>
-							<string>silenceBell</string>
-							<string>smartPlacement</string>
-							<string>spaceButton</string>
-							<string>spaceLabel</string>
-							<string>strokeThickness</string>
-							<string>strokeThicknessLabel</string>
-							<string>strokeThicknessMaxLabel</string>
-							<string>strokeThicknessMinLabel</string>
-							<string>switchTabModifierButton</string>
-							<string>switchWindowModifierButton</string>
-							<string>syncTitle</string>
-							<string>tabPosition</string>
-							<string>tabView</string>
-							<string>tagFilter</string>
-							<string>tags</string>
-							<string>terminalType</string>
-							<string>toolbar</string>
-							<string>transparency</string>
-							<string>unlimitedScrollback</string>
-							<string>useBoldFont</string>
-							<string>useBrightBold</string>
-							<string>useCompactLabel</string>
-							<string>valueToSend</string>
-							<string>visualBell</string>
-							<string>windowNumber</string>
-							<string>windowStyle</string>
-							<string>windowTypeButton</string>
-							<string>windowTypeLabel</string>
-							<string>wordChars</string>
-							<string>xtermMouseReporting</string>
-						</object>
-						<object class="NSMutableArray" key="dict.values">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>NSPopUpButton</string>
-							<string>NSTableColumn</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSColorWell</string>
-							<string>NSColorWell</string>
-							<string>NSColorWell</string>
-							<string>NSColorWell</string>
-							<string>NSColorWell</string>
-							<string>NSColorWell</string>
-							<string>NSColorWell</string>
-							<string>NSColorWell</string>
-							<string>NSColorWell</string>
-							<string>NSColorWell</string>
-							<string>NSColorWell</string>
-							<string>NSColorWell</string>
-							<string>NSColorWell</string>
-							<string>NSColorWell</string>
-							<string>NSColorWell</string>
-							<string>NSColorWell</string>
-							<string>NSTabViewItem</string>
-							<string>NSToolbarItem</string>
-							<string>NSButton</string>
-							<string>NSColorWell</string>
-							<string>NSButton</string>
-							<string>NSImageView</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSColorWell</string>
-							<string>NSTextField</string>
-							<string>NSTextField</string>
-							<string>NSMatrix</string>
-							<string>NSTextField</string>
-							<string>NSTextField</string>
-							<string>NSMatrix</string>
-							<string>NSButton</string>
-							<string>NSTextField</string>
-							<string>NSPopUpButton</string>
-							<string>NSTabViewItem</string>
-							<string>NSPopUpButton</string>
-							<string>NSTextField</string>
-							<string>NSTextField</string>
-							<string>NSTextField</string>
-							<string>NSPopUpButton</string>
-							<string>NSTextField</string>
-							<string>NSTextField</string>
-							<string>NSPopUpButton</string>
-							<string>NSTabView</string>
-							<string>NSTabViewItem</string>
-							<string>BookmarkListView</string>
-							<string>NSToolbarItem</string>
-							<string>NSTextField</string>
-							<string>NSPopUpButton</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSTextField</string>
-							<string>NSTextField</string>
-							<string>NSPopUpButton</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSPanel</string>
-							<string>NSButton</string>
-							<string>BookmarkListView</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSColorWell</string>
-							<string>NSTextField</string>
-							<string>NSColorWell</string>
-							<string>NSTextField</string>
-							<string>NSMatrix</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSView</string>
-							<string>NSSlider</string>
-							<string>NSSlider</string>
-							<string>NSTextField</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSWindow</string>
-							<string>NSButton</string>
-							<string>NSTextField</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSColorWell</string>
-							<string>NSSlider</string>
-							<string>NSTableColumn</string>
-							<string>NSButton</string>
-							<string>NSTableColumn</string>
-							<string>NSTableView</string>
-							<string>NSButton</string>
-							<string>NSTabViewItem</string>
-							<string>NSToolbarItem</string>
-							<string>NSButton</string>
-							<string>id</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSPopUpButton</string>
-							<string>NSTextField</string>
-							<string>NSTextField</string>
-							<string>NSButton</string>
-							<string>NSTextField</string>
-							<string>NSButton</string>
-							<string>NSTextField</string>
-							<string>NSButton</string>
-							<string>NSTableColumn</string>
-							<string>NSTableView</string>
-							<string>NSTextField</string>
-							<string>NSTabViewItem</string>
-							<string>NSToolbarItem</string>
-							<string>NSPopUpButton</string>
-							<string>NSPopUpButton</string>
-							<string>NSButton</string>
-							<string>NSPopUpButton</string>
-							<string>NSButton</string>
-							<string>NSSlider</string>
-							<string>id</string>
-							<string>NSTableColumn</string>
-							<string>NSTextField</string>
-							<string>NSButton</string>
-							<string>NSTextField</string>
-							<string>NSButton</string>
-							<string>NSTextField</string>
-							<string>id</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSMatrix</string>
-							<string>NSButton</string>
-							<string>NSTextField</string>
-							<string>NSMenu</string>
-							<string>NSPopUpButton</string>
-							<string>NSTextField</string>
-							<string>id</string>
-							<string>id</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSPopUpButton</string>
-							<string>NSPopUpButton</string>
-							<string>NSMatrix</string>
-							<string>NSTextField</string>
-							<string>NSTextField</string>
-							<string>NSButton</string>
-							<string>NSPopUpButton</string>
-							<string>NSTextField</string>
-							<string>NSTextField</string>
-							<string>NSButton</string>
-							<string>NSColorWell</string>
-							<string>NSColorWell</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSTableColumn</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSPopUpButton</string>
-							<string>NSTextField</string>
-							<string>NSSlider</string>
-							<string>NSTextField</string>
-							<string>NSTextField</string>
-							<string>NSTextField</string>
-							<string>NSPopUpButton</string>
-							<string>NSPopUpButton</string>
-							<string>NSButton</string>
-							<string>NSPopUpButton</string>
-							<string>NSTabView</string>
-							<string>NSTextField</string>
-							<string>NSTokenField</string>
-							<string>NSComboBox</string>
-							<string>NSToolbar</string>
-							<string>NSSlider</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSTextField</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSPopUpButton</string>
-							<string>NSPopUpButton</string>
-							<string>NSTextField</string>
-							<string>NSTextField</string>
-							<string>NSButton</string>
-						</object>
-					</object>
+					<string key="className">PreferencesProfilesHelper</string>
+					<string key="superclassName">NSObject</string>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">Prefs/PreferencePanelController.h</string>
+						<string key="minorKey">Prefs/PreferencesProfilesHelper.h</string>
 					</object>
 				</object>
 			</object>

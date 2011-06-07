@@ -20,6 +20,8 @@
 		1D99785312EEB3D600F0794D /* GlobalSearch.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1D99785112EEB3D600F0794D /* GlobalSearch.xib */; };
 		1DE2154312821F1C004E3ADF /* Autocomplete.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1DE2154112821F1C004E3ADF /* Autocomplete.xib */; };
 		1DEE9FDD11FCA60F009E18C9 /* credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 1DEE9FDB11FCA60F009E18C9 /* credits.rtf */; };
+		2C1C0829139DB34C00E1DA75 /* PreferencesProfilesHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C1C0828139DB34C00E1DA75 /* PreferencesProfilesHelper.h */; };
+		2C1C082B139DB35700E1DA75 /* PreferencesProfilesHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1C082A139DB35700E1DA75 /* PreferencesProfilesHelper.m */; };
 		2C2760481395C77000D340AA /* Sparkle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C2760471395C77000D340AA /* Sparkle.framework */; };
 		2C27607E1395C7A800D340AA /* AquaTabClose_Front.tif in Resources */ = {isa = PBXBuildFile; fileRef = 2C27604C1395C7A800D340AA /* AquaTabClose_Front.tif */; };
 		2C27607F1395C7A800D340AA /* AquaTabClose_Front_Pressed.tif in Resources */ = {isa = PBXBuildFile; fileRef = 2C27604D1395C7A800D340AA /* AquaTabClose_Front_Pressed.tif */; };
@@ -314,6 +316,8 @@
 		1DEB29371288887100B2CB9F /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		1DEB293D1288899A00B2CB9F /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = System/Library/Frameworks/Carbon.framework; sourceTree = SDKROOT; };
 		1DEE9FDC11FCA60F009E18C9 /* English */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = English; path = English.lproj/credits.rtf; sourceTree = "<group>"; };
+		2C1C0828139DB34C00E1DA75 /* PreferencesProfilesHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PreferencesProfilesHelper.h; path = Prefs/PreferencesProfilesHelper.h; sourceTree = "<group>"; };
+		2C1C082A139DB35700E1DA75 /* PreferencesProfilesHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PreferencesProfilesHelper.m; path = Prefs/PreferencesProfilesHelper.m; sourceTree = "<group>"; };
 		2C275FCC1395C6C600D340AA /* DVR */ = {isa = PBXFileReference; lastKnownFileType = folder; path = DVR; sourceTree = SOURCE_ROOT; };
 		2C275FD91395C70600D340AA /* App */ = {isa = PBXFileReference; lastKnownFileType = folder; path = App; sourceTree = SOURCE_ROOT; };
 		2C275FE51395C70600D340AA /* Expose */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Expose; sourceTree = SOURCE_ROOT; };
@@ -653,6 +657,7 @@
 		0464AB15006CD2EC7F000001 /* Headers */ = {
 			isa = PBXGroup;
 			children = (
+				2C1C0828139DB34C00E1DA75 /* PreferencesProfilesHelper.h */,
 				2CE2762B139B2A82005797CA /* PreferencePanelController.h */,
 				2CE2761B139B296D005797CA /* PreferencesModel.h */,
 				2C7EE32B13960C0C000305E6 /* iTerm.h */,
@@ -874,6 +879,7 @@
 			children = (
 				2CE2762D139B2A87005797CA /* PreferencePanelController.m */,
 				2CE2761D139B2977005797CA /* PreferencesModel.m */,
+				2C1C082A139DB35700E1DA75 /* PreferencesProfilesHelper.m */,
 				2CE27A13139D6B85005797CA /* GTMCarbonEvent.m */,
 				2C7EE32913960BFA000305E6 /* main.m */,
 				2C2761EE1395DA8A00D340AA /* DVR.m */,
@@ -1179,6 +1185,7 @@
 				2CE27A10139D6B76005797CA /* GTMDefines.h in Headers */,
 				2CE27A11139D6B76005797CA /* GTMObjectSingleton.h in Headers */,
 				2CE27A12139D6B76005797CA /* GTMTypeCasting.h in Headers */,
+				2C1C0829139DB34C00E1DA75 /* PreferencesProfilesHelper.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1471,6 +1478,7 @@
 				2CE2761E139B2977005797CA /* PreferencesModel.m in Sources */,
 				2CE2762E139B2A87005797CA /* PreferencePanelController.m in Sources */,
 				2CE27A14139D6B85005797CA /* GTMCarbonEvent.m in Sources */,
+				2C1C082B139DB35700E1DA75 /* PreferencesProfilesHelper.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -28,6 +28,7 @@
 #import <Cocoa/Cocoa.h>
 #import "Prefs/PreferencesModel.h"
 #import "Profiles/BookmarkModel.h"
+#import "Prefs/PreferencesProfilesHelper.h"
 #import "Profiles/BookmarkListView.h"
 
 
@@ -35,8 +36,14 @@
 @class iTermController;
 
 
-@interface PreferencePanelController : NSWindowController <BookmarkTableDelegate>
+@interface PreferencePanelController : NSWindowController 
 {
+
+  // helper class instances.
+    PreferencesProfilesHelper *prefsProfilesHelper;
+    PreferencesModel *prefsModel;
+
+
     BookmarkModel* dataSource;
     BOOL oneBookmarkMode;
     
@@ -417,6 +424,7 @@
     IBOutlet NSTableColumn* globalActionColumn;
     IBOutlet NSButton* globalRemoveMappingButton;
     IBOutlet NSButton* globalAddNewMapping;
+    
 }
 
 typedef enum { BulkCopyColors, BulkCopyDisplay, BulkCopyWindow, BulkCopyTerminal, BulkCopyKeyboard } BulkCopySettings;
@@ -424,6 +432,13 @@ typedef enum { BulkCopyColors, BulkCopyDisplay, BulkCopyWindow, BulkCopyTerminal
 + (PreferencePanelController *)sharedInstance;
 + (PreferencePanelController *)sessionsInstance;
 + (BOOL)migratePreferences;
+
+@property (readwrite,retain) PreferencesProfilesHelper *prefsProfilesHelper;
+@property (readwrite,retain) PreferencesModel *prefsModel;
+
+
+
+
 - (id)initWithDataSource:(BookmarkModel*)model userDefaults:(NSUserDefaults*)userDefaults;
 - (void)setOneBookmarkOnly;
 - (void)awakeFromNib;

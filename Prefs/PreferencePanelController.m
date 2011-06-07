@@ -37,6 +37,7 @@
 #import "Popups/PasteboardHistory.h"
 #import "Session/SessionView.h"
 
+
 #define CUSTOM_COLOR_PRESETS @"Custom Color Presets"
 #define HOTKEY_WINDOW_GENERATED_PROFILE_NAME @"Hotkey Window"
 NSString* kDeleteKeyString = @"0x7f-0x0";
@@ -44,6 +45,9 @@ NSString* kDeleteKeyString = @"0x7f-0x0";
 static float versionNumber;
 
 @implementation PreferencePanelController
+
+@synthesize prefsProfilesHelper;
+@synthesize prefsModel;
 
 + (PreferencePanelController*)sharedInstance;
 {
@@ -53,6 +57,8 @@ static float versionNumber;
         shared = [[self alloc] initWithDataSource:[BookmarkModel sharedInstance]
                                      userDefaults:[NSUserDefaults standardUserDefaults]];
         shared->oneBookmarkMode = NO;
+        shared.prefsProfilesHelper = [[PreferencesProfilesHelper alloc] init];
+        shared.prefsModel = [[PreferencesModel alloc] init];
     }
     
     return shared;
@@ -66,6 +72,8 @@ static float versionNumber;
         shared = [[self alloc] initWithDataSource:[BookmarkModel sessionsInstance]
                                      userDefaults:nil];
         shared->oneBookmarkMode = YES;
+        shared.prefsProfilesHelper = [[PreferencesProfilesHelper alloc] init];
+        shared.prefsModel = [[PreferencesModel alloc] init];
     }
     
     return shared;
@@ -821,6 +829,9 @@ static float versionNumber;
 - (void)dealloc
 {
     [defaultWordChars release];
+    [prefsProfilesHelper release];
+    [prefsModel release];
+
     [super dealloc];
 }
 
@@ -1957,6 +1968,7 @@ static float versionNumber;
     }
 }
 
+// TODO: Model or Helper?
 // Update the values in form fields to reflect the bookmark's state
 - (void)updateBookmarkFields:(NSDictionary *)dict
 {
@@ -2552,67 +2564,6 @@ static float versionNumber;
         [self connectBookmarkWithGuid:guid toScheme:scheme];
     }
     [self _populateBookmarkUrlSchemesFromDict:[dataSource bookmarkWithGuid:guid]];
-}
-
-- (NSMenu*)bookmarkTable:(id)bookmarkTable menuForEvent:(NSEvent*)theEvent
-{
-    return nil;
-}
-
-
-- (void)bookmarkTableSelectionWillChange:(id)aBookmarkTableView
-{
-    if ([[bookmarksTableView selectedGuids] count] == 1) {
-        [self bookmarkSettingChanged:nil];
-    }
-}
-
-- (void)bookmarkTableSelectionDidChange:(id)bookmarkTable
-{
-    if ([[bookmarksTableView selectedGuids] count] != 1) {
-        [bookmarksSettingsTabViewParent setHidden:YES];
-        [bookmarksPopup setEnabled:NO];
-        
-        if ([[bookmarksTableView selectedGuids] count] == 0) {
-            [removeBookmarkButton setEnabled:NO];
-        } else {
-            [removeBookmarkButton setEnabled:[[bookmarksTableView selectedGuids] count] < [[bookmarksTableView dataSource] numberOfBookmarks]];
-        }
-    } else {
-        [bookmarksSettingsTabViewParent setHidden:NO];
-        [bookmarksPopup setEnabled:YES];
-        [removeBookmarkButton setEnabled:NO];
-        if (bookmarkTable == bookmarksTableView) {
-            NSString* guid = [bookmarksTableView selectedGuid];
-            [self updateBookmarkFields:[dataSource bookmarkWithGuid:guid]];
-        }
-    }
-}
-
-- (void)bookmarkTableRowSelected:(id)bookmarkTable
-{
-    // Do nothing for double click
-}
-
-// NSTableView delegate
-- (void)tableViewSelectionDidChange:(NSNotification *)aNotification
-{
-    //NSLog(@"%s", __PRETTY_FUNCTION__);
-    if ([aNotification object] == keyMappings) {
-        int rowIndex = [keyMappings selectedRow];
-        if (rowIndex >= 0) {
-            [removeMappingButton setEnabled:YES];
-        } else {
-            [removeMappingButton setEnabled:NO];
-        }
-    } else if ([aNotification object] == globalKeyMappings) {
-        int rowIndex = [globalKeyMappings selectedRow];
-        if (rowIndex >= 0) {
-            [globalRemoveMappingButton setEnabled:YES];
-        } else {
-            [globalRemoveMappingButton setEnabled:NO];
-        }
-    }
 }
 
 - (IBAction)showGlobalTabView:(id)sender
