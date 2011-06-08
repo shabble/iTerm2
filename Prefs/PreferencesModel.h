@@ -238,7 +238,14 @@ typedef enum { CURSOR_UNDERLINE, CURSOR_VERTICAL, CURSOR_BOX } ITermCursorType;
     int defaultSwitchTabModifier;
     int defaultSwitchWindowModifier;
 
+    
+    
+    // NEW APPROACH
+    NSMutableDictionary *preferences;
 }
+
+@property (readwrite,retain) NSMutableDictionary *preferences;
+
 
 @property (readwrite,retain) BookmarkModel* bookmarkDataSource;
 @property (readwrite,assign) BOOL           oneBookmarkMode;

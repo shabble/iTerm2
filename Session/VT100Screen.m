@@ -511,6 +511,10 @@ static __inline__ screen_char_t *incrementLinePointer(screen_char_t *buf_start, 
     assert(fromY < HEIGHT);
     assert(toY >= 0);
     assert(toY < HEIGHT);
+    assert(fromY <= toY);
+    if (fromY == toY) {
+        assert(fromX <= toX);
+    }
     int i = fromX + fromY * WIDTH;
     [self setRangeDirty:NSMakeRange(i, toX + toY * WIDTH - i)];
 }
@@ -1146,12 +1150,12 @@ static char* FormatCont(int c)
     display = aDisplay;
 }
 
-- (BOOL) blinkingCursor
+- (BOOL)blinkingCursor
 {
     return (blinkingCursor);
 }
 
-- (void) setBlinkingCursor: (BOOL) flag
+- (void)setBlinkingCursor: (BOOL) flag
 {
     blinkingCursor = flag;
 }
@@ -2875,7 +2879,7 @@ void DumpBuf(screen_char_t* p, int n) {
     DebugLog(@"insertLines");
 }
 
-- (void)deleteLines: (int)n
+- (void)deleteLines:(int)n
 {
     int i, num_lines_moved;
     screen_char_t *sourceLine, *targetLine, *aDefaultLine;
@@ -2884,7 +2888,6 @@ void DumpBuf(screen_char_t* p, int n) {
     NSLog(@"%s(%d):-[VT100Screen deleteLines; %d]", __FILE__, __LINE__, n);
 #endif
 
-    //    NSLog(@"insertLines %d[%d,%d]",n, cursorX,cursorY);
     if (n + cursorY <= SCROLL_BOTTOM) {
         // number of lines we can move down by n before we hit SCROLL_BOTTOM
         num_lines_moved = SCROLL_BOTTOM - (cursorY + n);
@@ -2907,7 +2910,9 @@ void DumpBuf(screen_char_t* p, int n) {
     }
 
     // everything between cursorY and SCROLL_BOTTOM is dirty
-    [self setDirtyFromX:0 Y:cursorY toX:WIDTH Y:SCROLL_BOTTOM];
+    if (cursorY >= SCROLL_BOTTOM) {
+        [self setDirtyFromX:0 Y:cursorY toX:WIDTH Y:SCROLL_BOTTOM];
+    }
     DebugLog(@"deleteLines");
 
 }
@@ -3548,7 +3553,12 @@ void DumpBuf(screen_char_t* p, int n) {
         // This is an experiment to not save to scrollback when we're in alternate
         // screen mode. This was mentioned in a comment in bug 839 (though it's
         // not really related).
-        return 0;
+        if (SCROLL_BOTTOM == HEIGHT - 1 ||
+            ![[[SESSION addressBookEntry] objectForKey:KEY_SCROLLBACK_WITH_STATUS_BAR] boolValue]) {
+            // If the whole screen is being scrolled (as in less) don't save to scrollback.
+            // If only the top of the screen is being scrolled back and scrollbackWithStatusBar is disabled then don't save to scrollback.
+            return 0;
+        }
     }
 
     int len = WIDTH;

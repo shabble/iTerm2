@@ -88,6 +88,25 @@
     // Do nothing for double click
 }
 
+- (void)tableViewSelectionDidChange:(NSNotification *)aNotification
+{
+    //NSLog(@"%s", __PRETTY_FUNCTION__);
+    if ([aNotification object] == keyMappings) {
+        int rowIndex = [keyMappings selectedRow];
+        if (rowIndex >= 0) {
+            [removeMappingButton setEnabled:YES];
+        } else {
+            [removeMappingButton setEnabled:NO];
+        }
+    } else if ([aNotification object] == globalKeyMappings) {
+        int rowIndex = [globalKeyMappings selectedRow];
+        if (rowIndex >= 0) {
+            [globalRemoveMappingButton setEnabled:YES];
+        } else {
+            [globalRemoveMappingButton setEnabled:NO];
+        }
+    }
+}
 // ================================================================
 //                           Others
 // ================================================================

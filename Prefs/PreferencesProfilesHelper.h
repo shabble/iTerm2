@@ -38,6 +38,13 @@
 @property (readwrite,retain) PreferencesModel *prefsModel;
 
 + (id)initWithBookmarkTableView:(BookmarkTableView *)view;
+
+- (void)tableViewSelectionDidChange:(NSNotification *)aNotification;
+- (NSMenu*)bookmarkTable:(id)bookmarkTable menuForEvent:(NSEvent*)theEvent;
+- (void)bookmarkTableSelectionDidChange:(id)bookmarkTable;
+- (void)bookmarkTableSelectionWillChange:(id)aBookmarkTableView;
+- (void)bookmarkTableRowSelected:(id)bookmarkTable;
+
 //- (IBAction)duplicateBookmark:(id)sender;
 
 @end
