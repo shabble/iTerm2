@@ -52,6 +52,7 @@
 #define DEBUG_ALLOC           0
 #define DEBUG_METHOD_TRACE    0
 #define DEBUG_KEYDOWNDUMP     0
+#define ASK_ABOUT_OUTDATED_FORMAT @"AskAboutOutdatedKeyMappingForGuid%@"
 
 @implementation PTYSession
 
@@ -636,9 +637,14 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
     [[ProcessCache sharedInstance] notifyNewOutput];
 }
 
+- (BOOL)_growlOnForegroundTabs
+{
+    return [[[NSUserDefaults standardUserDefaults] objectForKey:@"GrowlOnForegroundTabs"] boolValue];
+}
+
 - (void)brokenPipe
 {
-    if ([SCREEN growl] && ![[self tab] isForegroundTab]) {
+    if ([SCREEN growl] && (![[self tab] isForegroundTab] || [self _growlOnForegroundTabs])) {
         [gd growlNotify:@"Session Ended"
             withDescription:[NSString stringWithFormat:@"Session \"%@\" in tab #%d just terminated.",
                              [self name],
@@ -716,6 +722,12 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
 - (BOOL)_askAboutOutdatedKeyMappings
 {
     NSNumber* n = [addressBookEntry objectForKey:KEY_ASK_ABOUT_OUTDATED_KEYMAPS];
+    if (!n) {
+        n = [[NSUserDefaults standardUserDefaults] objectForKey:[NSString stringWithFormat:ASK_ABOUT_OUTDATED_FORMAT, [addressBookEntry objectForKey:KEY_GUID]]];
+        if (!n && [addressBookEntry objectForKey:KEY_ORIGINAL_GUID]) {
+            n = [[NSUserDefaults standardUserDefaults] objectForKey:[NSString stringWithFormat:ASK_ABOUT_OUTDATED_FORMAT, [addressBookEntry objectForKey:KEY_ORIGINAL_GUID]]];
+        }
+    }
     return n ? [n boolValue] : YES;
 }
 
@@ -753,6 +765,14 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
     [model setObject:[NSNumber numberWithBool:NO]
                                        forKey:KEY_ASK_ABOUT_OUTDATED_KEYMAPS
                                    inBookmark:addressBookEntry];
+    [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:NO]
+                                              forKey:[NSString stringWithFormat:ASK_ABOUT_OUTDATED_FORMAT,
+                                                      [addressBookEntry objectForKey:KEY_GUID]]];
+    if ([addressBookEntry objectForKey:KEY_ORIGINAL_GUID]) {
+        [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:NO]
+                                                  forKey:[NSString stringWithFormat:ASK_ABOUT_OUTDATED_FORMAT,
+                                                          [addressBookEntry objectForKey:KEY_ORIGINAL_GUID]]];
+    }
     [PTYSession reloadAllBookmarks];
 }
 
