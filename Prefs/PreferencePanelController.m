@@ -31,11 +31,7 @@
 #import "App/iTermController.h"
 #import "Profiles/ITAddressBookMgr.h"
 #import "App/iTermKeyBindingMgr.h"
-#import "Session/PTYSession.h"
-#import "Window/PseudoTerminal.h"
 #import "Profiles/BookmarkModel.h"
-#import "Popups/PasteboardHistory.h"
-#import "Session/SessionView.h"
 
 
 #define CUSTOM_COLOR_PRESETS @"Custom Color Presets"
@@ -1361,7 +1357,7 @@ static float versionNumber;
         defaultSmartPlacement = ([smartPlacement state] == NSOnState);
         defaultSavePasteHistory = ([savePasteHistory state] == NSOnState);
         if (!defaultSavePasteHistory) {
-            [[PasteboardHistory sharedInstance] eraseHistory];
+            //[[PasteboardHistory sharedInstance] eraseHistory];
         }
         defaultOpenArrangementAtStartup = ([openArrangementAtStartup state] == NSOnState);
         
@@ -2324,15 +2320,17 @@ static float versionNumber;
         [copyOfSource setObject:[destination objectForKey:KEY_NAME] forKey:KEY_NAME];
         [[BookmarkModel sharedInstance] setBookmark:copyOfSource withGuid:profileGuid];
         
+        // TODO: ***MOVE TO HELPER?
         [[PreferencePanelController sharedInstance] bookmarkTableSelectionDidChange:[PreferencePanelController sharedInstance]->bookmarksTableView];
         
         // Update existing sessions
-        int n = [[iTermController sharedInstance] numberOfTerminals];
+/*        int n = [[iTermController sharedInstance] numberOfTerminals];
         for (int i = 0; i < n; ++i) {
             PseudoTerminal* pty = [[iTermController sharedInstance] terminalAtIndex:i];
+
             [pty reloadBookmarks];
         }
-        
+  */      
         // Update user defaults
         [[NSUserDefaults standardUserDefaults] setObject:[[BookmarkModel sharedInstance] rawData]
                                                   forKey: @"New Bookmarks"];

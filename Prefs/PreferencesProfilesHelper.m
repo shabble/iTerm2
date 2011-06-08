@@ -90,7 +90,7 @@
 
 - (void)tableViewSelectionDidChange:(NSNotification *)aNotification
 {
-    //NSLog(@"%s", __PRETTY_FUNCTION__);
+   /* //NSLog(@"%s", __PRETTY_FUNCTION__);
     if ([aNotification object] == keyMappings) {
         int rowIndex = [keyMappings selectedRow];
         if (rowIndex >= 0) {
@@ -105,7 +105,7 @@
         } else {
             [globalRemoveMappingButton setEnabled:NO];
         }
-    }
+    }*/
 }
 // ================================================================
 //                           Others

@@ -26,8 +26,6 @@
 #import "Profiles/BookmarkModel.h"
 #import "App/iTermController.h"
 #import "Prefs/PreferencePanelController.h"
-#import "Window/PseudoTerminal.h"
-#import "Window/PTYTab.h"
 
 typedef enum {
     HORIZONTAL_PANE,
@@ -79,69 +77,8 @@ typedef enum {
     return self;
 }
 
-- (IBAction)closeCurrentSession:(id)sender
-{
-    if ([[self window] isKeyWindow]) {
-        [self close];
-    }
-}
 
-- (void)_openBookmarkInTab:(BOOL)inTab firstInWindow:(BOOL)firstInWindow inPane:(PaneMode)inPane
-{
-    NSSet* guids = [tableView_ selectedGuids];
-    if (![guids count]) {
-        NSBeep();
-        return;
-    }
-    BOOL isFirst = YES;
-    for (NSString* guid in guids) {
-        PseudoTerminal* terminal = nil;
-        BOOL openInTab = inTab & !(isFirst && firstInWindow);
-        if (openInTab) {
-            terminal = [[iTermController sharedInstance] currentTerminal];
-        }
-        Bookmark* bookmark = [[BookmarkModel sharedInstance] bookmarkWithGuid:guid];
-        if (inPane != NO_PANE && terminal != nil) {
-            [terminal splitVertically:(inPane == VERTICAL_PANE) withBookmark:bookmark targetSession:[[terminal currentTab] activeSession]];
-        } else {
-            [[iTermController sharedInstance] launchBookmark:bookmark
-                                                  inTerminal:terminal];
-        }
-        isFirst = NO;
-    }
-}
 
-- (IBAction)openBookmarkInVerticalPane:(id)sender
-{
-    [self _openBookmarkInTab:YES firstInWindow:NO inPane:VERTICAL_PANE];
-    if ([closeAfterOpeningBookmark_ state] == NSOnState) {
-        [[self window] close];
-    }
-}
-
-- (IBAction)openBookmarkInHorizontalPane:(id)sender
-{
-    [self _openBookmarkInTab:YES firstInWindow:NO inPane:HORIZONTAL_PANE];
-    if ([closeAfterOpeningBookmark_ state] == NSOnState) {
-        [[self window] close];
-    }
-}
-
-- (IBAction)openBookmarkInTab:(id)sender
-{
-    [self _openBookmarkInTab:YES firstInWindow:NO inPane:NO_PANE];
-    if ([closeAfterOpeningBookmark_ state] == NSOnState) {
-        [[self window] close];
-    }
-}
-
-- (IBAction)openBookmarkInWindow:(id)sender
-{
-    [self _openBookmarkInTab:NO firstInWindow:NO inPane:NO_PANE];
-    if ([closeAfterOpeningBookmark_ state] == NSOnState) {
-        [[self window] close];
-    }
-}
 
 - (void)updatePaneButtons:(id)sender
 {

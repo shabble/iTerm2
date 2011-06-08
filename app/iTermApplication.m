@@ -29,12 +29,8 @@
  */
 
 #import "iTermApplication.h"
-#import <App/iTermController.h>
-#import "Window/PTYWindow.h"
-#import "Window/PseudoTerminal.h"
-#import "Session/PTYSession.h"
+#import "App/iTermController.h"
 #import "Prefs/PreferencePanelController.h"
-#import "Session/PTYTextView.h"
 #import "App/iTermKeyBindingMgr.h"
 
 @implementation iTermApplication
@@ -103,9 +99,6 @@
             return;
         }
         PreferencePanelController* privatePrefPanel = [PreferencePanelController sessionsInstance];
-        PseudoTerminal* currentTerminal = [cont currentTerminal];
-        PTYTabView* tabView = [currentTerminal tabView];
-        PTYSession* currentSession = [currentTerminal currentSession];
         NSResponder *responder;
 
         if (([event modifierFlags] & (NSCommandKeyMask | NSAlternateKeyMask | NSControlKeyMask)) == [prefPanel modifierTagToMask:[prefPanel switchWindowModifier]]) {
@@ -140,58 +133,8 @@
             // Focus is in the hotkey field in prefspanel. Pass events directly to it.
             [prefPanel hotkeyKeyDown:event];
             return;
-        } else if ([[self keyWindow] isKindOfClass:[PTYWindow class]]) {
-            // Focus is in a terminal window.
-            responder = [[self keyWindow] firstResponder];
-            bool inTextView = [responder isKindOfClass:[PTYTextView class]];
-
-            if (inTextView &&
-                [(PTYTextView *)responder hasMarkedText]) {
-                // Let the IM process it
-                NSLog(@"IM is handling it");
-                [(PTYTextView *)responder interpretKeyEvents:[NSArray arrayWithObject:event]];
-                return;
-            }
-
-            const int mask = NSShiftKeyMask | NSControlKeyMask | NSAlternateKeyMask | NSCommandKeyMask;
-            if (([event modifierFlags] & mask) == [prefPanel modifierTagToMask:[prefPanel switchTabModifier]]) {
-                int digit = [[event charactersIgnoringModifiers] intValue];
-                if (digit >= 1 && digit <= [tabView numberOfTabViewItems]) {
-                    // Command (or selected modifier)+number: Switch to tab by number.
-                    [tabView selectTabViewItemAtIndex:digit-1];
-                    return;
-                }
-                if (digit == 9 && [tabView numberOfTabViewItems] > 0) {
-                    // Command (or selected modifier)+9: Switch to last tab if there are fewer than 9.
-                    [tabView selectTabViewItemAtIndex:[tabView numberOfTabViewItems]-1];
-                    return;
-                }
-            }
-
-            BOOL okToRemap = YES;
-            if ([responder isKindOfClass:[NSTextView class]]) {
-                // Disable keymaps that send text
-                if ([currentSession hasTextSendingKeyMappingForEvent:event]) {
-                    okToRemap = NO;
-                }
-                if ([self _eventUsesNavigationKeys:event]) {
-                    okToRemap = NO;
-                }
-            }
-
-            if (okToRemap && [currentSession hasActionableKeyMappingForEvent:event]) {
-                // Remap key.
-                [currentSession keyDown:event];
-                return;
-            }
-        } else {
-            // Focus not in terminal window.
-            if ([PTYSession handleShortcutWithoutTerminal:event]) {
-                return;
-            }
-        }
+        } 
     }
-
     [super sendEvent: event];
 }
 
