@@ -25,8 +25,6 @@
 #import "BookmarkListView.h"
 #import "Profiles/BookmarkModel.h"
 #import "Profiles/ITAddressBookMgr.h"
-#import "Session/PTYSession.h"
-#import "Search/iTermSearchField.h"
 
 #define BookmarkTableViewDataType @"iTerm2BookmarkGuid"
 

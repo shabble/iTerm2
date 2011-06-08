@@ -35,7 +35,7 @@
 		</dict>
 	</array>
 	<key>CFBundleExecutable</key>
-	<string>iTerm</string>
+	<string>iTermprefs</string>
 	<key>CFBundleGetInfoString</key>
 	<string>unknown</string>
 	<key>CFBundleHelpBookFolder</key>
@@ -45,7 +45,7 @@
 	<key>CFBundleIconFile</key>
 	<string>iTerm.icns</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.googlecode.iterm2</string>
+	<string>org.metavore.itermprefs</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
@@ -173,11 +173,5 @@
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
 	<string>iTermApplication</string>
-	<key>SUPublicDSAKeyFile</key>
-	<string>dsa_pub.pem</string>
-	<key>SUFeedURLForTesting</key>
-	<string>http://iterm2.googlecode.com/svn/trunk/appcasts/testing.xml</string>
-	<key>SUFeedURLForFinal</key>
-	<string>http://iterm2.googlecode.com/svn/trunk/appcasts/final.xml</string>
 </dict>
 </plist>

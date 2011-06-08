@@ -90,7 +90,7 @@ typedef enum {
 {
     NSSet* guids = [tableView_ selectedGuids];
     if ([guids count]) {
-        BOOL windowExists = [[iTermController sharedInstance] currentTerminal] != nil;
+        BOOL windowExists = NO; //[[iTermController sharedInstance] currentTerminal] != nil;
         [horizontalPaneButton_ setEnabled:windowExists];
         [verticalPaneButton_ setEnabled:windowExists];
         // tabButton is enabled even if windowExists==false because its shortcut is enter and we
@@ -121,10 +121,10 @@ typedef enum {
 {
     NSSet* guids = [tableView_ selectedGuids];
     for (NSString* guid in guids) {
-        PseudoTerminal* terminal = [[iTermController sharedInstance] currentTerminal];
-        Bookmark* bookmark = [[BookmarkModel sharedInstance] bookmarkWithGuid:guid];
-        [[iTermController sharedInstance] launchBookmark:bookmark
-                                              inTerminal:terminal];
+        //PseudoTerminal* terminal = [[iTermController sharedInstance] currentTerminal];
+        //Bookmark* bookmark = [[BookmarkModel sharedInstance] bookmarkWithGuid:guid];
+       // [[iTermController sharedInstance] launchBookmark:bookmark
+       //                                       inTerminal:terminal];
     }
     if ([closeAfterOpeningBookmark_ state] == NSOnState) {
         [[self window] close];
@@ -186,12 +186,5 @@ typedef enum {
               forKey:@"CloseBookmarksWindowAfterOpening"];
 }
 
-- (IBAction)newTabsInNewWindow:(id)sender
-{
-    [self _openBookmarkInTab:YES firstInWindow:YES inPane:NO_PANE];
-    if ([closeAfterOpeningBookmark_ state] == NSOnState) {
-        [[self window] close];
-    }
-}
 
 @end

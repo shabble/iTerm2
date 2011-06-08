@@ -55,32 +55,33 @@
 
 - (void)bookmarkTableSelectionWillChange:(id)aBookmarkTableView
 {
-   // if ([[tableView selectedGuids] count] == 1) {
-       // PreferencePanelController *ctrl = [PreferencePanelController sharedInstance];
-      //[ctrl bookmarkSettingChanged:nil];
-   // }
+    if ([[tableView selectedGuids] count] == 1) {
+        PreferencePanelController *ctrl = [PreferencePanelController sharedInstance];
+      [ctrl bookmarkSettingChanged:nil];
+    }
 }
 
 - (void)bookmarkTableSelectionDidChange:(id)bookmarkTable
 {
-//     if ([[bookmarksTableView selectedGuids] count] != 1) {
-//         [bookmarksSettingsTabViewParent setHidden:YES];
-//         [bookmarksPopup setEnabled:NO];
-        
-//         if ([[bookmarksTableView selectedGuids] count] == 0) {
-//             [removeBookmarkButton setEnabled:NO];
-//         } else {
-//             [removeBookmarkButton setEnabled:[[bookmarksTableView selectedGuids] count] < [[bookmarksTableView dataSource] numberOfBookmarks]];
-//         }
-//     } else {
-//         [bookmarksSettingsTabViewParent setHidden:NO];
-//         [bookmarksPopup setEnabled:YES];
-//         [removeBookmarkButton setEnabled:NO];
-//         if (bookmarkTable == bookmarksTableView) {
-//             NSString* guid = [bookmarksTableView selectedGuid];
-//             [self updateBookmarkFields:[dataSource bookmarkWithGuid:guid]];
-//         }
-//     }
+    PreferencePanelController *ppc = [PreferencePanelController sharedInstance];
+     if ([[tableView selectedGuids] count] != 1) {
+         [[ppc bookmarksSettingsTabViewParent] setHidden:YES];
+         [[ppc bookmarksPopup] setEnabled:NO];
+     }        
+         if ([[tableView selectedGuids] count] == 0) {
+             [[ppc removeBookmarkButton] setEnabled:NO];
+         } else {
+             //[[ppc removeBookmarkButton] setEnabled:[[tableView selectedGuids] count] < [[tableView dataSource] numberOfBookmarks]];
+         }
+     } else {
+         [[ppc bookmarksSettingsTabViewParent] setHidden:NO];
+         [[ppc bookmarksPopup] setEnabled:YES];
+         [[ppc removeBookmarkButton] setEnabled:NO];
+         if (bookmarkTable == tableView) {
+             NSString* guid = [tableView selectedGuid];
+             [self updateBookmarkFields:[dataSource bookmarkWithGuid:guid]];
+         }
+     }
 }
 
 - (void)bookmarkTableRowSelected:(id)bookmarkTable

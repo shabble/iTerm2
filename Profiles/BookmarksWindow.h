@@ -39,17 +39,18 @@
 + (BookmarksWindow*)sharedInstance;
 - (id)init;
 - (id)initWithWindowNibName:(NSString *)windowNibName;
-- (IBAction)openBookmarkInHorizontalPane:(id)sender;
+/*- (IBAction)openBookmarkInHorizontalPane:(id)sender;
 - (IBAction)openBookmarkInVerticalPane:(id)sender;
 - (IBAction)openBookmarkInTab:(id)sender;
 - (IBAction)openBookmarkInWindow:(id)sender;
+ */
 - (void)bookmarkTableSelectionDidChange:(id)bookmarkTable;
 - (void)bookmarkTableSelectionWillChange:(id)bookmarkTable;
 - (void)bookmarkTableRowSelected:(id)bookmarkTable;
 - (NSMenu*)bookmarkTable:(id)bookmarkTable menuForEvent:(NSEvent*)theEvent;
 - (IBAction)editBookmarks:(id)sender;
 - (IBAction)closeAfterOpeningChanged:(id)sender;
-- (IBAction)newTabsInNewWindow:(id)sender;
+//- (IBAction)newTabsInNewWindow:(id)sender;
 
 // NSWindow Delegate
 - (void)windowDidBecomeKey:(NSNotification *)notification;

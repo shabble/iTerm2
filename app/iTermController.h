@@ -57,8 +57,8 @@
 + (void)switchToSpaceInBookmark:(NSDictionary*)aDict;
 - (BOOL)rollingInHotkeyTerm;
 
-
 - (void)stopEventTap;
+- (BOOL)hasWindowArrangement;
 
 - (NSArray*)sortedEncodingList;
 - (BOOL)eventIsHotkey:(NSEvent*)e;
@@ -66,6 +66,8 @@
 - (BOOL)haveEventTap;
 - (BOOL)registerHotkey:(int)keyCode modifiers:(int)modifiers;
 - (void)beginRemappingModifiers;
+
+void OnHotKeyEvent(void);
 
 @end
 

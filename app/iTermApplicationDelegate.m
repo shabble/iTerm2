@@ -40,7 +40,7 @@
 
 NSMutableString* gDebugLogStr = nil;
 NSMutableString* gDebugLogStr2 = nil;
-static BOOL usingAutoLaunchScript = NO;
+//static BOOL usingAutoLaunchScript = NO;
 BOOL gDebugLogging = NO;
 int gDebugLogFile = -1;
 
@@ -83,6 +83,7 @@ int gDebugLogFile = -1;
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
+    
     // Prevent the input manager from swallowing control-q. See explanation here:
     // http://b4winckler.wordpress.com/2009/07/19/coercing-the-cocoa-text-system/
     CFPreferencesSetAppValue(CFSTR("NSQuotedKeystrokeBinding"),
@@ -103,16 +104,18 @@ int gDebugLogFile = -1;
     // register for services
     [NSApp registerServicesMenuSendTypes:[NSArray arrayWithObjects:NSStringPboardType, nil]
                                                        returnTypes:[NSArray arrayWithObjects:NSFilenamesPboardType, NSStringPboardType, nil]];
+    [self showPrefWindow:self];
 }
 
 - (BOOL)applicationShouldTerminate: (NSNotification *) theNotification
 {
+    /*
     NSArray *terminals;
 
-    terminals = [[iTermController sharedInstance] terminals];
+    //terminals = [[iTermController sharedInstance] terminals];
 
     // Display prompt if we need to
-
+    
     int numTerminals = [terminals count];
     int numNontrivialWindows = numTerminals;
     BOOL promptOnQuit = quittingBecauseLastWindowClosed_ ? NO : (numNontrivialWindows > 0 && [[PreferencePanelController sharedInstance] promptOnQuit]);
@@ -138,7 +141,7 @@ int gDebugLogFile = -1;
             return NO;
         }
     }
-
+    */
     // Ensure [iTermController dealloc] is called before prefs are saved
     [[iTermController sharedInstance] stopEventTap];
     [iTermController sharedInstanceRelease];
@@ -156,6 +159,8 @@ int gDebugLogFile = -1;
 
 - (BOOL)application:(NSApplication *)theApplication openFile:(NSString *)filename
 {
+    return NO;
+    /*
         //NSLog(@"%s: %@", __PRETTY_FUNCTION__, filename);
         filename = [filename stringWithEscapedShellCharacters];
         if (filename) {
@@ -163,21 +168,22 @@ int gDebugLogFile = -1;
                 BOOL isDir;
                 [[NSFileManager defaultManager] fileExistsAtPath:filename isDirectory:&isDir];
                 if (!isDir) {
-                    NSString *aString = [NSString stringWithFormat:@"%@; exit;\n", filename];
-                    [[iTermController sharedInstance] launchBookmark:nil inTerminal:nil];
+                    //NSString *aString = [NSString stringWithFormat:@"%@; exit;\n", filename];
+                    //[[iTermController sharedInstance] launchBookmark:nil inTerminal:nil];
                     // Sleeping a while waiting for the login.
-                    sleep(1);
-                    [[[[iTermController sharedInstance] currentTerminal] currentSession] insertText:aString];
+                    //sleep(1);
+                    //[[[[iTermController sharedInstance] currentTerminal] currentSession] insertText:aString];
                 }
                 else {
-                        NSString *aString = [NSString stringWithFormat:@"cd %@\n", filename];
-                        [[iTermController sharedInstance] launchBookmark:nil inTerminal:nil];
+                        //NSString *aString = [NSString stringWithFormat:@"cd %@\n", filename];
+                        //[[iTermController sharedInstance] launchBookmark:nil inTerminal:nil];
                         // Sleeping a while waiting for the login.
-                        sleep(1);
-                        [[[[iTermController sharedInstance] currentTerminal] currentSession] insertText:aString];
+                        //sleep(1);
+                        //[[[[iTermController sharedInstance] currentTerminal] currentSession] insertText:aString];
                 }
         }
         return (YES);
+     */
 }
 
 
@@ -194,11 +200,11 @@ int gDebugLogFile = -1;
 
 - (BOOL)applicationShouldHandleReopen:(NSApplication *)theApplication hasVisibleWindows:(BOOL)flag
 {
-    PreferencePanelController* prefPanel = [PreferencePanelController sharedInstance];
-    if ([prefPanel hotkey] &&
+    //PreferencePanelController* prefPanel = [PreferencePanelController sharedInstance];
+  /*  if ([prefPanel hotkey] &&
         [prefPanel hotkeyTogglesWindow]) {
         // The hotkey window is configured.
-        PseudoTerminal* hotkeyTerm = [[iTermController sharedInstance] hotKeyWindow];
+       PseudoTerminal* hotkeyTerm = [[iTermController sharedInstance] hotKeyWindow];
         if (hotkeyTerm) {
             // Hide the existing window or open it if enabled by preference.
             if ([[hotkeyTerm window] alphaValue] == 1) {
@@ -214,7 +220,7 @@ int gDebugLogFile = -1;
             [[iTermController sharedInstance] showHotKeyWindow];
             return NO;
         }
-    }
+    } */
     return YES;
 }
 
@@ -277,6 +283,7 @@ int gDebugLogFile = -1;
 
 - (void)getUrl:(NSAppleEventDescriptor *)event withReplyEvent:(NSAppleEventDescriptor *)replyEvent
 {
+    /*
     NSString *urlStr = [[event paramDescriptorForKeyword:keyDirectObject] stringValue];
     NSURL *url = [NSURL URLWithString: urlStr];
     NSString *urlType = [url scheme];
@@ -284,8 +291,9 @@ int gDebugLogFile = -1;
     id bm = [[PreferencePanelController sharedInstance] handlerBookmarkForURL:urlType];
     if (bm) {
         [[iTermController sharedInstance] launchBookmark:bm
-                                              inTerminal:[[iTermController sharedInstance] currentTerminal] withURL:urlStr];
+        inTerminal:[[iTermController sharedInstance] currentTerminal] withURL:urlStr];
     }
+    */
 }
 
 - (void) dealloc
@@ -418,6 +426,7 @@ void DebugLog(NSString* value)
     return [string autorelease];
 }
 
+
 - (IBAction)showAbout:(id)sender
 {
     // check if an About window is shown already
@@ -457,6 +466,8 @@ void DebugLog(NSString* value)
 // Notifications
 - (void)reloadMenus:(NSNotification *)aNotification
 {
+    return;
+/*
     PseudoTerminal *frontTerminal = [self currentTerminal];
     if (frontTerminal != [aNotification object]) {
         return;
@@ -485,7 +496,7 @@ void DebugLog(NSString* value)
     } else {
         [toggleBookmarksView setEnabled:NO];
         [sendInputToAllSessions setEnabled:NO];
-    }
+    }*/
 }
 
 - (void) nonTerminalWindowBecameKey: (NSNotification *) aNotification
@@ -517,21 +528,11 @@ void DebugLog(NSString* value)
 
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem
 {
-    if (menuItem == maximizePane) {
-        if ([[[iTermController sharedInstance] currentTerminal] inInstantReplay]) {
-            // Things get too complex if you allow this. It crashes.
-            return NO;
-        } else if ([[[[iTermController sharedInstance] currentTerminal] currentTab] hasMaximizedPane]) {
-            return YES;
-        } else if ([[[[iTermController sharedInstance] currentTerminal] currentTab] hasMultipleSessions]) {
-            return YES;
-        } else {
-            return NO;
-        }
-    } else {
-        return YES;
-    }
+    return NO;
 }
+
+@end
+
 
 
 

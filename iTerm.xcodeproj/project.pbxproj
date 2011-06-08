@@ -15,14 +15,16 @@
 		1DEE9FDD11FCA60F009E18C9 /* credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 1DEE9FDB11FCA60F009E18C9 /* credits.rtf */; };
 		2C1C0829139DB34C00E1DA75 /* PreferencesProfilesHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C1C0828139DB34C00E1DA75 /* PreferencesProfilesHelper.h */; };
 		2C1C082B139DB35700E1DA75 /* PreferencesProfilesHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1C082A139DB35700E1DA75 /* PreferencesProfilesHelper.m */; };
-		2C1C0ECE139FCE2200E1DA75 /* GTM in Resources */ = {isa = PBXBuildFile; fileRef = 2C1C0EC6139FCE2200E1DA75 /* GTM */; };
-		2C1C0ED0139FCE3000E1DA75 /* GTMCarbonEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1C0ECF139FCE3000E1DA75 /* GTMCarbonEvent.m */; };
-		2C1C0ED6139FCE3900E1DA75 /* GTMCarbonEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C1C0ED1139FCE3900E1DA75 /* GTMCarbonEvent.h */; };
-		2C1C0ED7139FCE3900E1DA75 /* GTMDebugSelectorValidation.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C1C0ED2139FCE3900E1DA75 /* GTMDebugSelectorValidation.h */; };
-		2C1C0ED8139FCE3900E1DA75 /* GTMDefines.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C1C0ED3139FCE3900E1DA75 /* GTMDefines.h */; };
-		2C1C0ED9139FCE3900E1DA75 /* GTMObjectSingleton.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C1C0ED4139FCE3900E1DA75 /* GTMObjectSingleton.h */; };
-		2C1C0EDA139FCE3900E1DA75 /* GTMTypeCasting.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C1C0ED5139FCE3900E1DA75 /* GTMTypeCasting.h */; };
-		2C2760481395C77000D340AA /* Sparkle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C2760471395C77000D340AA /* Sparkle.framework */; };
+		2C1C0F01139FD16600E1DA75 /* GTM in Resources */ = {isa = PBXBuildFile; fileRef = 2C1C0F00139FD16600E1DA75 /* GTM */; };
+		2C1C0F07139FD18400E1DA75 /* GTMCarbonEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C1C0F02139FD18400E1DA75 /* GTMCarbonEvent.h */; };
+		2C1C0F08139FD18400E1DA75 /* GTMDebugSelectorValidation.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C1C0F03139FD18400E1DA75 /* GTMDebugSelectorValidation.h */; };
+		2C1C0F09139FD18400E1DA75 /* GTMDefines.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C1C0F04139FD18400E1DA75 /* GTMDefines.h */; };
+		2C1C0F0A139FD18400E1DA75 /* GTMObjectSingleton.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C1C0F05139FD18400E1DA75 /* GTMObjectSingleton.h */; };
+		2C1C0F0B139FD18400E1DA75 /* GTMTypeCasting.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C1C0F06139FD18400E1DA75 /* GTMTypeCasting.h */; };
+		2C1C0F0D139FD19800E1DA75 /* GTMCarbonEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1C0F0C139FD19800E1DA75 /* GTMCarbonEvent.m */; };
+		2C1C0F13139FD30000E1DA75 /* Search in Resources */ = {isa = PBXBuildFile; fileRef = 2C1C0F12139FD30000E1DA75 /* Search */; };
+		2C1C0F18139FD32500E1DA75 /* iTermSearchField.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1C0F17139FD32500E1DA75 /* iTermSearchField.m */; };
+		2C1C0F1A139FD32D00E1DA75 /* iTermSearchField.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C1C0F19139FD32D00E1DA75 /* iTermSearchField.h */; };
 		2C27615E1395D3ED00D340AA /* iTermApplication.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2761581395D3ED00D340AA /* iTermApplication.m */; };
 		2C27615F1395D3ED00D340AA /* iTermApplicationDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2761591395D3ED00D340AA /* iTermApplicationDelegate.m */; };
 		2C2761601395D3ED00D340AA /* iTermController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C27615A1395D3ED00D340AA /* iTermController.m */; };
@@ -34,7 +36,6 @@
 		2C27618B1395D57A00D340AA /* BookmarkModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2761851395D57A00D340AA /* BookmarkModel.m */; };
 		2C27618D1395D57A00D340AA /* BookmarksWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2761871395D57A00D340AA /* BookmarksWindow.m */; };
 		2C27618E1395D57A00D340AA /* ITAddressBookMgr.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2761881395D57A00D340AA /* ITAddressBookMgr.m */; };
-		2C7EE1A51396002C000305E6 /* Sparkle.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 2C2760471395C77000D340AA /* Sparkle.framework */; };
 		2C7EE22C13960462000305E6 /* iTermApplication.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C7EE1FD13960462000305E6 /* iTermApplication.h */; };
 		2C7EE22D13960462000305E6 /* iTermApplicationDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C7EE1FE13960462000305E6 /* iTermApplicationDelegate.h */; };
 		2C7EE22E13960462000305E6 /* iTermController.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C7EE1FF13960462000305E6 /* iTermController.h */; };
@@ -85,7 +86,6 @@
 		2CE27585139B0923005797CA /* DefaultBookmark.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2CE2757B139B0923005797CA /* DefaultBookmark.plist */; };
 		2CE27586139B0923005797CA /* DefaultGlobalKeyMap.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2CE2757C139B0923005797CA /* DefaultGlobalKeyMap.plist */; };
 		2CE27587139B0923005797CA /* EncodingsWithLowerCase.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2CE2757D139B0923005797CA /* EncodingsWithLowerCase.plist */; };
-		2CE27588139B0923005797CA /* Growl-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2CE2757E139B0923005797CA /* Growl-Info.plist */; };
 		2CE27589139B0923005797CA /* MigrationMap.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2CE2757F139B0923005797CA /* MigrationMap.plist */; };
 		2CE2758A139B0923005797CA /* PresetKeyMappings.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2CE27580139B0923005797CA /* PresetKeyMappings.plist */; };
 		2CE2758B139B0923005797CA /* SmartSelectionRules.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2CE27581139B0923005797CA /* SmartSelectionRules.plist */; };
@@ -99,19 +99,6 @@
 		9325FF500FB54E00004EC67C /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9325FF4E0FB54E00004EC67C /* MainMenu.xib */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXCopyFilesBuildPhase section */
-		874206560564169600CFC3F1 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 12;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				2C7EE1A51396002C000305E6 /* Sparkle.framework in CopyFiles */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXCopyFilesBuildPhase section */
-
 /* Begin PBXFileReference section */
 		0464AB2F006CD2EC7F000001 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		0464AB30006CD2EC7F000001 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
@@ -124,19 +111,21 @@
 		1DEE9FDC11FCA60F009E18C9 /* English */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = English; path = English.lproj/credits.rtf; sourceTree = "<group>"; };
 		2C1C0828139DB34C00E1DA75 /* PreferencesProfilesHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PreferencesProfilesHelper.h; path = Prefs/PreferencesProfilesHelper.h; sourceTree = "<group>"; };
 		2C1C082A139DB35700E1DA75 /* PreferencesProfilesHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PreferencesProfilesHelper.m; path = Prefs/PreferencesProfilesHelper.m; sourceTree = "<group>"; };
-		2C1C0EC6139FCE2200E1DA75 /* GTM */ = {isa = PBXFileReference; lastKnownFileType = folder; path = GTM; sourceTree = "<group>"; };
-		2C1C0ECF139FCE3000E1DA75 /* GTMCarbonEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GTMCarbonEvent.m; path = GTM/GTMCarbonEvent.m; sourceTree = "<group>"; };
-		2C1C0ED1139FCE3900E1DA75 /* GTMCarbonEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GTMCarbonEvent.h; path = GTM/GTMCarbonEvent.h; sourceTree = "<group>"; };
-		2C1C0ED2139FCE3900E1DA75 /* GTMDebugSelectorValidation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GTMDebugSelectorValidation.h; path = GTM/GTMDebugSelectorValidation.h; sourceTree = "<group>"; };
-		2C1C0ED3139FCE3900E1DA75 /* GTMDefines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GTMDefines.h; path = GTM/GTMDefines.h; sourceTree = "<group>"; };
-		2C1C0ED4139FCE3900E1DA75 /* GTMObjectSingleton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GTMObjectSingleton.h; path = GTM/GTMObjectSingleton.h; sourceTree = "<group>"; };
-		2C1C0ED5139FCE3900E1DA75 /* GTMTypeCasting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GTMTypeCasting.h; path = GTM/GTMTypeCasting.h; sourceTree = "<group>"; };
+		2C1C0F00139FD16600E1DA75 /* GTM */ = {isa = PBXFileReference; lastKnownFileType = folder; name = GTM; path = Vendor/GTM; sourceTree = "<group>"; };
+		2C1C0F02139FD18400E1DA75 /* GTMCarbonEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GTMCarbonEvent.h; path = Vendor/GTM/GTMCarbonEvent.h; sourceTree = "<group>"; };
+		2C1C0F03139FD18400E1DA75 /* GTMDebugSelectorValidation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GTMDebugSelectorValidation.h; path = Vendor/GTM/GTMDebugSelectorValidation.h; sourceTree = "<group>"; };
+		2C1C0F04139FD18400E1DA75 /* GTMDefines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GTMDefines.h; path = Vendor/GTM/GTMDefines.h; sourceTree = "<group>"; };
+		2C1C0F05139FD18400E1DA75 /* GTMObjectSingleton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GTMObjectSingleton.h; path = Vendor/GTM/GTMObjectSingleton.h; sourceTree = "<group>"; };
+		2C1C0F06139FD18400E1DA75 /* GTMTypeCasting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GTMTypeCasting.h; path = Vendor/GTM/GTMTypeCasting.h; sourceTree = "<group>"; };
+		2C1C0F0C139FD19800E1DA75 /* GTMCarbonEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GTMCarbonEvent.m; path = Vendor/GTM/GTMCarbonEvent.m; sourceTree = "<group>"; };
+		2C1C0F12139FD30000E1DA75 /* Search */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Search; sourceTree = "<group>"; };
+		2C1C0F17139FD32500E1DA75 /* iTermSearchField.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = iTermSearchField.m; path = Search/iTermSearchField.m; sourceTree = "<group>"; };
+		2C1C0F19139FD32D00E1DA75 /* iTermSearchField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = iTermSearchField.h; path = Search/iTermSearchField.h; sourceTree = "<group>"; };
 		2C275FD91395C70600D340AA /* App */ = {isa = PBXFileReference; lastKnownFileType = folder; path = App; sourceTree = SOURCE_ROOT; };
 		2C275FEB1395C70600D340AA /* Misc */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Misc; sourceTree = SOURCE_ROOT; };
 		2C275FF21395C70600D340AA /* Popups */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Popups; sourceTree = SOURCE_ROOT; };
 		2C275FFA1395C70600D340AA /* Prefs */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Prefs; sourceTree = SOURCE_ROOT; };
 		2C275FFD1395C70600D340AA /* Profiles */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Profiles; sourceTree = SOURCE_ROOT; };
-		2C2760471395C77000D340AA /* Sparkle.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Sparkle.framework; path = Vendor/Sparkle.framework; sourceTree = "<group>"; };
 		2C2761581395D3ED00D340AA /* iTermApplication.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = iTermApplication.m; path = App/iTermApplication.m; sourceTree = "<group>"; };
 		2C2761591395D3ED00D340AA /* iTermApplicationDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = iTermApplicationDelegate.m; path = App/iTermApplicationDelegate.m; sourceTree = "<group>"; };
 		2C27615A1395D3ED00D340AA /* iTermController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = iTermController.m; path = App/iTermController.m; sourceTree = "<group>"; };
@@ -225,7 +214,6 @@
 				1D13EADC12113A2D00909F9C /* libncurses.dylib in Frameworks */,
 				1D6C18BE12951A3C00937A4A /* Carbon.framework in Frameworks */,
 				1D94EAC812D641D3008225A9 /* AddressBook.framework in Frameworks */,
-				2C2760481395C77000D340AA /* Sparkle.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -235,7 +223,6 @@
 		0464AB0D006CD2EC7F000001 /* JTerminal */ = {
 			isa = PBXGroup;
 			children = (
-				2C1C0EC5139FCDF500E1DA75 /* New Group */,
 				1DEE9FDB11FCA60F009E18C9 /* credits.rtf */,
 				2C1C0EB7139FCDB100E1DA75 /* Vendor */,
 				2CE2723B13965953005797CA /* XIB Files */,
@@ -254,6 +241,7 @@
 		0464AB0E006CD2EC7F000001 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				2C1C0F12139FD30000E1DA75 /* Search */,
 				2C7EE32313960BC4000305E6 /* iTerm */,
 				2C275FD91395C70600D340AA /* App */,
 				2C275FEB1395C70600D340AA /* Misc */,
@@ -267,15 +255,16 @@
 		0464AB15006CD2EC7F000001 /* Headers */ = {
 			isa = PBXGroup;
 			children = (
+				2C1C0F19139FD32D00E1DA75 /* iTermSearchField.h */,
+				2C1C0F02139FD18400E1DA75 /* GTMCarbonEvent.h */,
+				2C1C0F03139FD18400E1DA75 /* GTMDebugSelectorValidation.h */,
+				2C1C0F04139FD18400E1DA75 /* GTMDefines.h */,
+				2C1C0F05139FD18400E1DA75 /* GTMObjectSingleton.h */,
+				2C1C0F06139FD18400E1DA75 /* GTMTypeCasting.h */,
 				2C1C0828139DB34C00E1DA75 /* PreferencesProfilesHelper.h */,
 				2CE2762B139B2A82005797CA /* PreferencePanelController.h */,
 				2CE2761B139B296D005797CA /* PreferencesModel.h */,
 				2C7EE32B13960C0C000305E6 /* iTerm.h */,
-				2C1C0ED1139FCE3900E1DA75 /* GTMCarbonEvent.h */,
-				2C1C0ED2139FCE3900E1DA75 /* GTMDebugSelectorValidation.h */,
-				2C1C0ED3139FCE3900E1DA75 /* GTMDefines.h */,
-				2C1C0ED4139FCE3900E1DA75 /* GTMObjectSingleton.h */,
-				2C1C0ED5139FCE3900E1DA75 /* GTMTypeCasting.h */,
 				2C7EE1FD13960462000305E6 /* iTermApplication.h */,
 				2C7EE1FE13960462000305E6 /* iTermApplicationDelegate.h */,
 				2C7EE1FF13960462000305E6 /* iTermController.h */,
@@ -300,7 +289,6 @@
 				1DEB29371288887100B2CB9F /* QuartzCore.framework */,
 				1DEB293D1288899A00B2CB9F /* Carbon.framework */,
 				1D94EAC712D641D3008225A9 /* AddressBook.framework */,
-				2C2760471395C77000D340AA /* Sparkle.framework */,
 				0464AB2F006CD2EC7F000001 /* AppKit.framework */,
 				0464AB30006CD2EC7F000001 /* Foundation.framework */,
 			);
@@ -325,24 +313,18 @@
 		2C1C0EB7139FCDB100E1DA75 /* Vendor */ = {
 			isa = PBXGroup;
 			children = (
-				2C1C0EC6139FCE2200E1DA75 /* GTM */,
+				2C1C0F00139FD16600E1DA75 /* GTM */,
 			);
 			name = Vendor;
-			sourceTree = "<group>";
-		};
-		2C1C0EC5139FCDF500E1DA75 /* New Group */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = "New Group";
 			sourceTree = "<group>";
 		};
 		2C2761F01395DAA100D340AA /* Source */ = {
 			isa = PBXGroup;
 			children = (
 				2CE2762D139B2A87005797CA /* PreferencePanelController.m */,
+				2C1C0F17139FD32500E1DA75 /* iTermSearchField.m */,
+				2C1C0F0C139FD19800E1DA75 /* GTMCarbonEvent.m */,
 				2CE2761D139B2977005797CA /* PreferencesModel.m */,
-				2C1C0ECF139FCE3000E1DA75 /* GTMCarbonEvent.m */,
 				2C1C082A139DB35700E1DA75 /* PreferencesProfilesHelper.m */,
 				2C7EE32913960BFA000305E6 /* main.m */,
 				2C2761841395D57A00D340AA /* BookmarkListView.m */,
@@ -451,33 +433,32 @@
 				2CE2761C139B296D005797CA /* PreferencesModel.h in Headers */,
 				2CE2762C139B2A82005797CA /* PreferencePanelController.h in Headers */,
 				2C1C0829139DB34C00E1DA75 /* PreferencesProfilesHelper.h in Headers */,
-				2C1C0ED6139FCE3900E1DA75 /* GTMCarbonEvent.h in Headers */,
-				2C1C0ED7139FCE3900E1DA75 /* GTMDebugSelectorValidation.h in Headers */,
-				2C1C0ED8139FCE3900E1DA75 /* GTMDefines.h in Headers */,
-				2C1C0ED9139FCE3900E1DA75 /* GTMObjectSingleton.h in Headers */,
-				2C1C0EDA139FCE3900E1DA75 /* GTMTypeCasting.h in Headers */,
+				2C1C0F07139FD18400E1DA75 /* GTMCarbonEvent.h in Headers */,
+				2C1C0F08139FD18400E1DA75 /* GTMDebugSelectorValidation.h in Headers */,
+				2C1C0F09139FD18400E1DA75 /* GTMDefines.h in Headers */,
+				2C1C0F0A139FD18400E1DA75 /* GTMObjectSingleton.h in Headers */,
+				2C1C0F0B139FD18400E1DA75 /* GTMTypeCasting.h in Headers */,
+				2C1C0F1A139FD32D00E1DA75 /* iTermSearchField.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		874206460564169600CFC3F1 /* iTerm */ = {
+		874206460564169600CFC3F1 /* iTermprefs */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = BB024D35096EE4080021E793 /* Build configuration list for PBXNativeTarget "iTerm" */;
+			buildConfigurationList = BB024D35096EE4080021E793 /* Build configuration list for PBXNativeTarget "iTermprefs" */;
 			buildPhases = (
 				874206480564169600CFC3F1 /* Headers */,
 				8742064A0564169600CFC3F1 /* Resources */,
 				8742064E0564169600CFC3F1 /* Sources */,
 				874206510564169600CFC3F1 /* Frameworks */,
-				874206550564169600CFC3F1 /* Rez */,
-				874206560564169600CFC3F1 /* CopyFiles */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
-			name = iTerm;
+			name = iTermprefs;
 			productName = "JTerminal (Application)";
 			productReference = 8742065A0564169600CFC3F1 /* iTerm.app */;
 			productType = "com.apple.product-type.application";
@@ -505,7 +486,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				874206460564169600CFC3F1 /* iTerm */,
+				874206460564169600CFC3F1 /* iTermprefs */,
 			);
 		};
 /* End PBXProject section */
@@ -555,26 +536,16 @@
 				2CE27585139B0923005797CA /* DefaultBookmark.plist in Resources */,
 				2CE27586139B0923005797CA /* DefaultGlobalKeyMap.plist in Resources */,
 				2CE27587139B0923005797CA /* EncodingsWithLowerCase.plist in Resources */,
-				2CE27588139B0923005797CA /* Growl-Info.plist in Resources */,
 				2CE27589139B0923005797CA /* MigrationMap.plist in Resources */,
 				2CE2758A139B0923005797CA /* PresetKeyMappings.plist in Resources */,
 				2CE2758B139B0923005797CA /* SmartSelectionRules.plist in Resources */,
 				2CE2758D139B0923005797CA /* iTerm_Framework.plist in Resources */,
-				2C1C0ECE139FCE2200E1DA75 /* GTM in Resources */,
+				2C1C0F01139FD16600E1DA75 /* GTM in Resources */,
+				2C1C0F13139FD30000E1DA75 /* Search in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXRezBuildPhase section */
-		874206550564169600CFC3F1 /* Rez */ = {
-			isa = PBXRezBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-/* End PBXRezBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		8742064E0564169600CFC3F1 /* Sources */ = {
@@ -596,7 +567,8 @@
 				2CE2761E139B2977005797CA /* PreferencesModel.m in Sources */,
 				2CE2762E139B2A87005797CA /* PreferencePanelController.m in Sources */,
 				2C1C082B139DB35700E1DA75 /* PreferencesProfilesHelper.m in Sources */,
-				2C1C0ED0139FCE3000E1DA75 /* GTMCarbonEvent.m in Sources */,
+				2C1C0F0D139FD19800E1DA75 /* GTMCarbonEvent.m in Sources */,
+				2C1C0F18139FD32500E1DA75 /* iTermSearchField.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -840,7 +812,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		BB024D35096EE4080021E793 /* Build configuration list for PBXNativeTarget "iTerm" */ = {
+		BB024D35096EE4080021E793 /* Build configuration list for PBXNativeTarget "iTermprefs" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				BB024D36096EE4080021E793 /* Development */,

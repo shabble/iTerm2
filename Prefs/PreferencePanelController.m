@@ -159,11 +159,12 @@ static float versionNumber;
 
 - (void)_savedArrangementChanged:(id)sender
 {
-    [openArrangementAtStartup setState:defaultOpenArrangementAtStartup ? NSOnState : NSOffState];
-    [openArrangementAtStartup setEnabled:[[iTermController sharedInstance] hasWindowArrangement]];
+/*    [openArrangementAtStartup setState:defaultOpenArrangementAtStartup ? NSOnState : NSOffState];
+    [openArrangementAtStartup setEnabled:[[iTermController sharedInstance] hasWindowArrangement]]; 
     if (![[iTermController sharedInstance] hasWindowArrangement]) {
         [openArrangementAtStartup setState:NO];
     }
+ */
 }
 
 - (void)setOneBookmarkOnly
@@ -2540,13 +2541,6 @@ static float versionNumber;
     
     // Selectively update form fields.
     [self updateShortcutTitles];
-    
-    // Update existing sessions
-    int n = [[iTermController sharedInstance] numberOfTerminals];
-    for (int i = 0; i < n; ++i) {
-        PseudoTerminal* pty = [[iTermController sharedInstance] terminalAtIndex:i];
-        [pty reloadBookmarks];
-    }
     if (prefs) {
         [prefs setObject:[dataSource rawData] forKey: @"New Bookmarks"];
     }

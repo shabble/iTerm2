@@ -27,11 +27,8 @@
  */
 
 #import "Popup.h"
-#import "VT100Screen.h"
-#import "PTYTextView.h"
 #include <wctype.h>
-#import "iTermApplicationDelegate.h"
-#import "PTYTab.h"
+#import "App/iTermApplicationDelegate.h"
 
 #ifdef POPUP_VERBOSE_LOGGING
 #define PopLog NSLog
@@ -44,6 +41,8 @@ DebugLog([NSString stringWithFormat:args]); \
 } while (0)
 #endif
 
+#define MARGIN (5)
+/*
 @implementation PopupEntry
 
 - (void)_setDefaultValues
@@ -313,7 +312,6 @@ DebugLog([NSString stringWithFormat:args]); \
     [substring_ release];
     [model_ release];
     [tableView_ release];
-    [session_ release];
     [super dealloc];
 }
 
@@ -322,24 +320,6 @@ DebugLog([NSString stringWithFormat:args]); \
     return YES;
 }
 
-- (void)popInSession:(PTYSession*)session
-{
-    [[self window] setParentWindow:[[[session tab] realParentWindow] window]];
-    [self setSession:session];
-    [self showWindow:[[session tab] parentWindow]];
-    [[self window] makeKeyAndOrderFront:[[session tab] parentWindow]];
-}
-
-- (void)setSession:(PTYSession*)session
-{
-    [session_ autorelease];
-    session_ = [session retain];
-}
-
-- (PTYSession*)session
-{
-    return session_;
-}
 
 - (PopupModel*)unfilteredModel
 {
@@ -359,7 +339,7 @@ DebugLog([NSString stringWithFormat:args]); \
         timer_ = nil;
     }
     [substring_ setString:@""];
-    [self setSession:nil];
+//    [self setSession:nil];
 }
 
 - (void)onOpen
@@ -410,22 +390,24 @@ DebugLog([NSString stringWithFormat:args]); \
 {
     BOOL onTop = NO;
 
-    VT100Screen* screen = [session_ SCREEN];
-    int cx = [screen cursorX] - 1;
-    int cy = [screen cursorY];
+    //VT100Screen* screen = [session_ SCREEN];
+    int cx = 100; //[screen cursorX] - 1;
+    int cy = 100; //[screen cursorY];
 
-    PTYTextView* tv = [session_ TEXTVIEW];
-    [tv scrollEnd];
+    //PTYTextView* tv = [session_ TEXTVIEW];
+//    [tv scrollEnd];
     NSRect frame = [[self window] frame];
-    frame.size.height = [[tableView_ headerView] frame].size.height + [model_ count] * ([tableView_ rowHeight] + [tableView_ intercellSpacing].height);
+    frame.size.height = [[tableView_ headerView] frame].size.height
+    + [model_ count] * ([tableView_ rowHeight]
+                    + [tableView_ intercellSpacing].height);
 
-    NSPoint p = NSMakePoint(MARGIN + cx * [tv charWidth],
-                            ([screen numberOfLines] - [screen height] + cy) * [tv lineHeight]);
-    p = [tv convertPoint:p toView:nil];
-    p = [[tv window] convertBaseToScreen:p];
+    NSPoint p = NSMakePoint(MARGIN + cx * 3, MARGIN + cy * 3); //[tv charWidth],
+//     ([screen numberOfLines] - [screen height] + cy) * [tv lineHeight]);
+   // p = [tv convertPoint:p toView:nil];
+   // p = [[tv window] convertBaseToScreen:p];
     p.y -= frame.size.height;
 
-    NSRect monitorFrame = [[[[[screen session] tab] parentWindow] windowScreen] visibleFrame];
+    //NSRect monitorFrame = [[[[[screen session] tab] parentWindow] windowScreen] visibleFrame];
 
     if (canChangeSide) {
         // p.y gives the bottom of the frame relative to the bottom of the screen, assuming it's below the cursor.
@@ -652,3 +634,5 @@ DebugLog([NSString stringWithFormat:args]); \
 }
 
 @end
+*/
+

@@ -42,7 +42,7 @@
 #import "GTM/GTMCarbonEvent.h"
 
 // Constants for saved window arrangement key names.
-static NSString* DEFAULT_ARRANGEMENT_NAME = @"Default";
+//static NSString* DEFAULT_ARRANGEMENT_NAME = @"Default";
 static NSString* APPLICATION_SUPPORT_DIRECTORY = @"~/tmp/Library/Application Support";
 static NSString *SUPPORT_DIRECTORY = @"~/Library/Application Support/iTerm";
 
@@ -76,6 +76,10 @@ static BOOL initDone = NO;
     shared = nil;
 }
 
+- (BOOL)hasWindowArrangement 
+{
+return NO; 
+}
 
 // init
 - (id)init
@@ -245,12 +249,6 @@ static BOOL initDone = NO;
     return 0;
 }
 
-
-static void RollInHotkeyTerm(PseudoTerminal* term)
-{
-    NSLog(@"Roll in [show] visor");
-}
-
 - (void)rollInFinished
 {
 }
@@ -299,21 +297,8 @@ static void RollInHotkeyTerm(PseudoTerminal* term)
     return YES;
 }
 
-static BOOL IsSnowLeopardOrLater() {
-    unsigned major;
-    unsigned minor;
-    if ([iTermController getSystemVersionMajor:&major minor:&minor bugFix:nil]) {
-        return (major == 10 && minor >= 6) || (major > 10);
-    } else {
-        return NO;
-    }
-}
 
-static BOOL OpenHotkeyWindow()
-{
-    NSLog(@"Open visor");
-    return NO;
-}
+
 
 - (void)showNonHotKeyWindowsAndSetAlphaTo:(float)a
 {
@@ -341,6 +326,32 @@ static BOOL OpenHotkeyWindow()
 - (BOOL)isHotKeyWindowOpen
 {
     return NO;
+}
+void OnHotKeyEvent(void)
+{
+    NSLog(@"hotkey pressed");
+    PreferencePanelController* prefPanel = [PreferencePanelController sharedInstance];
+    if ([prefPanel hotkeyTogglesWindow]) {
+        NSLog(@"visor enabled");
+    } else if ([NSApp isActive]) {
+        NSWindow* prefWindow = [prefPanel window];
+        NSWindow* appKeyWindow = [[NSApplication sharedApplication] keyWindow];
+        if (prefWindow != appKeyWindow ||
+            ![iTermApplication isTextFieldInFocus:[prefPanel hotkeyField]]) {
+            [NSApp hide:nil];
+        }
+    } else {
+        //iTermController* controller = [iTermController sharedInstance];
+        [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
+    }
+}
+
+- (BOOL)eventIsHotkey:(NSEvent*)e
+{
+    const int mask = (NSCommandKeyMask | NSAlternateKeyMask | NSShiftKeyMask | NSControlKeyMask);
+    return (hotkeyCode_ &&
+            ([e modifierFlags] & mask) == (hotkeyModifiers_ & mask) &&
+            [e keyCode] == hotkeyCode_);
 }
 
 

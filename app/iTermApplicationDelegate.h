@@ -90,9 +90,7 @@ void DebugLog(NSString* value);
 - (void)applicationWillFinishLaunching:(NSNotification *)aNotification;
 - (BOOL)applicationShouldTerminate: (NSNotification *) theNotification;
 - (BOOL)application:(NSApplication *)theApplication openFile:(NSString *)filename;
-- (BOOL)applicationOpenUntitledFile:(NSApplication *)app;
-- (NSMenu *)applicationDockMenu:(NSApplication *)sender;
-- (NSMenu*)bookmarksMenu;
+//- (NSMenu*)bookmarksMenu;
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)app;
 
 - (BOOL)applicationShouldHandleReopen:(NSApplication *)theApplication hasVisibleWindows:(BOOL)flag;
@@ -100,75 +98,18 @@ void DebugLog(NSString* value);
 - (void)applicationDidBecomeActive:(NSNotification *)aNotification;
 - (void)applicationDidResignActive:(NSNotification *)aNotification;
 
-- (IBAction)maximizePane:(id)sender;
-- (IBAction)toggleUseTransparency:(id)sender;
-- (IBAction)toggleSecureInput:(id)sender;
-
-- (IBAction)newWindow:(id)sender;
-- (IBAction)newSession:(id)sender;
-- (IBAction)buildScriptMenu:(id)sender;
 
 - (IBAction)debugLogging:(id)sender;
-
-- (IBAction)toggleSecureInput:(id)sender;
-- (void)updateMaximizePaneMenuItem;
-- (void)updateUseTransparencyMenuItem;
 
     // About window
 - (IBAction)showAbout:(id)sender;
 
-- (IBAction)saveWindowArrangement:(id)sender;
-- (IBAction)loadWindowArrangement:(id)sender;
-
 - (IBAction)showPrefWindow:(id)sender;
-- (IBAction)showBookmarkWindow:(id)sender;
-- (IBAction)instantReplayPrev:(id)sender;
-- (IBAction)instantReplayNext:(id)sender;
-
-    // navigation
-- (IBAction)previousTerminal: (id) sender;
-- (IBAction)nextTerminal: (id) sender;
-- (IBAction)arrangeHorizontally:(id)sender;
 
 // Notifications
 - (void) reloadMenus: (NSNotification *) aNotification;
-- (void) buildSessionSubmenu: (NSNotification *) aNotification;
-- (void) reloadSessionMenus: (NSNotification *) aNotification;
 - (void) nonTerminalWindowBecameKey: (NSNotification *) aNotification;
 
 // font control
-- (IBAction) biggerFont: (id) sender;
-- (IBAction) smallerFont: (id) sender;
-
-// size
-- (IBAction)returnToDefaultSize:(id)sender;
-- (IBAction)exposeForTabs:(id)sender;
-- (IBAction)editCurrentSession:(id)sender;
-
-- (void)makeHotKeyWindowKeyIfOpen;
-
-@end
-
-// Scripting support
-@interface iTermApplicationDelegate (KeyValueCoding)
-
-- (BOOL)application:(NSApplication *)sender delegateHandlesKey:(NSString *)key;
-
-- (PseudoTerminal *)currentTerminal;
-
-// accessors for to-many relationships:
--(NSArray*)terminals;
--(void)setTerminals: (NSArray*)terminals;
-- (void) setCurrentTerminal: (PseudoTerminal *) aTerminal;
-
--(id)valueInTerminalsAtIndex:(unsigned)index;
--(void)replaceInTerminals:(PseudoTerminal *)object atIndex:(unsigned)index;
-- (void) addInTerminals: (PseudoTerminal *) object;
-- (void) insertInTerminals: (PseudoTerminal *) object;
--(void)insertInTerminals:(PseudoTerminal *)object atIndex:(unsigned)index;
--(void)removeFromTerminalsAtIndex:(unsigned)index;
-
-// a class method to provide the keys for KVC:
-+(NSArray*)kvcKeys;
 
 @end

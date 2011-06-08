@@ -5,9 +5,8 @@
 //  Created by George Nachman on 11/4/10.
 //  Copyright 2010 __MyCompanyName__. All rights reserved.
 //
-
+/*
 #import <Cocoa/Cocoa.h>
-#import "PTYSession.h"
 
 @interface PopupWindow : NSWindow {
     NSWindow* parentWindow_;
@@ -69,8 +68,6 @@
 
 @interface Popup : NSWindowController {
     @private
-    // Backing session.
-    PTYSession* session_;
     
     // Subclass-owned tableview.
     NSTableView* tableView_;
@@ -107,8 +104,6 @@
 // Turn off focus follows mouse while this window is key.
 - (BOOL)disableFocusFollowsMouse;
 
-// Called by clients to open window.
-- (void)popInSession:(PTYSession*)session;
 
 // Subclasses may override these methods.
 // Begin populating the unfiltered model.
@@ -131,9 +126,7 @@
 - (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex;
 - (void)tableViewSelectionDidChange:(NSNotification *)aNotification;
 
-- (void)setSession:(PTYSession*)session;
 - (void)setOnTop:(BOOL)onTop;
-- (PTYSession*)session;
 - (PopupModel*)unfilteredModel;
 - (PopupModel*)model;
 - (void)setPosition:(BOOL)canChangeSide;
@@ -148,3 +141,4 @@
 
 
 @end
+ */

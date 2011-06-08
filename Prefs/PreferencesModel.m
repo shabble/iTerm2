@@ -95,5 +95,7 @@
 @synthesize  defaultRightCommand;
 @synthesize  defaultSwitchTabModifier;
 @synthesize  defaultSwitchWindowModifier;
- 
+
+@synthesize preferences;
+
 @end
