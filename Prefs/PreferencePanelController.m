@@ -27,7 +27,6 @@
 
 #import "Prefs/PreferencePanelController.h"
 
-#import "Misc/NSStringITerm.h"
 #import "App/iTermController.h"
 #import "Profiles/ITAddressBookMgr.h"
 #import "App/iTermKeyBindingMgr.h"

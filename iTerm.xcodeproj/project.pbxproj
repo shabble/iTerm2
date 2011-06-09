@@ -57,6 +57,7 @@
 		2C93F19B13A09F4B004D78DD /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DEB293D1288899A00B2CB9F /* Carbon.framework */; };
 		2C93F19C13A09F4B004D78DD /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0464AB30006CD2EC7F000001 /* Foundation.framework */; };
 		2C93F19F13A09F8D004D78DD /* GTM.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C93EFA313A09EF0004D78DD /* GTM.dylib */; };
+		2C93F1EC13A0D5A2004D78DD /* Dump.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C93F1EB13A0D5A2004D78DD /* Dump.xib */; };
 		2CE27518139B06F0005797CA /* iTerm.icns in Resources */ = {isa = PBXBuildFile; fileRef = 2CE27509139B06F0005797CA /* iTerm.icns */; };
 		2CE27546139B08F0005797CA /* Copy-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 2CE27527139B08F0005797CA /* Copy-icon.png */; };
 		2CE27547139B08F0005797CA /* IBarCursor.png in Resources */ = {isa = PBXBuildFile; fileRef = 2CE27528139B08F0005797CA /* IBarCursor.png */; };
@@ -166,6 +167,7 @@
 		2C93EF7213A0988D004D78DD /* PreferencesGeneralHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PreferencesGeneralHelper.h; path = Prefs/PreferencesGeneralHelper.h; sourceTree = "<group>"; };
 		2C93EF7313A0988D004D78DD /* PreferencesGlobalKeybindingsHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PreferencesGlobalKeybindingsHelper.h; path = Prefs/PreferencesGlobalKeybindingsHelper.h; sourceTree = "<group>"; };
 		2C93EFA313A09EF0004D78DD /* GTM.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = GTM.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		2C93F1EB13A0D5A2004D78DD /* Dump.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = Dump.xib; sourceTree = "<group>"; };
 		2CE274E8139B06F0005797CA /* images */ = {isa = PBXFileReference; lastKnownFileType = folder; path = images; sourceTree = "<group>"; };
 		2CE27509139B06F0005797CA /* iTerm.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = iTerm.icns; sourceTree = "<group>"; };
 		2CE2750A139B06F0005797CA /* properties */ = {isa = PBXFileReference; lastKnownFileType = folder; path = properties; sourceTree = "<group>"; };
@@ -369,6 +371,7 @@
 			children = (
 				9325FF4E0FB54E00004EC67C /* MainMenu.xib */,
 				9325FF400FB54DF1004EC67C /* PreferencePanel.xib */,
+				2C93F1EB13A0D5A2004D78DD /* Dump.xib */,
 			);
 			name = "XIB Files";
 			sourceTree = "<group>";
@@ -594,6 +597,7 @@
 				2CE2758D139B0923005797CA /* iTerm_Framework.plist in Resources */,
 				2C1C0F01139FD16600E1DA75 /* GTM in Resources */,
 				2C1C0F13139FD30000E1DA75 /* Search in Resources */,
+				2C93F1EC13A0D5A2004D78DD /* Dump.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -90,7 +90,9 @@ void DebugLog(NSString* value);
 - (void)applicationWillFinishLaunching:(NSNotification *)aNotification;
 - (BOOL)applicationShouldTerminate: (NSNotification *) theNotification;
 - (BOOL)application:(NSApplication *)theApplication openFile:(NSString *)filename;
+
 //- (NSMenu*)bookmarksMenu;
+
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)app;
 
 - (BOOL)applicationShouldHandleReopen:(NSApplication *)theApplication hasVisibleWindows:(BOOL)flag;
@@ -103,12 +105,11 @@ void DebugLog(NSString* value);
 
     // About window
 - (IBAction)showAbout:(id)sender;
-
 - (IBAction)showPrefWindow:(id)sender;
 
 // Notifications
-- (void) reloadMenus: (NSNotification *) aNotification;
-- (void) nonTerminalWindowBecameKey: (NSNotification *) aNotification;
+- (void)reloadMenus: (NSNotification *) aNotification;
+- (void)nonTerminalWindowBecameKey: (NSNotification *) aNotification;
 
 // font control
 
