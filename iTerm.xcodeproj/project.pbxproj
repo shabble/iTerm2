@@ -1748,6 +1748,7 @@
 					"$(SRCROOT)",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.5;
+				ONLY_ACTIVE_ARCH = YES;
 				PREBINDING = NO;
 				PRELINK_LIBS = "";
 				SDKROOT = macosx10.5;
@@ -1776,6 +1777,7 @@
 					"$(SRCROOT)",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.5;
+				ONLY_ACTIVE_ARCH = YES;
 				PREBINDING = NO;
 				PRELINK_LIBS = "";
 				SDKROOT = macosx10.5;
@@ -1804,6 +1806,7 @@
 					"$(SRCROOT)",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.5;
+				ONLY_ACTIVE_ARCH = YES;
 				PREBINDING = NO;
 				PRELINK_LIBS = "";
 				SDKROOT = macosx10.5;
