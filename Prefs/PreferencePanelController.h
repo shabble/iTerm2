@@ -231,7 +231,6 @@
     IBOutlet NSButton *checkTestRelease;
     BOOL defaultCheckTestRelease;
     
-    IBOutlet NSTabView* bookmarksSettingsTabViewParent;
     IBOutlet NSTabViewItem* bookmarkSettingsGeneralTab;
     
     NSUserDefaults *prefs;
@@ -286,32 +285,46 @@ typedef enum { BulkCopyColors, BulkCopyDisplay, BulkCopyWindow, BulkCopyTerminal
 
 + (PreferencePanelController *)sharedInstance;
 + (PreferencePanelController *)sessionsInstance;
+
 + (BOOL)migratePreferences;
 
 @property (readwrite,retain) PreferencesProfilesHelper *prefsProfilesHelper;
 @property (readwrite,retain) PreferencesModel *prefsModel;
 
-
-
-
 - (id)initWithDataSource:(BookmarkModel*)model userDefaults:(NSUserDefaults*)userDefaults;
+
+- (IBAction)showGlobalTabView:(id)sender;
+- (IBAction)showAppearanceTabView:(id)sender;
+- (IBAction)showBookmarksTabView:(id)sender;
+- (IBAction)showKeyboardTabView:(id)sender;
+
+
 - (void)setOneBookmarkOnly;
+
 - (void)awakeFromNib;
 - (void)handleWindowWillCloseNotification:(NSNotification *)notification;
 - (void)genericCloseSheet:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
+
 - (void)editKeyMapping:(id)sender;
 - (IBAction)saveKeyMapping:(id)sender;
 - (BOOL)keySheetIsOpen;
+
 - (IBAction)closeKeyMapping:(id)sender;
+
 - (BOOL)validateToolbarItem:(NSToolbarItem *)theItem;
 - (NSToolbarItem *)toolbar:(NSToolbar *)toolbar itemForItemIdentifier:(NSString *)itemIdentifier willBeInsertedIntoToolbar:(BOOL)flag;
+
 - (NSArray *)toolbarAllowedItemIdentifiers:(NSToolbar *)toolbar;
 - (NSArray *)toolbarDefaultItemIdentifiers:(NSToolbar *)toolbar;
 - (NSArray *)toolbarSelectableItemIdentifiers: (NSToolbar *)toolbar;
+
 - (void)dealloc;
+
 - (void)readPreferences;
 - (void)savePreferences;
+
 - (void)run;
+
 - (IBAction)settingChanged:(id)sender;
 - (BOOL)advancedFontRendering;
 - (float)strokeThickness;
@@ -333,9 +346,11 @@ typedef enum { BulkCopyColors, BulkCopyDisplay, BulkCopyWindow, BulkCopyTerminal
 - (BOOL)onlyWhenMoreTabs;
 - (BOOL)focusFollowsMouse;
 - (BOOL)enableBonjour;
+
 // Returns true if ANY profile has growl enabled (preserves interface from back
 // when there was a global growl setting as well as a per-profile setting).
 - (BOOL)enableGrowl;
+
 - (BOOL)cmdSelection;
 - (BOOL)passOnControlLeftClick;
 - (BOOL)maxVertically;
@@ -387,10 +402,6 @@ typedef enum { BulkCopyColors, BulkCopyDisplay, BulkCopyWindow, BulkCopyTerminal
 - (IBAction)bookmarkSettingChanged:(id)sender;
 - (IBAction)copyToProfile:(id)sender;
 - (IBAction)bookmarkUrlSchemeHandlerChanged:(id)sender;
-- (IBAction)showGlobalTabView:(id)sender;
-- (IBAction)showAppearanceTabView:(id)sender;
-- (IBAction)showBookmarksTabView:(id)sender;
-- (IBAction)showKeyboardTabView:(id)sender;
 - (void)connectBookmarkWithGuid:(NSString*)guid toScheme:(NSString*)scheme;
 - (void)disconnectHandlerForScheme:(NSString*)scheme;
 - (IBAction)closeWindow:(id)sender;
@@ -409,22 +420,6 @@ typedef enum { BulkCopyColors, BulkCopyDisplay, BulkCopyWindow, BulkCopyTerminal
 - (IBAction)globalRemoveMapping:(id)sender;
 - (void)setKeyMappingsToPreset:(NSString*)presetName;
 - (IBAction)presetKeyMappingsItemSelected:(id)sender;
-- (void)_loadPresetColors:(NSString*)presetName;
-- (void)loadColorPreset:(id)sender;
-- (IBAction)addBookmark:(id)sender;
-- (IBAction)removeBookmark:(id)sender;
-- (IBAction)duplicateBookmark:(id)sender;
-- (IBAction)setAsDefault:(id)sender;
-- (NSArray *)tokenField:(NSTokenField *)tokenField completionsForSubstring:(NSString *)substring indexOfToken:(NSInteger)tokenIndex indexOfSelectedItem:(NSInteger *)selectedIndex;
-- (void)showBookmarks;
-- (void)openToBookmark:(NSString*)guid;
-- (id)tokenFieldCell:(NSTokenFieldCell *)tokenFieldCell representedObjectForEditingString:(NSString *)editingString;
-- (void)underlyingBookmarkDidChange;
-
-- (IBAction)openCopyBookmarks:(id)sender;
-- (IBAction)copyBookmarks:(id)sender;
-- (IBAction)cancelCopyBookmarks:(id)sender;
-- (void)copyAttributes:(BulkCopySettings)attributes fromBookmark:(NSString*)guid toBookmark:(NSString*)destGuid;
 
 - (int)control;
 - (int)leftOption;
@@ -435,10 +430,10 @@ typedef enum { BulkCopyColors, BulkCopyDisplay, BulkCopyWindow, BulkCopyTerminal
 - (int)switchTabModifier;
 - (int)switchWindowModifier;
 
-- (BOOL)remappingDisabledTemporarily;
 - (BOOL)hotkeyTogglesWindow;
 - (BOOL)dockIconTogglesWindow;
 - (Bookmark*)hotkeyBookmark;
+- (void)copyAttributes:(BulkCopySettings)attributes fromBookmark:(NSString*)guid toBookmark:(NSString*)destGuid;
 
 @end
 

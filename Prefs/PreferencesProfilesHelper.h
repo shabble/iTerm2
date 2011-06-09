@@ -27,9 +27,14 @@
 #import "Profiles/BookmarkModel.h"
 #import "Profiles/BookmarkListView.h"
 #import "Prefs/PreferencesModel.h"
+#import "Profiles/ITAddressBookMgr.h"
+
 
 @interface PreferencesProfilesHelper : NSObject <BookmarkTableDelegate> 
 {
+    
+    IBOutlet NSTabView* bookmarksSettingsTabViewParent;
+    
     // Bookmarks -----------------------------
     IBOutlet BookmarkListView *bookmarksTableView;
     IBOutlet NSTableColumn *shellImageColumn;
@@ -180,11 +185,11 @@
     
     
     BookmarkTableView *tableView;
-    PreferencesModel *prefsModel;
+    PreferencesModel *dataSource;
 }
 
 @property (readwrite,retain) BookmarkTableView *tableView;
-@property (readwrite,retain) PreferencesModel *prefsModel;
+@property (readwrite,retain) PreferencesModel *dataSource;
 
 + (id)initWithBookmarkTableView:(BookmarkTableView *)view;
 
@@ -193,6 +198,25 @@
 - (void)bookmarkTableSelectionDidChange:(id)bookmarkTable;
 - (void)bookmarkTableSelectionWillChange:(id)aBookmarkTableView;
 - (void)bookmarkTableRowSelected:(id)bookmarkTable;
+
+- (void)_loadPresetColors:(NSString*)presetName;
+- (void)loadColorPreset:(id)sender;
+- (IBAction)addBookmark:(id)sender;
+- (IBAction)removeBookmark:(id)sender;
+- (IBAction)duplicateBookmark:(id)sender;
+- (IBAction)setAsDefault:(id)sender;
+- (NSArray *)tokenField:(NSTokenField *)tokenField completionsForSubstring:(NSString *)substring indexOfToken:(NSInteger)tokenIndex indexOfSelectedItem:(NSInteger *)selectedIndex;
+- (void)showBookmarks;
+- (void)openToBookmark:(NSString*)guid;
+- (id)tokenFieldCell:(NSTokenFieldCell *)tokenFieldCell representedObjectForEditingString:(NSString *)editingString;
+- (void)underlyingBookmarkDidChange;
+
+- (IBAction)openCopyBookmarks:(id)sender;
+- (IBAction)copyBookmarks:(id)sender;
+- (IBAction)cancelCopyBookmarks:(id)sender;
+
+
+- (BOOL)remappingDisabledTemporarily;
 
 //- (IBAction)duplicateBookmark:(id)sender;
 
