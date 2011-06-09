@@ -253,33 +253,7 @@
     // url handler stuff
     NSMutableDictionary *urlHandlersByGuid;
     
-    
-    // Keyboard ------------------------------
-    int defaultControl;
-    IBOutlet NSPopUpButton* controlButton;
-    int defaultLeftOption;
-    IBOutlet NSPopUpButton* leftOptionButton;
-    int defaultRightOption;
-    IBOutlet NSPopUpButton* rightOptionButton;
-    int defaultLeftCommand;
-    IBOutlet NSPopUpButton* leftCommandButton;
-    int defaultRightCommand;
-    IBOutlet NSPopUpButton* rightCommandButton;
-    
-    int defaultSwitchTabModifier;
-    IBOutlet NSPopUpButton* switchTabModifierButton;
-    int defaultSwitchWindowModifier;
-    IBOutlet NSPopUpButton* switchWindowModifierButton;
-    
-    IBOutlet NSButton* deleteSendsCtrlHButton;
-    
-    IBOutlet NSTableView* globalKeyMappings;
-    IBOutlet NSTableColumn* globalKeyCombinationColumn;
-    IBOutlet NSTableColumn* globalActionColumn;
-    IBOutlet NSButton* globalRemoveMappingButton;
-    IBOutlet NSButton* globalAddNewMapping;
-    
-}
+   }
 
 typedef enum { BulkCopyColors, BulkCopyDisplay, BulkCopyWindow, BulkCopyTerminal, BulkCopyKeyboard } BulkCopySettings;
 
