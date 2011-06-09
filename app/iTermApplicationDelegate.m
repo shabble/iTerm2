@@ -33,7 +33,6 @@
 #import "Prefs/PreferencePanelController.h"
 
 
-#import "Misc/NSStringITerm.h"
 #import "Profiles/BookmarksWindow.h"
 
 #include <unistd.h>

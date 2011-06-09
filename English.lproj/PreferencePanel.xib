@@ -8,7 +8,7 @@
 		<string key="IBDocument.HIToolboxVersion">353.00</string>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="1943"/>
+			<integer value="1947"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -8387,13 +8387,13 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 			<object class="NSCustomObject" id="889983413">
 				<string key="NSClassName">PreferencesProfilesHelper</string>
 			</object>
-			<object class="NSCustomObject" id="480879306">
+			<object class="NSCustomObject" id="682951608">
 				<string key="NSClassName">PreferencesGeneralHelper</string>
 			</object>
-			<object class="NSCustomObject" id="1069920768">
+			<object class="NSCustomObject" id="174225337">
 				<string key="NSClassName">PreferencesGlobalKeybindingsHelper</string>
 			</object>
-			<object class="NSCustomObject" id="1036282067">
+			<object class="NSCustomObject" id="595198581">
 				<string key="NSClassName">PreferencesAppearanceHelper</string>
 			</object>
 		</object>
@@ -17337,19 +17337,19 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">5335</int>
-						<reference key="object" ref="1069920768"/>
+						<reference key="object" ref="174225337"/>
 						<reference key="parent" ref="739355747"/>
 						<string key="objectName">Prefs Global Keys</string>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">5336</int>
-						<reference key="object" ref="1036282067"/>
+						<reference key="object" ref="595198581"/>
 						<reference key="parent" ref="739355747"/>
 						<string key="objectName">Prefs Appearance</string>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">5337</int>
-						<reference key="object" ref="480879306"/>
+						<reference key="object" ref="682951608"/>
 						<reference key="parent" ref="739355747"/>
 						<string key="objectName">Prefs General Helper</string>
 					</object>
@@ -18446,7 +18446,7 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 					<string>{{52, 94}, {800, 411}}</string>
 					<reference ref="5"/>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{206, 412}, {616, 0}}</string>
+					<string>{{144, 505}, {616, 0}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -19768,7 +19768,7 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 				</object>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">5337</int>
+			<int key="maxID">5339</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">

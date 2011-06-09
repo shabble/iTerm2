@@ -33,7 +33,6 @@
 
 #import "App/iTermController.h"
 #import "Prefs/PreferencePanelController.h"
-#import "Misc/NSStringITerm.h"
 #import "Profiles/ITAddressBookMgr.h"
 #import <Carbon/Carbon.h>
 #import "App/iTermApplicationDelegate.h"
