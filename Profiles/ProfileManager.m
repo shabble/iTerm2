@@ -348,7 +348,7 @@
     [newProfile setObject:ipAddressString forKey:KEY_BONJOUR_SERVICE_ADDRESS];
     [newProfile setObject:[NSArray arrayWithObjects:@"bonjour",nil] forKey:KEY_TAGS];
     [newProfile setObject:[ProfileModel freshGuid] forKey:KEY_GUID];
-    [newProfile setObject:@"No" forKey:KEY_DEFAULT_BOOKMARK];
+    [newProfile setObject:@"No" forKey:KEY_DEFAULT_PROFILE];
     [newProfile removeObjectForKey:KEY_SHORTCUT];
     [[ProfileModel sharedInstance] addProfile:newProfile];
 

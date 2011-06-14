@@ -12,7 +12,7 @@
 @interface PreferencesGlobalKeybindingsHelper : NSObject {
     
     // Keyboard ------------------------------
-    int defaultControl;
+ /*   int defaultControl;
     IBOutlet NSPopUpButton* controlButton;
     int defaultLeftOption;
     IBOutlet NSPopUpButton* leftOptionButton;
@@ -35,6 +35,7 @@
     IBOutlet NSTableColumn* globalActionColumn;
     IBOutlet NSButton* globalRemoveMappingButton;
     IBOutlet NSButton* globalAddNewMapping;
+  */
 }
 
 @end

@@ -5,7 +5,7 @@
  **  Created by George Nachman on 8/24/10.
  **  Project: iTerm
  **
- **  Description: Model for an ordered collection of bookmarks. Profiles have
+ **  Description: Model for an ordered collection of profiles. Profiles have
  **    numerous attributes, but always have a name, set of tags, and a guid.
  **
  **  This program is free software; you can redistribute it and/or modify
@@ -24,14 +24,14 @@
 
 #import <Cocoa/Cocoa.h>
 
-#define BMKEY_BOOKMARKS_ARRAY @"Bookmarks Array"
+#define BMKEY_PROFILES_ARRAY @"Bookmarks Array"
 
 typedef NSDictionary Profile;
 typedef struct {
     SEL selector;                  // normal action
     SEL alternateSelector;         // opt+click
-    SEL openAllSelector;           // open all bookmarks
-    SEL alternateOpenAllSelector;  // opt+open all bookmarks
+    SEL openAllSelector;           // open all profiles
+    SEL alternateOpenAllSelector;  // opt+open all profiles
     id target;                     // receiver of selector
 } JournalParams;
 
@@ -113,7 +113,7 @@ typedef enum {
     ProfileModel* model;
     // Tags before the action was applied.
     NSArray* tags;
-    int index;  // Index of bookmark
+    int index;  // Index of profile
 }
 
 + (ProfileJournalEntry*)journalWithAction:(JournalAction)action profile:(Profile*)profile model:(ProfileModel*)model;
