@@ -24,40 +24,40 @@
  **  along with this program; if not, write to the Free Software
  **  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
-#import "Profiles/BookmarkModel.h"
-#import "Profiles/BookmarkListView.h"
+#import "Profiles/ProfilesModel.h"
+#import "Profiles/ProfilesListView.h"
 #import "Prefs/PreferencesModel.h"
-#import "Profiles/ITAddressBookMgr.h"
+#import "Prefs/PreferenceKeys.h"
 
 
 @interface PreferencesProfilesHelper : NSObject <ProfilesTableDelegate> 
 {
     
-    IBOutlet NSTabView* bookmarksSettingsTabViewParent;
+    IBOutlet NSTabView* profilesSettingsTabViewParent;
     
-    // Bookmarks -----------------------------
-    IBOutlet BookmarkListView *bookmarksTableView;
-    IBOutlet NSTableColumn *shellImageColumn;
-    IBOutlet NSTableColumn *nameShortcutColumn;
-    IBOutlet NSButton *removeBookmarkButton;
-    IBOutlet NSButton *addBookmarkButton;
+    // Profiles -----------------------------
+    IBOutlet ProfilesListView *profilesTableView;
+    IBOutlet NSTableColumn    *shellImageColumn;
+    IBOutlet NSTableColumn    *nameShortcutColumn;
+    IBOutlet NSButton         *removeProfileButton;
+    IBOutlet NSButton         *addProfileButton;
     
     // General tab
-    IBOutlet NSTextField *bookmarkName;
-    IBOutlet NSPopUpButton *bookmarkShortcutKey;
-    IBOutlet NSMatrix *bookmarkCommandType;
-    IBOutlet NSTextField *bookmarkCommand;
-    IBOutlet NSMatrix *bookmarkDirectoryType;
-    IBOutlet NSTextField *bookmarkDirectory;
-    IBOutlet NSTextField *bookmarkShortcutKeyLabel;
-    IBOutlet NSTextField *bookmarkShortcutKeyModifiersLabel;
-    IBOutlet NSTextField *bookmarkTagsLabel;
-    IBOutlet NSTextField *bookmarkCommandLabel;
-    IBOutlet NSTextField *bookmarkDirectoryLabel;
-    IBOutlet NSTextField *bookmarkUrlSchemesHeaderLabel;
-    IBOutlet NSTextField *bookmarkUrlSchemesLabel;
-    IBOutlet NSPopUpButton* bookmarkUrlSchemes;
-    IBOutlet NSButton* copyToProfileButton;
+    IBOutlet NSTextField   *profileName;
+    IBOutlet NSPopUpButton *profileShortcutKey;
+    IBOutlet NSMatrix      *profileCommandType;
+    IBOutlet NSTextField   *profileCommand;
+    IBOutlet NSMatrix      *profileDirectoryType;
+    IBOutlet NSTextField   *profileDirectory;
+    IBOutlet NSTextField   *profileShortcutKeyLabel;
+    IBOutlet NSTextField   *profileShortcutKeyModifiersLabel;
+    IBOutlet NSTextField   *profileTagsLabel;
+    IBOutlet NSTextField   *profileCommandLabel;
+    IBOutlet NSTextField   *profileDirectoryLabel;
+    IBOutlet NSTextField   *profileUrlSchemesHeaderLabel;
+    IBOutlet NSTextField   *profileUrlSchemesLabel;
+    IBOutlet NSPopUpButton *profileUrlSchemes;
+    IBOutlet NSButton      *copyToProfileButton;
     
     // Colors tab
     IBOutlet NSColorWell *ansi0Color;
@@ -185,16 +185,16 @@
     
     
     
-    BookmarkTableView *tableView;
+    ProfilesTableView *tableView;
     PreferencesModel *dataSource;
 }
 
-@property (readwrite,retain) BookmarkTableView *tableView;
-@property (readwrite,retain) PreferencesModel *dataSource;
+@property (readwrite,retain) ProfilesTableView *tableView;
+@property (readwrite,retain) PreferencesModel  *dataSource;
 
-+ (id)initWithBookmarkTableView:(BookmarkTableView *)view;
++ (id)initWithBookmarkTableView:(ProfilesTableView*)view;
 
-- (void)tableViewSelectionDidChange:(NSNotification *)aNotification;
+- (void)tableViewSelectionDidChange:(NSNotification*)aNotification;
 - (NSMenu*)bookmarkTable:(id)bookmarkTable menuForEvent:(NSEvent*)theEvent;
 - (void)bookmarkTableSelectionDidChange:(id)bookmarkTable;
 - (void)bookmarkTableSelectionWillChange:(id)aBookmarkTableView;
@@ -202,19 +202,20 @@
 
 - (void)_loadPresetColors:(NSString*)presetName;
 - (void)loadColorPreset:(id)sender;
-- (IBAction)addBookmark:(id)sender;
-- (IBAction)removeBookmark:(id)sender;
-- (IBAction)duplicateBookmark:(id)sender;
+- (IBAction)addProfile:(id)sender;
+- (IBAction)removeProfile:(id)sender;
+- (IBAction)duplicateProfile:(id)sender;
 - (IBAction)setAsDefault:(id)sender;
-- (NSArray *)tokenField:(NSTokenField *)tokenField completionsForSubstring:(NSString *)substring indexOfToken:(NSInteger)tokenIndex indexOfSelectedItem:(NSInteger *)selectedIndex;
-- (void)showBookmarks;
-- (void)openToBookmark:(NSString*)guid;
-- (id)tokenFieldCell:(NSTokenFieldCell *)tokenFieldCell representedObjectForEditingString:(NSString *)editingString;
-- (void)underlyingBookmarkDidChange;
+- (NSArray *)tokenField:(NSTokenField*)tokenField completionsForSubstring:(NSString*)substring indexOfToken:(NSInteger)tokenIndex indexOfSelectedItem:(NSInteger *)selectedIndex;
+- (void)showProfiles;
+- (void)openToProfile:(NSString*)guid;
+- (id)tokenFieldCell:(NSTokenFieldCell*)tokenFieldCell representedObjectForEditingString:(NSString*)editingString;
+- (void)underlyingProfileDidChange;
 
-- (IBAction)openCopyBookmarks:(id)sender;
-- (IBAction)copyBookmarks:(id)sender;
-- (IBAction)cancelCopyBookmarks:(id)sender;
+- (IBAction)openCopyProfiles:(id)sender;
+- (IBAction)copyProfiles:(id)sender;
+- (IBAction)cancelCopyProfiles:(id)sender;
+
 
 
 - (BOOL)remappingDisabledTemporarily;

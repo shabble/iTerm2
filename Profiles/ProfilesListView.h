@@ -76,6 +76,7 @@
 }
 
 - (void)setParent:(id)parent;
+
 @end
 
 @protocol ProfilesTableDelegate
@@ -83,7 +84,7 @@
 - (void)profileTableSelectionDidChange:(id)profileTable;
 - (void)profileTableSelectionWillChange:(id)profileTable;
 - (void)profileTableRowSelected:(id)profileTable;
-- (NSMenu*)profileTable:(id)profileTable menuForEvent:(NSEvent*)theEvent;
+- (NSMenu*)profilesTable:(id)profileTable menuForEvent:(NSEvent*)theEvent;
 
 @end
 
@@ -98,7 +99,7 @@
     NSTableColumn* shortcutColumn_;
     NSTableColumn* starColumn_;
     NSTableColumn* tagsColumn_;
-    id<BookmarkTableDelegate> delegate_;
+    id<ProfilesTableDelegate> delegate_;
     BOOL showGraphic_;
     NSSet* selectedGuids_;
     BOOL debug;
@@ -108,8 +109,8 @@
 
 - (void)awakeFromNib;
 - (id)initWithFrame:(NSRect)frameRect;
-- (id)initWithFrame:(NSRect)frameRect model:(BookmarkModel*)dataSource;
-- (void)setDelegate:(id<BookmarkTableDelegate>)delegate;
+- (id)initWithFrame:(NSRect)frameRect model:(ProfilesModel*)dataSource;
+- (void)setDelegate:(id<ProfilesTableDelegate>)delegate;
 - (void)dealloc;
 - (ProfilesModelWrapper*)dataSource;
 - (void)setUnderlyingDatasource:(ProfilesModel*)dataSource;

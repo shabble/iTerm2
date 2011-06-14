@@ -31,17 +31,20 @@
 #define DEBUG_ALLOC           0
 #define DEBUG_METHOD_TRACE    0
 
-#import "App/iTermController.h"
-#import "Prefs/PreferencePanelController.h"
-#import "Profiles/ITAddressBookMgr.h"
 #import <Carbon/Carbon.h>
+#import "GTM/GTMCarbonEvent.h"
+
+#import "App/iTermController.h"
 #import "App/iTermApplicationDelegate.h"
 #import "App/iTermApplication.h"
-#import "App/iTermKeyBindingMgr.h"
-#import "GTM/GTMCarbonEvent.h"
+#import "App/KeyBindingManager.h"
+
+#import "Prefs/PreferencePanelController.h"
+#import "Profiles/ProfilesManager.h"
 
 // Constants for saved window arrangement key names.
 //static NSString* DEFAULT_ARRANGEMENT_NAME = @"Default";
+
 static NSString* APPLICATION_SUPPORT_DIRECTORY = @"~/tmp/Library/Application Support";
 static NSString *SUPPORT_DIRECTORY = @"~/Library/Application Support/iTerm";
 
@@ -122,9 +125,6 @@ return NO;
 }
 
 
-
-
-
 // Build sorted list of encodings
 - (NSArray *) sortedEncodingList
 {
@@ -138,19 +138,19 @@ return NO;
     return (tmp);
 }
 
-- (void)_addBookmark:(Bookmark*)bookmark
+- (void)_addProfile:(Profile*)profile
               toMenu:(NSMenu*)aMenu
               target:(id)aTarget
        withShortcuts:(BOOL)withShortcuts
             selector:(SEL)selector
    alternateSelector:(SEL)alternateSelector
 {
-    NSMenuItem* aMenuItem = [[NSMenuItem alloc] initWithTitle:[bookmark objectForKey:KEY_NAME]
+    NSMenuItem* aMenuItem = [[NSMenuItem alloc] initWithTitle:[profile objectForKey:KEY_NAME]
                                                        action:selector
                                                 keyEquivalent:@""];
     if (withShortcuts) {
-        if ([bookmark objectForKey:KEY_SHORTCUT] != nil) {
-            NSString* shortcut = [bookmark objectForKey:KEY_SHORTCUT];
+        if ([profile objectForKey:KEY_SHORTCUT] != nil) {
+            NSString* shortcut = [profile objectForKey:KEY_SHORTCUT];
             shortcut = [shortcut lowercaseString];
             [aMenuItem setKeyEquivalent:shortcut];
         }
@@ -158,25 +158,25 @@ return NO;
 
     unsigned int modifierMask = NSCommandKeyMask | NSControlKeyMask;
     [aMenuItem setKeyEquivalentModifierMask:modifierMask];
-    [aMenuItem setRepresentedObject:[bookmark objectForKey:KEY_GUID]];
+    [aMenuItem setRepresentedObject:[profile objectForKey:KEY_GUID]];
     [aMenuItem setTarget:aTarget];
     [aMenu addItem:aMenuItem];
     [aMenuItem release];
 
     if (alternateSelector) {
-        aMenuItem = [[NSMenuItem alloc] initWithTitle:[bookmark objectForKey:KEY_NAME]
+        aMenuItem = [[NSMenuItem alloc] initWithTitle:[profile objectForKey:KEY_NAME]
                                                action:alternateSelector
                                         keyEquivalent:@""];
         if (withShortcuts) {
-            if ([bookmark objectForKey:KEY_SHORTCUT] != nil) {
-                NSString* shortcut = [bookmark objectForKey:KEY_SHORTCUT];
+            if ([profile objectForKey:KEY_SHORTCUT] != nil) {
+                NSString* shortcut = [profile objectForKey:KEY_SHORTCUT];
                 shortcut = [shortcut lowercaseString];
                 [aMenuItem setKeyEquivalent:shortcut];
             }
         }
 
         modifierMask = NSCommandKeyMask | NSControlKeyMask;
-        [aMenuItem setRepresentedObject:[bookmark objectForKey:KEY_GUID]];
+        [aMenuItem setRepresentedObject:[profile objectForKey:KEY_GUID]];
         [aMenuItem setTarget:self];
 
         [aMenuItem setKeyEquivalentModifierMask:modifierMask | NSAlternateKeyMask];
@@ -189,7 +189,7 @@ return NO;
 
 
 
-- (void)addBookmarksToMenu:(NSMenu *)aMenu withSelector:(SEL)selector openAllSelector:(SEL)openAllSelector startingAt:(int)startingAt
+- (void)addProfilesToMenu:(NSMenu *)aMenu withSelector:(SEL)selector openAllSelector:(SEL)openAllSelector startingAt:(int)startingAt
 {
     JournalParams params;
     params.selector = selector;
@@ -198,34 +198,35 @@ return NO;
     params.alternateOpenAllSelector = @selector(newSessionsInWindow:);
     params.target = self;
 
-    BookmarkModel* bm = [BookmarkModel sharedInstance];
-    int N = [bm numberOfBookmarks];
+    ProfilesModel* pm = [ProfilesModel sharedInstance];
+    int N = [pm numberOfProfiles];
     for (int i = 0; i < N; i++) {
-        Bookmark* b = [bm bookmarkAtIndex:i];
-        [bm addBookmark:b
+        Profile* p = [pm profileAtIndex:i];
+        [pm addProfile:p
                  toMenu:aMenu
          startingAtItem:startingAt
-               withTags:[b objectForKey:KEY_TAGS]
+               withTags:[p objectForKey:KEY_TAGS]
                  params:&params
                   atPos:i];
     }
 }
 
-- (void)addBookmarksToMenu:(NSMenu *)aMenu startingAt:(int)startingAt
+- (void)addProfilesToMenu:(NSMenu *)aMenu startingAt:(int)startingAt
 {
-    [self addBookmarksToMenu:aMenu
+    [self addProfilesToMenu:aMenu
                 withSelector:@selector(newSessionInTabAtIndex:)
              openAllSelector:@selector(newSessionsInWindow:)
                   startingAt:startingAt];
 }
 
 
-+ (void)switchToSpaceInBookmark:(Bookmark*)aDict
++ (void)switchToSpaceInProfile:(Profile*)aDict
 {
     if ([aDict objectForKey:KEY_SPACE]) {
         int spaceNum = [[aDict objectForKey:KEY_SPACE] intValue];
         if (spaceNum > 0 && spaceNum < 10) {
             // keycodes for digits 1-9. Send control-n to switch spaces.
+            
             // TODO: This would get remapped by the event tap. It requires universal access to be on and
             // spaces to be configured properly. But we don't tell the users this.
             int codes[] = { 18, 19, 20, 21, 23, 22, 26, 28, 25 };
@@ -397,12 +398,13 @@ static CGEventRef OnTappedEvent(CGEventTapProxy proxy, CGEventType type, CGEvent
         unichar unmodunicode = [unmodkeystr length] > 0 ? [unmodkeystr characterAtIndex:0] : 0;
         unsigned int modflag = [cocoaEvent modifierFlags];
         NSString *keyBindingText;
-        PreferencePanelController* prefPanel = [PreferencePanelController sharedInstance];
-        BOOL tempDisabled = [prefPanel remappingDisabledTemporarily];
-        int action = [iTermKeyBindingMgr actionForKeyCode:unmodunicode
-                                                       modifiers:modflag
-                                                            text:&keyBindingText
-                                              keyMappings:nil];
+        PreferencePanelController* prefPanelController = [PreferencePanelController sharedInstance];
+        PreferencesProfilesHelper* profilesHelper = [prefPanelController prefsProfilesHelper];
+        BOOL tempDisabled = [profilesHelper remappingDisabledTemporarily];
+        int action = [KeyBindingManager actionForKeyCode:unmodunicode
+                                               modifiers:modflag
+                                                    text:&keyBindingText
+                                             keyMappings:nil];
         BOOL isDoNotRemap = (action == KEY_ACTION_DO_NOT_REMAP_MODIFIERS);
         local = action == KEY_ACTION_REMAP_LOCALLY;
         CGEventRef eventCopy = CGEventCreateCopy(event);
@@ -414,11 +416,11 @@ static CGEventRef OnTappedEvent(CGEventTapProxy proxy, CGEventType type, CGEvent
             event = eventCopy;
             eventCopy = temp;
         }
-        BOOL keySheetOpen = [[prefPanel keySheet] isKeyWindow] && [prefPanel keySheetIsOpen];
+        BOOL keySheetOpen = [[prefPanelController keySheet] isKeyWindow] && [prefPanelController keySheetIsOpen];
         if ((!tempDisabled && !isDoNotRemap) ||  // normal case, whether keysheet is open or not
             (!tempDisabled && isDoNotRemap && keySheetOpen)) {  // about to change dnr to non-dnr
-            [iTermKeyBindingMgr remapModifiersInCGEvent:event
-                                              prefPanel:prefPanel];
+            [KeyBindingManager remapModifiersInCGEvent:event
+                                              prefPanel:prefPanelController];
             cocoaEvent = [NSEvent eventWithCGEvent:event];
         }
         if (local) {
@@ -440,13 +442,13 @@ static CGEventRef OnTappedEvent(CGEventTapProxy proxy, CGEventType type, CGEvent
         unichar unmodunicode = [unmodkeystr length] > 0 ? [unmodkeystr characterAtIndex:0] : 0;
         unsigned int modflag = [cocoaEvent modifierFlags];
         NSString *keyBindingText;
-        int action = [iTermKeyBindingMgr actionForKeyCode:unmodunicode
+        int action = [KeyBindingManager actionForKeyCode:unmodunicode
                                                        modifiers:modflag
                                                             text:&keyBindingText
                                                      keyMappings:nil];
         BOOL isDoNotRemap = (action == KEY_ACTION_DO_NOT_REMAP_MODIFIERS) || (action == KEY_ACTION_REMAP_LOCALLY);
         if (!isDoNotRemap) {
-            [iTermKeyBindingMgr remapModifiersInCGEvent:eventCopy
+            [KeyBindingManager remapModifiersInCGEvent:eventCopy
                                               prefPanel:[PreferencePanelController sharedInstance]];
         }
         cocoaEvent = [NSEvent eventWithCGEvent:eventCopy];

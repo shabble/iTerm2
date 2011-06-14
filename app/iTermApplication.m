@@ -30,8 +30,10 @@
 
 #import "iTermApplication.h"
 #import "App/iTermController.h"
+#import "App/KeyBindingManager.h"
+
 #import "Prefs/PreferencePanelController.h"
-#import "App/iTermKeyBindingMgr.h"
+#import "Prefs/PreferenceKeys.h"
 
 @implementation iTermApplication
 
@@ -89,7 +91,7 @@
             // The event tap is not working, but we can still remap modifiers for non-system
             // keys. Only things like cmd-tab will not be remapped in this case. Otherwise,
             // the event tap performs the remapping.
-            event = [iTermKeyBindingMgr remapModifiers:event prefPanel:prefPanel];
+            event = [KeyBindingManager remapModifiers:event prefPanel:prefPanel];
         }
         if (IsSecureEventInputEnabled() &&
             [cont eventIsHotkey:event]) {

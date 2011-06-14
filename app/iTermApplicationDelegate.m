@@ -29,11 +29,12 @@
 
 #import "App/iTermApplicationDelegate.h"
 #import "App/iTermController.h"
-#import "Profiles/ITAddressBookMgr.h"
+#import "Prefs/PreferenceKeys.h"
 #import "Prefs/PreferencePanelController.h"
 
 
-#import "Profiles/BookmarksWindow.h"
+#import "Profiles/ProfilesWindow.h"
+#import "Profiles/ProfilesManager.h"
 
 #include <unistd.h>
 
@@ -76,7 +77,7 @@ int gDebugLogFile = -1;
 
         // read preferences
     [PreferencePanelController migratePreferences];
-    [ITAddressBookMgr sharedInstance];
+    [ProfilesManager sharedInstance];
     [PreferencePanelController sharedInstance];
 }
 
@@ -517,7 +518,7 @@ void DebugLog(NSString* value)
     params.alternateOpenAllSelector = @selector(newSessionsInWindow:);
     params.target = [iTermController sharedInstance];
 
-    [BookmarkModel applyJournal:[aNotification userInfo]
+    [ProfilesModel applyJournal:[aNotification userInfo]
                          toMenu:bookmarkMenu
                  startingAtItem:5
                          params:&params];

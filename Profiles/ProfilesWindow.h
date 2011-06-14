@@ -1,9 +1,8 @@
 /*
- **  BookmarksWindow.h
- **  iTerm
+ **  ProfilesWindow.h (was BookmarksWindow.h)
  **
  **  Created by George Nachman on 8/29/10.
- **  Project: iTerm
+ **  Project: iTerm2
  **
  **  Description: Display a window with searchable bookmarks. You can use this
  **    to open bookmarks in a new window or tab.

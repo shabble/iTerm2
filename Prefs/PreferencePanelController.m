@@ -28,9 +28,9 @@
 #import "Prefs/PreferencePanelController.h"
 
 #import "App/iTermController.h"
-#import "Profiles/ITAddressBookMgr.h"
-#import "App/iTermKeyBindingMgr.h"
-#import "Profiles/BookmarkModel.h"
+#import "Profiles/ProfilesManager.h"
+#import "App/KeyBindingManager.h"
+#import "Profiles/ProfilesModel.h"
 
 
 #define CUSTOM_COLOR_PRESETS @"Custom Color Presets"
@@ -41,7 +41,12 @@ static float versionNumber;
 
 @implementation PreferencePanelController
 
-@synthesize prefsProfilesHelper;
+// create accessors sfor our helper classes.
+@synthesize *prefsGeneralHelper;
+@synthesize *prefsAppearanceHelper;
+@synthesize *prefsProfilesHelper;
+@synthesize *prefsGlobalKeysHelper;
+
 @synthesize prefsModel;
 
 + (PreferencePanelController*)sharedInstance;
@@ -119,7 +124,7 @@ static float versionNumber;
     oneBookmarkOnly = NO;
     [self readPreferences];
     if (defaultEnableBonjour == YES) {
-        [[ITAddressBookMgr sharedInstance] locateBonjourServices];
+        [[ProfilesModel sharedInstance] locateBonjourServices];
     }
     
     // get the version
@@ -765,6 +770,7 @@ static float versionNumber;
 }
 
 - (BOOL)keySheetIsOpen
+
 {
     return [editKeyMappingWindow isVisible];
 }
@@ -967,7 +973,7 @@ static float versionNumber;
     
     // Migrate old-style (iTerm 0.x) URL handlers.
     // make sure bookmarks are loaded
-    [ITAddressBookMgr sharedInstance];
+    [ProfilesModel sharedInstance];
     
     // read in the handlers by converting the index back to bookmarks
     urlHandlersByGuid = [[NSMutableDictionary alloc] init];
@@ -982,7 +988,7 @@ static float versionNumber;
             id key;
             
             while ((key = [enumerator nextObject])) {
-                //NSLog(@"%@\n%@",[tempDict objectForKey:key], [[ITAddressBookMgr sharedInstance] bookmarkForIndex:[[tempDict objectForKey:key] intValue]]);
+                //NSLog(@"%@\n%@",[tempDict objectForKey:key], [[ProfilesModel sharedInstance] bookmarkForIndex:[[tempDict objectForKey:key] intValue]]);
                 int theIndex = [[tempDict objectForKey:key] intValue];
                 if (theIndex >= 0 &&
                     theIndex  < [dataSource numberOfBookmarks]) {
@@ -996,7 +1002,7 @@ static float versionNumber;
         id key;
         
         while ((key = [enumerator nextObject])) {
-            //NSLog(@"%@\n%@",[tempDict objectForKey:key], [[ITAddressBookMgr sharedInstance] bookmarkForIndex:[[tempDict objectForKey:key] intValue]]);
+            //NSLog(@"%@\n%@",[tempDict objectForKey:key], [[ProfilesModel sharedInstance] bookmarkForIndex:[[tempDict objectForKey:key] intValue]]);
             NSString* guid = [tempDict objectForKey:key];
             if ([dataSource indexOfBookmarkWithGuid:guid] >= 0) {
                 [urlHandlersByGuid setObject:guid forKey:key];
@@ -1326,9 +1332,9 @@ static float versionNumber;
         defaultEnableBonjour = ([enableBonjour state] == NSOnState);
         if (bonjourBefore != defaultEnableBonjour) {
             if (defaultEnableBonjour == YES) {
-                [[ITAddressBookMgr sharedInstance] locateBonjourServices];
+                [[ProfilesModel sharedInstance] locateBonjourServices];
             } else {
-                [[ITAddressBookMgr sharedInstance] stopLocatingBonjourServices];
+                [[ProfilesModel sharedInstance] stopLocatingBonjourServices];
                 
                 // Remove existing bookmarks with the "bonjour" tag. Even if
                 // network browsing is re-enabled, these bookmarks would never
@@ -2019,29 +2025,29 @@ static float versionNumber;
     [self _populateBookmarkUrlSchemesFromDict:dict];
     
     // Colors tab
-    [ansi0Color setColor:[ITAddressBookMgr decodeColor:[dict objectForKey:KEY_ANSI_0_COLOR]]];
-    [ansi1Color setColor:[ITAddressBookMgr decodeColor:[dict objectForKey:KEY_ANSI_1_COLOR]]];
-    [ansi2Color setColor:[ITAddressBookMgr decodeColor:[dict objectForKey:KEY_ANSI_2_COLOR]]];
-    [ansi3Color setColor:[ITAddressBookMgr decodeColor:[dict objectForKey:KEY_ANSI_3_COLOR]]];
-    [ansi4Color setColor:[ITAddressBookMgr decodeColor:[dict objectForKey:KEY_ANSI_4_COLOR]]];
-    [ansi5Color setColor:[ITAddressBookMgr decodeColor:[dict objectForKey:KEY_ANSI_5_COLOR]]];
-    [ansi6Color setColor:[ITAddressBookMgr decodeColor:[dict objectForKey:KEY_ANSI_6_COLOR]]];
-    [ansi7Color setColor:[ITAddressBookMgr decodeColor:[dict objectForKey:KEY_ANSI_7_COLOR]]];
-    [ansi8Color setColor:[ITAddressBookMgr decodeColor:[dict objectForKey:KEY_ANSI_8_COLOR]]];
-    [ansi9Color setColor:[ITAddressBookMgr decodeColor:[dict objectForKey:KEY_ANSI_9_COLOR]]];
-    [ansi10Color setColor:[ITAddressBookMgr decodeColor:[dict objectForKey:KEY_ANSI_10_COLOR]]];
-    [ansi11Color setColor:[ITAddressBookMgr decodeColor:[dict objectForKey:KEY_ANSI_11_COLOR]]];
-    [ansi12Color setColor:[ITAddressBookMgr decodeColor:[dict objectForKey:KEY_ANSI_12_COLOR]]];
-    [ansi13Color setColor:[ITAddressBookMgr decodeColor:[dict objectForKey:KEY_ANSI_13_COLOR]]];
-    [ansi14Color setColor:[ITAddressBookMgr decodeColor:[dict objectForKey:KEY_ANSI_14_COLOR]]];
-    [ansi15Color setColor:[ITAddressBookMgr decodeColor:[dict objectForKey:KEY_ANSI_15_COLOR]]];
-    [foregroundColor setColor:[ITAddressBookMgr decodeColor:[dict objectForKey:KEY_FOREGROUND_COLOR]]];
-    [backgroundColor setColor:[ITAddressBookMgr decodeColor:[dict objectForKey:KEY_BACKGROUND_COLOR]]];
-    [boldColor setColor:[ITAddressBookMgr decodeColor:[dict objectForKey:KEY_BOLD_COLOR]]];
-    [selectionColor setColor:[ITAddressBookMgr decodeColor:[dict objectForKey:KEY_SELECTION_COLOR]]];
-    [selectedTextColor setColor:[ITAddressBookMgr decodeColor:[dict objectForKey:KEY_SELECTED_TEXT_COLOR]]];
-    [cursorColor setColor:[ITAddressBookMgr decodeColor:[dict objectForKey:KEY_CURSOR_COLOR]]];
-    [cursorTextColor setColor:[ITAddressBookMgr decodeColor:[dict objectForKey:KEY_CURSOR_TEXT_COLOR]]];
+    [ansi0Color setColor:[ProfilesModel decodeColor:[dict objectForKey:KEY_ANSI_0_COLOR]]];
+    [ansi1Color setColor:[ProfilesModel decodeColor:[dict objectForKey:KEY_ANSI_1_COLOR]]];
+    [ansi2Color setColor:[ProfilesModel decodeColor:[dict objectForKey:KEY_ANSI_2_COLOR]]];
+    [ansi3Color setColor:[ProfilesModel decodeColor:[dict objectForKey:KEY_ANSI_3_COLOR]]];
+    [ansi4Color setColor:[ProfilesModel decodeColor:[dict objectForKey:KEY_ANSI_4_COLOR]]];
+    [ansi5Color setColor:[ProfilesModel decodeColor:[dict objectForKey:KEY_ANSI_5_COLOR]]];
+    [ansi6Color setColor:[ProfilesModel decodeColor:[dict objectForKey:KEY_ANSI_6_COLOR]]];
+    [ansi7Color setColor:[ProfilesModel decodeColor:[dict objectForKey:KEY_ANSI_7_COLOR]]];
+    [ansi8Color setColor:[ProfilesModel decodeColor:[dict objectForKey:KEY_ANSI_8_COLOR]]];
+    [ansi9Color setColor:[ProfilesModel decodeColor:[dict objectForKey:KEY_ANSI_9_COLOR]]];
+    [ansi10Color setColor:[ProfilesModel decodeColor:[dict objectForKey:KEY_ANSI_10_COLOR]]];
+    [ansi11Color setColor:[ProfilesModel decodeColor:[dict objectForKey:KEY_ANSI_11_COLOR]]];
+    [ansi12Color setColor:[ProfilesModel decodeColor:[dict objectForKey:KEY_ANSI_12_COLOR]]];
+    [ansi13Color setColor:[ProfilesModel decodeColor:[dict objectForKey:KEY_ANSI_13_COLOR]]];
+    [ansi14Color setColor:[ProfilesModel decodeColor:[dict objectForKey:KEY_ANSI_14_COLOR]]];
+    [ansi15Color setColor:[ProfilesModel decodeColor:[dict objectForKey:KEY_ANSI_15_COLOR]]];
+    [foregroundColor setColor:[ProfilesModel decodeColor:[dict objectForKey:KEY_FOREGROUND_COLOR]]];
+    [backgroundColor setColor:[ProfilesModel decodeColor:[dict objectForKey:KEY_BACKGROUND_COLOR]]];
+    [boldColor setColor:[ProfilesModel decodeColor:[dict objectForKey:KEY_BOLD_COLOR]]];
+    [selectionColor setColor:[ProfilesModel decodeColor:[dict objectForKey:KEY_SELECTION_COLOR]]];
+    [selectedTextColor setColor:[ProfilesModel decodeColor:[dict objectForKey:KEY_SELECTED_TEXT_COLOR]]];
+    [cursorColor setColor:[ProfilesModel decodeColor:[dict objectForKey:KEY_CURSOR_COLOR]]];
+    [cursorTextColor setColor:[ProfilesModel decodeColor:[dict objectForKey:KEY_CURSOR_TEXT_COLOR]]];
     
     BOOL smartCursorColor;
     if ([dict objectForKey:KEY_SMART_CURSOR_COLOR]) {
@@ -2080,18 +2086,18 @@ static float versionNumber;
     } else {
         [spaceButton selectItemWithTag:0];
     }
-    [normalFontField setStringValue:[[ITAddressBookMgr fontWithDesc:[dict objectForKey:KEY_NORMAL_FONT]] displayName]];
+    [normalFontField setStringValue:[[ProfilesModel fontWithDesc:[dict objectForKey:KEY_NORMAL_FONT]] displayName]];
     if (normalFont) {
         [normalFont release];
     }
-    normalFont = [ITAddressBookMgr fontWithDesc:[dict objectForKey:KEY_NORMAL_FONT]];
+    normalFont = [ProfilesModel fontWithDesc:[dict objectForKey:KEY_NORMAL_FONT]];
     [normalFont retain];
     
-    [nonAsciiFontField setStringValue:[[ITAddressBookMgr fontWithDesc:[dict objectForKey:KEY_NON_ASCII_FONT]] displayName]];
+    [nonAsciiFontField setStringValue:[[ProfilesModel fontWithDesc:[dict objectForKey:KEY_NON_ASCII_FONT]] displayName]];
     if (nonAsciiFont) {
         [nonAsciiFont release];
     }
-    nonAsciiFont = [ITAddressBookMgr fontWithDesc:[dict objectForKey:KEY_NON_ASCII_FONT]];
+    nonAsciiFont = [ProfilesModel fontWithDesc:[dict objectForKey:KEY_NON_ASCII_FONT]];
     [nonAsciiFont retain];
     
     [self _updateFontsDisplay];

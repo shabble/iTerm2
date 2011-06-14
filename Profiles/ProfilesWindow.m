@@ -22,8 +22,8 @@
 **  along with this program; if not, write to the Free Software
 */
 
-#import "BookmarksWindow.h"
-#import "Profiles/BookmarkModel.h"
+#import "ProfilesWindow.h"
+#import "Profiles/ProfilesModel.h"
 #import "App/iTermController.h"
 #import "Prefs/PreferencePanelController.h"
 
@@ -35,11 +35,11 @@ typedef enum {
 
 @implementation ProfilesWindow
 
-+ (BookmarksWindow*)sharedInstance
++ (ProfilesWindow*)sharedInstance
 {
-    static BookmarksWindow* instance;
+    static ProfilesWindow* instance;
     if (!instance) {
-        instance = [[BookmarksWindow alloc] init];
+        instance = [[ProfilesWindow alloc] init];
     }
     return instance;
 }
@@ -82,11 +82,11 @@ typedef enum {
 
 - (void)updatePaneButtons:(id)sender
 {
-    [self bookmarkTableSelectionDidChange:tableView_];
+    [self profileTableSelectionDidChange:tableView_];
 }
 
 
-- (void)bookmarkTableSelectionDidChange:(id)bookmarkTable
+- (void)profilesTableSelectionDidChange:(id)bookmarkTable
 {
     NSSet* guids = [tableView_ selectedGuids];
     if ([guids count]) {
@@ -134,22 +134,22 @@ typedef enum {
 - (IBAction)editBookmarks:(id)sender
 {
     [[PreferencePanelController sharedInstance] run];
-    [[PreferencePanelController sharedInstance] showBookmarks];
+    [[PreferencePanelController sharedInstance] showProfiles];
 }
 
 - (IBAction)editSelectedBookmark:(id)sender
 {
     NSString* guid = [tableView_ selectedGuid];
     if (guid) {
-        [[PreferencePanelController sharedInstance] openToBookmark:guid];
+        [[PreferencePanelController sharedInstance] openToProfile:guid];
     }
 }
 
-- (NSMenu*)bookmarkTable:(id)bookmarkTable menuForEvent:(NSEvent*)theEvent
+- (NSMenu*)profilesTable:(id)profileTable menuForEvent:(NSEvent*)theEvent
 {
     NSMenu* menu =[[[NSMenu alloc] initWithTitle:@"Contextual Menu"] autorelease];
 
-    int count = [[bookmarkTable selectedGuids] count];
+    int count = [[profilesTable selectedGuids] count];
     if (count == 1) {
         [menu addItemWithTitle:@"Edit Bookmark..."
                         action:@selector(editSelectedBookmark:)

@@ -27,9 +27,14 @@
 
 #import <Cocoa/Cocoa.h>
 #import "Prefs/PreferencesModel.h"
-#import "Profiles/BookmarkModel.h"
+#import "Profiles/ProfilesModel.h"
+
+#import "Prefs/PreferencesGeneralHelper.h"
+#import "Prefs/PreferencesAppearanceHelper.h"
 #import "Prefs/PreferencesProfilesHelper.h"
-#import "Profiles/BookmarkListView.h"
+#import "Prefs/PreferencesGlobalKeybindingsHelper.h"
+
+#import "Profiles/ProfilesListView.h"
 
 @class iTermController;
 
@@ -37,12 +42,17 @@
 {
 
   // helper class instances.
-    PreferencesProfilesHelper *prefsProfilesHelper;
+    PreferencesGeneralHelper           *prefsGeneralHelper;
+    PreferencesAppearanceHelper        *prefsAppearanceHelper;
+    PreferencesProfilesHelper          *prefsProfilesHelper;
+    PreferencesGlobalKeybindingsHelper *prefsGlobalKeysHelper;
+    
+  // Preferences Model (wrapper over NSUserDefaults)    
     PreferencesModel *prefsModel;
 
 
-    BookmarkModel* dataSource;
-    BOOL oneBookmarkMode;
+    ProfilesModel* dataSource;
+    BOOL oneProfileMode;
     
     // This is actually the tab style. It takes one of these values:
     // 0: Metal
@@ -52,7 +62,7 @@
     // Bound to Metal/Aqua/Unified/Adium button
     IBOutlet NSPopUpButton *windowStyle;
     int defaultWindowStyle;
-    BOOL oneBookmarkOnly;
+    BOOL oneProfileOnly;
     
     // This gives a value from NSTabViewType, which as of OS 10.6 is:
     // Bound to Top/Bottom button
@@ -103,8 +113,8 @@
     // Hotkey opens dedicated window
     IBOutlet NSButton* hotkeyTogglesWindow;
     BOOL defaultHotkeyTogglesWindow;
-    IBOutlet NSPopUpButton* hotkeyBookmark;
-    NSString* defaultHotKeyBookmarkGuid;
+    IBOutlet NSPopUpButton* hotkeyProfile;
+    NSString* defaultHotKeyProfileGuid;
     
     // Enable bonjour
     IBOutlet NSButton *enableBonjour;
@@ -146,9 +156,9 @@
     // Minimum contrast
     IBOutlet NSSlider* minimumContrast;
     
-    // open bookmarks when iterm starts
-    IBOutlet NSButton *openBookmark;
-    BOOL defaultOpenBookmark;
+    // open profiles selection window when iTerm2 starts
+    IBOutlet NSButton *openProfiles;
+    BOOL defaultOpenProfiles;
     
     // quit when all windows are closed
     IBOutlet NSButton *quitWhenAllWindowsClosed;
@@ -193,9 +203,9 @@
     IBOutlet NSButton* jobName;
     BOOL defaultJobName;
     
-    // Show bookmark name in title
-    IBOutlet NSButton* showBookmarkName;
-    BOOL defaultShowBookmarkName;
+    // Show profile name in title
+    IBOutlet NSButton* showProfileName;
+    BOOL defaultShowProfileName;
     
     // instant replay
     IBOutlet NSButton *instantReplay;
@@ -228,7 +238,7 @@
     IBOutlet NSButton *checkTestRelease;
     BOOL defaultCheckTestRelease;
     
-    IBOutlet NSTabViewItem* bookmarkSettingsGeneralTab;
+    IBOutlet NSTabViewItem* profileSettingsGeneralTab;
     
     NSUserDefaults *prefs;
     
@@ -240,12 +250,12 @@
     IBOutlet NSTabViewItem* appearanceTabViewItem;
     IBOutlet NSToolbarItem* keyboardToolbarItem;
     IBOutlet NSTabViewItem* keyboardTabViewItem;
-    IBOutlet NSToolbarItem* bookmarksToolbarItem;
-    IBOutlet NSTabViewItem* bookmarksTabViewItem;
+    IBOutlet NSToolbarItem* profilesToolbarItem;
+    IBOutlet NSTabViewItem* profilesTabViewItem;
     NSString* globalToolbarId;
     NSString* appearanceToolbarId;
     NSString* keyboardToolbarId;
-    NSString* bookmarksToolbarId;
+    NSString* profilesToolbarId;
     
     // url handler stuff
     NSMutableDictionary *urlHandlersByGuid;
@@ -259,18 +269,22 @@ typedef enum { BulkCopyColors, BulkCopyDisplay, BulkCopyWindow, BulkCopyTerminal
 
 + (BOOL)migratePreferences;
 
-@property (readwrite,retain) PreferencesProfilesHelper *prefsProfilesHelper;
+@property (readwrite,retain) PreferencesGeneralHelper           *prefsGeneralHelper;
+@property (readwrite,retain) PreferencesAppearanceHelper        *prefsAppearanceHelper;
+@property (readwrite,retain) PreferencesProfilesHelper          *prefsProfilesHelper;
+@property (readwrite,retain) PreferencesGlobalKeybindingsHelper *prefsGlobalKeysHelper;
+
 @property (readwrite,retain) PreferencesModel *prefsModel;
 
-- (id)initWithDataSource:(BookmarkModel*)model userDefaults:(NSUserDefaults*)userDefaults;
+- (id)initWithDataSource:(ProfilesModel*)model userDefaults:(NSUserDefaults*)userDefaults;
 
 - (IBAction)showGlobalTabView:(id)sender;
 - (IBAction)showAppearanceTabView:(id)sender;
-- (IBAction)showBookmarksTabView:(id)sender;
+- (IBAction)showProfilesTabView:(id)sender;
 - (IBAction)showKeyboardTabView:(id)sender;
 
 
-- (void)setOneBookmarkOnly;
+- (void)setOneProfileOnly;
 
 - (void)awakeFromNib;
 - (void)handleWindowWillCloseNotification:(NSNotification *)notification;
@@ -278,7 +292,6 @@ typedef enum { BulkCopyColors, BulkCopyDisplay, BulkCopyWindow, BulkCopyTerminal
 
 - (void)editKeyMapping:(id)sender;
 - (IBAction)saveKeyMapping:(id)sender;
-- (BOOL)keySheetIsOpen;
 
 - (IBAction)closeKeyMapping:(id)sender;
 
@@ -328,14 +341,14 @@ typedef enum { BulkCopyColors, BulkCopyDisplay, BulkCopyWindow, BulkCopyTerminal
 - (BOOL)closingHotkeySwitchesSpaces;
 - (BOOL)useCompactLabel;
 - (BOOL)highlightTabLabels;
-- (BOOL)openBookmark;
+- (BOOL)openProfile;
 - (NSString *)wordChars;
 - (ITermCursorType)legacyCursorType;
 - (BOOL)hideScrollbar;
 - (BOOL)smartPlacement;
 - (BOOL)windowNumber;
 - (BOOL)jobName;
-- (BOOL)showBookmarkName;
+- (BOOL)showProfileName;
 - (BOOL)instantReplay;
 - (BOOL)savePasteHistory;
 - (BOOL)openArrangementAtStartup;
@@ -356,24 +369,24 @@ typedef enum { BulkCopyColors, BulkCopyDisplay, BulkCopyWindow, BulkCopyTerminal
 - (int)minCompactTabWidth;
 - (int)optimumTabWidth;
 - (float)hotkeyTermAnimationDuration;
-- (NSString *)searchCommand;
-- (Bookmark *)handlerBookmarkForURL:(NSString *)url;
-- (int)numberOfRowsInTableView: (NSTableView *)aTableView;
+- (NSString*)searchCommand;
+- (Profile*)handlerProfileForURL:(NSString*)url;
+- (int)numberOfRowsInTableView: (NSTableView*)aTableView;
 - (NSString*)keyComboAtIndex:(int)rowIndex originator:(id)originator;
 - (NSDictionary*)keyInfoAtIndex:(int)rowIndex originator:(id)originator;
 - (NSString*)formattedKeyCombinationForRow:(int)rowIndex originator:(id)originator;
 - (NSString*)formattedActionForRow:(int)rowIndex originator:(id)originator;
 - (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(int)rowIndex;
 - (void)_updateFontsDisplay;
-- (void)updateBookmarkFields:(NSDictionary *)dict  ;
+- (void)updateProfileFields:(NSDictionary *)dict  ;
 - (void)_commonDisplaySelectFont:(id)sender;
 - (IBAction)displaySelectFont:(id)sender;
 - (void)changeFont:(id)fontManager;
 - (NSString*)_chooseBackgroundImage;
-- (IBAction)bookmarkSettingChanged:(id)sender;
+- (IBAction)profileSettingChanged:(id)sender;
 - (IBAction)copyToProfile:(id)sender;
-- (IBAction)bookmarkUrlSchemeHandlerChanged:(id)sender;
-- (void)connectBookmarkWithGuid:(NSString*)guid toScheme:(NSString*)scheme;
+- (IBAction)profileUrlSchemeHandlerChanged:(id)sender;
+- (void)connectProfileWithGuid:(NSString*)guid toScheme:(NSString*)scheme;
 - (void)disconnectHandlerForScheme:(NSString*)scheme;
 - (IBAction)closeWindow:(id)sender;
 - (void)controlTextDidChange:(NSNotification *)aNotification;
@@ -385,12 +398,14 @@ typedef enum { BulkCopyColors, BulkCopyDisplay, BulkCopyWindow, BulkCopyTerminal
 - (void)disableHotkey;
 - (void)updateValueToSend;
 - (IBAction)actionChanged:(id)sender;
-- (NSWindow*)keySheet;
 - (IBAction)addNewMapping:(id)sender;
 - (IBAction)removeMapping:(id)sender;
 - (IBAction)globalRemoveMapping:(id)sender;
 - (void)setKeyMappingsToPreset:(NSString*)presetName;
 - (IBAction)presetKeyMappingsItemSelected:(id)sender;
+
+- (BOOL)keySheetIsOpen;
+- (NSWindow*)keySheet;
 
 - (int)control;
 - (int)leftOption;
@@ -403,8 +418,8 @@ typedef enum { BulkCopyColors, BulkCopyDisplay, BulkCopyWindow, BulkCopyTerminal
 
 - (BOOL)hotkeyTogglesWindow;
 - (BOOL)dockIconTogglesWindow;
-- (Bookmark*)hotkeyBookmark;
-- (void)copyAttributes:(BulkCopySettings)attributes fromBookmark:(NSString*)guid toBookmark:(NSString*)destGuid;
+- (Profile*)hotkeyProfile;
+- (void)copyAttributes:(BulkCopySettings)attributes fromProfile:(NSString*)guid toProfile:(NSString*)destGuid;
 
 @end
 
