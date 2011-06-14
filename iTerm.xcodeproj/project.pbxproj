@@ -16,9 +16,13 @@
 		2C16E34713A72140002F1F58 /* PreferenceKeys.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C16E34613A72140002F1F58 /* PreferenceKeys.h */; };
 		2C16E42913A74430002F1F58 /* ProfileManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C16E42813A74430002F1F58 /* ProfileManager.h */; };
 		2C16E42B13A74435002F1F58 /* ProfileModel.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C16E42A13A74435002F1F58 /* ProfileModel.h */; };
-		2C16E42E13A7443D002F1F58 /* ProfileManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C16E42C13A7443D002F1F58 /* ProfileManager.m */; };
 		2C16E42F13A7443D002F1F58 /* ProfileModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C16E42D13A7443D002F1F58 /* ProfileModel.m */; };
-		2C16E50813A756AF002F1F58 /* GTMCarbonEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C16E50713A756AF002F1F58 /* GTMCarbonEvent.m */; };
+		2C16E53113A75732002F1F58 /* GTMCarbonEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C16E52C13A75732002F1F58 /* GTMCarbonEvent.h */; };
+		2C16E53213A75732002F1F58 /* GTMDebugSelectorValidation.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C16E52D13A75732002F1F58 /* GTMDebugSelectorValidation.h */; };
+		2C16E53313A75732002F1F58 /* GTMDefines.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C16E52E13A75732002F1F58 /* GTMDefines.h */; };
+		2C16E53413A75732002F1F58 /* GTMObjectSingleton.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C16E52F13A75732002F1F58 /* GTMObjectSingleton.h */; };
+		2C16E53513A75732002F1F58 /* GTMTypeCasting.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C16E53013A75732002F1F58 /* GTMTypeCasting.h */; };
+		2C16E53713A7573A002F1F58 /* GTMCarbonEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C16E53613A7573A002F1F58 /* GTMCarbonEvent.m */; };
 		2C1C0829139DB34C00E1DA75 /* PreferencesProfilesHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C1C0828139DB34C00E1DA75 /* PreferencesProfilesHelper.h */; };
 		2C1C082B139DB35700E1DA75 /* PreferencesProfilesHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1C082A139DB35700E1DA75 /* PreferencesProfilesHelper.m */; };
 		2C1C0F01139FD16600E1DA75 /* GTM in Resources */ = {isa = PBXBuildFile; fileRef = 2C1C0F00139FD16600E1DA75 /* GTM */; };
@@ -46,15 +50,6 @@
 		2C93EF7413A0988D004D78DD /* PreferencesAppearanceHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C93EF7113A0988D004D78DD /* PreferencesAppearanceHelper.h */; };
 		2C93EF7513A0988D004D78DD /* PreferencesGeneralHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C93EF7213A0988D004D78DD /* PreferencesGeneralHelper.h */; };
 		2C93EF7613A0988D004D78DD /* PreferencesGlobalKeybindingsHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C93EF7313A0988D004D78DD /* PreferencesGlobalKeybindingsHelper.h */; };
-		2C93EFA713A09F19004D78DD /* GTMCarbonEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C1C0F02139FD18400E1DA75 /* GTMCarbonEvent.h */; };
-		2C93EFA813A09F19004D78DD /* GTMDebugSelectorValidation.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C1C0F03139FD18400E1DA75 /* GTMDebugSelectorValidation.h */; };
-		2C93EFA913A09F19004D78DD /* GTMDefines.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C1C0F04139FD18400E1DA75 /* GTMDefines.h */; };
-		2C93EFAA13A09F19004D78DD /* GTMObjectSingleton.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C1C0F05139FD18400E1DA75 /* GTMObjectSingleton.h */; };
-		2C93EFAB13A09F19004D78DD /* GTMTypeCasting.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C1C0F06139FD18400E1DA75 /* GTMTypeCasting.h */; };
-		2C93EFAD13A09F39004D78DD /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0464AB2F006CD2EC7F000001 /* AppKit.framework */; };
-		2C93F19B13A09F4B004D78DD /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DEB293D1288899A00B2CB9F /* Carbon.framework */; };
-		2C93F19C13A09F4B004D78DD /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0464AB30006CD2EC7F000001 /* Foundation.framework */; };
-		2C93F19F13A09F8D004D78DD /* GTM.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C93EFA313A09EF0004D78DD /* GTM.dylib */; };
 		2C93F1EC13A0D5A2004D78DD /* Dump.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C93F1EB13A0D5A2004D78DD /* Dump.xib */; };
 		2CE27518139B06F0005797CA /* iTerm.icns in Resources */ = {isa = PBXBuildFile; fileRef = 2CE27509139B06F0005797CA /* iTerm.icns */; };
 		2CE27546139B08F0005797CA /* Copy-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 2CE27527139B08F0005797CA /* Copy-icon.png */; };
@@ -105,16 +100,6 @@
 		9325FF500FB54E00004EC67C /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9325FF4E0FB54E00004EC67C /* MainMenu.xib */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXContainerItemProxy section */
-		2C93F1A013A09F9C004D78DD /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 0464AB0C006CD2EC7F000001 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 2C93EFA213A09EF0004D78DD;
-			remoteInfo = GTM;
-		};
-/* End PBXContainerItemProxy section */
-
 /* Begin PBXFileReference section */
 		0464AB2F006CD2EC7F000001 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		0464AB30006CD2EC7F000001 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
@@ -130,7 +115,12 @@
 		2C16E42A13A74435002F1F58 /* ProfileModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ProfileModel.h; path = Profiles/ProfileModel.h; sourceTree = "<group>"; };
 		2C16E42C13A7443D002F1F58 /* ProfileManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ProfileManager.m; path = Profiles/ProfileManager.m; sourceTree = "<group>"; };
 		2C16E42D13A7443D002F1F58 /* ProfileModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ProfileModel.m; path = Profiles/ProfileModel.m; sourceTree = "<group>"; };
-		2C16E50713A756AF002F1F58 /* GTMCarbonEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GTMCarbonEvent.m; path = Vendor/GTM/GTMCarbonEvent.m; sourceTree = "<group>"; };
+		2C16E52C13A75732002F1F58 /* GTMCarbonEvent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GTMCarbonEvent.h; path = Vendor/GTM/GTMCarbonEvent.h; sourceTree = "<group>"; };
+		2C16E52D13A75732002F1F58 /* GTMDebugSelectorValidation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GTMDebugSelectorValidation.h; path = Vendor/GTM/GTMDebugSelectorValidation.h; sourceTree = "<group>"; };
+		2C16E52E13A75732002F1F58 /* GTMDefines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GTMDefines.h; path = Vendor/GTM/GTMDefines.h; sourceTree = "<group>"; };
+		2C16E52F13A75732002F1F58 /* GTMObjectSingleton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GTMObjectSingleton.h; path = Vendor/GTM/GTMObjectSingleton.h; sourceTree = "<group>"; };
+		2C16E53013A75732002F1F58 /* GTMTypeCasting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GTMTypeCasting.h; path = Vendor/GTM/GTMTypeCasting.h; sourceTree = "<group>"; };
+		2C16E53613A7573A002F1F58 /* GTMCarbonEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GTMCarbonEvent.m; path = Vendor/GTM/GTMCarbonEvent.m; sourceTree = "<group>"; };
 		2C1C0828139DB34C00E1DA75 /* PreferencesProfilesHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PreferencesProfilesHelper.h; path = Prefs/PreferencesProfilesHelper.h; sourceTree = "<group>"; };
 		2C1C082A139DB35700E1DA75 /* PreferencesProfilesHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PreferencesProfilesHelper.m; path = Prefs/PreferencesProfilesHelper.m; sourceTree = "<group>"; };
 		2C1C0F00139FD16600E1DA75 /* GTM */ = {isa = PBXFileReference; lastKnownFileType = folder; name = GTM; path = Vendor/GTM; sourceTree = "<group>"; };
@@ -167,7 +157,6 @@
 		2C93EF7113A0988D004D78DD /* PreferencesAppearanceHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PreferencesAppearanceHelper.h; path = Prefs/PreferencesAppearanceHelper.h; sourceTree = "<group>"; };
 		2C93EF7213A0988D004D78DD /* PreferencesGeneralHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PreferencesGeneralHelper.h; path = Prefs/PreferencesGeneralHelper.h; sourceTree = "<group>"; };
 		2C93EF7313A0988D004D78DD /* PreferencesGlobalKeybindingsHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PreferencesGlobalKeybindingsHelper.h; path = Prefs/PreferencesGlobalKeybindingsHelper.h; sourceTree = "<group>"; };
-		2C93EFA313A09EF0004D78DD /* GTM.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = GTM.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C93F1EB13A0D5A2004D78DD /* Dump.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = Dump.xib; sourceTree = "<group>"; };
 		2CE274E8139B06F0005797CA /* images */ = {isa = PBXFileReference; lastKnownFileType = folder; path = images; sourceTree = "<group>"; };
 		2CE27509139B06F0005797CA /* iTerm.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = iTerm.icns; sourceTree = "<group>"; };
@@ -222,21 +211,10 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		2C93EFA113A09EF0004D78DD /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				2C93F19B13A09F4B004D78DD /* Carbon.framework in Frameworks */,
-				2C93F19C13A09F4B004D78DD /* Foundation.framework in Frameworks */,
-				2C93EFAD13A09F39004D78DD /* AppKit.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		874206510564169600CFC3F1 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2C93F19F13A09F8D004D78DD /* GTM.dylib in Frameworks */,
 				874206520564169600CFC3F1 /* Foundation.framework in Frameworks */,
 				874206530564169600CFC3F1 /* AppKit.framework in Frameworks */,
 				1D13EADC12113A2D00909F9C /* libncurses.dylib in Frameworks */,
@@ -251,7 +229,6 @@
 		0464AB0D006CD2EC7F000001 /* JTerminal */ = {
 			isa = PBXGroup;
 			children = (
-				2C16E50713A756AF002F1F58 /* GTMCarbonEvent.m */,
 				1DEE9FDB11FCA60F009E18C9 /* credits.rtf */,
 				2C1C0EB7139FCDB100E1DA75 /* Vendor */,
 				2CE2723B13965953005797CA /* XIB Files */,
@@ -282,6 +259,11 @@
 		0464AB15006CD2EC7F000001 /* Headers */ = {
 			isa = PBXGroup;
 			children = (
+				2C16E52C13A75732002F1F58 /* GTMCarbonEvent.h */,
+				2C16E52D13A75732002F1F58 /* GTMDebugSelectorValidation.h */,
+				2C16E52E13A75732002F1F58 /* GTMDefines.h */,
+				2C16E52F13A75732002F1F58 /* GTMObjectSingleton.h */,
+				2C16E53013A75732002F1F58 /* GTMTypeCasting.h */,
 				2C16E42813A74430002F1F58 /* ProfileManager.h */,
 				2C1C0F02139FD18400E1DA75 /* GTMCarbonEvent.h */,
 				2C1C0F03139FD18400E1DA75 /* GTMDebugSelectorValidation.h */,
@@ -326,7 +308,6 @@
 			isa = PBXGroup;
 			children = (
 				8742065A0564169600CFC3F1 /* iTerm.app */,
-				2C93EFA313A09EF0004D78DD /* GTM.dylib */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -349,6 +330,7 @@
 		2C2761F01395DAA100D340AA /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				2C16E53613A7573A002F1F58 /* GTMCarbonEvent.m */,
 				2C16E42C13A7443D002F1F58 /* ProfileManager.m */,
 				2C16E42D13A7443D002F1F58 /* ProfileModel.m */,
 				2CE2762D139B2A87005797CA /* PreferencePanelController.m */,
@@ -442,18 +424,6 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
-		2C93EF9F13A09EF0004D78DD /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				2C93EFA713A09F19004D78DD /* GTMCarbonEvent.h in Headers */,
-				2C93EFA813A09F19004D78DD /* GTMDebugSelectorValidation.h in Headers */,
-				2C93EFA913A09F19004D78DD /* GTMDefines.h in Headers */,
-				2C93EFAA13A09F19004D78DD /* GTMObjectSingleton.h in Headers */,
-				2C93EFAB13A09F19004D78DD /* GTMTypeCasting.h in Headers */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		874206480564169600CFC3F1 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -475,29 +445,17 @@
 				2C16E34713A72140002F1F58 /* PreferenceKeys.h in Headers */,
 				2C16E42913A74430002F1F58 /* ProfileManager.h in Headers */,
 				2C16E42B13A74435002F1F58 /* ProfileModel.h in Headers */,
+				2C16E53113A75732002F1F58 /* GTMCarbonEvent.h in Headers */,
+				2C16E53213A75732002F1F58 /* GTMDebugSelectorValidation.h in Headers */,
+				2C16E53313A75732002F1F58 /* GTMDefines.h in Headers */,
+				2C16E53413A75732002F1F58 /* GTMObjectSingleton.h in Headers */,
+				2C16E53513A75732002F1F58 /* GTMTypeCasting.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		2C93EFA213A09EF0004D78DD /* GTM */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 2C93F19E13A09F73004D78DD /* Build configuration list for PBXNativeTarget "GTM" */;
-			buildPhases = (
-				2C93EF9F13A09EF0004D78DD /* Headers */,
-				2C93EFA013A09EF0004D78DD /* Sources */,
-				2C93EFA113A09EF0004D78DD /* Frameworks */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = GTM;
-			productName = GTM;
-			productReference = 2C93EFA313A09EF0004D78DD /* GTM.dylib */;
-			productType = "com.apple.product-type.library.dynamic";
-		};
 		874206460564169600CFC3F1 /* iTermprefs */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = BB024D35096EE4080021E793 /* Build configuration list for PBXNativeTarget "iTermprefs" */;
@@ -510,7 +468,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				2C93F1A113A09F9C004D78DD /* PBXTargetDependency */,
 			);
 			name = iTermprefs;
 			productName = "JTerminal (Application)";
@@ -540,7 +497,6 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				2C93EFA213A09EF0004D78DD /* GTM */,
 				874206460564169600CFC3F1 /* iTermprefs */,
 			);
 		};
@@ -604,14 +560,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		2C93EFA013A09EF0004D78DD /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				2C16E50813A756AF002F1F58 /* GTMCarbonEvent.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		8742064E0564169600CFC3F1 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -631,20 +579,12 @@
 				2C93EF6E13A09861004D78DD /* PreferencesAppearanceHelper.m in Sources */,
 				2C93EF6F13A09861004D78DD /* PreferencesGeneralHelper.m in Sources */,
 				2C93EF7013A09861004D78DD /* PreferencesGlobalKeybindingsHelper.m in Sources */,
-				2C16E42E13A7443D002F1F58 /* ProfileManager.m in Sources */,
 				2C16E42F13A7443D002F1F58 /* ProfileModel.m in Sources */,
+				2C16E53713A7573A002F1F58 /* GTMCarbonEvent.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		2C93F1A113A09F9C004D78DD /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 2C93EFA213A09EF0004D78DD /* GTM */;
-			targetProxy = 2C93F1A013A09F9C004D78DD /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		1D1158C913444D29009B366F /* iTerm2 Help */ = {
@@ -683,78 +623,6 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
-		2C93EFA413A09EF0004D78DD /* Development */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				COPY_PHASE_STRIP = NO;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
-				INSTALL_PATH = /usr/local/lib;
-				OTHER_LDFLAGS = (
-					"-framework",
-					Foundation,
-					"-framework",
-					AppKit,
-				);
-				PREBINDING = NO;
-				PRODUCT_NAME = GTM;
-			};
-			name = Development;
-		};
-		2C93EFA513A09EF0004D78DD /* Deployment */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
-				INSTALL_PATH = /usr/local/lib;
-				OTHER_LDFLAGS = (
-					"-framework",
-					Foundation,
-					"-framework",
-					AppKit,
-				);
-				PREBINDING = NO;
-				PRODUCT_NAME = GTM;
-				ZERO_LINK = NO;
-			};
-			name = Deployment;
-		};
-		2C93EFA613A09EF0004D78DD /* Default */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_CURRENT_VERSION = 1;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
-				INSTALL_PATH = /usr/local/lib;
-				OTHER_LDFLAGS = (
-					"-framework",
-					Foundation,
-					"-framework",
-					AppKit,
-				);
-				PREBINDING = NO;
-				PRODUCT_NAME = GTM;
-			};
-			name = Default;
-		};
 		BB024D36096EE4080021E793 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -949,6 +817,7 @@
 				);
 				EXCLUDED_RECURSIVE_SEARCH_PATH_SUBDIRECTORIES = ".git *.nib *.lproj *.framework *.gch *.xcode* (*) CVS .svn";
 				FRAMEWORK_SEARCH_PATHS = "$(SRCROOT)/Vendor";
+				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_VERSION = 4.0;
 				GCC_WARN_PROTOTYPE_CONVERSION = NO;
 				GCC_WARN_SIGN_COMPARE = NO;
@@ -971,16 +840,6 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		2C93F19E13A09F73004D78DD /* Build configuration list for PBXNativeTarget "GTM" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				2C93EFA413A09EF0004D78DD /* Development */,
-				2C93EFA513A09EF0004D78DD /* Deployment */,
-				2C93EFA613A09EF0004D78DD /* Default */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Default;
-		};
 		BB024D35096EE4080021E793 /* Build configuration list for PBXNativeTarget "iTermprefs" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

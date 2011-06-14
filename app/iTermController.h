@@ -54,7 +54,7 @@
 + (iTermController*)sharedInstance;
 + (void)sharedInstanceRelease;
 
-+ (void)switchToSpaceInBookmark:(NSDictionary*)aDict;
+//+ (void)switchToSpaceInBookmark:(NSDictionary*)aDict;
 - (BOOL)rollingInHotkeyTerm;
 
 - (void)stopEventTap;

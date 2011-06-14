@@ -434,6 +434,8 @@ typedef enum { BulkCopyColors, BulkCopyDisplay, BulkCopyWindow, BulkCopyTerminal
 + (PreferencePanelController*)sharedInstance;
 + (PreferencePanelController*)sessionsInstance;
 + (BOOL)migratePreferences;
+
+
 - (id)initWithDataSource:(ProfileModel*)model userDefaults:(NSUserDefaults*)userDefaults;
 - (void)setOneBokmarkOnly;
 - (void)awakeFromNib;
@@ -557,7 +559,9 @@ typedef enum { BulkCopyColors, BulkCopyDisplay, BulkCopyWindow, BulkCopyTerminal
 - (IBAction)duplicateProfile:(id)sender;
 - (IBAction)setAsDefault:(id)sender;
 - (NSArray *)tokenField:(NSTokenField *)tokenField completionsForSubstring:(NSString *)substring indexOfToken:(NSInteger)tokenIndex indexOfSelectedItem:(NSInteger *)selectedIndex;
-- (NSMenu*)profileTable:(id)profileTable menuForEvent:(NSEvent*)theEvent;
+
+- (NSMenu*)profilesTable:(id)profileTable menuForEvent:(NSEvent*)theEvent;
+
 - (void)profileTableSelectionDidChange:(id)profileTable;
 - (void)profileTableSelectionWillChange:(id)aProfileTableView;
 - (void)profileTableRowSelected:(id)profileTable;

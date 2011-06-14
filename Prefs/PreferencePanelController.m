@@ -2304,12 +2304,13 @@ static float versionNumber;
         [[PreferencePanelController sharedInstance] profileTableSelectionDidChange:[PreferencePanelController sharedInstance]->profilesTableView];
 
         // Update existing sessions
+        /*
         int n = [[iTermController sharedInstance] numberOfTerminals];
         for (int i = 0; i < n; ++i) {
             PseudoTerminal* pty = [[iTermController sharedInstance] terminalAtIndex:i];
             [pty reloadProfiles];
         }
-
+*/
         // Update user defaults
         [[NSUserDefaults standardUserDefaults] setObject:[[ProfileModel sharedInstance] rawData]
                                                   forKey: @"New Profiles"];
@@ -2521,11 +2522,13 @@ static float versionNumber;
     [self updateShortcutTitles];
 
     // Update existing sessions
-    int n = [[iTermController sharedInstance] numberOfTerminals];
+/*    int n = [[iTermController sharedInstance] numberOfTerminals];
     for (int i = 0; i < n; ++i) {
         PseudoTerminal* pty = [[iTermController sharedInstance] terminalAtIndex:i];
         [pty reloadProfiles];
+
     }
+  */
     if (prefs) {
         [prefs setObject:[dataSource rawData] forKey: @"New Profiles"];
     }
@@ -2543,7 +2546,7 @@ static float versionNumber;
     [self _populateProfileUrlSchemesFromDict:[dataSource profileWithGuid:guid]];
 }
 
-- (NSMenu*)profileTable:(id)profileTable menuForEvent:(NSEvent*)theEvent
+- (NSMenu*)profilesTable:(id)profileTable menuForEvent:(NSEvent*)theEvent
 {
     return nil;
 }
