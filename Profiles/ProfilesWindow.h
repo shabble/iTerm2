@@ -23,10 +23,10 @@
  */
 
 #import <Cocoa/Cocoa.h>
-#import "BookmarkListView.h"
+#import "ProfilesListView.h"
 
-@interface BookmarksWindow : NSWindowController <BookmarkTableDelegate> {
-    IBOutlet BookmarkListView* tableView_;
+@interface ProfilesWindow : NSWindowController <ProfilesTableDelegate> {
+    IBOutlet ProfilesListView* tableView_;
     IBOutlet NSSegmentedControl* actions_;
     IBOutlet NSButton* horizontalPaneButton_;
     IBOutlet NSButton* verticalPaneButton_;
@@ -39,17 +39,18 @@
 + (ProfilesWindow*)sharedInstance;
 
 - (id)init;
-- (id)initWithWindowNibName:(NSString *)windowNibName;
+- (id)initWithWindowNibName:(NSString*)windowNibName;
 /*- (IBAction)openBookmarkInHorizontalPane:(id)sender;
 - (IBAction)openBookmarkInVerticalPane:(id)sender;
 - (IBAction)openBookmarkInTab:(id)sender;
 - (IBAction)openBookmarkInWindow:(id)sender;
  */
-- (void)bookmarkTableSelectionDidChange:(id)bookmarkTable;
-- (void)bookmarkTableSelectionWillChange:(id)bookmarkTable;
-- (void)bookmarkTableRowSelected:(id)bookmarkTable;
-- (NSMenu*)bookmarkTable:(id)bookmarkTable menuForEvent:(NSEvent*)theEvent;
-- (IBAction)editBookmarks:(id)sender;
+- (void)profileTableSelectionDidChange:(id)bookmarkTable;
+- (void)profileTableSelectionWillChange:(id)bookmarkTable;
+- (void)profileTableRowSelected:(id)bookmarkTable;
+- (NSMenu*)profilesTable:(id)profileTable menuForEvent:(NSEvent*)theEvent;
+
+- (IBAction)editProfiles:(id)sender;
 - (IBAction)closeAfterOpeningChanged:(id)sender;
 //- (IBAction)newTabsInNewWindow:(id)sender;
 

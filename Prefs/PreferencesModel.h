@@ -44,13 +44,13 @@ typedef enum { CURSOR_UNDERLINE, CURSOR_VERTICAL, CURSOR_BOX } ITermCursorType;
 
 
 #import <Cocoa/Cocoa.h>
-#import "Profiles/BookmarkModel.h"
-#import "Profiles/BookmarkListView.h"
+#import "Profiles/ProfilesModel.h"
+#import "Profiles/ProfilesListView.h"
 
 
 @interface PreferencesModel : NSObject {
 
-    BookmarkModel* bookmarkDataSource;
+    ProfilesModel* bookmarkDataSource;
     BOOL           oneBookmarkMode;
 
     // This is actually the tab style. It takes one of these values:
@@ -247,7 +247,7 @@ typedef enum { CURSOR_UNDERLINE, CURSOR_VERTICAL, CURSOR_BOX } ITermCursorType;
 @property (readwrite,retain) NSMutableDictionary *preferences;
 
 
-@property (readwrite,retain) BookmarkModel* bookmarkDataSource;
+@property (readwrite,retain) ProfilesModel *bookmarkDataSource;
 @property (readwrite,assign) BOOL           oneBookmarkMode;
 
     // This is actually the tab style. It takes one of these values:
@@ -256,7 +256,7 @@ typedef enum { CURSOR_UNDERLINE, CURSOR_VERTICAL, CURSOR_BOX } ITermCursorType;
     // 2: Unified
     // other: Adium
     // Bound to Metal/Aqua/Unified/Adium button
-@property (readwrite,assign) int defaultWindowStyle;
+@property (readwrite,assign) int  defaultWindowStyle;
 @property (readwrite,assign) BOOL oneBookmarkOnly; 
 
     // This gives a value from NSTabViewType, which as of OS 10.6 is:
