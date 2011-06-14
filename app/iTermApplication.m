@@ -73,7 +73,7 @@
             return NO;
     }
 }
-
+/*
 // override to catch key press events very early on
 - (void)sendEvent:(NSEvent*)event
 {
@@ -103,7 +103,7 @@
         PreferencePanelController* privatePrefPanel = [PreferencePanelController sessionsInstance];
        // NSResponder *responder;
 
-/*        if (([event modifierFlags] & (NSCommandKeyMask | NSAlternateKeyMask | NSControlKeyMask)) == [prefPanel modifierTagToMask:[prefPanel switchWindowModifier]]) {
+        if (([event modifierFlags] & (NSCommandKeyMask | NSAlternateKeyMask | NSControlKeyMask)) == [prefPanel modifierTagToMask:[prefPanel switchWindowModifier]]) {
             // Command-Alt (or selected modifier) + number: Switch to window by number.
             int digit = [[event charactersIgnoringModifiers] intValue];
             if (digit >= 1 && digit <= 9) {
@@ -117,7 +117,7 @@
                 }
                 return;
             }
-        } */
+        }
         if ([prefPanel keySheet] == [self keyWindow] &&
             [prefPanel keySheetIsOpen] &&
             [iTermApplication isTextFieldInFocus:[prefPanel shortcutKeyTextField]]) {
@@ -139,6 +139,6 @@
     }
     [super sendEvent: event];
 }
-
+*/
 @end
 

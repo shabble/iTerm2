@@ -50,7 +50,6 @@
 		2C93EF7413A0988D004D78DD /* PreferencesAppearanceHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C93EF7113A0988D004D78DD /* PreferencesAppearanceHelper.h */; };
 		2C93EF7513A0988D004D78DD /* PreferencesGeneralHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C93EF7213A0988D004D78DD /* PreferencesGeneralHelper.h */; };
 		2C93EF7613A0988D004D78DD /* PreferencesGlobalKeybindingsHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C93EF7313A0988D004D78DD /* PreferencesGlobalKeybindingsHelper.h */; };
-		2C93F1EC13A0D5A2004D78DD /* Dump.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2C93F1EB13A0D5A2004D78DD /* Dump.xib */; };
 		2CE27518139B06F0005797CA /* iTerm.icns in Resources */ = {isa = PBXBuildFile; fileRef = 2CE27509139B06F0005797CA /* iTerm.icns */; };
 		2CE27546139B08F0005797CA /* Copy-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 2CE27527139B08F0005797CA /* Copy-icon.png */; };
 		2CE27547139B08F0005797CA /* IBarCursor.png in Resources */ = {isa = PBXBuildFile; fileRef = 2CE27528139B08F0005797CA /* IBarCursor.png */; };
@@ -121,6 +120,7 @@
 		2C16E52F13A75732002F1F58 /* GTMObjectSingleton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GTMObjectSingleton.h; path = Vendor/GTM/GTMObjectSingleton.h; sourceTree = "<group>"; };
 		2C16E53013A75732002F1F58 /* GTMTypeCasting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GTMTypeCasting.h; path = Vendor/GTM/GTMTypeCasting.h; sourceTree = "<group>"; };
 		2C16E53613A7573A002F1F58 /* GTMCarbonEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GTMCarbonEvent.m; path = Vendor/GTM/GTMCarbonEvent.m; sourceTree = "<group>"; };
+		2C16E59113A766C0002F1F58 /* iTermPrefs.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iTermPrefs.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C1C0828139DB34C00E1DA75 /* PreferencesProfilesHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PreferencesProfilesHelper.h; path = Prefs/PreferencesProfilesHelper.h; sourceTree = "<group>"; };
 		2C1C082A139DB35700E1DA75 /* PreferencesProfilesHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PreferencesProfilesHelper.m; path = Prefs/PreferencesProfilesHelper.m; sourceTree = "<group>"; };
 		2C1C0F00139FD16600E1DA75 /* GTM */ = {isa = PBXFileReference; lastKnownFileType = folder; name = GTM; path = Vendor/GTM; sourceTree = "<group>"; };
@@ -157,7 +157,6 @@
 		2C93EF7113A0988D004D78DD /* PreferencesAppearanceHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PreferencesAppearanceHelper.h; path = Prefs/PreferencesAppearanceHelper.h; sourceTree = "<group>"; };
 		2C93EF7213A0988D004D78DD /* PreferencesGeneralHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PreferencesGeneralHelper.h; path = Prefs/PreferencesGeneralHelper.h; sourceTree = "<group>"; };
 		2C93EF7313A0988D004D78DD /* PreferencesGlobalKeybindingsHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PreferencesGlobalKeybindingsHelper.h; path = Prefs/PreferencesGlobalKeybindingsHelper.h; sourceTree = "<group>"; };
-		2C93F1EB13A0D5A2004D78DD /* Dump.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = Dump.xib; sourceTree = "<group>"; };
 		2CE274E8139B06F0005797CA /* images */ = {isa = PBXFileReference; lastKnownFileType = folder; path = images; sourceTree = "<group>"; };
 		2CE27509139B06F0005797CA /* iTerm.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = iTerm.icns; sourceTree = "<group>"; };
 		2CE2750A139B06F0005797CA /* properties */ = {isa = PBXFileReference; lastKnownFileType = folder; path = properties; sourceTree = "<group>"; };
@@ -205,7 +204,6 @@
 		2CE2761D139B2977005797CA /* PreferencesModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PreferencesModel.m; path = Prefs/PreferencesModel.m; sourceTree = "<group>"; };
 		2CE2762B139B2A82005797CA /* PreferencePanelController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PreferencePanelController.h; path = Prefs/PreferencePanelController.h; sourceTree = "<group>"; };
 		2CE2762D139B2A87005797CA /* PreferencePanelController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PreferencePanelController.m; path = Prefs/PreferencePanelController.m; sourceTree = "<group>"; };
-		8742065A0564169600CFC3F1 /* iTerm.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iTerm.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9325FF410FB54DF1004EC67C /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/PreferencePanel.xib; sourceTree = "<group>"; };
 		9325FF4F0FB54E00004EC67C /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/MainMenu.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -307,7 +305,7 @@
 		0464AB32006CD2EC7F000001 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				8742065A0564169600CFC3F1 /* iTerm.app */,
+				2C16E59113A766C0002F1F58 /* iTermPrefs.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -357,7 +355,6 @@
 			children = (
 				9325FF4E0FB54E00004EC67C /* MainMenu.xib */,
 				9325FF400FB54DF1004EC67C /* PreferencePanel.xib */,
-				2C93F1EB13A0D5A2004D78DD /* Dump.xib */,
 			);
 			name = "XIB Files";
 			sourceTree = "<group>";
@@ -471,7 +468,7 @@
 			);
 			name = iTermprefs;
 			productName = "JTerminal (Application)";
-			productReference = 8742065A0564169600CFC3F1 /* iTerm.app */;
+			productReference = 2C16E59113A766C0002F1F58 /* iTermPrefs.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -553,7 +550,6 @@
 				2CE2758D139B0923005797CA /* iTerm_Framework.plist in Resources */,
 				2C1C0F01139FD16600E1DA75 /* GTM in Resources */,
 				2C1C0F13139FD30000E1DA75 /* Search in Resources */,
-				2C93F1EC13A0D5A2004D78DD /* Dump.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -657,7 +653,7 @@
 				LINK_WITH_STANDARD_LIBRARIES = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.5;
 				OTHER_LDFLAGS = "-licucore";
-				PRODUCT_NAME = iTerm;
+				PRODUCT_NAME = iTermPrefs;
 				SDKROOT = macosx10.5;
 				SECTORDER_FLAGS = "";
 				VALID_ARCHS = "i386 x86_64 ppc";
@@ -697,7 +693,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.5;
 				OTHER_LDFLAGS = "-licucore";
-				PRODUCT_NAME = iTerm;
+				PRODUCT_NAME = iTermPrefs;
 				SDKROOT = macosx10.5;
 				VALID_ARCHS = "i386 x86_64 ppc";
 				WARNING_CFLAGS = "-Wall";
@@ -736,7 +732,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.5;
 				OTHER_LDFLAGS = "-licucore";
 				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = iTerm;
+				PRODUCT_NAME = iTermPrefs;
 				REZ_EXECUTABLE = YES;
 				SDKROOT = macosx10.5;
 				SECTORDER_FLAGS = "";
@@ -768,10 +764,12 @@
 					"$(SRCROOT)/Vendor",
 					"$(SRCROOT)",
 				);
+				INFOPLIST_FILE = "$(SRCROOT)/Resources/properties/iTerm.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.5;
 				ONLY_ACTIVE_ARCH = YES;
 				PREBINDING = NO;
 				PRELINK_LIBS = "";
+				PRODUCT_NAME = ItermPrefs;
 				SDKROOT = macosx10.5;
 				VALID_ARCHS = "i386 x86_64";
 				WARNING_CFLAGS = "-Wall";
@@ -797,10 +795,12 @@
 					"$(SRCROOT)/Vendor",
 					"$(SRCROOT)",
 				);
+				INFOPLIST_FILE = "$(SRCROOT)/Resources/properties/iTerm.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.5;
 				ONLY_ACTIVE_ARCH = YES;
 				PREBINDING = NO;
 				PRELINK_LIBS = "";
+				PRODUCT_NAME = ItermPrefs;
 				SDKROOT = macosx10.5;
 				VALID_ARCHS = "i386 x86_64";
 				WARNING_CFLAGS = "-Wall";
@@ -827,10 +827,12 @@
 					"$(SRCROOT)/Vendor",
 					"$(SRCROOT)",
 				);
+				INFOPLIST_FILE = "$(SRCROOT)/Resources/properties/iTerm.plist";
 				MACOSX_DEPLOYMENT_TARGET = 10.5;
 				ONLY_ACTIVE_ARCH = YES;
 				PREBINDING = NO;
 				PRELINK_LIBS = "";
+				PRODUCT_NAME = ItermPrefs;
 				SDKROOT = macosx10.5;
 				VALID_ARCHS = "i386 x86_64";
 				WARNING_CFLAGS = "-Wall";

@@ -73,7 +73,7 @@ int gDebugLogFile = -1;
 
     // set the TERM_PROGRAM environment variable
     putenv("TERM_PROGRAM=iTerm.app");
-
+    NSLog(@"WillFinishLaunching");
 
         // read preferences
     [PreferencePanelController migratePreferences];
@@ -83,7 +83,8 @@ int gDebugLogFile = -1;
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification
 {
-    
+    NSLog(@"DidFinishLaunching");
+    /*
     // Prevent the input manager from swallowing control-q. See explanation here:
     // http://b4winckler.wordpress.com/2009/07/19/coercing-the-cocoa-text-system/
     CFPreferencesSetAppValue(CFSTR("NSQuotedKeystrokeBinding"),
@@ -98,13 +99,17 @@ int gDebugLogFile = -1;
     if ([ppanel hotkey]) {
         [[iTermController sharedInstance] registerHotkey:[ppanel hotkeyCode] modifiers:[ppanel hotkeyModifiers]];
     }
+
     if ([ppanel isAnyModifierRemapped]) {
         [[iTermController sharedInstance] beginRemappingModifiers];
     }
     // register for services
     [NSApp registerServicesMenuSendTypes:[NSArray arrayWithObjects:NSStringPboardType, nil]
                                                        returnTypes:[NSArray arrayWithObjects:NSFilenamesPboardType, NSStringPboardType, nil]];
-    [self showPrefWindow:self];
+    //[self showPrefWindow:self];
+     */
+    [[PreferencePanelController sharedInstance] run];
+
 }
 
 - (BOOL)applicationShouldTerminate: (NSNotification *) theNotification
@@ -143,6 +148,7 @@ int gDebugLogFile = -1;
     }
     */
     // Ensure [iTermController dealloc] is called before prefs are saved
+    NSLog(@"AppShouldTerminate");
     [[iTermController sharedInstance] stopEventTap];
     [iTermController sharedInstanceRelease];
 
@@ -154,11 +160,13 @@ int gDebugLogFile = -1;
 
 - (void)applicationWillTerminate:(NSNotification *)aNotification
 {
+    NSLog(@"AppWillTerminate");
     [[iTermController sharedInstance] stopEventTap];
 }
 
 - (BOOL)application:(NSApplication *)theApplication openFile:(NSString *)filename
 {
+    NSLog(@"openFile called");
     return NO;
     /*
         //NSLog(@"%s: %@", __PRETTY_FUNCTION__, filename);
@@ -200,6 +208,7 @@ int gDebugLogFile = -1;
 
 - (BOOL)applicationShouldHandleReopen:(NSApplication *)theApplication hasVisibleWindows:(BOOL)flag
 {
+    NSLog(@"ShouldHandleReopen callled");
     //PreferencePanelController* prefPanel = [PreferencePanelController sharedInstance];
   /*  if ([prefPanel hotkey] &&
         [prefPanel hotkeyTogglesWindow]) {
@@ -273,16 +282,19 @@ int gDebugLogFile = -1;
     aboutController = nil;
     launchTime_ = [[NSDate date] retain];
 
+    NSLog(@"AppDelegate Done initing");
     return self;
 }
 
 - (void)awakeFromNib
 {
-    secureInputDesired_ = [[[NSUserDefaults standardUserDefaults] objectForKey:@"Secure Input"] boolValue];
+    NSLog(@"awakeFromNib (MainMenu.xib)");
+    //secureInputDesired_ = [[[NSUserDefaults standardUserDefaults] objectForKey:@"Secure Input"] boolValue];
 }
 
 - (void)getUrl:(NSAppleEventDescriptor *)event withReplyEvent:(NSAppleEventDescriptor *)replyEvent
 {
+    NSLog(@"getURL called");
     /*
     NSString *urlStr = [[event paramDescriptorForKeyword:keyDirectObject] stringValue];
     NSURL *url = [NSURL URLWithString: urlStr];
@@ -305,7 +317,9 @@ int gDebugLogFile = -1;
 
 - (IBAction)showPrefWindow:(id)sender
 {
+    NSLog(@"Going to open prefs window");
     [[PreferencePanelController sharedInstance] run];
+    NSLog(@"Done opening prefs window");
 }
 
 

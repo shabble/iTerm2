@@ -73,9 +73,10 @@ static float versionNumber;
  */
 + (BOOL) migratePreferences {
 
-    NSString *prefDir = [[NSHomeDirectory()
-        stringByAppendingPathComponent:@"Library"]
-        stringByAppendingPathComponent:@"Preferences"];
+    NSString *prefDir = [[[NSHomeDirectory()
+                         stringByAppendingPathComponent:@"tmp"]
+                         stringByAppendingPathComponent:@"Library"]
+                         stringByAppendingPathComponent:@"Preferences"];
 
     NSString *reallyOldPrefs = [prefDir stringByAppendingPathComponent:@"iTerm.plist"];
     NSString *somewhatOldPrefs = [prefDir stringByAppendingPathComponent:@"net.sourceforge.iTerm.plist"];
@@ -1062,15 +1063,22 @@ static float versionNumber;
 
 - (void)run
 {
+    NSLog(@"Run() called in PrefPanelController");
     // load nib if we haven't already
     if ([self window] == nil) {
-        [self initWithWindowNibName:@"PreferencePanelController"];
+        [self initWithWindowNibName:@"PreferencePanel"];
     }
 
     [[self window] setDelegate: self]; // also forces window to load
 
     [wordChars setDelegate: self];
 
+    [self showWindow:self];
+    // Show the window.
+    [[self window] makeKeyAndOrderFront:self];
+    NSLog(@"run() complete");
+    
+/*
     [windowStyle selectItemAtIndex: defaultWindowStyle];
     [tabPosition selectItemAtIndex: defaultTabViewType];
     [selectionCopiesText setState:defaultCopySelection?NSOnState:NSOffState];
@@ -1129,7 +1137,6 @@ static float versionNumber;
     [dimInactiveSplitPanes setState:defaultDimInactiveSplitPanes?NSOnState:NSOffState];
     [showWindowBorder setState:defaultShowWindowBorder?NSOnState:NSOffState];
 
-    [self showWindow: self];
     [[self window] setLevel:NSNormalWindowLevel];
     NSString* guid = [profilesTableView selectedGuid];
     [profilesTableView reloadData];
@@ -1169,9 +1176,7 @@ static float versionNumber;
         [globalRemoveMappingButton setEnabled:NO];
     }
     [globalKeyMappings reloadData];
-
-    // Show the window.
-    [[self window] makeKeyAndOrderFront:self];
+*/
 }
 
 - (BOOL)advancedFontRendering

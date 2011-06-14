@@ -92,7 +92,8 @@ return NO;
 #endif
     self = [super init];
 
- 
+    // TODO: Do we really need these?
+    
     // create the iTerm directory if it does not exist
     NSFileManager *fileManager = [NSFileManager defaultManager];
 
