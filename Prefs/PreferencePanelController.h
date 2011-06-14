@@ -1,14 +1,13 @@
-/* -*- mode:objc -*-
- **
+/*
  **  PreferencePanelController.h
  **
- **  Copyright (c) 2011
+ **  Copyright (c) 2002, 2003
  **
- **  Author: Tom Feist
+ **  Author: Fabian, Ujwal S. Setlur
  **
  **  Project: iTerm2
  **
- **  Description: Implements the main controller for the Preferences Window.
+ **  Description: Implements the model and controller for the preference panel.
  **
  **  This program is free software; you can redistribute it and/or modify
  **  it under the terms of the GNU General Public License as published by
@@ -26,34 +25,31 @@
  */
 
 #import <Cocoa/Cocoa.h>
-#import "Prefs/PreferencesModel.h"
 #import "Profiles/ProfileModel.h"
-
-#import "Prefs/PreferencesGeneralHelper.h"
-#import "Prefs/PreferencesAppearanceHelper.h"
-#import "Prefs/PreferencesProfilesHelper.h"
-#import "Prefs/PreferencesGlobalKeybindingsHelper.h"
-
 #import "Profiles/ProfilesListView.h"
+#import "Prefs/PreferencesModel.h"
+
+#define OPT_NORMAL 0
+#define OPT_META   1
+#define OPT_ESC    2
+
+// Modifier tags
+#define MOD_TAG_CONTROL 1
+#define MOD_TAG_LEFT_OPTION 2
+#define MOD_TAG_RIGHT_OPTION 3
+#define MOD_TAG_ANY_COMMAND 4
+#define MOD_TAG_OPTION 5  // refers to any option key
+#define MOD_TAG_CMD_OPT 6  // both cmd and opt at the same time
+#define MOD_TAG_LEFT_COMMAND 7
+#define MOD_TAG_RIGHT_COMMAND 8
 
 @class iTermController;
 
-@interface PreferencePanelController : NSWindowController 
+@interface PreferencePanelController : NSWindowController <ProfilesTableDelegate>
 {
-
-  // helper class instances.
-    PreferencesGeneralHelper           *prefsGeneralHelper;
-    PreferencesAppearanceHelper        *prefsAppearanceHelper;
-    PreferencesProfilesHelper          *prefsProfilesHelper;
-    PreferencesGlobalKeybindingsHelper *prefsGlobalKeysHelper;
-    
-  // Preferences Model (wrapper over NSUserDefaults)    
-    PreferencesModel *prefsModel;
-
-
     ProfileModel* dataSource;
     BOOL oneProfileMode;
-    
+
     // This is actually the tab style. It takes one of these values:
     // 0: Metal
     // 1: Aqua
@@ -63,7 +59,7 @@
     IBOutlet NSPopUpButton *windowStyle;
     int defaultWindowStyle;
     BOOL oneProfileOnly;
-    
+
     // This gives a value from NSTabViewType, which as of OS 10.6 is:
     // Bound to Top/Bottom button
     // NSTopTabsBezelBorder     = 0,
@@ -75,75 +71,75 @@
     // NSNoTabsNoBorder         = 6
     IBOutlet NSPopUpButton *tabPosition;
     int defaultTabViewType;
-    
+
     IBOutlet NSTextField* tagFilter;
-    
+
     // Copy to clipboard on selection
     IBOutlet NSButton *selectionCopiesText;
     BOOL defaultCopySelection;
-    
+
     // Middle button paste from clipboard
     IBOutlet NSButton *middleButtonPastesFromClipboard;
     BOOL defaultPasteFromClipboard;
-    
+
     // Hide tab bar when there is only one session
     IBOutlet id hideTab;
     BOOL defaultHideTab;
-    
+
     // Warn me when a session closes
     IBOutlet id promptOnClose;
     BOOL defaultPromptOnClose;
-    
+
     // Warn when quitting
     IBOutlet id promptOnQuit;
     BOOL defaultPromptOnQuit;
-    
+
     // only when multiple sessions close
     IBOutlet id onlyWhenMoreTabs;
     BOOL defaultOnlyWhenMoreTabs;
-    
+
     // Focus follows mouse
     IBOutlet NSButton *focusFollowsMouse;
     BOOL defaultFocusFollowsMouse;
-    
+
     // Characters considered part of word
     IBOutlet NSTextField *wordChars;
     NSString *defaultWordChars;
-    
+
     // Hotkey opens dedicated window
     IBOutlet NSButton* hotkeyTogglesWindow;
     BOOL defaultHotkeyTogglesWindow;
     IBOutlet NSPopUpButton* hotkeyProfile;
     NSString* defaultHotKeyProfileGuid;
-    
+
     // Enable bonjour
     IBOutlet NSButton *enableBonjour;
     BOOL defaultEnableBonjour;
-    
+
     // cmd-click to launch url
     IBOutlet NSButton *cmdSelection;
     BOOL defaultCmdSelection;
-    
+
     // pass on ctrl-click
     IBOutlet NSButton* passOnControlLeftClick;
     BOOL defaultPassOnControlLeftClick;
-    
+
     // Zoom vertically only
     IBOutlet NSButton *maxVertically;
     BOOL defaultMaxVertically;
-    
+
     // Closing hotkey window may switch Spaces
     IBOutlet NSButton* closingHotkeySwitchesSpaces;
     BOOL defaultClosingHotkeySwitchesSpaces;
-    
+
     // use compact tab labels
     IBOutlet NSButton *useCompactLabel;
     BOOL defaultUseCompactLabel;
-    
+
     // Highlight tab labels on activity
     IBOutlet NSButton *highlightTabLabels;
     BOOL defaultHighlightTabLabels;
-    
+
     // Advanced font rendering
     IBOutlet NSButton* advancedFontRendering;
     BOOL defaultAdvancedFontRendering;
@@ -152,96 +148,97 @@
     IBOutlet NSTextField* strokeThicknessLabel;
     IBOutlet NSTextField* strokeThicknessMinLabel;
     IBOutlet NSTextField* strokeThicknessMaxLabel;
-    
+
     // Minimum contrast
     IBOutlet NSSlider* minimumContrast;
-    
-    // open profiles selection window when iTerm2 starts
-    IBOutlet NSButton *openProfiles;
-    BOOL defaultOpenProfiles;
-    
+
+    // open profiles when iterm starts
+    IBOutlet NSButton *openProfile;
+    BOOL defaultOpenProfile;
+
     // quit when all windows are closed
     IBOutlet NSButton *quitWhenAllWindowsClosed;
     BOOL defaultQuitWhenAllWindowsClosed;
-    
+
     // check for updates automatically
     IBOutlet NSButton *checkUpdate;
     BOOL defaultCheckUpdate;
-    
+
     // cursor type: underline/vertical bar/box
     // See ITermCursorType. One of: CURSOR_UNDERLINE, CURSOR_VERTICAL, CURSOR_BOX
     IBOutlet NSMatrix *cursorType;
-    
+
     IBOutlet NSButton *checkColorInvertedCursor;
     BOOL defaultColorInvertedCursor;
-    
+
     // Dim inactive split panes
     IBOutlet NSButton* dimInactiveSplitPanes;
     BOOL defaultDimInactiveSplitPanes;
-    
+
     // Window border
     IBOutlet NSButton* showWindowBorder;
     BOOL defaultShowWindowBorder;
-    
+
     // hide scrollbar and resize
     IBOutlet NSButton *hideScrollbar;
     BOOL defaultHideScrollbar;
-    
+
     // smart window placement
     IBOutlet NSButton *smartPlacement;
     BOOL defaultSmartPlacement;
-    
+
     // Delay before showing tabs in fullscreen mode
     IBOutlet NSSlider* fsTabDelay;
     float defaultFsTabDelay;
-    
+
     // Window/tab title customization
     IBOutlet NSButton* windowNumber;
     BOOL defaultWindowNumber;
-    
+
     // Show job name in title
     IBOutlet NSButton* jobName;
     BOOL defaultJobName;
-    
+
     // Show profile name in title
     IBOutlet NSButton* showProfileName;
     BOOL defaultShowProfileName;
-    
+
     // instant replay
     IBOutlet NSButton *instantReplay;
     BOOL defaultInstantReplay;
-    
+
     // instant replay memory usage.
     IBOutlet NSTextField* irMemory;
     int defaultIrMemory;
-    
+
     // hotkey
     IBOutlet NSButton *hotkey;
     IBOutlet NSTextField* hotkeyLabel;
     BOOL defaultHotkey;
-    
+
     // hotkey code
     IBOutlet NSTextField* hotkeyField;
     int defaultHotkeyChar;
     int defaultHotkeyCode;
     int defaultHotkeyModifiers;
-    
+
     // Save copy paste history
     IBOutlet NSButton *savePasteHistory;
     BOOL defaultSavePasteHistory;
-    
+
     // Open saved window arrangement at startup
     IBOutlet NSButton *openArrangementAtStartup;
     BOOL defaultOpenArrangementAtStartup;
-    
+
     // prompt for test-release updates
     IBOutlet NSButton *checkTestRelease;
     BOOL defaultCheckTestRelease;
-    
+
+    IBOutlet NSTabView* profilesSettingsTabViewParent;
     IBOutlet NSTabViewItem* profileSettingsGeneralTab;
-    
+
     NSUserDefaults *prefs;
-    
+
     IBOutlet NSToolbar* toolbar;
     IBOutlet NSTabView* tabView;
     IBOutlet NSToolbarItem* globalToolbarItem;
@@ -256,59 +253,205 @@
     NSString* appearanceToolbarId;
     NSString* keyboardToolbarId;
     NSString* profilesToolbarId;
-    
+
     // url handler stuff
     NSMutableDictionary *urlHandlersByGuid;
-    
-   }
+
+    // Profiles -----------------------------
+    IBOutlet ProfilesListView *profilesTableView;
+    IBOutlet NSTableColumn *shellImageColumn;
+    IBOutlet NSTableColumn *nameShortcutColumn;
+    IBOutlet NSButton *removeProfileButton;
+    IBOutlet NSButton *addProfileButton;
+
+    // General tab
+    IBOutlet NSTextField *profileName;
+    IBOutlet NSPopUpButton *profileShortcutKey;
+    IBOutlet NSMatrix *profileCommandType;
+    IBOutlet NSTextField *profileCommand;
+    IBOutlet NSMatrix *profileDirectoryType;
+    IBOutlet NSTextField *profileDirectory;
+    IBOutlet NSTextField *profileShortcutKeyLabel;
+    IBOutlet NSTextField *profileShortcutKeyModifiersLabel;
+    IBOutlet NSTextField *profileTagsLabel;
+    IBOutlet NSTextField *profileCommandLabel;
+    IBOutlet NSTextField *profileDirectoryLabel;
+    IBOutlet NSTextField *profileUrlSchemesHeaderLabel;
+    IBOutlet NSTextField *profileUrlSchemesLabel;
+    IBOutlet NSPopUpButton* profileUrlSchemes;
+    IBOutlet NSButton* copyToProfileButton;
+
+    // Colors tab
+    IBOutlet NSColorWell *ansi0Color;
+    IBOutlet NSColorWell *ansi1Color;
+    IBOutlet NSColorWell *ansi2Color;
+    IBOutlet NSColorWell *ansi3Color;
+    IBOutlet NSColorWell *ansi4Color;
+    IBOutlet NSColorWell *ansi5Color;
+    IBOutlet NSColorWell *ansi6Color;
+    IBOutlet NSColorWell *ansi7Color;
+    IBOutlet NSColorWell *ansi8Color;
+    IBOutlet NSColorWell *ansi9Color;
+    IBOutlet NSColorWell *ansi10Color;
+    IBOutlet NSColorWell *ansi11Color;
+    IBOutlet NSColorWell *ansi12Color;
+    IBOutlet NSColorWell *ansi13Color;
+    IBOutlet NSColorWell *ansi14Color;
+    IBOutlet NSColorWell *ansi15Color;
+    IBOutlet NSColorWell *foregroundColor;
+    IBOutlet NSColorWell *backgroundColor;
+    IBOutlet NSColorWell *boldColor;
+    IBOutlet NSColorWell *selectionColor;
+    IBOutlet NSColorWell *selectedTextColor;
+    IBOutlet NSColorWell *cursorColor;
+    IBOutlet NSColorWell *cursorTextColor;
+    IBOutlet NSTextField *cursorColorLabel;
+    IBOutlet NSTextField *cursorTextColorLabel;
+    IBOutlet NSMenu *presetsMenu;
+
+    // Display tab
+    IBOutlet NSView *displayFontAccessoryView;
+    IBOutlet NSSlider *displayFontSpacingWidth;
+    IBOutlet NSSlider *displayFontSpacingHeight;
+    IBOutlet NSTextField *columnsField;
+    IBOutlet NSTextField *columnsLabel;
+    IBOutlet NSTextField *rowsLabel;
+    IBOutlet NSTextField *rowsField;
+    IBOutlet NSTextField* windowTypeLabel;
+    IBOutlet NSPopUpButton* screenButton;
+    IBOutlet NSTextField* spaceLabel;
+    IBOutlet NSPopUpButton* spaceButton;
+
+    IBOutlet NSPopUpButton* windowTypeButton;
+    IBOutlet NSTextField *normalFontField;
+    IBOutlet NSTextField *nonAsciiFontField;
+    IBOutlet NSTextField *newWindowttributesHeader;
+    IBOutlet NSTextField *screenLabel;
+
+    IBOutlet NSButton* blinkingCursor;
+    IBOutlet NSButton* blinkAllowed;
+    IBOutlet NSButton* useBoldFont;
+    IBOutlet NSButton* useBrightBold;
+    IBOutlet NSSlider *transparency;
+    IBOutlet NSButton* blur;
+    IBOutlet NSButton* asciiAntiAliased;
+    IBOutlet NSButton* nonasciiAntiAliased;
+    IBOutlet NSButton* backgroundImage;
+    NSString* backgroundImageFilename;
+    IBOutlet NSImageView* backgroundImagePreview;
+    IBOutlet NSTextField* displayFontsLabel;
+    IBOutlet NSButton* displayRegularFontButton;
+    IBOutlet NSButton* displayNAFontButton;
+
+    NSFont* normalFont;
+    NSFont *nonAsciiFont;
+    BOOL changingNAFont; // true if font dialog is currently modifying the non-ascii font
+
+    // Terminal tab
+    IBOutlet NSButton* disableWindowResizing;
+    IBOutlet NSButton* syncTitle;
+    IBOutlet NSButton* closeSessionsOnEnd;
+    IBOutlet NSButton* nonAsciiDoubleWidth;
+    IBOutlet NSButton* silenceBell;
+    IBOutlet NSButton* visualBell;
+    IBOutlet NSButton* flashingBell;
+    IBOutlet NSButton* xtermMouseReporting;
+    IBOutlet NSButton* disableSmcupRmcup;
+    IBOutlet NSButton* scrollbackWithStatusBar;
+    IBOutlet NSButton* profileGrowlNotifications;
+    IBOutlet NSTextField* scrollbackLines;
+    IBOutlet NSButton* unlimitedScrollback;
+    IBOutlet NSComboBox* terminalType;
+    IBOutlet NSButton* sendCodeWhenIdle;
+    IBOutlet NSTextField* idleCode;
+    IBOutlet NSPopUpButton* characterEncoding;
+
+    // Keyboard tab
+    IBOutlet NSTableView* keyMappings;
+    IBOutlet NSTableColumn* keyCombinationColumn;
+    IBOutlet NSTableColumn* actionColumn;
+    IBOutlet NSWindow* editKeyMappingWindow;
+    IBOutlet NSTextField* keyPress;
+    IBOutlet NSPopUpButton* action;
+    IBOutlet NSTextField* valueToSend;
+    IBOutlet NSTextField* profileLabel;
+    IBOutlet NSPopUpButton* profilePopupButton;
+    IBOutlet NSPopUpButton* menuToSelect;
+    IBOutlet NSButton* removeMappingButton;
+    IBOutlet NSTextField* escPlus;
+    IBOutlet NSMatrix *optionKeySends;
+    IBOutlet NSMatrix *rightOptionKeySends;
+    IBOutlet NSTokenField* tags;
+
+    IBOutlet NSPopUpButton* presetsPopupButton;
+    IBOutlet NSTextField*   presetsErrorLabel;
+
+    NSString* keyString;  // hexcode-hexcode rep of keystring in current sheet
+    BOOL newMapping;  // true if the keymap sheet is open for adding a new entry
+    id modifyMappingOriginator;  // widget that caused add new mapping window to open
+    IBOutlet NSPopUpButton* profilesPopup;
+    IBOutlet NSButton* addNewMapping;
+
+    // Copy Profile Settings...
+    IBOutlet NSTextField* bulkCopyLabel;
+    IBOutlet NSPanel* copyPanel;
+    IBOutlet NSButton* copyColors;
+    IBOutlet NSButton* copyDisplay;
+    IBOutlet NSButton* copyTerminal;
+    IBOutlet NSButton* copyWindow;
+    IBOutlet NSButton* copyKeyboard;
+    IBOutlet ProfilesListView* copyTo;
+    IBOutlet NSButton* copyButton;
+
+    // Keyboard ------------------------------
+    int defaultControl;
+    IBOutlet NSPopUpButton* controlButton;
+    int defaultLeftOption;
+    IBOutlet NSPopUpButton* leftOptionButton;
+    int defaultRightOption;
+    IBOutlet NSPopUpButton* rightOptionButton;
+    int defaultLeftCommand;
+    IBOutlet NSPopUpButton* leftCommandButton;
+    int defaultRightCommand;
+    IBOutlet NSPopUpButton* rightCommandButton;
+
+    int defaultSwitchTabModifier;
+    IBOutlet NSPopUpButton* switchTabModifierButton;
+    int defaultSwitchWindowModifier;
+    IBOutlet NSPopUpButton* switchWindowModifierButton;
+
+    IBOutlet NSButton* deleteSendsCtrlHButton;
+
+    IBOutlet NSTableView* globalKeyMappings;
+    IBOutlet NSTableColumn* globalKeyCombinationColumn;
+    IBOutlet NSTableColumn* globalActionColumn;
+    IBOutlet NSButton* globalRemoveMappingButton;
+    IBOutlet NSButton* globalAddNewMapping;
+}
 
 typedef enum { BulkCopyColors, BulkCopyDisplay, BulkCopyWindow, BulkCopyTerminal, BulkCopyKeyboard } BulkCopySettings;
 
-+ (PreferencePanelController *)sharedInstance;
-+ (PreferencePanelController *)sessionsInstance;
-
++ (PreferencePanelController*)sharedInstance;
++ (PreferencePanelController*)sessionsInstance;
 + (BOOL)migratePreferences;
-
-@property (readwrite,retain) PreferencesGeneralHelper           *prefsGeneralHelper;
-@property (readwrite,retain) PreferencesAppearanceHelper        *prefsAppearanceHelper;
-@property (readwrite,retain) PreferencesProfilesHelper          *prefsProfilesHelper;
-@property (readwrite,retain) PreferencesGlobalKeybindingsHelper *prefsGlobalKeysHelper;
-
-@property (readwrite,retain) PreferencesModel *prefsModel;
-
 - (id)initWithDataSource:(ProfileModel*)model userDefaults:(NSUserDefaults*)userDefaults;
-
-- (IBAction)showGlobalTabView:(id)sender;
-- (IBAction)showAppearanceTabView:(id)sender;
-- (IBAction)showProfilesTabView:(id)sender;
-- (IBAction)showKeyboardTabView:(id)sender;
-
-
-- (void)setOneProfileOnly;
-
+- (void)setOneBokmarkOnly;
 - (void)awakeFromNib;
 - (void)handleWindowWillCloseNotification:(NSNotification *)notification;
 - (void)genericCloseSheet:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
-
 - (void)editKeyMapping:(id)sender;
 - (IBAction)saveKeyMapping:(id)sender;
-
+- (BOOL)keySheetIsOpen;
 - (IBAction)closeKeyMapping:(id)sender;
-
 - (BOOL)validateToolbarItem:(NSToolbarItem *)theItem;
 - (NSToolbarItem *)toolbar:(NSToolbar *)toolbar itemForItemIdentifier:(NSString *)itemIdentifier willBeInsertedIntoToolbar:(BOOL)flag;
-
 - (NSArray *)toolbarAllowedItemIdentifiers:(NSToolbar *)toolbar;
 - (NSArray *)toolbarDefaultItemIdentifiers:(NSToolbar *)toolbar;
 - (NSArray *)toolbarSelectableItemIdentifiers: (NSToolbar *)toolbar;
-
 - (void)dealloc;
-
 - (void)readPreferences;
 - (void)savePreferences;
-
 - (void)run;
-
 - (IBAction)settingChanged:(id)sender;
 - (BOOL)advancedFontRendering;
 - (float)strokeThickness;
@@ -330,11 +473,9 @@ typedef enum { BulkCopyColors, BulkCopyDisplay, BulkCopyWindow, BulkCopyTerminal
 - (BOOL)onlyWhenMoreTabs;
 - (BOOL)focusFollowsMouse;
 - (BOOL)enableBonjour;
-
 // Returns true if ANY profile has growl enabled (preserves interface from back
 // when there was a global growl setting as well as a per-profile setting).
 - (BOOL)enableGrowl;
-
 - (BOOL)cmdSelection;
 - (BOOL)passOnControlLeftClick;
 - (BOOL)maxVertically;
@@ -369,9 +510,9 @@ typedef enum { BulkCopyColors, BulkCopyDisplay, BulkCopyWindow, BulkCopyTerminal
 - (int)minCompactTabWidth;
 - (int)optimumTabWidth;
 - (float)hotkeyTermAnimationDuration;
-- (NSString*)searchCommand;
-- (Profile*)handlerProfileForURL:(NSString*)url;
-- (int)numberOfRowsInTableView: (NSTableView*)aTableView;
+- (NSString *)searchCommand;
+- (Profile *)handlerProfileForURL:(NSString *)url;
+- (int)numberOfRowsInTableView: (NSTableView *)aTableView;
 - (NSString*)keyComboAtIndex:(int)rowIndex originator:(id)originator;
 - (NSDictionary*)keyInfoAtIndex:(int)rowIndex originator:(id)originator;
 - (NSString*)formattedKeyCombinationForRow:(int)rowIndex originator:(id)originator;
@@ -386,6 +527,11 @@ typedef enum { BulkCopyColors, BulkCopyDisplay, BulkCopyWindow, BulkCopyTerminal
 - (IBAction)profileSettingChanged:(id)sender;
 - (IBAction)copyToProfile:(id)sender;
 - (IBAction)profileUrlSchemeHandlerChanged:(id)sender;
+- (void)tableViewSelectionDidChange:(NSNotification *)aNotification;
+- (IBAction)showGlobalTabView:(id)sender;
+- (IBAction)showAppearanceTabView:(id)sender;
+- (IBAction)showProfilesTabView:(id)sender;
+- (IBAction)showKeyboardTabView:(id)sender;
 - (void)connectProfileWithGuid:(NSString*)guid toScheme:(NSString*)scheme;
 - (void)disconnectHandlerForScheme:(NSString*)scheme;
 - (IBAction)closeWindow:(id)sender;
@@ -398,14 +544,32 @@ typedef enum { BulkCopyColors, BulkCopyDisplay, BulkCopyWindow, BulkCopyTerminal
 - (void)disableHotkey;
 - (void)updateValueToSend;
 - (IBAction)actionChanged:(id)sender;
+- (NSWindow*)keySheet;
 - (IBAction)addNewMapping:(id)sender;
 - (IBAction)removeMapping:(id)sender;
 - (IBAction)globalRemoveMapping:(id)sender;
 - (void)setKeyMappingsToPreset:(NSString*)presetName;
 - (IBAction)presetKeyMappingsItemSelected:(id)sender;
+- (void)_loadPresetColors:(NSString*)presetName;
+- (void)loadColorPreset:(id)sender;
+- (IBAction)addProfile:(id)sender;
+- (IBAction)removeProfile:(id)sender;
+- (IBAction)duplicateProfile:(id)sender;
+- (IBAction)setAsDefault:(id)sender;
+- (NSArray *)tokenField:(NSTokenField *)tokenField completionsForSubstring:(NSString *)substring indexOfToken:(NSInteger)tokenIndex indexOfSelectedItem:(NSInteger *)selectedIndex;
+- (NSMenu*)profileTable:(id)profileTable menuForEvent:(NSEvent*)theEvent;
+- (void)profileTableSelectionDidChange:(id)profileTable;
+- (void)profileTableSelectionWillChange:(id)aProfileTableView;
+- (void)profileTableRowSelected:(id)profileTable;
+- (void)showProfiles;
+- (void)openToProfile:(NSString*)guid;
+- (id)tokenFieldCell:(NSTokenFieldCell *)tokenFieldCell representedObjectForEditingString:(NSString *)editingString;
+- (void)underlyingProfileDidChange;
 
-- (BOOL)keySheetIsOpen;
-- (NSWindow*)keySheet;
+- (IBAction)openCopyProfiles:(id)sender;
+- (IBAction)copyProfiles:(id)sender;
+- (IBAction)cancelCopyProfiles:(id)sender;
+- (void)copyAttributes:(BulkCopySettings)attributes fromProfile:(NSString*)guid toProfile:(NSString*)destGuid;
 
 - (int)control;
 - (int)leftOption;
@@ -416,10 +580,10 @@ typedef enum { BulkCopyColors, BulkCopyDisplay, BulkCopyWindow, BulkCopyTerminal
 - (int)switchTabModifier;
 - (int)switchWindowModifier;
 
+- (BOOL)remappingDisabledTemporarily;
 - (BOOL)hotkeyTogglesWindow;
 - (BOOL)dockIconTogglesWindow;
 - (Profile*)hotkeyProfile;
-- (void)copyAttributes:(BulkCopySettings)attributes fromProfile:(NSString*)guid toProfile:(NSString*)destGuid;
 
 @end
 

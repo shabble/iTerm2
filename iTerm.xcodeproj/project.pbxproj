@@ -18,6 +18,7 @@
 		2C16E42B13A74435002F1F58 /* ProfileModel.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C16E42A13A74435002F1F58 /* ProfileModel.h */; };
 		2C16E42E13A7443D002F1F58 /* ProfileManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C16E42C13A7443D002F1F58 /* ProfileManager.m */; };
 		2C16E42F13A7443D002F1F58 /* ProfileModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C16E42D13A7443D002F1F58 /* ProfileModel.m */; };
+		2C16E50813A756AF002F1F58 /* GTMCarbonEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C16E50713A756AF002F1F58 /* GTMCarbonEvent.m */; };
 		2C1C0829139DB34C00E1DA75 /* PreferencesProfilesHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C1C0828139DB34C00E1DA75 /* PreferencesProfilesHelper.h */; };
 		2C1C082B139DB35700E1DA75 /* PreferencesProfilesHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1C082A139DB35700E1DA75 /* PreferencesProfilesHelper.m */; };
 		2C1C0F01139FD16600E1DA75 /* GTM in Resources */ = {isa = PBXBuildFile; fileRef = 2C1C0F00139FD16600E1DA75 /* GTM */; };
@@ -129,6 +130,7 @@
 		2C16E42A13A74435002F1F58 /* ProfileModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ProfileModel.h; path = Profiles/ProfileModel.h; sourceTree = "<group>"; };
 		2C16E42C13A7443D002F1F58 /* ProfileManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ProfileManager.m; path = Profiles/ProfileManager.m; sourceTree = "<group>"; };
 		2C16E42D13A7443D002F1F58 /* ProfileModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ProfileModel.m; path = Profiles/ProfileModel.m; sourceTree = "<group>"; };
+		2C16E50713A756AF002F1F58 /* GTMCarbonEvent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GTMCarbonEvent.m; path = Vendor/GTM/GTMCarbonEvent.m; sourceTree = "<group>"; };
 		2C1C0828139DB34C00E1DA75 /* PreferencesProfilesHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PreferencesProfilesHelper.h; path = Prefs/PreferencesProfilesHelper.h; sourceTree = "<group>"; };
 		2C1C082A139DB35700E1DA75 /* PreferencesProfilesHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PreferencesProfilesHelper.m; path = Prefs/PreferencesProfilesHelper.m; sourceTree = "<group>"; };
 		2C1C0F00139FD16600E1DA75 /* GTM */ = {isa = PBXFileReference; lastKnownFileType = folder; name = GTM; path = Vendor/GTM; sourceTree = "<group>"; };
@@ -249,6 +251,7 @@
 		0464AB0D006CD2EC7F000001 /* JTerminal */ = {
 			isa = PBXGroup;
 			children = (
+				2C16E50713A756AF002F1F58 /* GTMCarbonEvent.m */,
 				1DEE9FDB11FCA60F009E18C9 /* credits.rtf */,
 				2C1C0EB7139FCDB100E1DA75 /* Vendor */,
 				2CE2723B13965953005797CA /* XIB Files */,
@@ -605,6 +608,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2C16E50813A756AF002F1F58 /* GTMCarbonEvent.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

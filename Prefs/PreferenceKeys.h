@@ -55,7 +55,7 @@
 #define KEY_TAGS                        @"Tags"
 #define KEY_GUID                        @"Guid"
 #define KEY_ORIGINAL_GUID               @"Original Guid"  // GUID before divorce. Not saved to preferences plist.
-#define KEY_DEFAULT_BOOKMARK            @"Default Bookmark"  // deprecated
+#define KEY_DEFAULT_PROFILE             @"Default Bookmark"  // deprecated
 #define KEY_ASK_ABOUT_OUTDATED_KEYMAPS  @"Ask About Outdated Keymaps"
 
 // Per-bookmark keys ----------------------------------------------------------
@@ -85,9 +85,9 @@
 #define KEY_ANSI_13_COLOR          @"Ansi 13 Color"
 #define KEY_ANSI_14_COLOR          @"Ansi 14 Color"
 #define KEY_ANSI_15_COLOR          @"Ansi 15 Color"
-#define KEYTEMPLATE_ANSI_X_COLOR          @"Ansi %d Color"
+#define KEYTEMPLATE_ANSI_X_COLOR   @"Ansi %d Color"
 #define KEY_SMART_CURSOR_COLOR     @"Smart Cursor Color"
-#define KEY_MINIMUM_CONTRAST      @"Minimum Contrast"
+#define KEY_MINIMUM_CONTRAST       @"Minimum Contrast"
 
 // Display
 #define KEY_ROWS                   @"Rows"
@@ -125,7 +125,7 @@
 #define KEY_XTERM_MOUSE_REPORTING             @"Mouse Reporting"
 #define KEY_DISABLE_SMCUP_RMCUP               @"Disable Smcup Rmcup"
 #define KEY_SCROLLBACK_WITH_STATUS_BAR        @"Scrollback With Status Bar"
-#define KEY_BOOKMARK_GROWL_NOTIFICATIONS      @"BM Growl"
+#define KEY_PROFILE_GROWL_NOTIFICATIONS       @"BM Growl"
 #define KEY_CHARACTER_ENCODING                @"Character Encoding"
 #define KEY_SCROLLBACK_LINES                  @"Scrollback Lines"
 #define KEY_UNLIMITED_SCROLLBACK              @"Unlimited Scrollback"

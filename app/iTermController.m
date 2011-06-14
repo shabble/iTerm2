@@ -398,9 +398,9 @@ static CGEventRef OnTappedEvent(CGEventTapProxy proxy, CGEventType type, CGEvent
         unichar unmodunicode = [unmodkeystr length] > 0 ? [unmodkeystr characterAtIndex:0] : 0;
         unsigned int modflag = [cocoaEvent modifierFlags];
         NSString *keyBindingText;
-        PreferencePanelController* prefPanelController = [PreferencePanelController sharedInstance];
-        PreferencesProfilesHelper* profilesHelper = [prefPanelController prefsProfilesHelper];
-        BOOL tempDisabled = [profilesHelper remappingDisabledTemporarily];
+        PreferencePanelController* prefPanel = [PreferencePanelController sharedInstance];
+        //PreferencesProfilesHelper* profilesHelper = [prefPanelController prefsProfilesHelper];
+        BOOL tempDisabled = [prefPanel remappingDisabledTemporarily];
         int action = [KeyBindingManager actionForKeyCode:unmodunicode
                                                modifiers:modflag
                                                     text:&keyBindingText
@@ -416,11 +416,11 @@ static CGEventRef OnTappedEvent(CGEventTapProxy proxy, CGEventType type, CGEvent
             event = eventCopy;
             eventCopy = temp;
         }
-        BOOL keySheetOpen = [[prefPanelController keySheet] isKeyWindow] && [prefPanelController keySheetIsOpen];
+        BOOL keySheetOpen = [[prefPanel keySheet] isKeyWindow] && [prefPanel keySheetIsOpen];
         if ((!tempDisabled && !isDoNotRemap) ||  // normal case, whether keysheet is open or not
             (!tempDisabled && isDoNotRemap && keySheetOpen)) {  // about to change dnr to non-dnr
             [KeyBindingManager remapModifiersInCGEvent:event
-                                              prefPanel:prefPanelController];
+                                              prefPanel:prefPanel];
             cocoaEvent = [NSEvent eventWithCGEvent:event];
         }
         if (local) {

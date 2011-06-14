@@ -30,9 +30,9 @@
 #import "Prefs/PreferenceKeys.h"
 
 
-@interface PreferencesProfilesHelper : NSObject <ProfilesTableDelegate> 
+@interface PreferencesProfilesHelper : NSObject //<ProfilesTableDelegate> 
 {
-    
+ /*   
     IBOutlet NSTabView* profilesSettingsTabViewParent;
     
     // Profiles -----------------------------
@@ -171,7 +171,7 @@
     IBOutlet NSButton* addNewMapping;
     
     // Copy Bookmark Settings...
-    /*
+
     IBOutlet NSTextField* bulkCopyLabel;
     IBOutlet NSPanel* copyPanel;
     IBOutlet NSButton* copyColors;
@@ -181,17 +181,17 @@
     IBOutlet NSButton* copyKeyboard;
     IBOutlet BookmarkListView* copyTo;
     IBOutlet NSButton* copyButton;
-    */
     
     
     
     ProfilesTableView *tableView;
     PreferencesModel *dataSource;
+    */
 }
 
-@property (readwrite,retain) ProfilesTableView *tableView;
-@property (readwrite,retain) PreferencesModel  *dataSource;
-
+//@property (readwrite,retain) ProfilesTableView *tableView;
+//@property (readwrite,retain) PreferencesModel  *dataSource;
+/*
 + (id)initWithBookmarkTableView:(ProfilesTableView*)view;
 
 - (void)tableViewSelectionDidChange:(NSNotification*)aNotification;
@@ -221,5 +221,5 @@
 - (BOOL)remappingDisabledTemporarily;
 
 //- (IBAction)duplicateBookmark:(id)sender;
-
+*/
 @end

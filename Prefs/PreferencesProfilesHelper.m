@@ -27,12 +27,12 @@
 
 #import "Prefs/PreferencesProfilesHelper.h"
 #import "Prefs/PreferencePanelController.h"
-#import "Profiles/BookmarkModel.h"
+#import "Profiles/ProfileModel.h"
 #import "Prefs/PreferencesModel.h"
 
 
 @implementation PreferencesProfilesHelper
-
+/*
 @synthesize tableView;
 @synthesize dataSource;
 
@@ -84,7 +84,7 @@
         }
     }
 }
-/*
+
 - (void)bookmarkTableSelectionDidChange:(id)bookmarkTable
 {
     PreferencePanelController *ppc = [PreferencePanelController sharedInstance];
@@ -107,7 +107,7 @@
          }
      }
 }
-*/
+
 - (void)bookmarkTableRowSelected:(id)bookmarkTable
 {
     // Do nothing for double click
@@ -115,7 +115,7 @@
 
 - (void)tableViewSelectionDidChange:(NSNotification *)aNotification
 {
-   /* //NSLog(@"%s", __PRETTY_FUNCTION__);
+    //NSLog(@"%s", __PRETTY_FUNCTION__);
     if ([aNotification object] == keyMappings) {
         int rowIndex = [keyMappings selectedRow];
         if (rowIndex >= 0) {
@@ -130,7 +130,7 @@
         } else {
             [globalRemoveMappingButton setEnabled:NO];
         }
-    }*/
+    }
 }
 // ================================================================
 //                           Others
@@ -624,13 +624,13 @@
         [[PreferencePanelController sharedInstance] bookmarkTableSelectionDidChange:[PreferencePanelController sharedInstance]->bookmarksTableView];
         
         // Update existing sessions
-        /*        int n = [[iTermController sharedInstance] numberOfTerminals];
+                int n = [[iTermController sharedInstance] numberOfTerminals];
          for (int i = 0; i < n; ++i) {
          PseudoTerminal* pty = [[iTermController sharedInstance] terminalAtIndex:i];
          
          [pty reloadBookmarks];
          }
-         */      
+
         // Update user defaults
         [[NSUserDefaults standardUserDefaults] setObject:[[BookmarkModel sharedInstance] rawData]
                                                   forKey: @"New Bookmarks"];
@@ -668,6 +668,6 @@
 //     [bookmarksTableView reloadData];
 //     [bookmarksTableView selectRowByGuid:[newDict objectForKey:KEY_GUID]];
 // }
-
+*/
 @end
 
