@@ -5,7 +5,7 @@
  **  Created by George Nachman on 8/24/10.
  **  Project: iTerm
  **
- **  Description: Model for an ordered collection of bookmarks. Bookmarks have
+ **  Description: Model for an ordered collection of bookmarks. Profiles have
  **    numerous attributes, but always have a name, set of tags, and a guid.
  **
  **  This program is free software; you can redistribute it and/or modify
@@ -26,7 +26,7 @@
 
 #define BMKEY_BOOKMARKS_ARRAY @"Bookmarks Array"
 
-typedef NSDictionary Bookmark;
+typedef NSDictionary Profile;
 typedef struct {
     SEL selector;                  // normal action
     SEL alternateSelector;         // opt+click
@@ -36,53 +36,54 @@ typedef struct {
 } JournalParams;
 
 @interface ProfilesModel : NSObject {
-    NSMutableArray* bookmarks_;
-    NSString* defaultBookmarkGuid_;
+    NSMutableArray* profiles_;
+    NSString* defaultProfileGuid_;
 
     // The journal is an array of actions since the last change notification was
     // posted.
     NSMutableArray* journal_;
-    NSUserDefaults* prefs_;
+    NSUserDefaults* prefs_;          // TODO: move this to PreferencesModel.
     BOOL postChanges_;              // should change notifications be posted?
 }
 
-+ (BookmarkModel*)sharedInstance;
-+ (BookmarkModel*)sessionsInstance;
++ (ProfilesModel*)sharedInstance;
++ (ProfilesModel*)sessionsInstance;
 + (NSString*)freshGuid;
-- (int)numberOfBookmarks;
-- (int)numberOfBookmarksWithFilter:(NSString*)filter;
-- (NSArray*)bookmarkIndicesMatchingFilter:(NSString*)filter;
-- (int)indexOfBookmarkWithGuid:(NSString*)guid;
-- (int)indexOfBookmarkWithGuid:(NSString*)guid withFilter:(NSString*)filter;
-- (Bookmark*)bookmarkAtIndex:(int)index;
-- (Bookmark*)bookmarkAtIndex:(int)index withFilter:(NSString*)filter;
-- (void)addBookmark:(Bookmark*)bookmark;
-- (void)addBookmark:(Bookmark*)bookmark inSortedOrder:(BOOL)sort;
-- (void)removeBookmarkWithGuid:(NSString*)guid;
-- (void)removeBookmarksAtIndices:(NSArray*)indices;
-- (void)removeBookmarkAtIndex:(int)index;
-- (void)removeBookmarkAtIndex:(int)index withFilter:(NSString*)filter;
-- (void)setBookmark:(Bookmark*)bookmark atIndex:(int)index;
-- (void)setBookmark:(Bookmark*)bookmark withGuid:(NSString*)guid;
-- (void)removeAllBookmarks;
+
+- (int)numberOfProfiles;
+- (int)numberOfProfilesWithFilter:(NSString*)filter;
+- (NSArray*)profileIndicesMatchingFilter:(NSString*)filter;
+- (int)indexOfProfileWithGuid:(NSString*)guid;
+- (int)indexOfProfileWithGuid:(NSString*)guid withFilter:(NSString*)filter;
+- (Profile*)profileAtIndex:(int)index;
+- (Profile*)profileAtIndex:(int)index withFilter:(NSString*)filter;
+- (void)addProfile:(Profile*)profile;
+- (void)addProfile:(Profile*)profile inSortedOrder:(BOOL)sort;
+- (void)removeProfileWithGuid:(NSString*)guid;
+- (void)removeProfilesAtIndices:(NSArray*)indices;
+- (void)removeProfileAtIndex:(int)index;
+- (void)removeProfileAtIndex:(int)index withFilter:(NSString*)filter;
+- (void)setProfile:(Profile*)profile atIndex:(int)index;
+- (void)setProfile:(Profile*)profile withGuid:(NSString*)guid;
+- (void)removeAllProfiles;
 - (NSArray*)rawData;
 - (void)load:(NSArray*)prefs;
-- (Bookmark*)defaultBookmark;
-- (Bookmark*)bookmarkWithName:(NSString*)name;
-- (Bookmark*)bookmarkWithGuid:(NSString*)guid;
-- (int)indexOfBookmarkWithName:(NSString*)name;
+- (Profile*)defaultProfile;
+- (Profile*)profileWithName:(NSString*)name;
+- (Profile*)profileWithGuid:(NSString*)guid;
+- (int)indexOfProfileWithName:(NSString*)name;
 - (NSArray*)allTags;
-- (BOOL)bookmark:(Bookmark*)bookmark hasTag:(NSString*)tag;
-- (Bookmark*)setObject:(id)object forKey:(NSString*)key inBookmark:(Bookmark*)bookmark;
+- (BOOL)profile:(Profile*)profile hasTag:(NSString*)tag;
+- (Profile*)setObject:(id)object forKey:(NSString*)key inProfile:(Profile*)profile;
 - (void)setDefaultByGuid:(NSString*)guid;
 - (void)moveGuid:(NSString*)guid toRow:(int)row;
 - (void)rebuildMenus;
-// Return the absolute index of a bookmark given its index with the filter applied.
+// Return the absolute index of a profile given its index with the filter applied.
 - (int)convertFilteredIndex:(int)theIndex withFilter:(NSString*)filter;
 - (void)dump;
-- (NSArray*)bookmarks;
+- (NSArray*)profiles;
 - (NSArray*)guids;
-- (void)addBookmark:(Bookmark*)b toMenu:(NSMenu*)menu startingAtItem:(int)skip withTags:(NSArray*)tags params:(JournalParams*)params atPos:(int)pos;
+- (void)addProfile:(Profile*)profile toMenu:(NSMenu*)menu startingAtItem:(int)skip withTags:(NSArray*)tags params:(JournalParams*)params atPos:(int)pos;
 
 // Tell all listeners that the model has changed.
 - (void)postChangeNotification;
@@ -105,18 +106,16 @@ typedef enum {
     JOURNAL_SET_DEFAULT
 } JournalAction;
 
-@interface BookmarkJournalEntry : NSObject {
+@interface ProfileJournalEntry : NSObject {
   @public
     JournalAction action;
     NSString* guid;
-    BookmarkModel* model;
+    ProfilesModel* model;
     // Tags before the action was applied.
     NSArray* tags;
     int index;  // Index of bookmark
 }
 
-+ (BookmarkJournalEntry*)journalWithAction:(JournalAction)action
-                                  bookmark:(Bookmark*)bookmark
-                                     model:(BookmarkModel*)model;
++ (ProfileJournalEntry*)journalWithAction:(JournalAction)action profile:(Profile*)profile model:(ProfilesModel*)model;
 
 @end

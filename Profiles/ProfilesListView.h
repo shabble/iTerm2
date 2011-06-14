@@ -41,7 +41,7 @@
     NSArray* sortDescriptors;
 }
 
-- (id)initWithModel:(BookmarkModel*)model;
+- (id)initWithModel:(ProfilesModel*)model;
 - (void)dealloc;
 - (void)setSortDescriptors:(NSArray*)newSortDescriptors;
 - (NSArray*)sortDescriptors;
@@ -54,13 +54,13 @@
 - (void)sort;
 
 // These functions take the filter (set with setFilter) into account with respect to indices.
-- (int)numberOfBookmarks;
-- (BookmarkRow*)bookmarkRowAtIndex:(int)index;
-- (Bookmark*)bookmarkAtIndex:(int)index;
-- (int)indexOfBookmarkWithGuid:(NSString*)guid;
-- (void)moveBookmarkWithGuid:(NSString*)guid toIndex:(int)index;
+- (int)numberOfProfiles;
+- (ProfileRow*)profileRowAtIndex:(int)index;
+- (Profile*)profileAtIndex:(int)index;
+- (int)indexOfProfileWithGuid:(NSString*)guid;
+- (void)moveProfileWithGuid:(NSString*)guid toIndex:(int)index;
 
-- (BookmarkModel*)underlyingModel;
+- (ProfilesModel*)underlyingModel;
 
 // Copy bookmarks matchin the filter from the underlying model.
 - (void)sync;
@@ -79,17 +79,20 @@
 @end
 
 @protocol ProfilesTableDelegate
-- (void)bookmarkTableSelectionDidChange:(id)bookmarkTable;
-- (void)bookmarkTableSelectionWillChange:(id)bookmarkTable;
-- (void)bookmarkTableRowSelected:(id)bookmarkTable;
-- (NSMenu*)bookmarkTable:(id)bookmarkTable menuForEvent:(NSEvent*)theEvent;
+
+- (void)profileTableSelectionDidChange:(id)profileTable;
+- (void)profileTableSelectionWillChange:(id)profileTable;
+- (void)profileTableRowSelected:(id)profileTable;
+- (NSMenu*)profileTable:(id)profileTable menuForEvent:(NSEvent*)theEvent;
+
 @end
 
 @interface ProfilesListView : NSView {
+    
     int rowHeight_;
     NSScrollView* scrollView_;
     iTermSearchField* searchField_;
-    BookmarkTableView* tableView_;
+    ProfilesTableView* tableView_;
     NSTableColumn* tableColumn_;
     NSTableColumn* commandColumn_;
     NSTableColumn* shortcutColumn_;
@@ -99,7 +102,8 @@
     BOOL showGraphic_;
     NSSet* selectedGuids_;
     BOOL debug;
-    BookmarkModelWrapper* dataSource_;
+    ProfilesModelWrapper* dataSource_;
+    
 }
 
 - (void)awakeFromNib;
@@ -107,8 +111,8 @@
 - (id)initWithFrame:(NSRect)frameRect model:(BookmarkModel*)dataSource;
 - (void)setDelegate:(id<BookmarkTableDelegate>)delegate;
 - (void)dealloc;
-- (BookmarkModelWrapper*)dataSource;
-- (void)setUnderlyingDatasource:(BookmarkModel*)dataSource;
+- (ProfilesModelWrapper*)dataSource;
+- (void)setUnderlyingDatasource:(ProfilesModel*)dataSource;
 - (void)focusSearchField;
 
 // Drag drop

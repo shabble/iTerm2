@@ -1,12 +1,11 @@
 /*
- **  BookmarksWindow.h
- **  iTerm
+ **  ProfilesWindow.h (was BookmarksWindow.h)
  **
  **  Created by George Nachman on 8/29/10.
- **  Project: iTerm
+ **  Project: iTerm2
  **
- **  Description: Display a window with searchable bookmarks. You can use this
- **    to open bookmarks in a new window or tab.
+ **  Description: Display a window with searchable profiles. You can use this
+ **    to open profiles in a new window or tab.
  **
  **  This program is free software; you can redistribute it and/or modify
  **  it under the terms of the GNU General Public License as published by
@@ -23,34 +22,36 @@
  */
 
 #import <Cocoa/Cocoa.h>
-#import "BookmarkListView.h"
+#import "ProfilesListView.h"
 
-@interface BookmarksWindow : NSWindowController <BookmarkTableDelegate> {
-    IBOutlet BookmarkListView* tableView_;
+@interface ProfilesWindow : NSWindowController <ProfilesTableDelegate> {
+    IBOutlet ProfilesListView* tableView_;
     IBOutlet NSSegmentedControl* actions_;
     IBOutlet NSButton* horizontalPaneButton_;
     IBOutlet NSButton* verticalPaneButton_;
     IBOutlet NSButton* tabButton_;
     IBOutlet NSButton* windowButton_;
-	IBOutlet NSButton* closeAfterOpeningBookmark_;
+	IBOutlet NSButton* closeAfterOpeningProfile_;
 	IBOutlet NSButton* newTabsInNewWindowButton_;
 }
 
 + (ProfilesWindow*)sharedInstance;
 
 - (id)init;
-- (id)initWithWindowNibName:(NSString *)windowNibName;
-- (IBAction)openBookmarkInHorizontalPane:(id)sender;
-- (IBAction)openBookmarkInVerticalPane:(id)sender;
-- (IBAction)openBookmarkInTab:(id)sender;
-- (IBAction)openBookmarkInWindow:(id)sender;
-- (void)bookmarkTableSelectionDidChange:(id)bookmarkTable;
-- (void)bookmarkTableSelectionWillChange:(id)bookmarkTable;
-- (void)bookmarkTableRowSelected:(id)bookmarkTable;
-- (NSMenu*)bookmarkTable:(id)bookmarkTable menuForEvent:(NSEvent*)theEvent;
-- (IBAction)editBookmarks:(id)sender;
+- (id)initWithWindowNibName:(NSString*)windowNibName;
+/*- (IBAction)openProfileInHorizontalPane:(id)sender;
+- (IBAction)openProfileInVerticalPane:(id)sender;
+- (IBAction)openProfileInTab:(id)sender;
+- (IBAction)openProfileInWindow:(id)sender;
+ */
+- (void)profileTableSelectionDidChange:(id)profileTable;
+- (void)profileTableSelectionWillChange:(id)profileTable;
+- (void)profileTableRowSelected:(id)profileTable;
+- (NSMenu*)profilesTable:(id)profileTable menuForEvent:(NSEvent*)theEvent;
+
+- (IBAction)editProfiles:(id)sender;
 - (IBAction)closeAfterOpeningChanged:(id)sender;
-- (IBAction)newTabsInNewWindow:(id)sender;
+//- (IBAction)newTabsInNewWindow:(id)sender;
 
 // NSWindow Delegate
 - (void)windowDidBecomeKey:(NSNotification *)notification;

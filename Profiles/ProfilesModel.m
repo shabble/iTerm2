@@ -1,9 +1,10 @@
 /*
- **  BookmarkModel.m
- **  iTerm
- **
+ **  ProfilesModel.m, was BookmarkModel.m
+ **  
  **  Created by George Nachman on 8/24/10.
- **  Project: iTerm
+ **  Refactored by Tom Feist on 14/6/11.
+ **
+ **  Project: iTerm2
  **
  **  Description: Model for an ordered collection of bookmarks. Bookmarks have
  **    numerous attributes, but always have a name, set of tags, and a guid.
@@ -22,7 +23,7 @@
  **  along with this program; if not, write to the Free Software
  */
 
-#import "Profiles/ITAddressBookMgr.h"
+#import "Prefs/PreferenceKeys.h"
 #import "Profiles/BookmarkModel.h"
 
 id gAltOpenAllRepresentedObject;
@@ -34,7 +35,7 @@ id gAltOpenAllRepresentedObject;
     gAltOpenAllRepresentedObject = [[NSObject alloc] init];
 }
 
-- (BookmarkModel*)init
+- (ProfilesModel*)init
 {
     bookmarks_ = [[NSMutableArray alloc] init];
     defaultBookmarkGuid_ = @"";
@@ -534,8 +535,8 @@ id gAltOpenAllRepresentedObject;
 {
     [journal_ addObject:[BookmarkJournalEntry journalWithAction:JOURNAL_REMOVE_ALL bookmark:nil model:self]];
     int i = 0;
-    for (Bookmark* b in bookmarks_) {
-        BookmarkJournalEntry* e = [BookmarkJournalEntry journalWithAction:JOURNAL_ADD bookmark:b model:self];
+    for (Profile* p in bookmarks_) {
+        ProfileJournalEntry* e = [ProfileJournalEntry journalWithAction:JOURNAL_ADD bookmark:p model:self];
         e->index = i++;
         [journal_ addObject:e];
     }
@@ -555,15 +556,15 @@ id gAltOpenAllRepresentedObject;
 
 - (void)dump
 {
-    for (int i = 0; i < [self numberOfBookmarks]; ++i) {
-        Bookmark* bookmark = [self bookmarkAtIndex:i];
-        NSLog(@"%d: %@ %@", i, [bookmark objectForKey:KEY_NAME], [bookmark objectForKey:KEY_GUID]);
+    for (int i = 0; i < [self numberOfProfiles]; ++i) {
+        Profile* profile = [self profileAtIndex:i];
+        NSLog(@"%d: %@ %@", i, [profile objectForKey:KEY_NAME], [profile objectForKey:KEY_GUID]);
     }
 }
 
-- (NSArray*)bookmarks
+- (NSArray*)profiles
 {
-    return bookmarks_;
+    return profiles_;
 }
 
 - (NSArray*)guids
@@ -631,10 +632,10 @@ id gAltOpenAllRepresentedObject;
     return ([[items objectAtIndex:n-1] representedObject] == gAltOpenAllRepresentedObject);
 }
 
-- (int)positionOfBookmark:(Bookmark*)b startingAtItem:(int)skip inMenu:(NSMenu*)menu
+- (int)positionOfProfile:(Profile *)p startingAtItem:(int)skip inMenu:(NSMenu*)menu
 {
     // Find position of bookmark in menu
-    NSString* name = [b objectForKey:KEY_NAME];
+    NSString* name = [p objectForKey:KEY_NAME];
     int N = [menu numberOfItems];
     if ([BookmarkModel menuHasOpenAll:menu]) {
         N -= 3;
@@ -658,7 +659,7 @@ id gAltOpenAllRepresentedObject;
     return pos;
 }
 
-- (int)positionOfBookmarkWithIndex:(int)theIndex startingAtItem:(int)skip inMenu:(NSMenu*)menu
+- (int)positionOfProfileWithIndex:(int)theIndex startingAtItem:(int)skip inMenu:(NSMenu*)menu
 {
     // Find position of bookmark in menu
     int N = [menu numberOfItems];
@@ -708,7 +709,7 @@ id gAltOpenAllRepresentedObject;
     [menu insertItem:item atIndex:pos];
 }
 
-- (void)addBookmark:(Bookmark*)b toMenu:(NSMenu*)menu startingAtItem:(int)skip withTags:(NSArray*)tags params:(JournalParams*)params atPos:(int)theIndex
+- (void)addBookmark:(Profile *)b toMenu:(NSMenu*)menu startingAtItem:(int)skip withTags:(NSArray*)tags params:(JournalParams*)params atPos:(int)theIndex
 {
     int pos;
     if (theIndex == -1) {
@@ -738,7 +739,7 @@ id gAltOpenAllRepresentedObject;
     }
 }
 
-+ (void)applyAddJournalEntry:(BookmarkJournalEntry*)e toMenu:(NSMenu*)menu startingAtItem:(int)skip params:(JournalParams*)params
++ (void)applyAddJournalEntry:(ProfileJournalEntry*)e toMenu:(NSMenu*)menu startingAtItem:(int)skip params:(JournalParams*)params
 {
     BookmarkModel* model = e->model;
     Bookmark* b = [model bookmarkWithGuid:e->guid];
@@ -748,7 +749,7 @@ id gAltOpenAllRepresentedObject;
     [model addBookmark:b toMenu:menu startingAtItem:skip withTags:[b objectForKey:KEY_TAGS] params:params atPos:e->index];
 }
 
-+ (void)applyRemoveJournalEntry:(BookmarkJournalEntry*)e toMenu:(NSMenu*)menu startingAtItem:(int)skip params:(JournalParams*)params
++ (void)applyRemoveJournalEntry:(ProfileJournalEntry*)e toMenu:(NSMenu*)menu startingAtItem:(int)skip params:(JournalParams*)params
 {
     int pos = [menu indexOfItemWithRepresentedObject:e->guid];
     if (pos != -1) {
@@ -777,36 +778,36 @@ id gAltOpenAllRepresentedObject;
     }
 }
 
-+ (void)applyRemoveAllJournalEntry:(BookmarkJournalEntry*)e toMenu:(NSMenu*)menu startingAtItem:(int)skip params:(JournalParams*)params
++ (void)applyRemoveAllJournalEntry:(ProfileJournalEntry*)e toMenu:(NSMenu*)menu startingAtItem:(int)skip params:(JournalParams*)params
 {
     while ([menu numberOfItems] > skip) {
         [menu removeItemAtIndex:[menu numberOfItems] - 1];
     }
 }
 
-+ (void)applySetDefaultJournalEntry:(BookmarkJournalEntry*)e toMenu:(NSMenu*)menu startingAtItem:(int)skip params:(JournalParams*)params
++ (void)applySetDefaultJournalEntry:(ProfileJournalEntry*)e toMenu:(NSMenu*)menu startingAtItem:(int)skip params:(JournalParams*)params
 {
 }
 
 + (void)applyJournal:(NSDictionary*)journalDict toMenu:(NSMenu*)menu startingAtItem:(int)skip params:(JournalParams*)params
 {
     NSArray* journal = [journalDict objectForKey:@"array"];
-    for (BookmarkJournalEntry* e in journal) {
-        switch (e->action) {
+    for (ProfileJournalEntry* entry in journal) {
+        switch (entry->action) {
             case JOURNAL_ADD:
-                [BookmarkModel applyAddJournalEntry:e toMenu:menu startingAtItem:skip params:params];
+                [BookmarkModel applyAddJournalEntry:entry toMenu:menu startingAtItem:skip params:params];
                 break;
 
             case JOURNAL_REMOVE:
-                [BookmarkModel applyRemoveJournalEntry:e toMenu:menu startingAtItem:skip params:params];
+                [BookmarkModel applyRemoveJournalEntry:entry toMenu:menu startingAtItem:skip params:params];
                 break;
 
             case JOURNAL_REMOVE_ALL:
-                [BookmarkModel applyRemoveAllJournalEntry:e toMenu:menu startingAtItem:skip params:params];
+                [BookmarkModel applyRemoveAllJournalEntry:entry toMenu:menu startingAtItem:skip params:params];
                 break;
 
             case JOURNAL_SET_DEFAULT:
-                [BookmarkModel applySetDefaultJournalEntry:e toMenu:menu startingAtItem:skip params:params];
+                [BookmarkModel applySetDefaultJournalEntry:entry toMenu:menu startingAtItem:skip params:params];
                 break;
 
             default:
@@ -823,14 +824,14 @@ id gAltOpenAllRepresentedObject;
 
 @end
 
-@implementation BookmarkJournalEntry
+@implementation ProfileJournalEntry
 
 
-+ (BookmarkJournalEntry*)journalWithAction:(JournalAction)action
++ (ProfileJournalEntry*)journalWithAction:(JournalAction)action
                                   bookmark:(Bookmark*)bookmark
                                      model:(BookmarkModel*)model
 {
-    BookmarkJournalEntry* entry = [[[BookmarkJournalEntry alloc] init] autorelease];
+    ProfileJournalEntry* entry = [[[ProfileJournalEntry alloc] init] autorelease];
     entry->action = action;
     entry->guid = [[bookmark objectForKey:KEY_GUID] copy];
     entry->model = model;
