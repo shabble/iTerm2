@@ -27,7 +27,7 @@
 
 id gAltOpenAllRepresentedObject;
 
-@implementation BookmarkModel
+@implementation ProfilesModel
 
 + (void)initialize
 {

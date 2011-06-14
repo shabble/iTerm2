@@ -1,9 +1,10 @@
+// test
 /*
  **  ITAddressBookMgr.h
  **
  **  Copyright (c) 2002, 2003
  **
- **  Author: Fabian, Ujwal S. Setlur
+ **  Author: Fabian, Ujwal S. Setlur, Tom Feist (2011)
  **
  **  Project: iTerm
  **
@@ -29,7 +30,7 @@
 
 #import <Foundation/Foundation.h>
 #import <Cocoa/Cocoa.h>
-#import "Profiles/BookmarkModel.h"
+#import "Profiles/ProfilesModel.h"
 
 // Prefs-level keys
 #define KEY_DEFAULT_GUID                @"Default Bookmark Guid"  // use this instead (not in a bookmark)
@@ -141,44 +142,3 @@
 #define WINDOW_TYPE_FULL_SCREEN 1  // Creates a normal window but all callers to initWithSmartLayout will toggle fullscreen mode if this is the windowType.
 #define WINDOW_TYPE_TOP 2
 #define WINDOW_TYPE_FORCE_FULL_SCREEN 3  // Used internally, never reported by windowType API. Causes initWithSmartLayout to create a window with fullscreen chrome. It will set its windowType to FULL_SCREEN
-
-@interface ITAddressBookMgr : NSObject
-{
-    NSNetServiceBrowser *sshBonjourBrowser;
-    NSNetServiceBrowser *ftpBonjourBrowser;
-    NSNetServiceBrowser *telnetBonjourBrowser;
-    NSMutableArray *bonjourServices;
-}
-
-
-@end
-
-@interface ITAddressBookMgr (Private)
-
-+ (id)sharedInstance;
-+ (NSArray*)encodeColor:(NSColor*)origColor;
-+ (NSColor*)decodeColor:(NSDictionary*)plist;
-+ (void)setDefaultsInBookmark:(NSMutableDictionary*)aDict;
-
-- (id)init;
-- (void)dealloc;
-- (void) locateBonjourServices;
-- (void)stopLocatingBonjourServices;
-- (void)copyProfileToBookmark:(NSMutableDictionary *)dict;
-- (void)recursiveMigrateBookmarks:(NSDictionary*)node path:(NSArray*)array;
-+ (NSFont *)fontWithDesc:(NSString *)fontDesc;
-+ (NSString*)descFromFont:(NSFont*)font;
-- (void)setBookmarks:(NSArray*)newBookmarksArray defaultGuid:(NSString*)guid;
-- (BookmarkModel*)model;
-- (void)netServiceBrowser:(NSNetServiceBrowser *)aNetServiceBrowser didFindService:(NSNetService *)aNetService moreComing:(BOOL)moreComing;
-- (void)netServiceBrowser:(NSNetServiceBrowser *)aNetServiceBrowser didRemoveService:(NSNetService *)aNetService moreComing:(BOOL)moreComing;
-- (void)netServiceDidResolveAddress:(NSNetService *)sender;
-- (void)netService:(NSNetService *)aNetService didNotResolve:(NSDictionary *)errorDict;
-- (void)netServiceWillResolve:(NSNetService *)aNetService;
-- (void)netServiceDidStop:(NSNetService *)aNetService;
-- (NSString*) getBonjourServiceType:(NSString*)aType;
-+ (NSString*)loginShellCommandForBookmark:(Bookmark*)bookmark;
-+ (NSString*)bookmarkCommand:(Bookmark*)bookmark isLoginSession:(BOOL*)isLoginSession;
-+ (NSString*)bookmarkWorkingDirectory:(Bookmark*)bookmark;
-
-@end

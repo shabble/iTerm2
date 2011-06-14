@@ -35,7 +35,7 @@ typedef enum {
     NO_PANE // no gane
 } PaneMode;
 
-@implementation BookmarksWindow
+@implementation ProfilesWindow
 
 + (BookmarksWindow*)sharedInstance
 {

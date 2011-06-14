@@ -23,19 +23,20 @@
  */
 
 #import <Cocoa/Cocoa.h>
-#import "BookmarkModel.h"
+#import "ProfilesModel.h"
 
 @class iTermSearchField;
-@class BookmarkRow;
+@class ProfileRow;
+
 // This is an intermediate model that wraps BookmarkModel and allows
 // each BookmarkListView to have a different ordering of bookmarks.
 // It represents bookmarks are BookmarkRow objects which have a
 // key-value coding and can be sorted by the columns relevant to
 // BookmarkListView.
-@interface BookmarkModelWrapper : NSObject
+@interface ProfilesModelWrapper : NSObject
 {
-    BookmarkModel* underlyingModel;
-    NSMutableArray* bookmarks;
+    ProfilesModel* underlyingModel;
+    NSMutableArray* profiles;
     NSMutableString* filter;
     NSArray* sortDescriptors;
 }
@@ -69,7 +70,7 @@
 
 @end
 
-@interface BookmarkTableView : NSTableView
+@interface ProfilesTableView : NSTableView
 {
     id parent_;
 }
@@ -77,14 +78,14 @@
 - (void)setParent:(id)parent;
 @end
 
-@protocol BookmarkTableDelegate
+@protocol ProfilesTableDelegate
 - (void)bookmarkTableSelectionDidChange:(id)bookmarkTable;
 - (void)bookmarkTableSelectionWillChange:(id)bookmarkTable;
 - (void)bookmarkTableRowSelected:(id)bookmarkTable;
 - (NSMenu*)bookmarkTable:(id)bookmarkTable menuForEvent:(NSEvent*)theEvent;
 @end
 
-@interface BookmarkListView : NSView {
+@interface ProfilesListView : NSView {
     int rowHeight_;
     NSScrollView* scrollView_;
     iTermSearchField* searchField_;
