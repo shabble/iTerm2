@@ -41,9 +41,9 @@
 }
 
 
-@end
+/* @end */
 
-@interface ProfileManager (Private)
+/* @interface ProfileManager (Private) */
 
 + (id)sharedInstance;
 + (NSArray*)encodeColor:(NSColor*)origColor;
@@ -52,6 +52,14 @@
 
 + (NSFont*)fontWithDesc:(NSString *)fontDesc;
 + (NSString*)descFromFont:(NSFont*)font;
+
+//+ (NSString*)loginShellCommandForProfile:(Profile*)profile;
+
++ (NSString*)loginShellCommandForProfile:(Profile*)profile 
+                            asLoginShell:(BOOL*)asLoginShell;
+
++ (NSString*)profileCommand:(Profile*)profile isLoginSession:(BOOL*)isLoginSession;
++ (NSString*)profileWorkingDirectory:(Profile*)profile;
 
 - (id)init;
 - (void)dealloc;
@@ -68,8 +76,6 @@
 - (void)netServiceWillResolve:(NSNetService *)aNetService;
 - (void)netServiceDidStop:(NSNetService *)aNetService;
 - (NSString*) getBonjourServiceType:(NSString*)aType;
-+ (NSString*)loginShellCommandForProfile:(Profile*)profile;
-+ (NSString*)profileCommand:(Profile*)profile isLoginSession:(BOOL*)isLoginSession;
-+ (NSString*)profileWorkingDirectory:(Profile*)profile;
+
 
 @end

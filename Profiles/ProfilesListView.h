@@ -24,8 +24,9 @@
 
 #import <Cocoa/Cocoa.h>
 #import "ProfileModel.h"
+#import "Search/iTermSearchField.h"
 
-@class iTermSearchField;
+//@class iTermSearchField;
 @class ProfileRow;
 
 // This is an intermediate model that wraps BookmarkModel and allows

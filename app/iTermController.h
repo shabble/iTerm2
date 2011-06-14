@@ -59,7 +59,7 @@
 + (iTermController*)sharedInstance;
 + (void)sharedInstanceRelease;
 
-+ (void)switchToSpaceInBookmark:(NSDictionary*)aDict;
+//+ (void)switchToSpaceInBookmark:(NSDictionary*)aDict;
 - (BOOL)rollingInHotkeyTerm;
 
 // actions are forwarded from application

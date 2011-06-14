@@ -436,7 +436,14 @@ static NSString* UserShell() {
     return shell;
 }
 
-+ (NSString*)loginShellCommandForProfile:(Profile*)profile asLoginShell:(BOOL*)asLoginShell
+// + (NSString*)loginShellCommandForProfile:(Profile*)profile
+// {
+//     return [[self class] loginShellCommandForProfile:profile asLoginShell:YES];
+// }
+
+
++ (NSString*)loginShellCommandForProfile:(Profile*)profile
+                            asLoginShell:(BOOL*)asLoginShell
 {
     NSString* thisUser = NSUserName();
     NSString* userShell = UserShell();
