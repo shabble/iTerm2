@@ -435,6 +435,11 @@ typedef enum { BulkCopyColors, BulkCopyDisplay, BulkCopyWindow, BulkCopyTerminal
 + (PreferencePanelController*)sessionsInstance;
 + (BOOL)migratePreferences;
 
+- (IBAction)showGlobalTabView:(id)sender;
+- (IBAction)showAppearanceTabView:(id)sender;
+- (IBAction)showProfilesTabView:(id)sender;
+- (IBAction)showKeyboardTabView:(id)sender;
+
 
 - (id)initWithDataSource:(ProfileModel*)model userDefaults:(NSUserDefaults*)userDefaults;
 - (void)setOneBokmarkOnly;
@@ -530,10 +535,6 @@ typedef enum { BulkCopyColors, BulkCopyDisplay, BulkCopyWindow, BulkCopyTerminal
 - (IBAction)copyToProfile:(id)sender;
 - (IBAction)profileUrlSchemeHandlerChanged:(id)sender;
 - (void)tableViewSelectionDidChange:(NSNotification *)aNotification;
-- (IBAction)showGlobalTabView:(id)sender;
-- (IBAction)showAppearanceTabView:(id)sender;
-- (IBAction)showProfilesTabView:(id)sender;
-- (IBAction)showKeyboardTabView:(id)sender;
 - (void)connectProfileWithGuid:(NSString*)guid toScheme:(NSString*)scheme;
 - (void)disconnectHandlerForScheme:(NSString*)scheme;
 - (IBAction)closeWindow:(id)sender;

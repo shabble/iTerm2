@@ -472,7 +472,7 @@ static float versionNumber;
 {
     [self window];
     [[self window] setCollectionBehavior:NSWindowCollectionBehaviorMoveToActiveSpace];
-    NSAssert(profilesTableView, @"Null table view");
+    //NSAssert(profilesTableView, @"Null table view");
     [profilesTableView setUnderlyingDatasource:dataSource];
 
     profilesToolbarId = [profilesToolbarItem itemIdentifier];
@@ -1073,6 +1073,47 @@ static float versionNumber;
 
     [wordChars setDelegate: self];
 
+    [[self window] setLevel:NSNormalWindowLevel];
+    NSString* guid = [profilesTableView selectedGuid];
+    [profilesTableView reloadData];
+    if ([[profilesTableView selectedGuids] count] == 1) {
+        Profile* dict = [dataSource profileWithGuid:guid];
+        [profilesSettingsTabViewParent setHidden:NO];
+        [profilesPopup setEnabled:NO];
+        [self updateProfileFields:dict];
+    } else {
+        [profilesPopup setEnabled:YES];
+        [profilesSettingsTabViewParent setHidden:YES];
+        if ([[profilesTableView selectedGuids] count] == 0) {
+            [removeProfileButton setEnabled:NO];
+        } else {
+            [removeProfileButton setEnabled:[[profilesTableView selectedGuids] count] < [[profilesTableView dataSource] numberOfProfiles]];
+        }
+        [self updateProfileFields:nil];
+    }
+
+    if (![profilesTableView selectedGuid] && [profilesTableView numberOfRows]) {
+        [profilesTableView selectRowIndex:0];
+    }
+
+    [controlButton selectItemWithTag:defaultControl];
+    [leftOptionButton selectItemWithTag:defaultLeftOption];
+    [rightOptionButton selectItemWithTag:defaultRightOption];
+    [leftCommandButton selectItemWithTag:defaultLeftCommand];
+    [rightCommandButton selectItemWithTag:defaultRightCommand];
+
+    [switchTabModifierButton selectItemWithTag:defaultSwitchTabModifier];
+    [switchWindowModifierButton selectItemWithTag:defaultSwitchWindowModifier];
+
+    int rowIndex = [globalKeyMappings selectedRow];
+    if (rowIndex >= 0) {
+        [globalRemoveMappingButton setEnabled:YES];
+    } else {
+        [globalRemoveMappingButton setEnabled:NO];
+    }
+
+    //[globalKeyMappings reloadData];
+
     [self showWindow:self];
     // Show the window.
     [[self window] makeKeyAndOrderFront:self];
@@ -1136,46 +1177,6 @@ static float versionNumber;
     [checkTestRelease setState:defaultCheckTestRelease?NSOnState:NSOffState];
     [dimInactiveSplitPanes setState:defaultDimInactiveSplitPanes?NSOnState:NSOffState];
     [showWindowBorder setState:defaultShowWindowBorder?NSOnState:NSOffState];
-
-    [[self window] setLevel:NSNormalWindowLevel];
-    NSString* guid = [profilesTableView selectedGuid];
-    [profilesTableView reloadData];
-    if ([[profilesTableView selectedGuids] count] == 1) {
-        Profile* dict = [dataSource profileWithGuid:guid];
-        [profilesSettingsTabViewParent setHidden:NO];
-        [profilesPopup setEnabled:NO];
-        [self updateProfileFields:dict];
-    } else {
-        [profilesPopup setEnabled:YES];
-        [profilesSettingsTabViewParent setHidden:YES];
-        if ([[profilesTableView selectedGuids] count] == 0) {
-            [removeProfileButton setEnabled:NO];
-        } else {
-            [removeProfileButton setEnabled:[[profilesTableView selectedGuids] count] < [[profilesTableView dataSource] numberOfProfiles]];
-        }
-        [self updateProfileFields:nil];
-    }
-
-    if (![profilesTableView selectedGuid] && [profilesTableView numberOfRows]) {
-        [profilesTableView selectRowIndex:0];
-    }
-
-    [controlButton selectItemWithTag:defaultControl];
-    [leftOptionButton selectItemWithTag:defaultLeftOption];
-    [rightOptionButton selectItemWithTag:defaultRightOption];
-    [leftCommandButton selectItemWithTag:defaultLeftCommand];
-    [rightCommandButton selectItemWithTag:defaultRightCommand];
-
-    [switchTabModifierButton selectItemWithTag:defaultSwitchTabModifier];
-    [switchWindowModifierButton selectItemWithTag:defaultSwitchWindowModifier];
-
-    int rowIndex = [globalKeyMappings selectedRow];
-    if (rowIndex >= 0) {
-        [globalRemoveMappingButton setEnabled:YES];
-    } else {
-        [globalRemoveMappingButton setEnabled:NO];
-    }
-    [globalKeyMappings reloadData];
 */
 }
 
