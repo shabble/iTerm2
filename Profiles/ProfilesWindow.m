@@ -212,7 +212,7 @@ typedef enum {
 {
     NSMenu* menu =[[[NSMenu alloc] initWithTitle:@"Contextual Menu"] autorelease];
 
-    int count = [[profilesTable selectedGuids] count];
+    int count = [[profileTable selectedGuids] count];
     if (count == 1) {
         [menu addItemWithTitle:@"Edit Bookmark..."
                         action:@selector(editSelectedBookmark:)

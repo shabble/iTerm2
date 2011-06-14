@@ -35,7 +35,7 @@ typedef struct {
     id target;                     // receiver of selector
 } JournalParams;
 
-@interface ProfilesModel : NSObject {
+@interface ProfileModel : NSObject {
     NSMutableArray* profiles_;
     NSString* defaultProfileGuid_;
 
@@ -46,8 +46,8 @@ typedef struct {
     BOOL postChanges_;              // should change notifications be posted?
 }
 
-+ (ProfilesModel*)sharedInstance;
-+ (ProfilesModel*)sessionsInstance;
++ (ProfileModel*)sharedInstance;
++ (ProfileModel*)sessionsInstance;
 + (NSString*)freshGuid;
 
 - (int)numberOfProfiles;
@@ -110,12 +110,12 @@ typedef enum {
   @public
     JournalAction action;
     NSString* guid;
-    ProfilesModel* model;
+    ProfileModel* model;
     // Tags before the action was applied.
     NSArray* tags;
     int index;  // Index of bookmark
 }
 
-+ (ProfileJournalEntry*)journalWithAction:(JournalAction)action profile:(Profile*)profile model:(ProfilesModel*)model;
++ (ProfileJournalEntry*)journalWithAction:(JournalAction)action profile:(Profile*)profile model:(ProfileModel*)model;
 
 @end

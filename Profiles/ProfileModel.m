@@ -24,11 +24,13 @@
  */
 
 #import "Prefs/PreferenceKeys.h"
-#import "Profiles/ProfilesModel.h"
+#import "Profiles/ProfileModel.h"
 
+
+// TODO: What's this?
 id gAltOpenAllRepresentedObject;
 
-@implementation ProfilesModel
+@implementation ProfileModel
 
 + (void)initialize
 {
