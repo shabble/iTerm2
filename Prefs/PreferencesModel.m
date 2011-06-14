@@ -30,10 +30,10 @@
 
 @implementation PreferencesModel
 
-@synthesize  bookmarkDataSource;
-@synthesize  oneBookmarkMode;
+@synthesize  profileDataSource;
+@synthesize  oneProfileMode;
 @synthesize  defaultWindowStyle;
-@synthesize  oneBookmarkOnly; 
+@synthesize  oneProfileOnly; 
 @synthesize  defaultTabViewType;
 @synthesize  defaultCopySelection;
 @synthesize  defaultPasteFromClipboard;
@@ -44,7 +44,7 @@
 @synthesize  defaultFocusFollowsMouse;
 @synthesize  defaultWordChars;
 @synthesize  defaultHotkeyTogglesWindow;
-@synthesize  defaultHotKeyBookmarkGuid;
+@synthesize  defaultHotKeyProfileGuid;
 @synthesize  defaultEnableBonjour;
 @synthesize  defaultCmdSelection;
 @synthesize  defaultPassOnControlLeftClick;
@@ -54,7 +54,7 @@
 @synthesize  defaultHighlightTabLabels;
 @synthesize  defaultAdvancedFontRendering;
 @synthesize  defaultStrokeThickness;
-@synthesize  defaultOpenBookmark;
+@synthesize  defaultOpenProfile;
 @synthesize  defaultQuitWhenAllWindowsClosed;
 @synthesize  defaultCheckUpdate;
 @synthesize  defaultColorInvertedCursor;
@@ -65,7 +65,7 @@
 @synthesize  defaultFsTabDelay;
 @synthesize  defaultWindowNumber;
 @synthesize  defaultJobName;
-@synthesize  defaultShowBookmarkName;
+@synthesize  defaultShowProfileName;
 @synthesize  defaultInstantReplay;
 @synthesize  defaultIrMemory;
 @synthesize  defaultHotkey;
@@ -79,7 +79,7 @@
 @synthesize  globalToolbarId;
 @synthesize  appearanceToolbarId;
 @synthesize  keyboardToolbarId;
-@synthesize  bookmarksToolbarId;
+@synthesize  profilesToolbarId;
 @synthesize  urlHandlersByGuid;
 @synthesize  backgroundImageFilename;
 @synthesize  normalFont;

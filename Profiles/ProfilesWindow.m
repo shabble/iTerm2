@@ -23,7 +23,7 @@
 */
 
 #import "ProfilesWindow.h"
-#import "Profiles/ProfilesModel.h"
+#import "Profiles/ProfileModel.h"
 #import "App/iTermController.h"
 #import "Prefs/PreferencePanelController.h"
 #import "Window/PseudoTerminal.h"

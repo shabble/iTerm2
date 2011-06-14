@@ -1,5 +1,5 @@
 /*
- **  ProfilesManager.m (was ITAddressBookMgr.m)
+ **  ProfileManager.m (was ITAddressBookMgr.m)
  **
  **  Copyright (c) 2002, 2003
  **
@@ -28,22 +28,22 @@
 
 #import "Prefs/PreferencePanelController.h"
 #import "App/KeyBindingManager.h"
-#import "Profiles/ProfilesManager.h"
-#import "Profiles/ProfilesModel.h"
+#import "Profiles/ProfileManager.h"
+#import "Profiles/ProfileModel.h"
 
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/types.h>
 #include <pwd.h>
 
-@implementation ProfilesManager
+@implementation ProfileManager
 
 + (id)sharedInstance
 {
-    static ProfilesManager* shared = nil;
+    static ProfileManager* shared = nil;
 
     if (!shared) {
-        shared = [[ProfilesManager alloc] init];
+        shared = [[ProfileManager alloc] init];
     }
 
     return shared;
@@ -56,25 +56,25 @@
     NSUserDefaults* prefs = [NSUserDefaults standardUserDefaults];
 
     if ([prefs objectForKey:KEY_DEPRECATED_BOOKMARKS] && ![prefs objectForKey:KEY_NEW_BOOKMARKS]) {
-        // Have only old-style bookmarks. Load them and convert them to new-style
-        // bookmarks.
-        [self recursiveMigrateBookmarks:[prefs objectForKey:KEY_DEPRECATED_BOOKMARKS] path:[NSArray arrayWithObjects:nil]];
+        // Have only old-style profiles. Load them and convert them to new-style
+        // profiles.
+        [self recursiveMigrateProfiles:[prefs objectForKey:KEY_DEPRECATED_BOOKMARKS] path:[NSArray arrayWithObjects:nil]];
         [prefs removeObjectForKey:KEY_DEPRECATED_BOOKMARKS];
-        [prefs setObject:[[BookmarkModel sharedInstance] rawData] forKey:KEY_NEW_BOOKMARKS];
-        [[BookmarkModel sharedInstance] removeAllBookmarks];
+        [prefs setObject:[[ProfileModel sharedInstance] rawData] forKey:KEY_NEW_BOOKMARKS];
+        [[ProfileModel sharedInstance] removeAllProfiles];
     }
 
-    // Load new-style bookmarks.
+    // Load new-style profiles.
     if ([prefs objectForKey:KEY_NEW_BOOKMARKS]) {
-        [self setBookmarks:[prefs objectForKey:KEY_NEW_BOOKMARKS]
+        [self setProfiles:[prefs objectForKey:KEY_NEW_BOOKMARKS]
                defaultGuid:[prefs objectForKey:KEY_DEFAULT_GUID]];
     }
 
-    // Make sure there is at least one bookmark.
-    if ([[BookmarkModel sharedInstance] numberOfBookmarks] == 0) {
+    // Make sure there is at least one profile.
+    if ([[ProfileModel sharedInstance] numberOfProfiles] == 0) {
         NSMutableDictionary* aDict = [[NSMutableDictionary alloc] init];
-        [ProfilesManager setDefaultsInBookmark:aDict];
-        [[BookmarkModel sharedInstance] addBookmark:aDict];
+        [ProfileManager setDefaultsInProfile:aDict];
+        [[ProfileModel sharedInstance] addProfile:aDict];
         [aDict release];
     }
 
@@ -155,7 +155,7 @@
                                      alpha:1.0];
 }
 
-- (void)copyProfileToBookmark:(NSMutableDictionary *)dict
+- (void)copyProfileToProfile:(NSMutableDictionary *)dict
 {
     NSString* plistFile = [[NSBundle bundleForClass: [self class]] pathForResource:@"MigrationMap" ofType:@"plist"];
     NSDictionary* fileDict = [NSDictionary dictionaryWithContentsOfFile: plistFile];
@@ -195,15 +195,15 @@
     }
 }
 
-- (void)recursiveMigrateBookmarks:(NSDictionary*)node path:(NSArray*)path
+- (void)recursiveMigrateProfiles:(NSDictionary*)node path:(NSArray*)path
 {
     NSDictionary* data = [node objectForKey:@"Data"];
 
     if ([data objectForKey:KEY_COMMAND]) {
         // Not just a folder if it has a command.
         NSMutableDictionary* temp = [NSMutableDictionary dictionaryWithDictionary:data];
-        [self copyProfileToBookmark:temp];
-        [temp setObject:[BookmarkModel freshGuid] forKey:KEY_GUID];
+        [self copyProfileToProfile:temp];
+        [temp setObject:[ProfileModel freshGuid] forKey:KEY_GUID];
         [temp setObject:path forKey:KEY_TAGS];
         [temp setObject:@"Yes" forKey:KEY_CUSTOM_COMMAND];
         NSString* dir = [data objectForKey:KEY_WORKING_DIRECTORY];
@@ -214,7 +214,7 @@
         } else {
             [temp setObject:@"No" forKey:KEY_CUSTOM_DIRECTORY];
         }
-        [[BookmarkModel sharedInstance] addBookmark:temp];
+        [[ProfileModel sharedInstance] addProfile:temp];
     }
 
     NSArray* entries = [node objectForKey:@"Entries"];
@@ -227,7 +227,7 @@
                 [childPath addObject:name];
             }
         }
-        [self recursiveMigrateBookmarks:[entries objectAtIndex:i] path:childPath];
+        [self recursiveMigrateProfiles:[entries objectAtIndex:i] path:childPath];
     }
 }
 
@@ -251,19 +251,19 @@
     return aFont;
 }
 
-- (void)setBookmarks:(NSArray*)newBookmarksArray defaultGuid:(NSString*)guid
+- (void)setProfiles:(NSArray*)newProfilesArray defaultGuid:(NSString*)guid
 {
-    [[BookmarkModel sharedInstance] load:newBookmarksArray];
+    [[ProfileModel sharedInstance] load:newProfilesArray];
     if (guid) {
-        if ([[BookmarkModel sharedInstance] bookmarkWithGuid:guid]) {
-            [[BookmarkModel sharedInstance] setDefaultByGuid:guid];
+        if ([[ProfileModel sharedInstance] profileWithGuid:guid]) {
+            [[ProfileModel sharedInstance] setDefaultByGuid:guid];
         }
     }
 }
 
-- (BookmarkModel*)model
+- (ProfileModel*)model
 {
-    return [BookmarkModel sharedInstance];
+    return [ProfileModel sharedInstance];
 }
 
 // NSNetServiceBrowser delegate methods
@@ -286,16 +286,16 @@
     // remove host entry from this group
     NSMutableArray* toRemove = [[[NSMutableArray alloc] init] autorelease];
     NSString* sftpName = [NSString stringWithFormat:@"%@-sftp", [aNetService name]];
-    for (NSNumber* n in [[BookmarkModel sharedInstance] bookmarkIndicesMatchingFilter:@"bonjour"]) {
+    for (NSNumber* n in [[ProfileModel sharedInstance] profileIndicesMatchingFilter:@"bonjour"]) {
         int i = [n intValue];
-        Bookmark* bookmark = [[BookmarkModel sharedInstance] bookmarkAtIndex:i];
-        NSString* bookmarkName = [bookmark objectForKey:KEY_NAME];
-        if ([bookmarkName isEqualToString:[aNetService name]] ||
-            [bookmarkName isEqualToString:sftpName]) {
+        Profile* profile = [[ProfileModel sharedInstance] profileAtIndex:i];
+        NSString* profileName = [profile objectForKey:KEY_NAME];
+        if ([profileName isEqualToString:[aNetService name]] ||
+            [profileName isEqualToString:sftpName]) {
             [toRemove addObject:[NSNumber numberWithInt:i]];
         }
     }
-    [[BookmarkModel sharedInstance] removeBookmarksAtIndices:toRemove];
+    [[ProfileModel sharedInstance] removeProfilesAtIndices:toRemove];
 }
 
 + (NSString*)descFromFont:(NSFont*)font
@@ -303,10 +303,10 @@
     return [NSString stringWithFormat:@"%s %g", [[font fontName] UTF8String], [font pointSize]];
 }
 
-+ (void)setDefaultsInBookmark:(NSMutableDictionary*)aDict
++ (void)setDefaultsInProfile:(NSMutableDictionary*)aDict
 {
     NSString* plistFile = [[NSBundle bundleForClass:[self class]]
-                                    pathForResource:@"DefaultBookmark"
+                                    pathForResource:@"DefaultProfile"
                                              ofType:@"plist"];
     NSDictionary* presetsDict = [NSDictionary dictionaryWithContentsOfFile: plistFile];
     [aDict addEntriesFromDictionary:presetsDict];
@@ -329,36 +329,36 @@
                        ipAddressString:(NSString *)ipAddressString
                            serviceType:(NSString *)serviceType
 {
-  NSMutableDictionary *newBookmark;
-    Profile* prototype = [[ProfilesModel sharedInstance] defaultProfile];
+  NSMutableDictionary *newProfile;
+    Profile* prototype = [[ProfileModel sharedInstance] defaultProfile];
     if (prototype) {
-        newBookmark = [NSMutableDictionary dictionaryWithDictionary:prototype];
+        newProfile = [NSMutableDictionary dictionaryWithDictionary:prototype];
     } else {
-        newBookmark = [NSMutableDictionary dictionaryWithCapacity:20];
-        [ProfilesManager setDefaultsInBookmark:newBookmark];
+        newProfile = [NSMutableDictionary dictionaryWithCapacity:20];
+        [ProfileManager setDefaultsInProfile:newProfile];
     }
 
 
-    [newBookmark setObject:serviceName forKey:KEY_NAME];
-    [newBookmark setObject:serviceName forKey:KEY_DESCRIPTION];
-    [newBookmark setObject:[NSString stringWithFormat:@"%@ %@", serviceType, ipAddressString] forKey:KEY_COMMAND];
-    [newBookmark setObject:@"" forKey:KEY_WORKING_DIRECTORY];
-    [newBookmark setObject:@"Yes" forKey:KEY_CUSTOM_COMMAND];
-    [newBookmark setObject:@"No" forKey:KEY_CUSTOM_DIRECTORY];
-    [newBookmark setObject:ipAddressString forKey:KEY_BONJOUR_SERVICE_ADDRESS];
-    [newBookmark setObject:[NSArray arrayWithObjects:@"bonjour",nil] forKey:KEY_TAGS];
-    [newBookmark setObject:[BookmarkModel freshGuid] forKey:KEY_GUID];
-    [newBookmark setObject:@"No" forKey:KEY_DEFAULT_BOOKMARK];
-    [newBookmark removeObjectForKey:KEY_SHORTCUT];
-    [[BookmarkModel sharedInstance] addBookmark:newBookmark];
+    [newProfile setObject:serviceName forKey:KEY_NAME];
+    [newProfile setObject:serviceName forKey:KEY_DESCRIPTION];
+    [newProfile setObject:[NSString stringWithFormat:@"%@ %@", serviceType, ipAddressString] forKey:KEY_COMMAND];
+    [newProfile setObject:@"" forKey:KEY_WORKING_DIRECTORY];
+    [newProfile setObject:@"Yes" forKey:KEY_CUSTOM_COMMAND];
+    [newProfile setObject:@"No" forKey:KEY_CUSTOM_DIRECTORY];
+    [newProfile setObject:ipAddressString forKey:KEY_BONJOUR_SERVICE_ADDRESS];
+    [newProfile setObject:[NSArray arrayWithObjects:@"bonjour",nil] forKey:KEY_TAGS];
+    [newProfile setObject:[ProfileModel freshGuid] forKey:KEY_GUID];
+    [newProfile setObject:@"No" forKey:KEY_DEFAULT_BOOKMARK];
+    [newProfile removeObjectForKey:KEY_SHORTCUT];
+    [[ProfileModel sharedInstance] addProfile:newProfile];
 
     // No bonjour service for sftp. Rides over ssh, so try to detect that
     if ([serviceType isEqualToString:@"ssh"]) {
-        [newBookmark setObject:[NSString stringWithFormat:@"%@-sftp", serviceName] forKey:KEY_NAME];
-        [newBookmark setObject:[NSArray arrayWithObjects:@"bonjour", @"sftp", nil] forKey:KEY_TAGS];
-        [newBookmark setObject:[BookmarkModel freshGuid] forKey:KEY_GUID];
-        [newBookmark setObject:[NSString stringWithFormat:@"sftp %@", ipAddressString] forKey:KEY_COMMAND];
-        [[BookmarkModel sharedInstance] addBookmark:newBookmark];
+        [newProfile setObject:[NSString stringWithFormat:@"%@-sftp", serviceName] forKey:KEY_NAME];
+        [newProfile setObject:[NSArray arrayWithObjects:@"bonjour", @"sftp", nil] forKey:KEY_TAGS];
+        [newProfile setObject:[ProfileModel freshGuid] forKey:KEY_GUID];
+        [newProfile setObject:[NSString stringWithFormat:@"sftp %@", ipAddressString] forKey:KEY_COMMAND];
+        [[ProfileModel sharedInstance] addProfile:newProfile];
     }
 
 }
@@ -436,11 +436,11 @@ static NSString* UserShell() {
     return shell;
 }
 
-+ (NSString*)loginShellCommandForBookmark:(Bookmark*)bookmark asLoginShell:(BOOL*)asLoginShell
++ (NSString*)loginShellCommandForProfile:(Profile*)profile asLoginShell:(BOOL*)asLoginShell
 {
     NSString* thisUser = NSUserName();
     NSString* userShell = UserShell();
-    if ([[bookmark objectForKey:KEY_CUSTOM_DIRECTORY] isEqualToString:@"No"]) {
+    if ([[profile objectForKey:KEY_CUSTOM_DIRECTORY] isEqualToString:@"No"]) {
         // Run login without -l argument: this is a login session and will use the home dir.
         *asLoginShell = NO;
         return [NSString stringWithFormat:@"login -fp \"%@\"", thisUser];
@@ -463,23 +463,23 @@ static NSString* UserShell() {
     }
 }
 
-+ (NSString*)bookmarkCommand:(Bookmark*)bookmark isLoginSession:(BOOL*)isLoginSession
++ (NSString*)profileCommand:(Profile*)profile isLoginSession:(BOOL*)isLoginSession
 {
-    BOOL custom = [[bookmark objectForKey:KEY_CUSTOM_COMMAND] isEqualToString:@"Yes"];
+    BOOL custom = [[profile objectForKey:KEY_CUSTOM_COMMAND] isEqualToString:@"Yes"];
     if (custom) {
         *isLoginSession = NO;
-        return [bookmark objectForKey:KEY_COMMAND];
+        return [profile objectForKey:KEY_COMMAND];
     } else {
-        return [ProfilesManager loginShellCommandForBookmark:bookmark asLoginShell:isLoginSession];
+        return [ProfileManager loginShellCommandForProfile:profile asLoginShell:isLoginSession];
     }
 }
 
 
-+ (NSString*)bookmarkWorkingDirectory:(Bookmark*)bookmark
++ (NSString*)profileWorkingDirectory:(Profile*)profile
 {
-    NSString* custom = [bookmark objectForKey:KEY_CUSTOM_DIRECTORY];
+    NSString* custom = [profile objectForKey:KEY_CUSTOM_DIRECTORY];
     if ([custom isEqualToString:@"Yes"]) {
-        return [bookmark objectForKey:KEY_WORKING_DIRECTORY];
+        return [profile objectForKey:KEY_WORKING_DIRECTORY];
     } else if ([custom isEqualToString:@"No"]) {
         return NSHomeDirectory();
     } else {
