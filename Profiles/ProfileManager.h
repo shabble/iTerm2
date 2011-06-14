@@ -32,7 +32,7 @@
 #import "Profiles/ProfilesModel.h"
 #import "Prefs/PreferenceKeys.h"
 
-@interface ProfilesManager : NSObject
+@interface ProfileManager : NSObject
 {
     NSNetServiceBrowser *sshBonjourBrowser;
     NSNetServiceBrowser *ftpBonjourBrowser;
@@ -43,7 +43,7 @@
 
 @end
 
-@interface ProfilesManager (Private)
+@interface ProfileManager (Private)
 
 + (id)sharedInstance;
 + (NSArray*)encodeColor:(NSColor*)origColor;

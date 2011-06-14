@@ -1,5 +1,5 @@
 /*
- **  ITAddressBookMgr.m
+ **  ProfilesManager.m (was ITAddressBookMgr.m)
  **
  **  Copyright (c) 2002, 2003
  **
@@ -27,20 +27,23 @@
 #import "Prefs/PreferenceKeys.h"
 
 #import "Prefs/PreferencePanelController.h"
-#import "App/iTermKeyBindingMgr.h"
+#import "App/KeyBindingManager.h"
+#import "Profiles/ProfilesManager.h"
+#import "Profiles/ProfilesModel.h"
+
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sys/types.h>
 #include <pwd.h>
 
-@implementation ITAddressBookMgr
+@implementation ProfilesManager
 
 + (id)sharedInstance
 {
-    static ITAddressBookMgr* shared = nil;
+    static ProfilesManager* shared = nil;
 
     if (!shared) {
-        shared = [[ITAddressBookMgr alloc] init];
+        shared = [[ProfilesManager alloc] init];
     }
 
     return shared;
@@ -70,7 +73,7 @@
     // Make sure there is at least one bookmark.
     if ([[BookmarkModel sharedInstance] numberOfBookmarks] == 0) {
         NSMutableDictionary* aDict = [[NSMutableDictionary alloc] init];
-        [ITAddressBookMgr setDefaultsInBookmark:aDict];
+        [ProfilesManager setDefaultsInBookmark:aDict];
         [[BookmarkModel sharedInstance] addBookmark:aDict];
         [aDict release];
     }
@@ -327,12 +330,12 @@
                            serviceType:(NSString *)serviceType
 {
   NSMutableDictionary *newBookmark;
-    Bookmark* prototype = [[BookmarkModel sharedInstance] defaultBookmark];
+    Profile* prototype = [[ProfilesModel sharedInstance] defaultProfile];
     if (prototype) {
         newBookmark = [NSMutableDictionary dictionaryWithDictionary:prototype];
     } else {
         newBookmark = [NSMutableDictionary dictionaryWithCapacity:20];
-        [ITAddressBookMgr setDefaultsInBookmark:newBookmark];
+        [ProfilesManager setDefaultsInBookmark:newBookmark];
     }
 
 
@@ -467,7 +470,7 @@ static NSString* UserShell() {
         *isLoginSession = NO;
         return [bookmark objectForKey:KEY_COMMAND];
     } else {
-        return [ITAddressBookMgr loginShellCommandForBookmark:bookmark asLoginShell:isLoginSession];
+        return [ProfilesManager loginShellCommandForBookmark:bookmark asLoginShell:isLoginSession];
     }
 }
 
