@@ -31,10 +31,7 @@
 #import "Prefs/PreferencesProfilesHelper.h"
 #import "Profiles/BookmarkListView.h"
 
-
-
 @class iTermController;
-
 
 @interface PreferencePanelController : NSWindowController 
 {

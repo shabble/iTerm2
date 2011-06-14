@@ -30,7 +30,7 @@
 #import "Profiles/ITAddressBookMgr.h"
 
 
-@interface PreferencesProfilesHelper : NSObject <BookmarkTableDelegate> 
+@interface PreferencesProfilesHelper : NSObject <ProfilesTableDelegate> 
 {
     
     IBOutlet NSTabView* bookmarksSettingsTabViewParent;
@@ -171,6 +171,7 @@
     IBOutlet NSButton* addNewMapping;
     
     // Copy Bookmark Settings...
+    /*
     IBOutlet NSTextField* bulkCopyLabel;
     IBOutlet NSPanel* copyPanel;
     IBOutlet NSButton* copyColors;
@@ -180,7 +181,7 @@
     IBOutlet NSButton* copyKeyboard;
     IBOutlet BookmarkListView* copyTo;
     IBOutlet NSButton* copyButton;
-    
+    */
     
     
     

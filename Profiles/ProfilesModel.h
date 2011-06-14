@@ -35,7 +35,7 @@ typedef struct {
     id target;                     // receiver of selector
 } JournalParams;
 
-@interface BookmarkModel : NSObject {
+@interface ProfilesModel : NSObject {
     NSMutableArray* bookmarks_;
     NSString* defaultBookmarkGuid_;
 

@@ -36,7 +36,8 @@
 	IBOutlet NSButton* newTabsInNewWindowButton_;
 }
 
-+ (BookmarksWindow*)sharedInstance;
++ (ProfilesWindow*)sharedInstance;
+
 - (id)init;
 - (id)initWithWindowNibName:(NSString *)windowNibName;
 /*- (IBAction)openBookmarkInHorizontalPane:(id)sender;
