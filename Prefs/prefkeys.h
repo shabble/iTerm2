@@ -1,12 +1,11 @@
-// test
 /*
- **  ITAddressBookMgr.h
+ **  PreferenceKeys.h
  **
- **  Copyright (c) 2002, 2003
+ **  (Originally ITAddressBookMgr.h, Copyright (c) 2002, 2003
+ **  Author: Fabian, Ujwal S. Setlur)
+ **  Refactored by Tom Feist 2011.
  **
- **  Author: Fabian, Ujwal S. Setlur, Tom Feist (2011)
- **
- **  Project: iTerm
+ **  Project: iTerm2
  **
  **  Description: keeps track of the address book data.
  **
