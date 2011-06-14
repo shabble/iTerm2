@@ -1,11 +1,11 @@
 /*
- **  iTermKeyBindingMgr.h
+ **  KeyBindingManager.h (was iTermKeyBindingMgr.h)
  **
  **  Copyright (c) 2002, 2003, 2004
  **
  **  Author: Ujwal S. Setlur
- **
- **  Project: iTerm
+ **  Refactored Heavily: Tom Feist, 2011.
+ **  Project: iTerm2
  **
  **  Description: Header file for key binding manager.
  **
@@ -25,6 +25,7 @@
  */
 
 #import <Cocoa/Cocoa.h>
+#import "Profiles/ProfilesModel.h"
 
 // Key Definitions
 #define KEY_CURSOR_DOWN                 0
@@ -113,7 +114,7 @@
 #define KEY_ACTION_SPLIT_VERTICALLY_WITH_PROFILE 29
 
 @class PreferencePanelController;
-@interface iTermKeyBindingMgr : NSObject {
+@interface KeyBindingManager : NSObject {
 }
 
 // Given a key combination of the form 0xKeycode-0xModifiers, return a human-
@@ -128,13 +129,11 @@
 // Given a keycode and modifier mask, return the action and fill in the optional text
 // string. if keyMappings is provided, that is searched first, and if nothing is
 // found (or keyMappings is nil) then the global mappings are searched.
-+ (int)actionForKeyCode:(unichar)keyCode
-              modifiers:(unsigned int)keyMods
-                   text:(NSString **)text
-            keyMappings:(NSDictionary *)keyMappings;
++ (int)actionForKeyCode:(unichar)keyCode    modifiers:(unsigned int)keyMods
+                   text:(NSString **)text keyMappings:(NSDictionary *)keyMappings;
 
-// Remove an item from the bookmark's keymappings by index.
-+ (void)removeMappingAtIndex:(int)rowIndex inBookmark:(NSMutableDictionary*)bookmark;
+// Remove an item from the profile's keymappings by index.
++ (void)removeMappingAtIndex:(int)rowIndex inProfile:(NSMutableDictionary*)profile;
 
 // Return a dictionary that is a copy of dict, but without the keymapping at the
 // requested index.
@@ -149,8 +148,8 @@
 + (NSArray*)presetKeyMappingsNames;
 
 // Load a set of preset keymappings from PresetKeyMappings.plist into the
-// specified bookmarks, removing all of its previous mappings.
-+ (void)setKeyMappingsToPreset:(NSString*)presetName inBookmark:(NSMutableDictionary*)bookmark;
+// specified profiles, removing all of its previous mappings.
++ (void)setKeyMappingsToPreset:(NSString*)presetName inProfile:(NSMutableDictionary*)profile;
 
 // Load a set of preset keymappings from GlobalKeyMap.plist into the global
 // keymappings, removing all previous mappings.
@@ -167,13 +166,13 @@
 // valueToSend must not be null, but if the actionIndex doesn't take an argument,
 // you should pass @"".
 //
-// bookmark will be modified in place.
+// profile will be modified in place.
 + (void)setMappingAtIndex:(int)rowIndex
                    forKey:(NSString*)keyString
                    action:(int)actionIndex
                     value:(NSString*)valueToSend
                 createNew:(BOOL)newMapping
-               inBookmark:(NSMutableDictionary*)bookmark;
+               inProfile:(NSMutableDictionary*)profile;
 
 // Replace an existing key mapping in a key mapping dictionary.
 + (void)setMappingAtIndex:(int)rowIndex
@@ -183,27 +182,27 @@
                 createNew:(BOOL)newMapping
              inDictionary:(NSMutableDictionary*)km;
 
-// Return a shortcut (0xKeycode-0xModifier) by index from a bookmark.
-+ (NSString*)shortcutAtIndex:(int)rowIndex forBookmark:(Bookmark*)bookmark;
+// Return a shortcut (0xKeycode-0xModifier) by index from a profile.
++ (NSString*)shortcutAtIndex:(int)rowIndex forProfile:(Profile*)profile;
 
 // Return a shortcut (0xKeycode-0xModifier) from the global keymappings.
 + (NSString*)globalShortcutAtIndex:(int)rowIndex;
 
 // Return a keymapping dict (having keys Action, Text) at a given index from a
-// bookmark.
-+ (NSDictionary*)mappingAtIndex:(int)rowIndex forBookmark:(Bookmark*)bookmark;
+// profile.
++ (NSDictionary*)mappingAtIndex:(int)rowIndex forProfile:(Profile*)profile;
 
 // Return a keymapping dict (having keys Action, Text) at a given index from the
 // global key mappings.
 + (NSDictionary*)globalMappingAtIndex:(int)rowIndex;
 
-// Return the number of key mappings in a bookmark.
-+ (int)numberOfMappingsForBookmark:(Bookmark*)bmDict;
+// Return the number of key mappings in a profile.
++ (int)numberOfMappingsForProfile:(Profile*)profileDict;
 
-// Remove a keymapping with a given keycode and modifier mask from a bookmark.
+// Remove a keymapping with a given keycode and modifier mask from a profile.
 + (void)removeMappingWithCode:(unichar)keyCode
                     modifiers:(unsigned int)mods
-                   inBookmark:(NSMutableDictionary*)bookmark;
+                   inProfile:(NSMutableDictionary*)profile;
 
 // Return the action (a value from the constant KEY_ACTION_xxx) for a given keycode
 // and modifiers, searching only the specified keymappings dictionary.
@@ -228,14 +227,14 @@
 // True if a keystring 0xKeycode-0xModifiers has any global mapping.
 + (BOOL)haveGlobalKeyMappingForKeyString:(NSString*)keyString;
 
-// True if a bookmark has a mapping for a 0xKeycode-0xModifiers keystring.
-+ (BOOL)haveKeyMappingForKeyString:(NSString*)keyString inBookmark:(Bookmark*)bookmark;
+// True if a profile has a mapping for a 0xKeycode-0xModifiers keystring.
++ (BOOL)haveKeyMappingForKeyString:(NSString*)keyString inProfile:(Profile*)profile;
 
-// Remove any keymappings that reference a guid from either a bookmark or the global
-// keymappings (if bookmark is nil). If a bookmark is specified but no change is made then
-// it returns nil. If a bookmark is specified and changed, an autorelease copy of the modified
-// bookmark is returned.
-+ (Bookmark*)removeMappingsReferencingGuid:(NSString*)guid fromBookmark:(Bookmark*)bookmark;
+// Remove any keymappings that reference a guid from either a profile or the global
+// keymappings (if profile is nil). If a profile is specified but no change is made then
+// it returns nil. If a profile is specified and changed, an autorelease copy of the modified
+// profile is returned.
++ (Profile*)removeMappingsReferencingGuid:(NSString*)guid fromProfile:(Profile*)profile;
 
 @end
 

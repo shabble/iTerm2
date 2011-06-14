@@ -1,11 +1,11 @@
 /*
- **  iTermKeyBindingMgr.m
+ **  KeyBindingManager.m (was iTermKeyBindingMgr.m)
  **
  **  Copyright (c) 2002, 2003, 2004
  **
  **  Author: Ujwal S. Setlur
  **
- **  Project: iTerm
+ **  Project: iTerm2
  **
  **  Description: implements the key binding manager.
  **
@@ -70,15 +70,15 @@
  * the key combination you want to know the code of, like, Shift + Arrow
  * Left.
  */
-
-#import "Profiles/ITAddressBookMgr.h"
-#import "App/iTermKeyBindingMgr.h"
 #import <Carbon/Carbon.h>
+
+#import "Prefs/PreferenceKeys.h"
+#import "App/KeyBindingManager.h"
 #import "Prefs/PreferencePanelController.h"
 
 static NSDictionary* globalKeyMap;
 
-@implementation iTermKeyBindingMgr
+@implementation KeyBindingManager
 
 + (NSString *)formatKeyCombination:(NSString *)theKeyCombination
 {
@@ -275,9 +275,9 @@ static NSDictionary* globalKeyMap;
     return [theKeyString autorelease];
 }
 
-+ (NSString*)_bookmarkNameForGuid:(NSString*)guid
++ (NSString*)_profileNameForGuid:(NSString*)guid
 {
-    return [[[BookmarkModel sharedInstance] bookmarkWithGuid:guid] objectForKey:KEY_NAME];
+    return [[[ProfilesModel sharedInstance] profileWithGuid:guid] objectForKey:KEY_NAME];
 }
 
 + (NSString *)formatAction:(NSDictionary *)keyInfo
@@ -383,16 +383,16 @@ static NSDictionary* globalKeyMap;
                             auxText];
             break;
         case KEY_ACTION_NEW_WINDOW_WITH_PROFILE:
-            actionString = [NSString stringWithFormat:@"New Window with \"%@\" Profile", [self _bookmarkNameForGuid:auxText]];
+            actionString = [NSString stringWithFormat:@"New Window with \"%@\" Profile", [self _profileNameForGuid:auxText]];
             break;
         case KEY_ACTION_NEW_TAB_WITH_PROFILE:
-            actionString = [NSString stringWithFormat:@"New Tab with \"%@\" Profile", [self _bookmarkNameForGuid:auxText]];
+            actionString = [NSString stringWithFormat:@"New Tab with \"%@\" Profile", [self _profileNameForGuid:auxText]];
             break;
         case KEY_ACTION_SPLIT_HORIZONTALLY_WITH_PROFILE:
-            actionString = [NSString stringWithFormat:@"Split Horizontally with \"%@\" Profile", [self _bookmarkNameForGuid:auxText]];
+            actionString = [NSString stringWithFormat:@"Split Horizontally with \"%@\" Profile", [self _profileNameForGuid:auxText]];
             break;
         case KEY_ACTION_SPLIT_VERTICALLY_WITH_PROFILE:
-            actionString = [NSString stringWithFormat:@"Split Vertically with \"%@\" Profile", [self _bookmarkNameForGuid:auxText]];
+            actionString = [NSString stringWithFormat:@"Split Vertically with \"%@\" Profile", [self _profileNameForGuid:auxText]];
             break;
 
         case KEY_ACTION_SEND_C_H_BACKSPACE:
@@ -452,9 +452,9 @@ static NSDictionary* globalKeyMap;
     return [[self globalKeyMap] objectForKey:keyString] != nil;
 }
 
-+ (BOOL)haveKeyMappingForKeyString:(NSString*)keyString inBookmark:(Bookmark*)bookmark
++ (BOOL)haveKeyMappingForKeyString:(NSString*)keyString inProfile:(Profile*)profile
 {
-    NSDictionary *dict = [bookmark objectForKey:KEY_KEYBOARD_MAP];
+    NSDictionary *dict = [profile objectForKey:KEY_KEYBOARD_MAP];
     return [dict objectForKey:keyString] != nil;
 }
 
@@ -506,7 +506,7 @@ static NSDictionary* globalKeyMap;
 + (NSDictionary*)globalKeyMap
 {
     if (!globalKeyMap) {
-        [iTermKeyBindingMgr _loadGlobalKeyMap];
+        [KeyBindingManager _loadGlobalKeyMap];
     }
     return globalKeyMap;
 }
@@ -525,13 +525,13 @@ static NSDictionary* globalKeyMap;
 {
     int keyBindingAction = -1;
     if (keyMappings) {
-        keyBindingAction = [iTermKeyBindingMgr localActionForKeyCode:keyCode
+        keyBindingAction = [KeyBindingManager localActionForKeyCode:keyCode
                                                            modifiers:keyMods
                                                                 text:text
                                                          keyMappings:keyMappings];
     }
     if (keyMappings != [self globalKeyMap] && keyBindingAction < 0) {
-        keyBindingAction = [iTermKeyBindingMgr localActionForKeyCode:keyCode
+        keyBindingAction = [KeyBindingManager localActionForKeyCode:keyCode
                                                            modifiers:keyMods
                                                                 text:text
                                                          keyMappings:[self globalKeyMap]];
@@ -549,10 +549,10 @@ static NSDictionary* globalKeyMap;
     return km;
 }
 
-+ (void)removeMappingAtIndex:(int)rowIndex inBookmark:(NSMutableDictionary*)bookmark
++ (void)removeMappingAtIndex:(int)rowIndex inProfile:(NSMutableDictionary*)profile
 {
-    [bookmark setObject:[iTermKeyBindingMgr removeMappingAtIndex:rowIndex
-                                                    inDictionary:[bookmark objectForKey:KEY_KEYBOARD_MAP]]
+    [profile setObject:[KeyBindingManager removeMappingAtIndex:rowIndex
+                                                    inDictionary:[profile objectForKey:KEY_KEYBOARD_MAP]]
                  forKey:KEY_KEYBOARD_MAP];
 }
 
@@ -573,9 +573,9 @@ static NSDictionary* globalKeyMap;
     return dict;
 }
 
-+ (void)setKeyMappingsToPreset:(NSString*)presetName inBookmark:(NSMutableDictionary*)bookmark
++ (void)setKeyMappingsToPreset:(NSString*)presetName inProfile:(NSMutableDictionary*)profile
 {
-    NSMutableDictionary* km = [NSMutableDictionary dictionaryWithDictionary:[bookmark objectForKey:KEY_KEYBOARD_MAP]];
+    NSMutableDictionary* km = [NSMutableDictionary dictionaryWithDictionary:[profile objectForKey:KEY_KEYBOARD_MAP]];
 
     [km removeAllObjects];
     NSDictionary* presetsDict 
@@ -584,7 +584,7 @@ static NSDictionary* globalKeyMap;
     NSDictionary* settings = [presetsDict objectForKey:presetName];
     [km setDictionary:settings];
 
-    [bookmark setObject:km forKey:KEY_KEYBOARD_MAP];
+    [profile setObject:km forKey:KEY_KEYBOARD_MAP];
 }
 
 + (NSArray *)presetKeyMappingsNames
@@ -635,18 +635,18 @@ static NSDictionary* globalKeyMap;
                    action:(int)actionIndex
                     value:(NSString*)valueToSend
                 createNew:(BOOL)newMapping
-               inBookmark:(NSMutableDictionary*)bookmark
+               inProfile:(NSMutableDictionary*)profile
 {
 
     NSMutableDictionary* km =
-        [NSMutableDictionary dictionaryWithDictionary:[bookmark objectForKey:KEY_KEYBOARD_MAP]];
-    [iTermKeyBindingMgr setMappingAtIndex:rowIndex forKey:keyString action:actionIndex value:valueToSend createNew:newMapping inDictionary:km];
-    [bookmark setObject:km forKey:KEY_KEYBOARD_MAP];
+        [NSMutableDictionary dictionaryWithDictionary:[profile objectForKey:KEY_KEYBOARD_MAP]];
+    [KeyBindingManager setMappingAtIndex:rowIndex forKey:keyString action:actionIndex value:valueToSend createNew:newMapping inDictionary:km];
+    [profile setObject:km forKey:KEY_KEYBOARD_MAP];
 }
 
-+ (NSString*)shortcutAtIndex:(int)rowIndex forBookmark:(Bookmark*)bookmark
++ (NSString*)shortcutAtIndex:(int)rowIndex forProfile:(Profile*)profile
 {
-    NSDictionary* km = [bookmark objectForKey:KEY_KEYBOARD_MAP];
+    NSDictionary* km = [profile objectForKey:KEY_KEYBOARD_MAP];
     NSArray* allKeys = [[km allKeys] sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)];
     if (rowIndex >= 0 && rowIndex < [allKeys count]) {
         return [allKeys objectAtIndex:rowIndex];
@@ -666,9 +666,9 @@ static NSDictionary* globalKeyMap;
     }
 }
 
-+ (NSDictionary*)mappingAtIndex:(int)rowIndex forBookmark:(Bookmark*)bookmark
++ (NSDictionary*)mappingAtIndex:(int)rowIndex forProfile:(Profile*)profile
 {
-    NSDictionary* km = [bookmark objectForKey:KEY_KEYBOARD_MAP];
+    NSDictionary* km = [profile objectForKey:KEY_KEYBOARD_MAP];
     NSArray* allKeys = [[km allKeys] sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)];
     if (rowIndex >= 0 && rowIndex < [allKeys count]) {
         return [km objectForKey:[allKeys objectAtIndex:rowIndex]];
@@ -688,7 +688,7 @@ static NSDictionary* globalKeyMap;
     }
 }
 
-+ (int)numberOfMappingsForBookmark:(Bookmark*)bmDict
++ (int)numberOfMappingsForProfile:(Profile*)bmDict
 {
     NSDictionary* keyMapDict = [bmDict objectForKey:KEY_KEYBOARD_MAP];
     return [keyMapDict count];
@@ -696,12 +696,12 @@ static NSDictionary* globalKeyMap;
 
 + (void)removeMappingWithCode:(unichar)keyCode
                     modifiers:(unsigned int)mods
-                   inBookmark:(NSMutableDictionary*)bookmark
+                   inProfile:(NSMutableDictionary*)profile
 {
-    NSMutableDictionary* km = [NSMutableDictionary dictionaryWithDictionary:[bookmark objectForKey:KEY_KEYBOARD_MAP]];
+    NSMutableDictionary* km = [NSMutableDictionary dictionaryWithDictionary:[profile objectForKey:KEY_KEYBOARD_MAP]];
     NSString* keyString = [NSString stringWithFormat:@"0x%x-0x%x", keyCode, mods];
     [km removeObjectForKey:keyString];
-    [bookmark setObject:km forKey:KEY_KEYBOARD_MAP];
+    [profile setObject:km forKey:KEY_KEYBOARD_MAP];
 }
 
 + (NSInteger)_cgMaskForMod:(int)mod
@@ -901,20 +901,21 @@ static NSDictionary* globalKeyMap;
 
 + (NSEvent*)remapModifiers:(NSEvent*)event prefPanel:(PreferencePanelController*)pp
 {
-    return [NSEvent eventWithCGEvent:[iTermKeyBindingMgr remapModifiersInCGEvent:[event CGEvent]
+    return [NSEvent eventWithCGEvent:[KeyBindingManager remapModifiersInCGEvent:[event CGEvent]
                                                                        prefPanel:pp]];
 }
 
-+ (Bookmark*)removeMappingsReferencingGuid:(NSString*)guid fromBookmark:(Bookmark*)bookmark
++ (Profile*)removeMappingsReferencingGuid:(NSString*)guid fromProfile:(Profile*)profile
 {
-    if (bookmark) {
-        NSMutableDictionary* mutableBookmark = [NSMutableDictionary dictionaryWithDictionary:bookmark];
+    if (profile) {
+        NSMutableDictionary* mutableProfile = [NSMutableDictionary dictionaryWithDictionary:profile];
         BOOL anyChange = NO;
         BOOL change;
         do {
             change = NO;
-            for (int i = 0; i < [iTermKeyBindingMgr numberOfMappingsForBookmark:mutableBookmark]; i++) {
-                NSDictionary* keyMap = [iTermKeyBindingMgr mappingAtIndex:i forBookmark:mutableBookmark];
+            // TODO: raise numberofMappingsForProfile out of loop test?
+            for (int i = 0; i < [KeyBindingManager numberOfMappingsForProfile:mutableProfile]; i++) {
+                NSDictionary* keyMap = [KeyBindingManager mappingAtIndex:i forProfile:mutableProfile];
                 int action = [[keyMap objectForKey:@"Action"] intValue];
                 if (action == KEY_ACTION_NEW_TAB_WITH_PROFILE ||
                     action == KEY_ACTION_NEW_WINDOW_WITH_PROFILE ||
@@ -922,7 +923,7 @@ static NSDictionary* globalKeyMap;
                     action == KEY_ACTION_SPLIT_VERTICALLY_WITH_PROFILE) {
                     NSString* referencedGuid = [keyMap objectForKey:@"Text"];
                     if ([referencedGuid isEqualToString:guid]) {
-                        [iTermKeyBindingMgr removeMappingAtIndex:i inBookmark:mutableBookmark];
+                        [KeyBindingManager removeMappingAtIndex:i inProfile:mutableProfile];
                         change = YES;
                         anyChange = YES;
                         break;
@@ -933,15 +934,15 @@ static NSDictionary* globalKeyMap;
         if (!anyChange) {
             return nil;
         } else {
-            return mutableBookmark;
+            return mutableProfile;
         }
     } else {
         BOOL change;
         do {
-            NSMutableDictionary* mutableGlobalKeyMap = [NSMutableDictionary dictionaryWithDictionary:[iTermKeyBindingMgr globalKeyMap]];
+            NSMutableDictionary* mutableGlobalKeyMap = [NSMutableDictionary dictionaryWithDictionary:[KeyBindingManager globalKeyMap]];
             change = NO;
             for (int i = 0; i < [mutableGlobalKeyMap count]; i++) {
-                NSDictionary* keyMap = [iTermKeyBindingMgr globalMappingAtIndex:i];
+                NSDictionary* keyMap = [KeyBindingManager globalMappingAtIndex:i];
                 int action = [[keyMap objectForKey:@"Action"] intValue];
                 if (action == KEY_ACTION_NEW_TAB_WITH_PROFILE ||
                     action == KEY_ACTION_NEW_WINDOW_WITH_PROFILE ||
@@ -949,9 +950,9 @@ static NSDictionary* globalKeyMap;
                     action == KEY_ACTION_SPLIT_VERTICALLY_WITH_PROFILE) {
                     NSString* referencedGuid = [keyMap objectForKey:@"Text"];
                     if ([referencedGuid isEqualToString:guid]) {
-                        mutableGlobalKeyMap = [iTermKeyBindingMgr removeMappingAtIndex:i
+                        mutableGlobalKeyMap = [KeyBindingManager removeMappingAtIndex:i
                                                                           inDictionary:mutableGlobalKeyMap];
-                        [iTermKeyBindingMgr setGlobalKeyMap:mutableGlobalKeyMap];
+                        [KeyBindingManager setGlobalKeyMap:mutableGlobalKeyMap];
                         change = YES;
                         break;
                     }

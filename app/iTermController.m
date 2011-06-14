@@ -32,7 +32,7 @@
 #define DEBUG_METHOD_TRACE    0
 
 #import "App/iTermController.h"
-#import "Prefs/PreferencePanelController.h"
+#import "Prefs/PreferencePanel.h"
 #import "Window/PseudoTerminal.h"
 #import "Session/PTYSession.h"
 #import "Session/VT100Screen.h"
@@ -963,20 +963,20 @@ static void RollInHotkeyTerm(PseudoTerminal* term)
 
             rect.origin.x = screenFrame.origin.x + (screenFrame.size.width - rect.size.width) / 2;
             rect.origin.y = screenFrame.origin.y + (screenFrame.size.height - rect.size.height) / 2;
-            [[NSAnimationContext currentContext] setDuration:[[PreferencePanelController sharedInstance] hotkeyTermAnimationDuration]];
+            [[NSAnimationContext currentContext] setDuration:[[PreferencePanel sharedInstance] hotkeyTermAnimationDuration]];
             [[[term window] animator] setFrame:rect display:YES];
             [[[term window] animator] setAlphaValue:1];
             break;
 
         case WINDOW_TYPE_TOP:
             rect.origin.y = screenFrame.origin.y + screenFrame.size.height - rect.size.height;
-            [[NSAnimationContext currentContext] setDuration:[[PreferencePanelController sharedInstance] hotkeyTermAnimationDuration]];
+            [[NSAnimationContext currentContext] setDuration:[[PreferencePanel sharedInstance] hotkeyTermAnimationDuration]];
             [[[term window] animator] setFrame:rect display:YES];
             [[[term window] animator] setAlphaValue:1];
             break;
 
         case WINDOW_TYPE_FULL_SCREEN:
-            [[NSAnimationContext currentContext] setDuration:[[PreferencePanelController sharedInstance] hotkeyTermAnimationDuration]];
+            [[NSAnimationContext currentContext] setDuration:[[PreferencePanel sharedInstance] hotkeyTermAnimationDuration]];
             [[[term window] animator] setAlphaValue:1];
             [term hideMenuBar];
             break;
@@ -1051,7 +1051,7 @@ static BOOL OpenHotkeyWindow()
 {
     NSLog(@"Open visor");
     iTermController* cont = [iTermController sharedInstance];
-    Bookmark* bookmark = [[PreferencePanelController sharedInstance] hotkeyBookmark];
+    Bookmark* bookmark = [[PreferencePanel sharedInstance] hotkeyBookmark];
     if (bookmark) {
         PTYSession* session = [cont launchBookmark:bookmark inTerminal:nil];
         PseudoTerminal* term = [[session tab] realParentWindow];
@@ -1117,20 +1117,20 @@ static void RollOutHotkeyTerm(PseudoTerminal* term, BOOL itermWasActiveWhenHotke
         case WINDOW_TYPE_NORMAL:
             rect.origin.x = -rect.size.width;
             rect.origin.y = -rect.size.height;
-            [[NSAnimationContext currentContext] setDuration:[[PreferencePanelController sharedInstance] hotkeyTermAnimationDuration]];
+            [[NSAnimationContext currentContext] setDuration:[[PreferencePanel sharedInstance] hotkeyTermAnimationDuration]];
             [[[term window] animator] setFrame:rect display:YES];
             [[[term window] animator] setAlphaValue:0];
             break;
 
         case WINDOW_TYPE_TOP:
             rect.origin.y = screenFrame.size.height;
-            [[NSAnimationContext currentContext] setDuration:[[PreferencePanelController sharedInstance] hotkeyTermAnimationDuration]];
+            [[NSAnimationContext currentContext] setDuration:[[PreferencePanel sharedInstance] hotkeyTermAnimationDuration]];
             [[[term window] animator] setFrame:rect display:YES];
             [[[term window] animator] setAlphaValue:0];
             break;
 
         case WINDOW_TYPE_FULL_SCREEN:
-            [[NSAnimationContext currentContext] setDuration:[[PreferencePanelController sharedInstance] hotkeyTermAnimationDuration]];
+            [[NSAnimationContext currentContext] setDuration:[[PreferencePanel sharedInstance] hotkeyTermAnimationDuration]];
             [[[term window] animator] setAlphaValue:0];
             break;
     }
@@ -1160,7 +1160,7 @@ static void RollOutHotkeyTerm(PseudoTerminal* term, BOOL itermWasActiveWhenHotke
         }
     }
 
-    if ([[PreferencePanelController sharedInstance] closingHotkeySwitchesSpaces]) {
+    if ([[PreferencePanel sharedInstance] closingHotkeySwitchesSpaces]) {
         [[term window] orderOut:self];
     } else {
         // Place behind all other windows at this level
@@ -1285,7 +1285,7 @@ static void RollOutHotkeyTerm(PseudoTerminal* term, BOOL itermWasActiveWhenHotke
 void OnHotKeyEvent(void)
 {
     NSLog(@"hotkey pressed");
-    PreferencePanelController* prefPanel = [PreferencePanelController sharedInstance];
+    PreferencePanel* prefPanel = [PreferencePanel sharedInstance];
     if ([prefPanel hotkeyTogglesWindow]) {
         NSLog(@"visor enabled");
         PseudoTerminal* hotkeyTerm = GetHotkeyWindow();
@@ -1368,7 +1368,7 @@ static CGEventRef OnTappedEvent(CGEventTapProxy proxy, CGEventType type, CGEvent
         unichar unmodunicode = [unmodkeystr length] > 0 ? [unmodkeystr characterAtIndex:0] : 0;
         unsigned int modflag = [cocoaEvent modifierFlags];
         NSString *keyBindingText;
-        PreferencePanelController* prefPanel = [PreferencePanelController sharedInstance];
+        PreferencePanel* prefPanel = [PreferencePanel sharedInstance];
         BOOL tempDisabled = [prefPanel remappingDisabledTemporarily];
         int action = [iTermKeyBindingMgr actionForKeyCode:unmodunicode
                                                        modifiers:modflag
@@ -1418,7 +1418,7 @@ static CGEventRef OnTappedEvent(CGEventTapProxy proxy, CGEventType type, CGEvent
         BOOL isDoNotRemap = (action == KEY_ACTION_DO_NOT_REMAP_MODIFIERS) || (action == KEY_ACTION_REMAP_LOCALLY);
         if (!isDoNotRemap) {
             [iTermKeyBindingMgr remapModifiersInCGEvent:eventCopy
-                                              prefPanel:[PreferencePanelController sharedInstance]];
+                                              prefPanel:[PreferencePanel sharedInstance]];
         }
         cocoaEvent = [NSEvent eventWithCGEvent:eventCopy];
         CFRelease(eventCopy);
@@ -1433,7 +1433,7 @@ static CGEventRef OnTappedEvent(CGEventTapProxy proxy, CGEventType type, CGEvent
     if (callDirectly) {
         // Send keystroke directly to preference panel when setting do-not-remap for a key; for
         // system keys, NSApp sendEvent: is never called so this is the last chance.
-        [[PreferencePanelController sharedInstance] shortcutKeyDown:cocoaEvent];
+        [[PreferencePanel sharedInstance] shortcutKeyDown:cocoaEvent];
         return nil;
     }
     if (local) {

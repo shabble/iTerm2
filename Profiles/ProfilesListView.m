@@ -1,5 +1,5 @@
 /*
- **  BookmarkListView.m
+ **  ProfilesListView.m (was BookmarkListView.m)
  **  iTerm
  **
  **  Created by George Nachman on 8/26/10.
@@ -22,13 +22,11 @@
  **  along with this program; if not, write to the Free Software
  */
 
-#import "BookmarkListView.h"
-#import "Profiles/BookmarkModel.h"
-#import "Profiles/ITAddressBookMgr.h"
-#import "Session/PTYSession.h"
-#import "Search/iTermSearchField.h"
+#import "ProfileModel.h"
+#import "ProfilesListView.h"
+#import "ProfileManager.h"
 
-#define BookmarkTableViewDataType @"iTerm2BookmarkGuid"
+#define ProfilesTableViewDataType @"iTerm2BookmarkGuid"
 
 const int kSearchWidgetHeight = 22;
 const int kInterWidgetMargin = 10;
@@ -38,22 +36,22 @@ const int kInterWidgetMargin = 10;
 // are evanescent.
 //
 // It implements a KeyValueCoding so that sort descriptors will work.
-@interface BookmarkRow : NSObject
+@interface ProfileRow : NSObject
 {
     NSString* guid;
-    BookmarkModel* underlyingModel;
+    ProfileModel* underlyingModel;
 }
 
-- (id)initWithBookmark:(Bookmark*)bookmark underlyingModel:(BookmarkModel*)underlyingModel;
+- (id)initWithProfile:(Profile*)profile underlyingModel:(ProfileModel*)underlyingModel;
 - (void)dealloc;
-- (Bookmark*)bookmark;
+- (Profile*)profile;
 
 @end
 
-@interface BookmarkRow (KeyValueCoding)
+@interface ProfileRow (KeyValueCoding)
 // We need ascending order to sort default before not-default so we can't use
 // anything senible like BOOL or "Yes"/"No" because they'd sort wrong.
-typedef enum { IsDefault = 1, IsNotDefault = 2 } BookmarkRowIsDefault;
+typedef enum { IsDefault = 1, IsNotDefault = 2 } ProfileRowIsDefault;
 - (NSNumber*)default;
 - (NSString*)name;
 - (NSString*)shortcut;
@@ -61,13 +59,13 @@ typedef enum { IsDefault = 1, IsNotDefault = 2 } BookmarkRowIsDefault;
 - (NSString*)guid;
 @end
 
-@implementation BookmarkRow
+@implementation ProfileRow
 
-- (id)initWithBookmark:(Bookmark*)bookmark underlyingModel:(BookmarkModel*)newUnderlyingModel;
+- (id)initWithProfile:(Profile*)profile underlyingModel:(ProfileModel*)newUnderlyingModel;
 {
     self = [super init];
     if (self) {
-        guid = [[bookmark objectForKey:KEY_GUID] retain];
+        guid = [[profile objectForKey:KEY_GUID] retain];
         self->underlyingModel = [newUnderlyingModel retain];
     }
     return self;
@@ -80,51 +78,51 @@ typedef enum { IsDefault = 1, IsNotDefault = 2 } BookmarkRowIsDefault;
     [super dealloc];
 }
 
-- (Bookmark*)bookmark
+- (Profile*)profile
 {
-    return [underlyingModel bookmarkWithGuid:guid];
+    return [underlyingModel profileWithGuid:guid];
 }
 
 @end
 
-@implementation BookmarkRow (KeyValueCoding)
+@implementation ProfileRow (KeyValueCoding)
 
 - (NSNumber*)default
 {
-    BOOL isDefault = [[[self bookmark] objectForKey:KEY_GUID] isEqualToString:[[[BookmarkModel sharedInstance] defaultBookmark] objectForKey:KEY_GUID]];
+    BOOL isDefault = [[[self profile] objectForKey:KEY_GUID] isEqualToString:[[[ProfileModel sharedInstance] defaultProfile] objectForKey:KEY_GUID]];
     return [NSNumber numberWithInt:isDefault ? IsDefault : IsNotDefault];
 }
 
 - (NSString*)name
 {
-    return [[self bookmark] objectForKey:KEY_NAME];
+    return [[self profile] objectForKey:KEY_NAME];
 }
 
 - (NSString*)shortcut
 {
-    return [[self bookmark] objectForKey:KEY_SHORTCUT];
+    return [[self profile] objectForKey:KEY_SHORTCUT];
 }
 
 - (NSString*)command
 {
-    return [[self bookmark] objectForKey:KEY_COMMAND];
+    return [[self profile] objectForKey:KEY_COMMAND];
 }
 
 - (NSString*)guid
 {
-    return [[self bookmark] objectForKey:KEY_GUID];
+    return [[self profile] objectForKey:KEY_GUID];
 }
 
 @end
 
-@implementation BookmarkModelWrapper
+@implementation ProfileModelWrapper
 
-- (id)initWithModel:(BookmarkModel*)model
+- (id)initWithModel:(ProfileModel*)model
 {
     self = [super init];
     if (self) {
         underlyingModel = model;
-        bookmarks = [[NSMutableArray alloc] init];
+        profiles = [[NSMutableArray alloc] init];
         filter = [[NSMutableString alloc] init];
         [self sync];
     }
@@ -133,7 +131,7 @@ typedef enum { IsDefault = 1, IsNotDefault = 2 } BookmarkRowIsDefault;
 
 - (void)dealloc
 {
-    [bookmarks release];
+    [profiles release];
     [filter release];
     [super dealloc];
 }
@@ -146,84 +144,85 @@ typedef enum { IsDefault = 1, IsNotDefault = 2 } BookmarkRowIsDefault;
 
 - (void)dump
 {
-    for (int i = 0; i < [self numberOfBookmarks]; ++i) {
-        NSLog(@"Dump of %p: At %d: %@", self, i, [[self bookmarkRowAtIndex:i] name]);
+    int numberOfProfiles =  [self numberOfProfiles];
+    for (int i = 0; i < numberOfProfiles; ++i) {
+        NSLog(@"Dump of %p: At %d: %@", self, i, [[self profileRowAtIndex:i] name]);
     }
 }
 
 - (void)sort
 {
     if ([sortDescriptors count] > 0) {
-        [bookmarks sortUsingDescriptors:sortDescriptors];
+        [profiles sortUsingDescriptors:sortDescriptors];
     }
 }
 
-- (int)numberOfBookmarks
+- (int)numberOfProfiles
 {
-    return [bookmarks count];
+    return [profiles count];
 }
 
-- (BookmarkRow*)bookmarkRowAtIndex:(int)i
+- (ProfileRow*)profileRowAtIndex:(int)i
 {
-    return [bookmarks objectAtIndex:i];
+    return [profiles objectAtIndex:i];
 }
 
-- (Bookmark*)bookmarkAtIndex:(int)i
+- (Profile*)profileAtIndex:(int)i
 {
-    return [[bookmarks objectAtIndex:i] bookmark];
+    return [[profiles objectAtIndex:i] profile];
 }
 
-- (int)indexOfBookmarkWithGuid:(NSString*)guid
+- (int)indexOfProfileWithGuid:(NSString*)guid
 {
-    for (int i = 0; i < [bookmarks count]; ++i) {
-        if ([[[bookmarks objectAtIndex:i] guid] isEqualToString:guid]) {
+    for (int i = 0; i < [profiles count]; ++i) {
+        if ([[[profiles objectAtIndex:i] guid] isEqualToString:guid]) {
             return i;
         }
     }
     return -1;
 }
 
-- (BookmarkModel*)underlyingModel
+- (ProfileModel*)underlyingModel
 {
     return underlyingModel;
 }
 
 - (void)sync
 {
-    [bookmarks removeAllObjects];
-    NSArray* filteredBookmarks = [underlyingModel bookmarkIndicesMatchingFilter:filter];
-    for (NSNumber* n in filteredBookmarks) {
-        int i = [n intValue];
-        //NSLog(@"Wrapper at %p add bookmark %@ at index %d", self, [[underlyingModel bookmarkAtIndex:i] objectForKey:KEY_NAME], i);
-        [bookmarks addObject:[[[BookmarkRow alloc] initWithBookmark:[underlyingModel bookmarkAtIndex:i] 
+    [profiles removeAllObjects];
+    NSArray* filteredProfiles = [underlyingModel profileIndicesMatchingFilter:filter];
+    for (NSNumber* num in filteredProfiles) {
+        int num_intVal = [num intValue];
+        //NSLog(@"Wrapper at %p add profile %@ at index %d", self, [[underlyingModel profileAtIndex:num_intVal] objectForKey:KEY_NAME], i);
+        [profiles addObject:[[[ProfileRow alloc] initWithProfile:[underlyingModel profileAtIndex:num_intVal] 
                                                     underlyingModel:underlyingModel] autorelease]];
     }
     [self sort];
 }
 
-- (void)moveBookmarkWithGuid:(NSString*)guid toIndex:(int)row
+- (void)moveProfileWithGuid:(NSString*)guid toIndex:(int)row
 {
     // Make the change locally.
-    int origRow = [self indexOfBookmarkWithGuid:guid];
+    int origRow = [self indexOfProfileWithGuid:guid];
     if (origRow < row) {
-        [bookmarks insertObject:[bookmarks objectAtIndex:origRow] atIndex:row];
-        [bookmarks removeObjectAtIndex:origRow];
+        [profiles insertObject:[profiles objectAtIndex:origRow] atIndex:row];
+        [profiles removeObjectAtIndex:origRow];
     } else if (origRow > row) {
-        BookmarkRow* temp = [[bookmarks objectAtIndex:origRow] retain];
-        [bookmarks removeObjectAtIndex:origRow];
-        [bookmarks insertObject:temp atIndex:row];
+        ProfileRow* temp = [[profiles objectAtIndex:origRow] retain];
+        [profiles removeObjectAtIndex:origRow];
+        [profiles insertObject:temp atIndex:row];
         [temp release];
     }
 }
 
 - (void)pushOrderToUnderlyingModel
 {
-    // Since we may have a filter, let's ensure that the visible bookmarks occur
+    // Since we may have a filter, let's ensure that the visible profiles occur
     // in the same order in the underlying model without regard to how invisible
-    // bookmarks fit into the order. This also prevents instability when the
+    // profiles fit into the order. This also prevents instability when the
     // reload happens.
     int i = 0;
-    for (BookmarkRow* theRow in bookmarks) {
+    for (ProfileRow* theRow in profiles) {
         [underlyingModel moveGuid:[theRow guid] toRow:i++];
     }
     [underlyingModel rebuildMenus];
@@ -243,7 +242,7 @@ typedef enum { IsDefault = 1, IsNotDefault = 2 } BookmarkRowIsDefault;
 @end
 
 
-@implementation BookmarkTableView
+@implementation ProfilesTableView
 
 - (void)setParent:(id)parent
 {
@@ -252,15 +251,15 @@ typedef enum { IsDefault = 1, IsNotDefault = 2 } BookmarkRowIsDefault;
 
 - (NSMenu *)menuForEvent:(NSEvent *)theEvent
 {
-    if ([[parent_ delegate] respondsToSelector:@selector(bookmarkTable:menuForEvent:)]) {
-        return [[parent_ delegate] bookmarkTable:parent_ menuForEvent:theEvent];
+    if ([[parent_ delegate] respondsToSelector:@selector(profilesTable:menuForEvent:)]) {
+        return [[parent_ delegate] profilesTable:parent_ menuForEvent:theEvent];
     }
     return nil;
 }
 
 @end
 
-@implementation BookmarkListView
+@implementation ProfilesListView
 
 
 - (void)awakeFromNib
@@ -279,15 +278,15 @@ typedef enum { IsDefault = 1, IsNotDefault = 2 } BookmarkRowIsDefault;
     NSInteger rowIndex = [rowIndexes firstIndex];
     NSMutableSet* guids = [[[NSMutableSet alloc] init] autorelease];
     while (rowIndex != NSNotFound) {
-        Bookmark* bookmark = [dataSource_ bookmarkAtIndex:rowIndex];
-        NSString* guid = [bookmark objectForKey:KEY_GUID];
+        Profile* profile = [dataSource_ profileAtIndex:rowIndex];
+        NSString* guid = [profile objectForKey:KEY_GUID];
         [guids addObject:guid];
         rowIndex = [rowIndexes indexGreaterThanIndex:rowIndex];
     }
 
     NSData *data = [NSKeyedArchiver archivedDataWithRootObject:guids];
-    [pboard declareTypes:[NSArray arrayWithObject:BookmarkTableViewDataType] owner:self];
-    [pboard setData:data forType:BookmarkTableViewDataType];
+    [pboard declareTypes:[NSArray arrayWithObject:ProfilesTableViewDataType] owner:self];
+    [pboard setData:data forType:ProfilesTableViewDataType];
     return YES;
 }
 
@@ -314,20 +313,20 @@ typedef enum { IsDefault = 1, IsNotDefault = 2 } BookmarkRowIsDefault;
               row:(NSInteger)row dropOperation:(NSTableViewDropOperation)operation
 {
     NSPasteboard* pboard = [info draggingPasteboard];
-    NSData* rowData = [pboard dataForType:BookmarkTableViewDataType];
+    NSData* rowData = [pboard dataForType:ProfilesTableViewDataType];
     NSSet* guids = [NSKeyedUnarchiver unarchiveObjectWithData:rowData];
     NSMutableDictionary* map = [[[NSMutableDictionary alloc] init] autorelease];
 
     for (NSString* guid in guids) {
-        [map setObject:guid forKey:[NSNumber numberWithInt:[dataSource_ indexOfBookmarkWithGuid:guid]]];
+        [map setObject:guid forKey:[NSNumber numberWithInt:[dataSource_ indexOfProfileWithGuid:guid]]];
     }
     NSArray* sortedIndexes = [map allKeys];
     sortedIndexes = [sortedIndexes sortedArrayUsingSelector:@selector(compare:)];
     for (NSNumber* mapIndex in sortedIndexes) {
         NSString* guid = [map objectForKey:mapIndex];
 
-        [dataSource_ moveBookmarkWithGuid:guid toIndex:row];
-        row = [dataSource_ indexOfBookmarkWithGuid:guid] + 1;
+        [dataSource_ moveProfileWithGuid:guid toIndex:row];
+        row = [dataSource_ indexOfProfileWithGuid:guid] + 1;
     }
 
     // Save the (perhaps partial) order of the current view in the underlying
@@ -341,7 +340,7 @@ typedef enum { IsDefault = 1, IsNotDefault = 2 } BookmarkRowIsDefault;
         [tableView_ setSortDescriptors:[NSArray arrayWithObjects:nil]];
     }
 
-    // The underlying model doesn't post a change notification for each bookmark
+    // The underlying model doesn't post a change notification for each profile
     // move because it would be overwhelming so we must do it ourselves. This
     // makes all other table views sync with the new order. First, add commands
     // to rebuild the menus.
@@ -350,7 +349,7 @@ typedef enum { IsDefault = 1, IsNotDefault = 2 } BookmarkRowIsDefault;
 
     NSMutableIndexSet* newIndexes = [[[NSMutableIndexSet alloc] init] autorelease];
     for (NSString* guid in guids) {
-        row = [dataSource_ indexOfBookmarkWithGuid:guid];
+        row = [dataSource_ indexOfProfileWithGuid:guid];
         [newIndexes addIndex:row];
     }
     [tableView_ selectRowIndexes:newIndexes byExtendingSelection:NO];
@@ -400,18 +399,18 @@ typedef enum { IsDefault = 1, IsNotDefault = 2 } BookmarkRowIsDefault;
     [searchCell setSearchMenuTemplate:cellMenu];
 }
 
-- (void)setUnderlyingDatasource:(BookmarkModel*)dataSource
+- (void)setUnderlyingDatasource:(ProfileModel*)dataSource
 {
     [dataSource_ autorelease];
-    dataSource_ = [[BookmarkModelWrapper alloc] initWithModel:dataSource];
+    dataSource_ = [[ProfileModelWrapper alloc] initWithModel:dataSource];
 }
 
 - (id)initWithFrame:(NSRect)frameRect
 {
-    return [self initWithFrame:frameRect model:[BookmarkModel sharedInstance]];
+    return [self initWithFrame:frameRect model:[ProfileModel sharedInstance]];
 }
 
-- (id)initWithFrame:(NSRect)frameRect model:(BookmarkModel*)dataSource
+- (id)initWithFrame:(NSRect)frameRect model:(ProfileModel*)dataSource
 {
     self = [super initWithFrame:frameRect];
     [self setUnderlyingDatasource:dataSource];
@@ -448,9 +447,9 @@ typedef enum { IsDefault = 1, IsNotDefault = 2 } BookmarkRowIsDefault;
                           hasVerticalScroller:YES
                                    borderType:[scrollView_ borderType]];
 
-    tableView_ = [[BookmarkTableView alloc] initWithFrame:tableViewFrame];
+    tableView_ = [[ProfilesTableView alloc] initWithFrame:tableViewFrame];
     [tableView_ setParent:self];
-    [tableView_ registerForDraggedTypes:[NSArray arrayWithObject:BookmarkTableViewDataType]];
+    [tableView_ registerForDraggedTypes:[NSArray arrayWithObject:ProfilesTableViewDataType]];
     rowHeight_ = 29;
     showGraphic_ = YES;
     [tableView_ setRowHeight:rowHeight_];
@@ -500,7 +499,7 @@ typedef enum { IsDefault = 1, IsNotDefault = 2 } BookmarkRowIsDefault;
     return self;
 }
 
-- (BookmarkModelWrapper*)dataSource
+- (ProfileModelWrapper*)dataSource
 {
     return dataSource_;
 }
@@ -513,7 +512,7 @@ typedef enum { IsDefault = 1, IsNotDefault = 2 } BookmarkRowIsDefault;
     [super dealloc];
 }
 
-- (void)setDelegate:(id<BookmarkTableDelegate>)delegate
+- (void)setDelegate:(id<ProfilesTableDelegate>)delegate
 {
     delegate_ = delegate;
 }
@@ -521,7 +520,7 @@ typedef enum { IsDefault = 1, IsNotDefault = 2 } BookmarkRowIsDefault;
 #pragma mark NSTableView data source
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView
 {
-    return [dataSource_ numberOfBookmarks];
+    return [dataSource_ numberOfProfiles];
 }
 
 - (void)tableView:(NSTableView *)aTableView sortDescriptorsDidChange:(NSArray *)oldDescriptors
@@ -549,8 +548,8 @@ typedef enum { IsDefault = 1, IsNotDefault = 2 } BookmarkRowIsDefault;
 
 - (CGFloat)tableView:(NSTableView *)tableView heightOfRow:(NSInteger)rowIndex
 {
-    Bookmark* bookmark = [dataSource_ bookmarkAtIndex:rowIndex];
-    NSArray* tags = [bookmark objectForKey:KEY_TAGS];
+    Profile* profile = [dataSource_ profileAtIndex:rowIndex];
+    NSArray* tags = [profile objectForKey:KEY_TAGS];
     if ([tags count] == 0) {
         return 21;
     } else {
@@ -560,7 +559,7 @@ typedef enum { IsDefault = 1, IsNotDefault = 2 } BookmarkRowIsDefault;
 
 - (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex
 {
-    Bookmark* bookmark = [dataSource_ bookmarkAtIndex:rowIndex];
+    Profile* profile = [dataSource_ profileAtIndex:rowIndex];
 
     if (aTableColumn == tableColumn_) {
         NSColor* textColor;
@@ -577,8 +576,8 @@ typedef enum { IsDefault = 1, IsNotDefault = 2 } BookmarkRowIsDefault;
                                          [NSFont systemFontOfSize:10], NSFontAttributeName,
                                          nil];
 
-        NSString *name = [NSString stringWithFormat:@"%@\n", [bookmark objectForKey:KEY_NAME]];
-        NSString* tags = [[bookmark objectForKey:KEY_TAGS] componentsJoinedByString:@", "];
+        NSString *name = [NSString stringWithFormat:@"%@\n", [profile objectForKey:KEY_NAME]];
+        NSString* tags = [[profile objectForKey:KEY_TAGS] componentsJoinedByString:@", "];
 
         NSMutableAttributedString *theAttributedString = [[[NSMutableAttributedString alloc] initWithString:name
                                                                                                  attributes:plainAttributes] autorelease];
@@ -587,15 +586,15 @@ typedef enum { IsDefault = 1, IsNotDefault = 2 } BookmarkRowIsDefault;
                                                                                      attributes:smallAttributes] autorelease]];
         return theAttributedString;
     } else if (aTableColumn == commandColumn_) {
-        if (![[bookmark objectForKey:KEY_CUSTOM_COMMAND] isEqualToString:@"Yes"]) {
+        if (![[profile objectForKey:KEY_CUSTOM_COMMAND] isEqualToString:@"Yes"]) {
             return @"Login shell";
         } else {
-            return [bookmark objectForKey:KEY_COMMAND];
+            return [profile objectForKey:KEY_COMMAND];
         }
     } else if (aTableColumn == shortcutColumn_) {
-        NSString* key = [bookmark objectForKey:KEY_SHORTCUT];
+        NSString* key = [profile objectForKey:KEY_SHORTCUT];
         if ([key length]) {
-            return [NSString stringWithFormat:@"^⌘%@", [bookmark objectForKey:KEY_SHORTCUT]];
+            return [NSString stringWithFormat:@"^⌘%@", [profile objectForKey:KEY_SHORTCUT]];
         } else {
             return @"";
         }
@@ -619,7 +618,7 @@ typedef enum { IsDefault = 1, IsNotDefault = 2 } BookmarkRowIsDefault;
         rect.origin.y = 0;
         rect.size = size;
         [image lockFocus];
-        if ([[bookmark objectForKey:KEY_GUID] isEqualToString:[[[BookmarkModel sharedInstance] defaultBookmark] objectForKey:KEY_GUID]]) {
+        if ([[profile objectForKey:KEY_GUID] isEqualToString:[[[ProfileModel sharedInstance] defaultProfile] objectForKey:KEY_GUID]]) {
             NSPoint destPoint;
             destPoint.x = (size.width - [starImage size].width) / 2;
             destPoint.y = (rowHeight_ - [starImage size].height) / 2;
@@ -667,7 +666,7 @@ typedef enum { IsDefault = 1, IsNotDefault = 2 } BookmarkRowIsDefault;
 - (BOOL)selectionShouldChangeInTableView:(NSTableView *)aTableView
 {
     if (delegate_) {
-        [delegate_ bookmarkTableSelectionWillChange:self];
+        [delegate_ profileTableSelectionWillChange:self];
     }
     return YES;
 }
@@ -676,7 +675,7 @@ typedef enum { IsDefault = 1, IsNotDefault = 2 } BookmarkRowIsDefault;
 {
     // Mouse is being dragged across rows
     if (delegate_) {
-        [delegate_ bookmarkTableSelectionDidChange:self];
+        [delegate_ profileTableSelectionDidChange:self];
     }
     [selectedGuids_ release];
     selectedGuids_ = [self selectedGuids];
@@ -687,7 +686,7 @@ typedef enum { IsDefault = 1, IsNotDefault = 2 } BookmarkRowIsDefault;
 {
     // There was a click on a row
     if (delegate_) {
-        [delegate_ bookmarkTableSelectionDidChange:self];
+        [delegate_ profileTableSelectionDidChange:self];
     }
     [selectedGuids_ release];
     selectedGuids_ = [self selectedGuids];
@@ -708,7 +707,7 @@ typedef enum { IsDefault = 1, IsNotDefault = 2 } BookmarkRowIsDefault;
         [selectedGuids_ release];
         selectedGuids_ = [self selectedGuids];
         [selectedGuids_ retain];
-        [delegate_ bookmarkTableSelectionDidChange:self];
+        [delegate_ profileTableSelectionDidChange:self];
     }
 }
 
@@ -721,7 +720,7 @@ typedef enum { IsDefault = 1, IsNotDefault = 2 } BookmarkRowIsDefault;
 
 - (void)selectRowByGuid:(NSString*)guid
 {
-    int theRow = [dataSource_ indexOfBookmarkWithGuid:guid];
+    int theRow = [dataSource_ indexOfProfileWithGuid:guid];
     if (theRow == -1) {
         [self deselectAll];
         return;
@@ -731,7 +730,7 @@ typedef enum { IsDefault = 1, IsNotDefault = 2 } BookmarkRowIsDefault;
 
 - (int)numberOfRows
 {
-    return [dataSource_ numberOfBookmarks];
+    return [dataSource_ numberOfProfiles];
 }
 
 - (void)hideSearch
@@ -809,11 +808,11 @@ typedef enum { IsDefault = 1, IsNotDefault = 2 } BookmarkRowIsDefault;
     if (row < 0) {
         return nil;
     }
-    Bookmark* bookmark = [dataSource_ bookmarkAtIndex:row];
-    if (!bookmark) {
+    Profile* profile = [dataSource_ profileAtIndex:row];
+    if (!profile) {
         return nil;
     }
-    return [bookmark objectForKey:KEY_GUID];
+    return [profile objectForKey:KEY_GUID];
 }
 
 - (NSSet*)selectedGuids
@@ -822,9 +821,9 @@ typedef enum { IsDefault = 1, IsNotDefault = 2 } BookmarkRowIsDefault;
     NSIndexSet* indexes = [tableView_ selectedRowIndexes];
     NSUInteger theIndex = [indexes firstIndex];
     while (theIndex != NSNotFound) {
-        Bookmark* bookmark = [dataSource_ bookmarkAtIndex:theIndex];
-        if (bookmark) {
-            [result addObject:[bookmark objectForKey:KEY_GUID]];
+        Profile* profile = [dataSource_ profileAtIndex:theIndex];
+        if (profile) {
+            [result addObject:[profile objectForKey:KEY_GUID]];
         }
 
         theIndex = [indexes indexGreaterThanIndex:theIndex];
@@ -869,7 +868,7 @@ typedef enum { IsDefault = 1, IsNotDefault = 2 } BookmarkRowIsDefault;
 - (void)onDoubleClick:(id)sender
 {
     if (delegate_) {
-        [delegate_ bookmarkTableRowSelected:self];
+        [delegate_ profileTableRowSelected:self];
     }
 }
 

@@ -33,7 +33,7 @@
 #import "Window/PTYWindow.h"
 #import "Window/PseudoTerminal.h"
 #import "Session/PTYSession.h"
-#import "Prefs/PreferencePanelController.h"
+#import "Prefs/PreferencePanel.h"
 #import "Session/PTYTextView.h"
 #import "App/iTermKeyBindingMgr.h"
 
@@ -87,7 +87,7 @@
             return;
         }
 #endif
-        PreferencePanelController* prefPanel = [PreferencePanelController sharedInstance];
+        PreferencePanel* prefPanel = [PreferencePanel sharedInstance];
         if ([prefPanel isAnyModifierRemapped] && 
             (IsSecureEventInputEnabled() || ![cont haveEventTap])) {
             // The event tap is not working, but we can still remap modifiers for non-system
@@ -102,7 +102,7 @@
             OnHotKeyEvent();
             return;
         }
-        PreferencePanelController* privatePrefPanel = [PreferencePanelController sessionsInstance];
+        PreferencePanel* privatePrefPanel = [PreferencePanel sessionsInstance];
         PseudoTerminal* currentTerminal = [cont currentTerminal];
         PTYTabView* tabView = [currentTerminal tabView];
         PTYSession* currentSession = [currentTerminal currentSession];
