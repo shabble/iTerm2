@@ -40,7 +40,7 @@
 #import "App/KeyBindingManager.h"
 
 #import "Prefs/PreferencePanelController.h"
-#import "Profiles/ProfilesManager.h"
+#import "Profiles/ProfileManager.h"
 
 // Constants for saved window arrangement key names.
 //static NSString* DEFAULT_ARRANGEMENT_NAME = @"Default";
@@ -198,7 +198,7 @@ return NO;
     params.alternateOpenAllSelector = @selector(newSessionsInWindow:);
     params.target = self;
 
-    ProfilesModel* pm = [ProfilesModel sharedInstance];
+    ProfileModel* pm = [ProfileModel sharedInstance];
     int N = [pm numberOfProfiles];
     for (int i = 0; i < N; i++) {
         Profile* p = [pm profileAtIndex:i];

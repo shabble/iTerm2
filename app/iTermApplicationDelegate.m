@@ -34,7 +34,7 @@
 
 
 #import "Profiles/ProfilesWindow.h"
-#import "Profiles/ProfilesManager.h"
+#import "Profiles/ProfileManager.h"
 
 #include <unistd.h>
 
@@ -77,7 +77,7 @@ int gDebugLogFile = -1;
 
         // read preferences
     [PreferencePanelController migratePreferences];
-    [ProfilesManager sharedInstance];
+    [ProfileManager sharedInstance];
     [PreferencePanelController sharedInstance];
 }
 
@@ -518,7 +518,7 @@ void DebugLog(NSString* value)
     params.alternateOpenAllSelector = @selector(newSessionsInWindow:);
     params.target = [iTermController sharedInstance];
 
-    [ProfilesModel applyJournal:[aNotification userInfo]
+    [ProfileModel applyJournal:[aNotification userInfo]
                          toMenu:bookmarkMenu
                  startingAtItem:5
                          params:&params];

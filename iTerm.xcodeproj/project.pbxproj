@@ -14,6 +14,10 @@
 		1D94EAC812D641D3008225A9 /* AddressBook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D94EAC712D641D3008225A9 /* AddressBook.framework */; };
 		1DEE9FDD11FCA60F009E18C9 /* credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 1DEE9FDB11FCA60F009E18C9 /* credits.rtf */; };
 		2C16E34713A72140002F1F58 /* PreferenceKeys.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C16E34613A72140002F1F58 /* PreferenceKeys.h */; };
+		2C16E42913A74430002F1F58 /* ProfileManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C16E42813A74430002F1F58 /* ProfileManager.h */; };
+		2C16E42B13A74435002F1F58 /* ProfileModel.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C16E42A13A74435002F1F58 /* ProfileModel.h */; };
+		2C16E42E13A7443D002F1F58 /* ProfileManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C16E42C13A7443D002F1F58 /* ProfileManager.m */; };
+		2C16E42F13A7443D002F1F58 /* ProfileModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C16E42D13A7443D002F1F58 /* ProfileModel.m */; };
 		2C1C0829139DB34C00E1DA75 /* PreferencesProfilesHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C1C0828139DB34C00E1DA75 /* PreferencesProfilesHelper.h */; };
 		2C1C082B139DB35700E1DA75 /* PreferencesProfilesHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C1C082A139DB35700E1DA75 /* PreferencesProfilesHelper.m */; };
 		2C1C0F01139FD16600E1DA75 /* GTM in Resources */ = {isa = PBXBuildFile; fileRef = 2C1C0F00139FD16600E1DA75 /* GTM */; };
@@ -25,7 +29,6 @@
 		2C2761601395D3ED00D340AA /* iTermController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C27615A1395D3ED00D340AA /* iTermController.m */; };
 		2C2761621395D3ED00D340AA /* KeyBindingManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C27615C1395D3ED00D340AA /* KeyBindingManager.m */; };
 		2C27618A1395D57A00D340AA /* ProfilesListView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2761841395D57A00D340AA /* ProfilesListView.m */; };
-		2C27618B1395D57A00D340AA /* ProfilesModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2761851395D57A00D340AA /* ProfilesModel.m */; };
 		2C27618D1395D57A00D340AA /* ProfilesWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2761871395D57A00D340AA /* ProfilesWindow.m */; };
 		2C27618E1395D57A00D340AA /* ProfileManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2761881395D57A00D340AA /* ProfileManager.m */; };
 		2C7EE22C13960462000305E6 /* iTermApplication.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C7EE1FD13960462000305E6 /* iTermApplication.h */; };
@@ -33,9 +36,7 @@
 		2C7EE22E13960462000305E6 /* iTermController.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C7EE1FF13960462000305E6 /* iTermController.h */; };
 		2C7EE23013960462000305E6 /* KeyBindingManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C7EE20113960462000305E6 /* KeyBindingManager.h */; };
 		2C7EE23B13960462000305E6 /* ProfilesListView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C7EE20C13960462000305E6 /* ProfilesListView.h */; };
-		2C7EE23C13960462000305E6 /* ProfilesModel.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C7EE20D13960462000305E6 /* ProfilesModel.h */; };
 		2C7EE23D13960462000305E6 /* ProfilesWindow.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C7EE20E13960462000305E6 /* ProfilesWindow.h */; };
-		2C7EE23E13960462000305E6 /* ProfilesManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C7EE20F13960462000305E6 /* ProfilesManager.h */; };
 		2C7EE32A13960BFA000305E6 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C7EE32913960BFA000305E6 /* main.m */; };
 		2C7EE32C13960C0C000305E6 /* iTerm.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C7EE32B13960C0C000305E6 /* iTerm.h */; };
 		2C93EF6E13A09861004D78DD /* PreferencesAppearanceHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C93EF6B13A09861004D78DD /* PreferencesAppearanceHelper.m */; };
@@ -124,6 +125,10 @@
 		1DEB293D1288899A00B2CB9F /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = System/Library/Frameworks/Carbon.framework; sourceTree = SDKROOT; };
 		1DEE9FDC11FCA60F009E18C9 /* English */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = English; path = English.lproj/credits.rtf; sourceTree = "<group>"; };
 		2C16E34613A72140002F1F58 /* PreferenceKeys.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PreferenceKeys.h; path = Prefs/PreferenceKeys.h; sourceTree = "<group>"; };
+		2C16E42813A74430002F1F58 /* ProfileManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ProfileManager.h; path = Profiles/ProfileManager.h; sourceTree = "<group>"; };
+		2C16E42A13A74435002F1F58 /* ProfileModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ProfileModel.h; path = Profiles/ProfileModel.h; sourceTree = "<group>"; };
+		2C16E42C13A7443D002F1F58 /* ProfileManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ProfileManager.m; path = Profiles/ProfileManager.m; sourceTree = "<group>"; };
+		2C16E42D13A7443D002F1F58 /* ProfileModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ProfileModel.m; path = Profiles/ProfileModel.m; sourceTree = "<group>"; };
 		2C1C0828139DB34C00E1DA75 /* PreferencesProfilesHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PreferencesProfilesHelper.h; path = Prefs/PreferencesProfilesHelper.h; sourceTree = "<group>"; };
 		2C1C082A139DB35700E1DA75 /* PreferencesProfilesHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PreferencesProfilesHelper.m; path = Prefs/PreferencesProfilesHelper.m; sourceTree = "<group>"; };
 		2C1C0F00139FD16600E1DA75 /* GTM */ = {isa = PBXFileReference; lastKnownFileType = folder; name = GTM; path = Vendor/GTM; sourceTree = "<group>"; };
@@ -143,7 +148,6 @@
 		2C27615A1395D3ED00D340AA /* iTermController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = iTermController.m; path = App/iTermController.m; sourceTree = "<group>"; };
 		2C27615C1395D3ED00D340AA /* KeyBindingManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = KeyBindingManager.m; path = App/KeyBindingManager.m; sourceTree = "<group>"; };
 		2C2761841395D57A00D340AA /* ProfilesListView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ProfilesListView.m; path = Profiles/ProfilesListView.m; sourceTree = "<group>"; };
-		2C2761851395D57A00D340AA /* ProfilesModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ProfilesModel.m; path = Profiles/ProfilesModel.m; sourceTree = "<group>"; };
 		2C2761871395D57A00D340AA /* ProfilesWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ProfilesWindow.m; path = Profiles/ProfilesWindow.m; sourceTree = "<group>"; };
 		2C2761881395D57A00D340AA /* ProfileManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ProfileManager.m; path = Profiles/ProfileManager.m; sourceTree = "<group>"; };
 		2C7EE1FD13960462000305E6 /* iTermApplication.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = iTermApplication.h; path = App/iTermApplication.h; sourceTree = "<group>"; };
@@ -151,9 +155,7 @@
 		2C7EE1FF13960462000305E6 /* iTermController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = iTermController.h; path = App/iTermController.h; sourceTree = "<group>"; };
 		2C7EE20113960462000305E6 /* KeyBindingManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = KeyBindingManager.h; path = App/KeyBindingManager.h; sourceTree = "<group>"; };
 		2C7EE20C13960462000305E6 /* ProfilesListView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ProfilesListView.h; path = Profiles/ProfilesListView.h; sourceTree = "<group>"; };
-		2C7EE20D13960462000305E6 /* ProfilesModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ProfilesModel.h; path = Profiles/ProfilesModel.h; sourceTree = "<group>"; };
 		2C7EE20E13960462000305E6 /* ProfilesWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ProfilesWindow.h; path = Profiles/ProfilesWindow.h; sourceTree = "<group>"; };
-		2C7EE20F13960462000305E6 /* ProfilesManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ProfilesManager.h; path = Profiles/ProfilesManager.h; sourceTree = "<group>"; };
 		2C7EE32313960BC4000305E6 /* iTerm */ = {isa = PBXFileReference; lastKnownFileType = folder; path = iTerm; sourceTree = "<group>"; };
 		2C7EE32913960BFA000305E6 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = iTerm/main.m; sourceTree = "<group>"; };
 		2C7EE32B13960C0C000305E6 /* iTerm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = iTerm.h; path = iTerm/iTerm.h; sourceTree = "<group>"; };
@@ -277,11 +279,13 @@
 		0464AB15006CD2EC7F000001 /* Headers */ = {
 			isa = PBXGroup;
 			children = (
+				2C16E42813A74430002F1F58 /* ProfileManager.h */,
 				2C1C0F02139FD18400E1DA75 /* GTMCarbonEvent.h */,
 				2C1C0F03139FD18400E1DA75 /* GTMDebugSelectorValidation.h */,
 				2C16E34613A72140002F1F58 /* PreferenceKeys.h */,
 				2C1C0F04139FD18400E1DA75 /* GTMDefines.h */,
 				2C1C0F05139FD18400E1DA75 /* GTMObjectSingleton.h */,
+				2C16E42A13A74435002F1F58 /* ProfileModel.h */,
 				2C1C0F06139FD18400E1DA75 /* GTMTypeCasting.h */,
 				2CE2761B139B296D005797CA /* PreferencesModel.h */,
 				2C93EF7113A0988D004D78DD /* PreferencesAppearanceHelper.h */,
@@ -296,9 +300,7 @@
 				2C7EE1FF13960462000305E6 /* iTermController.h */,
 				2C7EE20113960462000305E6 /* KeyBindingManager.h */,
 				2C7EE20C13960462000305E6 /* ProfilesListView.h */,
-				2C7EE20D13960462000305E6 /* ProfilesModel.h */,
 				2C7EE20E13960462000305E6 /* ProfilesWindow.h */,
-				2C7EE20F13960462000305E6 /* ProfilesManager.h */,
 			);
 			name = Headers;
 			sourceTree = "<group>";
@@ -344,6 +346,8 @@
 		2C2761F01395DAA100D340AA /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				2C16E42C13A7443D002F1F58 /* ProfileManager.m */,
+				2C16E42D13A7443D002F1F58 /* ProfileModel.m */,
 				2CE2762D139B2A87005797CA /* PreferencePanelController.m */,
 				2C1C0F17139FD32500E1DA75 /* iTermSearchField.m */,
 				2C93EF6B13A09861004D78DD /* PreferencesAppearanceHelper.m */,
@@ -353,7 +357,6 @@
 				2C1C082A139DB35700E1DA75 /* PreferencesProfilesHelper.m */,
 				2C7EE32913960BFA000305E6 /* main.m */,
 				2C2761841395D57A00D340AA /* ProfilesListView.m */,
-				2C2761851395D57A00D340AA /* ProfilesModel.m */,
 				2C2761871395D57A00D340AA /* ProfilesWindow.m */,
 				2C2761881395D57A00D340AA /* ProfileManager.m */,
 				2C2761581395D3ED00D340AA /* iTermApplication.m */,
@@ -457,9 +460,7 @@
 				2C7EE22E13960462000305E6 /* iTermController.h in Headers */,
 				2C7EE23013960462000305E6 /* KeyBindingManager.h in Headers */,
 				2C7EE23B13960462000305E6 /* ProfilesListView.h in Headers */,
-				2C7EE23C13960462000305E6 /* ProfilesModel.h in Headers */,
 				2C7EE23D13960462000305E6 /* ProfilesWindow.h in Headers */,
-				2C7EE23E13960462000305E6 /* ProfilesManager.h in Headers */,
 				2C7EE32C13960C0C000305E6 /* iTerm.h in Headers */,
 				2CE2761C139B296D005797CA /* PreferencesModel.h in Headers */,
 				2CE2762C139B2A82005797CA /* PreferencePanelController.h in Headers */,
@@ -469,6 +470,8 @@
 				2C93EF7513A0988D004D78DD /* PreferencesGeneralHelper.h in Headers */,
 				2C93EF7613A0988D004D78DD /* PreferencesGlobalKeybindingsHelper.h in Headers */,
 				2C16E34713A72140002F1F58 /* PreferenceKeys.h in Headers */,
+				2C16E42913A74430002F1F58 /* ProfileManager.h in Headers */,
+				2C16E42B13A74435002F1F58 /* ProfileModel.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -614,7 +617,6 @@
 				2C2761601395D3ED00D340AA /* iTermController.m in Sources */,
 				2C2761621395D3ED00D340AA /* KeyBindingManager.m in Sources */,
 				2C27618A1395D57A00D340AA /* ProfilesListView.m in Sources */,
-				2C27618B1395D57A00D340AA /* ProfilesModel.m in Sources */,
 				2C27618D1395D57A00D340AA /* ProfilesWindow.m in Sources */,
 				2C27618E1395D57A00D340AA /* ProfileManager.m in Sources */,
 				2C7EE32A13960BFA000305E6 /* main.m in Sources */,
@@ -625,6 +627,8 @@
 				2C93EF6E13A09861004D78DD /* PreferencesAppearanceHelper.m in Sources */,
 				2C93EF6F13A09861004D78DD /* PreferencesGeneralHelper.m in Sources */,
 				2C93EF7013A09861004D78DD /* PreferencesGlobalKeybindingsHelper.m in Sources */,
+				2C16E42E13A7443D002F1F58 /* ProfileManager.m in Sources */,
+				2C16E42F13A7443D002F1F58 /* ProfileModel.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

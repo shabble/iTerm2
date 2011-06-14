@@ -29,7 +29,7 @@
 
 #import <Foundation/Foundation.h>
 #import <Cocoa/Cocoa.h>
-#import "Profiles/ProfilesModel.h"
+#import "Profiles/ProfileModel.h"
 #import "Prefs/PreferenceKeys.h"
 
 @interface ProfileManager : NSObject
@@ -60,7 +60,7 @@
 - (void)copyProfileToProfile:(NSMutableDictionary *)dict;
 - (void)recursiveMigrateProfiles:(NSDictionary*)node path:(NSArray*)array;
 - (void)setProfiles:(NSArray*)newProfilesArray defaultGuid:(NSString*)guid;
-- (ProfilesModel*)model;
+- (ProfileModel*)model;
 - (void)netServiceBrowser:(NSNetServiceBrowser *)aNetServiceBrowser didFindService:(NSNetService *)aNetService moreComing:(BOOL)moreComing;
 - (void)netServiceBrowser:(NSNetServiceBrowser *)aNetServiceBrowser didRemoveService:(NSNetService *)aNetService moreComing:(BOOL)moreComing;
 - (void)netServiceDidResolveAddress:(NSNetService *)sender;

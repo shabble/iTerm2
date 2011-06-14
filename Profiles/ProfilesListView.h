@@ -23,7 +23,7 @@
  */
 
 #import <Cocoa/Cocoa.h>
-#import "ProfilesModel.h"
+#import "ProfileModel.h"
 
 @class iTermSearchField;
 @class ProfileRow;
@@ -33,15 +33,15 @@
 // It represents bookmarks are BookmarkRow objects which have a
 // key-value coding and can be sorted by the columns relevant to
 // BookmarkListView.
-@interface ProfilesModelWrapper : NSObject
+@interface ProfileModelWrapper : NSObject
 {
-    ProfilesModel* underlyingModel;
+    ProfileModel* underlyingModel;
     NSMutableArray* profiles;
     NSMutableString* filter;
     NSArray* sortDescriptors;
 }
 
-- (id)initWithModel:(ProfilesModel*)model;
+- (id)initWithModel:(ProfileModel*)model;
 - (void)dealloc;
 - (void)setSortDescriptors:(NSArray*)newSortDescriptors;
 - (NSArray*)sortDescriptors;
@@ -60,7 +60,7 @@
 - (int)indexOfProfileWithGuid:(NSString*)guid;
 - (void)moveProfileWithGuid:(NSString*)guid toIndex:(int)index;
 
-- (ProfilesModel*)underlyingModel;
+- (ProfileModel*)underlyingModel;
 
 // Copy bookmarks matchin the filter from the underlying model.
 - (void)sync;
@@ -103,17 +103,17 @@
     BOOL showGraphic_;
     NSSet* selectedGuids_;
     BOOL debug;
-    ProfilesModelWrapper* dataSource_;
+    ProfileModelWrapper* dataSource_;
     
 }
 
 - (void)awakeFromNib;
 - (id)initWithFrame:(NSRect)frameRect;
-- (id)initWithFrame:(NSRect)frameRect model:(ProfilesModel*)dataSource;
+- (id)initWithFrame:(NSRect)frameRect model:(ProfileModel*)dataSource;
 - (void)setDelegate:(id<ProfilesTableDelegate>)delegate;
 - (void)dealloc;
-- (ProfilesModelWrapper*)dataSource;
-- (void)setUnderlyingDatasource:(ProfilesModel*)dataSource;
+- (ProfileModelWrapper*)dataSource;
+- (void)setUnderlyingDatasource:(ProfileModel*)dataSource;
 - (void)focusSearchField;
 
 // Drag drop

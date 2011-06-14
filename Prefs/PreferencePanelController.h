@@ -27,7 +27,7 @@
 
 #import <Cocoa/Cocoa.h>
 #import "Prefs/PreferencesModel.h"
-#import "Profiles/ProfilesModel.h"
+#import "Profiles/ProfileModel.h"
 
 #import "Prefs/PreferencesGeneralHelper.h"
 #import "Prefs/PreferencesAppearanceHelper.h"
@@ -51,7 +51,7 @@
     PreferencesModel *prefsModel;
 
 
-    ProfilesModel* dataSource;
+    ProfileModel* dataSource;
     BOOL oneProfileMode;
     
     // This is actually the tab style. It takes one of these values:
@@ -276,7 +276,7 @@ typedef enum { BulkCopyColors, BulkCopyDisplay, BulkCopyWindow, BulkCopyTerminal
 
 @property (readwrite,retain) PreferencesModel *prefsModel;
 
-- (id)initWithDataSource:(ProfilesModel*)model userDefaults:(NSUserDefaults*)userDefaults;
+- (id)initWithDataSource:(ProfileModel*)model userDefaults:(NSUserDefaults*)userDefaults;
 
 - (IBAction)showGlobalTabView:(id)sender;
 - (IBAction)showAppearanceTabView:(id)sender;

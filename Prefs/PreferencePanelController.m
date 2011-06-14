@@ -28,9 +28,9 @@
 #import "Prefs/PreferencePanelController.h"
 
 #import "App/iTermController.h"
-#import "Profiles/ProfilesManager.h"
+#import "Profiles/ProfileManager.h"
 #import "App/KeyBindingManager.h"
-#import "Profiles/ProfilesModel.h"
+#import "Profiles/ProfileModel.h"
 
 
 #define CUSTOM_COLOR_PRESETS @"Custom Color Presets"
@@ -42,10 +42,10 @@ static float versionNumber;
 @implementation PreferencePanelController
 
 // create accessors sfor our helper classes.
-@synthesize *prefsGeneralHelper;
-@synthesize *prefsAppearanceHelper;
-@synthesize *prefsProfilesHelper;
-@synthesize *prefsGlobalKeysHelper;
+@synthesize prefsGeneralHelper;
+@synthesize prefsAppearanceHelper;
+@synthesize prefsProfilesHelper;
+@synthesize prefsGlobalKeysHelper;
 
 @synthesize prefsModel;
 
@@ -54,9 +54,9 @@ static float versionNumber;
     static PreferencePanelController* shared = nil;
     
     if (!shared) {
-        shared = [[self alloc] initWithDataSource:[BookmarkModel sharedInstance]
+        shared = [[self alloc] initWithDataSource:[ProfileModel sharedInstance]
                                      userDefaults:[NSUserDefaults standardUserDefaults]];
-        shared->oneBookmarkMode = NO;
+        shared->oneProfileMode = NO;
         shared.prefsProfilesHelper = [[PreferencesProfilesHelper alloc] init];
         shared.prefsModel = [[PreferencesModel alloc] init];
     }
@@ -69,9 +69,9 @@ static float versionNumber;
     static PreferencePanelController* shared = nil;
     
     if (!shared) {
-        shared = [[self alloc] initWithDataSource:[BookmarkModel sessionsInstance]
+        shared = [[self alloc] initWithDataSource:[ProfileModel sessionsInstance]
                                      userDefaults:nil];
-        shared->oneBookmarkMode = YES;
+        shared->oneProfileMode = YES;
         shared.prefsProfilesHelper = [[PreferencesProfilesHelper alloc] init];
         shared.prefsModel = [[PreferencesModel alloc] init];
     }
@@ -79,7 +79,7 @@ static float versionNumber;
     return shared;
 }
 
-
+// TODO: move out into own class.
 /*
  Static method to copy old preferences file, iTerm.plist or net.sourceforge.iTerm.plist, to new
  preferences file, com.googlecode.iterm2.plist
@@ -114,17 +114,17 @@ static float versionNumber;
     return (YES);
 }
 
-- (id)initWithDataSource:(BookmarkModel*)model userDefaults:(NSUserDefaults*)userDefaults
+- (id)initWithDataSource:(ProfileModel*)model userDefaults:(NSUserDefaults*)userDefaults
 {
     unsigned int storedMajorVersion = 0, storedMinorVersion = 0, storedMicroVersion = 0;
     
     self = [super init];
     dataSource = model;
     prefs = userDefaults;
-    oneBookmarkOnly = NO;
+    oneProfileOnly = NO;
     [self readPreferences];
     if (defaultEnableBonjour == YES) {
-        [[ProfilesModel sharedInstance] locateBonjourServices];
+        [[ProfileManager sharedInstance] locateBonjourServices];
     }
     
     // get the version
@@ -171,30 +171,30 @@ static float versionNumber;
  */
 }
 
-- (void)setOneBookmarkOnly
+- (void)setOneProfileOnly
 {
-    oneBookmarkOnly = YES;
-    [self showBookmarks];
+    oneProfileOnly = YES;
+    [self showProfiles];
     [toolbar setVisible:NO];
-    [bookmarksTableView setHidden:YES];
-    [addBookmarkButton setHidden:YES];
-    [removeBookmarkButton setHidden:YES];
-    [bookmarksPopup setHidden:YES];
-    [bookmarkDirectory setHidden:YES];
-    [bookmarkShortcutKeyLabel setHidden:YES];
-    [bookmarkShortcutKeyModifiersLabel setHidden:YES];
-    [bookmarkTagsLabel setHidden:YES];
-    [bookmarkCommandLabel setHidden:YES];
-    [bookmarkDirectoryLabel setHidden:YES];
-    [bookmarkShortcutKey setHidden:YES];
+    [profilesTableView setHidden:YES];
+    [addProfileButton setHidden:YES];
+    [removeProfileButton setHidden:YES];
+    [profilesPopup setHidden:YES];
+    [profileDirectory setHidden:YES];
+    [profileShortcutKeyLabel setHidden:YES];
+    [profileShortcutKeyModifiersLabel setHidden:YES];
+    [profileTagsLabel setHidden:YES];
+    [profileCommandLabel setHidden:YES];
+    [profileDirectoryLabel setHidden:YES];
+    [profileShortcutKey setHidden:YES];
     [tags setHidden:YES];
-    [bookmarkCommandType setHidden:YES];
-    [bookmarkCommand setHidden:YES];
-    [bookmarkDirectoryType setHidden:YES];
-    [bookmarkDirectory setHidden:YES];
-    [bookmarkUrlSchemes setHidden:YES];
-    [bookmarkUrlSchemesHeaderLabel setHidden:YES];
-    [bookmarkUrlSchemesLabel setHidden:YES];
+    [profileCommandType setHidden:YES];
+    [profileCommand setHidden:YES];
+    [profileDirectoryType setHidden:YES];
+    [profileDirectory setHidden:YES];
+    [profileUrlSchemes setHidden:YES];
+    [profileUrlSchemesHeaderLabel setHidden:YES];
+    [profileUrlSchemesLabel setHidden:YES];
     [copyToProfileButton setHidden:NO];
     
     [columnsLabel setTextColor:[NSColor disabledControlTextColor]];
@@ -209,12 +209,12 @@ static float versionNumber;
     [windowTypeLabel setTextColor:[NSColor disabledControlTextColor]];
     [newWindowttributesHeader setTextColor:[NSColor disabledControlTextColor]];
     
-    NSRect newFrame = [bookmarksSettingsTabViewParent frame];
+    NSRect newFrame = [profilesSettingsTabViewParent frame];
     newFrame.origin.x = 0;
-    [bookmarksSettingsTabViewParent setFrame:newFrame];
+    [profilesSettingsTabViewParent setFrame:newFrame];
     
     newFrame = [[self window] frame];
-    newFrame.size.width = [bookmarksSettingsTabViewParent frame].size.width + 26;
+    newFrame.size.width = [profilesSettingsTabViewParent frame].size.width + 26;
     [[self window] setFrame:newFrame display:YES];
 }
 
@@ -475,7 +475,7 @@ static float versionNumber;
         [screenButton setEnabled:NO];
         [screenLabel setTextColor:[NSColor disabledControlTextColor]];
         [screenButton selectItemWithTag:-1];
-    } else if (!oneBookmarkOnly) {
+    } else if (!oneProfileOnly) {
         [screenButton setEnabled:YES];
         [screenLabel setTextColor:[NSColor blackColor]];
     }
@@ -485,10 +485,10 @@ static float versionNumber;
 {
     [self window];
     [[self window] setCollectionBehavior:NSWindowCollectionBehaviorMoveToActiveSpace];
-    NSAssert(bookmarksTableView, @"Null table view");
-    [bookmarksTableView setUnderlyingDatasource:dataSource];
+    NSAssert(profilesTableView, @"Null table view");
+    [profilesTableView setUnderlyingDatasource:dataSource];
     
-    bookmarksToolbarId = [bookmarksToolbarItem itemIdentifier];
+    profilesToolbarId = [profilesToolbarItem itemIdentifier];
     globalToolbarId = [globalToolbarItem itemIdentifier];
     appearanceToolbarId = [appearanceToolbarItem itemIdentifier];
     keyboardToolbarId = [keyboardToolbarItem itemIdentifier];
@@ -528,8 +528,8 @@ static float versionNumber;
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(handleWindowWillCloseNotification:)
                                                  name:NSWindowWillCloseNotification object: [self window]];
-    if (oneBookmarkMode) {
-        [self setOneBookmarkOnly];
+    if (oneProfileMode) {
+        [self setOneProfileOnly];
     }
     [[tags cell] setDelegate:self];
     [tags setDelegate:self];
@@ -539,7 +539,7 @@ static float versionNumber;
 {
     // This is so tags get saved because Cocoa doesn't notify you that the
     // field changed unless the user presses enter twice in it (!).
-    [self bookmarkSettingChanged:nil];
+    [self profileSettingChanged:nil];
 }
 
 - (void)genericCloseSheet:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
@@ -548,7 +548,7 @@ static float versionNumber;
     [sheet close];
 }
 
-- (BOOL)_originatorIsBookmark:(id)originator
+- (BOOL)_originatorIsProfile:(id)originator
 {
     return originator == addNewMapping || originator == keyMappings;
 }
@@ -560,26 +560,26 @@ static float versionNumber;
     }
 }
 
-- (void)_populatePopUpButtonWithBookmarks:(NSPopUpButton*)button selectedGuid:(NSString*)selectedGuid
+- (void)_populatePopUpButtonWithProfiles:(NSPopUpButton*)button selectedGuid:(NSString*)selectedGuid
 {
     int selectedIndex = 0;
     int i = 0;
     [button removeAllItems];
-    NSArray* bookmarks = [[BookmarkModel sharedInstance] bookmarks];
-    for (Bookmark* bookmark in bookmarks) {
+    NSArray* profiles = [[ProfileModel sharedInstance] profiles];
+    for (Profile* profile in profiles) {
         int j = 0;
         NSString* temp;
         do {
             if (j == 0) {
-                temp = [bookmark objectForKey:KEY_NAME];
+                temp = [profile objectForKey:KEY_NAME];
             } else {
-                temp = [NSString stringWithFormat:@"%@ (%d)", [bookmark objectForKey:KEY_NAME], j];
+                temp = [NSString stringWithFormat:@"%@ (%d)", [profile objectForKey:KEY_NAME], j];
             }
             j++;
         } while ([button indexOfItemWithTitle:temp] != -1);
         [button addItemWithTitle:temp];
         NSMenuItem* item = [button lastItem];
-        [item setRepresentedObject:[bookmark objectForKey:KEY_GUID]];
+        [item setRepresentedObject:[profile objectForKey:KEY_GUID]];
         if ([[item representedObject] isEqualToString:selectedGuid]) {
             selectedIndex = i;
         }
@@ -592,7 +592,7 @@ static float versionNumber;
 {
     int rowIndex;
     modifyMappingOriginator = sender;
-    if ([self _originatorIsBookmark:sender]) {
+    if ([self _originatorIsProfile:sender]) {
         rowIndex = [keyMappings selectedRow];
     } else {
         rowIndex = [globalKeyMappings selectedRow];
@@ -622,7 +622,7 @@ static float versionNumber;
     }
     NSString* text = [[self keyInfoAtIndex:rowIndex originator:sender] objectForKey:@"Text"];
     [valueToSend setStringValue:text ? text : @""];
-    [self _populatePopUpButtonWithBookmarks:bookmarkPopupButton
+    [self _populatePopUpButtonWithProfiles:profilePopupButton
                                selectedGuid:text];
     
     [self updateValueToSend];
@@ -703,10 +703,10 @@ static float versionNumber;
     return YES;
 }
 
-- (BOOL)_anyBookmarkHasKeyMapping:(NSString*)theString
+- (BOOL)_anyProfileHasKeyMapping:(NSString*)theString
 {
-    for (Bookmark* bookmark in [[BookmarkModel sharedInstance] bookmarks]) {
-        if ([iTermKeyBindingMgr haveKeyMappingForKeyString:theString inBookmark:bookmark]) {
+    for (Profile* profile in [[ProfileModel sharedInstance] profiles]) {
+        if ([iTermKeyBindingMgr haveKeyMappingForKeyString:theString inProfile:profile]) {
             return YES;
         }
     }
@@ -726,12 +726,12 @@ static float versionNumber;
         theAction == KEY_ACTION_SPLIT_VERTICALLY_WITH_PROFILE ||
         theAction == KEY_ACTION_NEW_TAB_WITH_PROFILE ||
         theAction == KEY_ACTION_NEW_WINDOW_WITH_PROFILE) {
-        theParam = [[bookmarkPopupButton selectedItem] representedObject];
+        theParam = [[profilePopupButton selectedItem] representedObject];
     }
-    if ([self _originatorIsBookmark:modifyMappingOriginator]) {
-        NSString* guid = [bookmarksTableView selectedGuid];
+    if ([self _originatorIsProfile:modifyMappingOriginator]) {
+        NSString* guid = [profilesTableView selectedGuid];
         NSAssert(guid, @"Null guid unexpected here");
-        dict = [NSMutableDictionary dictionaryWithDictionary:[dataSource bookmarkWithGuid:guid]];
+        dict = [NSMutableDictionary dictionaryWithDictionary:[dataSource profileWithGuid:guid]];
         NSAssert(dict, @"Can't find node");
         if ([iTermKeyBindingMgr haveGlobalKeyMappingForKeyString:keyString]) {
             if (![self _warnAboutOverride]) {
@@ -744,13 +744,13 @@ static float versionNumber;
                                        action:theAction
                                         value:theParam
                                     createNew:newMapping
-                                   inBookmark:dict];
-        [dataSource setBookmark:dict withGuid:guid];
+                                   inProfile:dict];
+        [dataSource setProfile:dict withGuid:guid];
         [keyMappings reloadData];
-        [self bookmarkSettingChanged:sender];
+        [self profileSettingChanged:sender];
     } else {
         dict = [NSMutableDictionary dictionaryWithDictionary:[iTermKeyBindingMgr globalKeyMap]];
-        if ([self _anyBookmarkHasKeyMapping:keyString]) {
+        if ([self _anyProfileHasKeyMapping:keyString]) {
             if (![self _warnAboutPossibleOverride]) {
                 return;
             }
@@ -794,8 +794,8 @@ static float versionNumber;
         return globalToolbarItem;
     } else if ([itemIdentifier isEqual:appearanceToolbarId]) {
         return appearanceToolbarItem;
-    } else if ([itemIdentifier isEqual:bookmarksToolbarId]) {
-        return bookmarksToolbarItem;
+    } else if ([itemIdentifier isEqual:profilesToolbarId]) {
+        return profilesToolbarItem;
     } else if ([itemIdentifier isEqual:keyboardToolbarId]) {
         return keyboardToolbarItem;
     } else {
@@ -807,14 +807,14 @@ static float versionNumber;
 {
     return [NSArray arrayWithObjects:globalToolbarId,
             appearanceToolbarId,
-            bookmarksToolbarId,
+            profilesToolbarId,
             keyboardToolbarId,
             nil];
 }
 
 - (NSArray *)toolbarDefaultItemIdentifiers:(NSToolbar *)toolbar
 {
-    return [NSArray arrayWithObjects:globalToolbarId, appearanceToolbarId, bookmarksToolbarId, keyboardToolbarId, nil];
+    return [NSArray arrayWithObjects:globalToolbarId, appearanceToolbarId, profilesToolbarId, keyboardToolbarId, nil];
 }
 
 - (NSArray *)toolbarSelectableItemIdentifiers: (NSToolbar *)toolbar
@@ -823,7 +823,7 @@ static float versionNumber;
     // toolbar items that are selectable.
     return [NSArray arrayWithObjects:globalToolbarId,
             appearanceToolbarId,
-            bookmarksToolbarId,
+            profilesToolbarId,
             keyboardToolbarId,
             nil];
 }
@@ -838,7 +838,7 @@ static float versionNumber;
 }
 
 // Force the key binding for delete to be either ^H or absent.
-- (void)_setDeleteKeyMapToCtrlH:(BOOL)sendCtrlH inBookmark:(NSMutableDictionary*)bookmark
+- (void)_setDeleteKeyMapToCtrlH:(BOOL)sendCtrlH inProfile:(NSMutableDictionary*)profile
 {
     if (sendCtrlH) {
         [iTermKeyBindingMgr setMappingAtIndex:0
@@ -846,30 +846,30 @@ static float versionNumber;
                                        action:KEY_ACTION_SEND_C_H_BACKSPACE
                                         value:@""
                                     createNew:YES
-                                   inBookmark:bookmark];
+                                   inProfile:profile];
     } else {
         [iTermKeyBindingMgr removeMappingWithCode:0x7f
                                         modifiers:0
-                                       inBookmark:bookmark];
+                                       inProfile:profile];
     }
 }
 
-// Returns true if and only if there is a key mapping in the bookmark for delete
+// Returns true if and only if there is a key mapping in the profile for delete
 // to send exactly ^H.
-- (BOOL)_deleteSendsCtrlHInBookmark:(Bookmark*)bookmark
+- (BOOL)_deleteSendsCtrlHInProfile:(Profile*)profile
 {
     NSString* text;
     return ([iTermKeyBindingMgr localActionForKeyCode:0x7f
                                             modifiers:0
                                                  text:&text
-                                          keyMappings:[bookmark objectForKey:KEY_KEYBOARD_MAP]] == KEY_ACTION_SEND_C_H_BACKSPACE);
+                                          keyMappings:[profile objectForKey:KEY_KEYBOARD_MAP]] == KEY_ACTION_SEND_C_H_BACKSPACE);
 }
 
 - (void)readPreferences
 {
     if (!prefs) {
-        // In one-bookmark mode there are no prefs, but this function only reads
-        // non-bookmark related stuff.
+        // In one-profile mode there are no prefs, but this function only reads
+        // non-profile related stuff.
         return;
     }
     // Force antialiasing to be allowed on small font sizes
@@ -892,7 +892,7 @@ static float versionNumber;
     defaultOnlyWhenMoreTabs            = [prefs objectForKey:@"OnlyWhenMoreTabs"]            ?[[prefs objectForKey:@"OnlyWhenMoreTabs"] boolValue]: YES;
     defaultFocusFollowsMouse           = [prefs objectForKey:@"FocusFollowsMouse"]           ?[[prefs objectForKey:@"FocusFollowsMouse"] boolValue]: NO;
     defaultHotkeyTogglesWindow         = [prefs objectForKey:@"HotKeyTogglesWindow"]         ?[[prefs objectForKey:@"HotKeyTogglesWindow"] boolValue]: NO;
-    defaultHotKeyBookmarkGuid          = [[prefs objectForKey:@"HotKeyBookmark"] copy];
+    defaultHotKeyProfileGuid          = [[prefs objectForKey:@"HotKeyBookmark"] copy];
     defaultEnableBonjour               = [prefs objectForKey:@"EnableRendezvous"]            ?[[prefs objectForKey:@"EnableRendezvous"] boolValue]: NO;
     defaultCmdSelection                = [prefs objectForKey:@"CommandSelection"]            ?[[prefs objectForKey:@"CommandSelection"] boolValue]: YES;
     defaultPassOnControlLeftClick      = [prefs objectForKey:@"PassOnControlClick"]          ?[[prefs objectForKey:@"PassOnControlClick"] boolValue] : NO;
@@ -907,14 +907,14 @@ static float versionNumber;
     [defaultWordChars release];
     defaultWordChars                   = [prefs objectForKey: @"WordCharacters"]             ?[[prefs objectForKey: @"WordCharacters"] retain]:@"/-+\\~_.";
 
-    defaultOpenBookmark                = [prefs objectForKey:@"OpenBookmark"]                ?[[prefs objectForKey:@"OpenBookmark"] boolValue]: NO;
+    defaultOpenProfile                = [prefs objectForKey:@"OpenBookmark"]                ?[[prefs objectForKey:@"OpenBookmark"] boolValue]: NO;
     defaultQuitWhenAllWindowsClosed    = [prefs objectForKey:@"QuitWhenAllWindowsClosed"]    ?[[prefs objectForKey:@"QuitWhenAllWindowsClosed"] boolValue]: NO;
     defaultCheckUpdate                 = [prefs objectForKey:@"SUEnableAutomaticChecks"]     ?[[prefs objectForKey:@"SUEnableAutomaticChecks"] boolValue]: YES;
     defaultHideScrollbar               = [prefs objectForKey:@"HideScrollbar"]               ?[[prefs objectForKey:@"HideScrollbar"] boolValue]: NO;
     defaultSmartPlacement              = [prefs objectForKey:@"SmartPlacement"]              ?[[prefs objectForKey:@"SmartPlacement"] boolValue]: NO;
     defaultWindowNumber                = [prefs objectForKey:@"WindowNumber"]                ?[[prefs objectForKey:@"WindowNumber"] boolValue]: YES;
     defaultJobName                     = [prefs objectForKey:@"JobName"]                     ?[[prefs objectForKey:@"JobName"] boolValue]: YES;
-    defaultShowBookmarkName            = [prefs objectForKey:@"ShowBookmarkName"]            ?[[prefs objectForKey:@"ShowBookmarkName"] boolValue] : NO;
+    defaultShowProfileName            = [prefs objectForKey:@"ShowBookmarkName"]            ?[[prefs objectForKey:@"ShowBookmarkName"] boolValue] : NO;
     defaultHotkey                      = [prefs objectForKey:@"Hotkey"]                      ?[[prefs objectForKey:@"Hotkey"] boolValue]: NO;
     defaultHotkeyCode                  = [prefs objectForKey:@"HotkeyCode"]                  ?[[prefs objectForKey:@"HotkeyCode"] intValue]: 0;
     defaultHotkeyChar                  = [prefs objectForKey:@"HotkeyChar"]                  ?[[prefs objectForKey:@"HotkeyChar"] intValue]: 0;
@@ -949,37 +949,37 @@ static float versionNumber;
     [prefs setObject:appCast forKey:@"SUFeedURL"];
     
     if ([[prefs objectForKey:@"DeleteSendsCtrlH"] boolValue]) {
-        // Migrate legacy global "delete sends ^h setting" to each bookmark's
+        // Migrate legacy global "delete sends ^h setting" to each profile's
         // keymap. We change the array while looping over it, but only in a
         // safe way--modifying the pointer of an item we'll never look at again.
         // To avoid bogus errors, we enumerate it manually.
         // The legacy setting existed only around Alpha 17.
-        NSArray* bookmarks = [[BookmarkModel sharedInstance] bookmarks];
-        for (int i = 0; i < [bookmarks count]; i++) {
-            Bookmark* bookmark = [bookmarks objectAtIndex:i];
+        NSArray* profiles = [[ProfileModel sharedInstance] profiles];
+        for (int i = 0; i < [profiles count]; i++) {
+            Profile* profile = [profiles objectAtIndex:i];
             NSString* text;
             if ([iTermKeyBindingMgr localActionForKeyCode:0x7f
                                                 modifiers:0
                                                      text:&text
-                                              keyMappings:[bookmark objectForKey:KEY_KEYBOARD_MAP]] == -1) {
-                // Bookmark does not map delete key at all. Add a ^H map.
-                NSMutableDictionary* temp = [NSMutableDictionary dictionaryWithDictionary:bookmark];
-                [self _setDeleteKeyMapToCtrlH:YES inBookmark:temp];
-                [[BookmarkModel sharedInstance] setBookmark:temp atIndex:i];
+                                              keyMappings:[profile objectForKey:KEY_KEYBOARD_MAP]] == -1) {
+                // Profile does not map delete key at all. Add a ^H map.
+                NSMutableDictionary* temp = [NSMutableDictionary dictionaryWithDictionary:profile];
+                [self _setDeleteKeyMapToCtrlH:YES inProfile:temp];
+                [[ProfileModel sharedInstance] setProfile:temp atIndex:i];
             }
         }
         [prefs removeObjectForKey:@"DeleteSendsCtrlH"];
     }
     
     // Migrate old-style (iTerm 0.x) URL handlers.
-    // make sure bookmarks are loaded
-    [ProfilesModel sharedInstance];
+    // make sure profiles are loaded
+    [ProfileModel sharedInstance];
     
-    // read in the handlers by converting the index back to bookmarks
+    // read in the handlers by converting the index back to profiles
     urlHandlersByGuid = [[NSMutableDictionary alloc] init];
     NSDictionary *tempDict = [prefs objectForKey:@"URLHandlersByGuid"];
     if (!tempDict) {
-        // Iterate over old style url handlers (which stored bookmark by index)
+        // Iterate over old style url handlers (which stored profile by index)
         // and add guid->urlkey to urlHandlersByGuid.
         tempDict = [prefs objectForKey:@"URLHandlers"];
         
@@ -988,11 +988,11 @@ static float versionNumber;
             id key;
             
             while ((key = [enumerator nextObject])) {
-                //NSLog(@"%@\n%@",[tempDict objectForKey:key], [[ProfilesModel sharedInstance] bookmarkForIndex:[[tempDict objectForKey:key] intValue]]);
+                //NSLog(@"%@\n%@",[tempDict objectForKey:key], [[ProfileModel sharedInstance] profileForIndex:[[tempDict objectForKey:key] intValue]]);
                 int theIndex = [[tempDict objectForKey:key] intValue];
                 if (theIndex >= 0 &&
-                    theIndex  < [dataSource numberOfBookmarks]) {
-                    NSString* guid = [[dataSource bookmarkAtIndex:theIndex] objectForKey:KEY_GUID];
+                    theIndex  < [dataSource numberOfProfiles]) {
+                    NSString* guid = [[dataSource profileAtIndex:theIndex] objectForKey:KEY_GUID];
                     [urlHandlersByGuid setObject:guid forKey:key];
                 }
             }
@@ -1002,9 +1002,9 @@ static float versionNumber;
         id key;
         
         while ((key = [enumerator nextObject])) {
-            //NSLog(@"%@\n%@",[tempDict objectForKey:key], [[ProfilesModel sharedInstance] bookmarkForIndex:[[tempDict objectForKey:key] intValue]]);
+            //NSLog(@"%@\n%@",[tempDict objectForKey:key], [[ProfileModel sharedInstance] profileForIndex:[[tempDict objectForKey:key] intValue]]);
             NSString* guid = [tempDict objectForKey:key];
-            if ([dataSource indexOfBookmarkWithGuid:guid] >= 0) {
+            if ([dataSource indexOfProfileWithGuid:guid] >= 0) {
                 [urlHandlersByGuid setObject:guid forKey:key];
             }
         }
@@ -1014,8 +1014,8 @@ static float versionNumber;
 - (void)savePreferences
 {
     if (!prefs) {
-        // In one-bookmark mode there are no prefs but this function doesn't
-        // affect bookmarks.
+        // In one-profile mode there are no prefs but this function doesn't
+        // affect profiles.
         return;
     }
     
@@ -1029,7 +1029,7 @@ static float versionNumber;
     [prefs setBool:defaultOnlyWhenMoreTabs forKey:@"OnlyWhenMoreTabs"];
     [prefs setBool:defaultFocusFollowsMouse forKey:@"FocusFollowsMouse"];
     [prefs setBool:defaultHotkeyTogglesWindow forKey:@"HotKeyTogglesWindow"];
-    [prefs setValue:defaultHotKeyBookmarkGuid forKey:@"HotKeyBookmark"];
+    [prefs setValue:defaultHotKeyProfileGuid forKey:@"HotKeyBookmark"];
     [prefs setBool:defaultEnableBonjour forKey:@"EnableRendezvous"];
     [prefs setBool:defaultCmdSelection forKey:@"CommandSelection"];
     [prefs setBool:defaultPassOnControlLeftClick forKey:@"PassOnControlClick"];
@@ -1041,7 +1041,7 @@ static float versionNumber;
     [prefs setFloat:defaultStrokeThickness forKey:@"HiddenAFRStrokeThickness"];
     [prefs setFloat:defaultFsTabDelay forKey:@"FsTabDelay"];
     [prefs setObject: defaultWordChars forKey: @"WordCharacters"];
-    [prefs setBool:defaultOpenBookmark forKey:@"OpenBookmark"];
+    [prefs setBool:defaultOpenProfile forKey:@"OpenBookmark"];
     [prefs setObject:[dataSource rawData] forKey: @"New Bookmarks"];
     [prefs setBool:defaultQuitWhenAllWindowsClosed forKey:@"QuitWhenAllWindowsClosed"];
     [prefs setBool:defaultCheckUpdate forKey:@"SUEnableAutomaticChecks"];
@@ -1049,7 +1049,7 @@ static float versionNumber;
     [prefs setBool:defaultSmartPlacement forKey:@"SmartPlacement"];
     [prefs setBool:defaultWindowNumber forKey:@"WindowNumber"];
     [prefs setBool:defaultJobName forKey:@"JobName"];
-    [prefs setBool:defaultShowBookmarkName forKey:@"ShowBookmarkName"];
+    [prefs setBool:defaultShowProfileName forKey:@"ShowBookmarkName"];
     [prefs setBool:defaultHotkey forKey:@"Hotkey"];
     [prefs setInteger:defaultHotkeyCode forKey:@"HotkeyCode"];
     [prefs setInteger:defaultHotkeyChar forKey:@"HotkeyChar"];
@@ -1069,19 +1069,19 @@ static float versionNumber;
     [prefs setInteger:defaultSwitchTabModifier forKey:@"SwitchTabModifier"];
     [prefs setInteger:defaultSwitchWindowModifier forKey:@"SwitchWindowModifier"];
     
-    // save the handlers by converting the bookmark into an index
+    // save the handlers by converting the profile into an index
     [prefs setObject:urlHandlersByGuid forKey:@"URLHandlersByGuid"];
     
     [prefs synchronize];
 }
 
-- (void)_populateHotKeyBookmarksMenu
+- (void)_populateHotKeyProfilesMenu
 {
-    if (!hotkeyBookmark) {
+    if (!hotkeyProfile) {
         return;
     }
-    [self _populatePopUpButtonWithBookmarks:hotkeyBookmark
-                               selectedGuid:defaultHotKeyBookmarkGuid];
+    [self _populatePopUpButtonWithProfiles:hotkeyProfile
+                               selectedGuid:defaultHotKeyProfileGuid];
 }
 
 - (void)run
@@ -1106,7 +1106,7 @@ static float versionNumber;
     [onlyWhenMoreTabs setEnabled: defaultPromptOnClose];
     [focusFollowsMouse setState: defaultFocusFollowsMouse?NSOnState:NSOffState];
     [hotkeyTogglesWindow setState: defaultHotkeyTogglesWindow?NSOnState:NSOffState];
-    [self _populateHotKeyBookmarksMenu];
+    [self _populateHotKeyProfilesMenu];
     [enableBonjour setState: defaultEnableBonjour?NSOnState:NSOffState];
     [cmdSelection setState: defaultCmdSelection?NSOnState:NSOffState];
     [passOnControlLeftClick setState: defaultPassOnControlLeftClick?NSOnState:NSOffState];
@@ -1122,7 +1122,7 @@ static float versionNumber;
     [strokeThickness setFloatValue:defaultStrokeThickness];
     [fsTabDelay setFloatValue:defaultFsTabDelay];
     
-    [openBookmark setState: defaultOpenBookmark?NSOnState:NSOffState];
+    [openProfile setState: defaultOpenProfile?NSOnState:NSOffState];
     [wordChars setStringValue: ([defaultWordChars length] > 0)?defaultWordChars:@""];
     [quitWhenAllWindowsClosed setState: defaultQuitWhenAllWindowsClosed?NSOnState:NSOffState];
     [checkUpdate setState: defaultCheckUpdate?NSOnState:NSOffState];
@@ -1130,7 +1130,7 @@ static float versionNumber;
     [smartPlacement setState: defaultSmartPlacement?NSOnState:NSOffState];
     [windowNumber setState: defaultWindowNumber?NSOnState:NSOffState];
     [jobName setState: defaultJobName?NSOnState:NSOffState];
-    [showBookmarkName setState: defaultShowBookmarkName?NSOnState:NSOffState];
+    [showProfileName setState: defaultShowProfileName?NSOnState:NSOffState];
     [savePasteHistory setState: defaultSavePasteHistory?NSOnState:NSOffState];
     [openArrangementAtStartup setState:defaultOpenArrangementAtStartup ? NSOnState : NSOffState];
     [openArrangementAtStartup setEnabled:[[iTermController sharedInstance] hasWindowArrangement]];
@@ -1146,7 +1146,7 @@ static float versionNumber;
     [hotkeyField setEnabled:defaultHotkey];
     [hotkeyLabel setTextColor:defaultHotkey ? [NSColor blackColor] : [NSColor disabledControlTextColor]];
     [hotkeyTogglesWindow setEnabled:defaultHotkey];
-    [hotkeyBookmark setEnabled:(defaultHotkey && defaultHotkeyTogglesWindow)];
+    [hotkeyProfile setEnabled:(defaultHotkey && defaultHotkeyTogglesWindow)];
     
     [irMemory setIntValue:defaultIrMemory];
     [checkTestRelease setState:defaultCheckTestRelease?NSOnState:NSOffState];
@@ -1155,26 +1155,26 @@ static float versionNumber;
     
     [self showWindow: self];
     [[self window] setLevel:NSNormalWindowLevel];
-    NSString* guid = [bookmarksTableView selectedGuid];
-    [bookmarksTableView reloadData];
-    if ([[bookmarksTableView selectedGuids] count] == 1) {
-        Bookmark* dict = [dataSource bookmarkWithGuid:guid];
-        [bookmarksSettingsTabViewParent setHidden:NO];
-        [bookmarksPopup setEnabled:NO];
-        [self updateBookmarkFields:dict];
+    NSString* guid = [profilesTableView selectedGuid];
+    [profilesTableView reloadData];
+    if ([[profilesTableView selectedGuids] count] == 1) {
+        Profile* dict = [dataSource profileWithGuid:guid];
+        [profilesSettingsTabViewParent setHidden:NO];
+        [profilesPopup setEnabled:NO];
+        [self updateProfileFields:dict];
     } else {
-        [bookmarksPopup setEnabled:YES];
-        [bookmarksSettingsTabViewParent setHidden:YES];
-        if ([[bookmarksTableView selectedGuids] count] == 0) {
-            [removeBookmarkButton setEnabled:NO];
+        [profilesPopup setEnabled:YES];
+        [profilesSettingsTabViewParent setHidden:YES];
+        if ([[profilesTableView selectedGuids] count] == 0) {
+            [removeProfileButton setEnabled:NO];
         } else {
-            [removeBookmarkButton setEnabled:[[bookmarksTableView selectedGuids] count] < [[bookmarksTableView dataSource] numberOfBookmarks]];
+            [removeProfileButton setEnabled:[[profilesTableView selectedGuids] count] < [[profilesTableView dataSource] numberOfProfiles]];
         }
-        [self updateBookmarkFields:nil];
+        [self updateProfileFields:nil];
     }
     
-    if (![bookmarksTableView selectedGuid] && [bookmarksTableView numberOfRows]) {
-        [bookmarksTableView selectRowIndex:0];
+    if (![profilesTableView selectedGuid] && [profilesTableView numberOfRows]) {
+        [profilesTableView selectRowIndex:0];
     }
     
     [controlButton selectItemWithTag:defaultControl];
@@ -1238,7 +1238,7 @@ static float versionNumber;
 
 - (void)_generateHotkeyWindowProfile
 {
-    NSMutableDictionary* dict = [NSMutableDictionary dictionaryWithDictionary:[[BookmarkModel sharedInstance] defaultBookmark]];
+    NSMutableDictionary* dict = [NSMutableDictionary dictionaryWithDictionary:[[ProfileModel sharedInstance] defaultProfile]];
     [dict setObject:[NSNumber numberWithInt:WINDOW_TYPE_TOP] forKey:KEY_WINDOW_TYPE];
     [dict setObject:[NSNumber numberWithInt:25] forKey:KEY_ROWS];
     [dict setObject:[NSNumber numberWithFloat:0.3] forKey:KEY_TRANSPARENCY];
@@ -1249,8 +1249,8 @@ static float versionNumber;
     [dict setObject:HOTKEY_WINDOW_GENERATED_PROFILE_NAME forKey:KEY_NAME];
     [dict removeObjectForKey:KEY_TAGS];
     [dict setObject:@"No" forKey:KEY_DEFAULT_BOOKMARK];
-    [dict setObject:[BookmarkModel freshGuid] forKey:KEY_GUID];
-    [[BookmarkModel sharedInstance] addBookmark:dict];
+    [dict setObject:[ProfileModel freshGuid] forKey:KEY_GUID];
+    [[ProfileModel sharedInstance] addProfile:dict];
 }
 
 - (IBAction)settingChanged:(id)sender
@@ -1284,10 +1284,10 @@ static float versionNumber;
                                                           userInfo:nil];
     } else if (sender == windowNumber ||
                sender == jobName ||
-               sender == showBookmarkName) {
+               sender == showProfileName) {
         defaultWindowNumber = ([windowNumber state] == NSOnState);
         defaultJobName = ([jobName state] == NSOnState);
-        defaultShowBookmarkName = ([showBookmarkName state] == NSOnState);
+        defaultShowProfileName = ([showProfileName state] == NSOnState);
         [[NSNotificationCenter defaultCenter] postNotificationName:@"iTermUpdateLabels"
                                                             object:nil
                                                           userInfo:nil];
@@ -1304,10 +1304,10 @@ static float versionNumber;
     } else {
         if (sender == hotkeyTogglesWindow &&
             [hotkeyTogglesWindow state] == NSOnState &&
-            ![[BookmarkModel sharedInstance] bookmarkWithName:HOTKEY_WINDOW_GENERATED_PROFILE_NAME]) {
-            // User's turning on hotkey window. There is no bookmark with the autogenerated name.
+            ![[ProfileModel sharedInstance] profileWithName:HOTKEY_WINDOW_GENERATED_PROFILE_NAME]) {
+            // User's turning on hotkey window. There is no profile with the autogenerated name.
             [self _generateHotkeyWindowProfile];
-            [hotkeyBookmark selectItemWithTitle:HOTKEY_WINDOW_GENERATED_PROFILE_NAME];
+            [hotkeyProfile selectItemWithTitle:HOTKEY_WINDOW_GENERATED_PROFILE_NAME];
             NSRunAlertPanel(@"Set Up Hotkey Window",
                             [NSString stringWithFormat:@"A new profile called \"%@\" was created for you. It is tuned to work well for the Hotkey Window feature, but you can change it in the Profiles tab.",
                              HOTKEY_WINDOW_GENERATED_PROFILE_NAME],
@@ -1326,26 +1326,26 @@ static float versionNumber;
         [onlyWhenMoreTabs setEnabled: defaultPromptOnClose];
         defaultFocusFollowsMouse = ([focusFollowsMouse state] == NSOnState);
         defaultHotkeyTogglesWindow = ([hotkeyTogglesWindow state] == NSOnState);
-        [defaultHotKeyBookmarkGuid release];
-        defaultHotKeyBookmarkGuid = [[[hotkeyBookmark selectedItem] representedObject] copy];
+        [defaultHotKeyProfileGuid release];
+        defaultHotKeyProfileGuid = [[[hotkeyProfile selectedItem] representedObject] copy];
         BOOL bonjourBefore = defaultEnableBonjour;
         defaultEnableBonjour = ([enableBonjour state] == NSOnState);
         if (bonjourBefore != defaultEnableBonjour) {
             if (defaultEnableBonjour == YES) {
-                [[ProfilesModel sharedInstance] locateBonjourServices];
+                [[ProfileModel sharedInstance] locateBonjourServices];
             } else {
-                [[ProfilesModel sharedInstance] stopLocatingBonjourServices];
+                [[ProfileModel sharedInstance] stopLocatingBonjourServices];
                 
-                // Remove existing bookmarks with the "bonjour" tag. Even if
-                // network browsing is re-enabled, these bookmarks would never
+                // Remove existing profiles with the "bonjour" tag. Even if
+                // network browsing is re-enabled, these profiles would never
                 // be automatically removed.
-                BookmarkModel* model = [BookmarkModel sharedInstance];
+                ProfileModel* model = [ProfileModel sharedInstance];
                 NSString* kBonjourTag = @"bonjour";
-                int n = [model numberOfBookmarksWithFilter:kBonjourTag];
+                int n = [model numberOfProfilesWithFilter:kBonjourTag];
                 for (int i = n - 1; i >= 0; --i) {
-                    Bookmark* bookmark = [model bookmarkAtIndex:i withFilter:kBonjourTag];
-                    if ([model bookmark:bookmark hasTag:kBonjourTag]) {
-                        [model removeBookmarkAtIndex:i withFilter:kBonjourTag];
+                    Profile* profile = [model profileAtIndex:i withFilter:kBonjourTag];
+                    if ([model profile:profile hasTag:kBonjourTag]) {
+                        [model removeProfileAtIndex:i withFilter:kBonjourTag];
                     }
                 }
             }
@@ -1355,7 +1355,7 @@ static float versionNumber;
         defaultPassOnControlLeftClick = ([passOnControlLeftClick state] == NSOnState);
         defaultMaxVertically = ([maxVertically state] == NSOnState);
         defaultClosingHotkeySwitchesSpaces = ([closingHotkeySwitchesSpaces state] == NSOnState);
-        defaultOpenBookmark = ([openBookmark state] == NSOnState);
+        defaultOpenProfile = ([openProfile state] == NSOnState);
         [defaultWordChars release];
         defaultWordChars = [[wordChars stringValue] retain];
         defaultQuitWhenAllWindowsClosed = ([quitWhenAllWindowsClosed state] == NSOnState);
@@ -1380,7 +1380,7 @@ static float versionNumber;
         [hotkeyField setEnabled:defaultHotkey];
         [hotkeyLabel setTextColor:defaultHotkey ? [NSColor blackColor] : [NSColor disabledControlTextColor]];
         [hotkeyTogglesWindow setEnabled:defaultHotkey];
-        [hotkeyBookmark setEnabled:(defaultHotkey && defaultHotkeyTogglesWindow)];
+        [hotkeyProfile setEnabled:(defaultHotkey && defaultHotkeyTogglesWindow)];
         
         if (prefs &&
             defaultCheckTestRelease != ([checkTestRelease state] == NSOnState)) {
@@ -1506,13 +1506,13 @@ static float versionNumber;
 
 - (BOOL)enableGrowl
 {
-    for (Bookmark* bookmark in [[BookmarkModel sharedInstance] bookmarks]) {
-        if ([[bookmark objectForKey:KEY_BOOKMARK_GROWL_NOTIFICATIONS] boolValue]) {
+    for (Profile* profile in [[ProfileModel sharedInstance] profiles]) {
+        if ([[profile objectForKey:KEY_BOOKMARK_GROWL_NOTIFICATIONS] boolValue]) {
             return YES;
         }
     }
-    for (Bookmark* bookmark in [[BookmarkModel sessionsInstance] bookmarks]) {
-        if ([[bookmark objectForKey:KEY_BOOKMARK_GROWL_NOTIFICATIONS] boolValue]) {
+    for (Profile* profile in [[ProfileModel sessionsInstance] profiles]) {
+        if ([[profile objectForKey:KEY_BOOKMARK_GROWL_NOTIFICATIONS] boolValue]) {
             return YES;
         }
     }
@@ -1549,9 +1549,9 @@ static float versionNumber;
     return defaultHighlightTabLabels;
 }
 
-- (BOOL)openBookmark
+- (BOOL)openProfile
 {
-    return defaultOpenBookmark;
+    return defaultOpenProfile;
 }
 
 - (NSString *)wordChars
@@ -1587,9 +1587,9 @@ static float versionNumber;
     return defaultJobName;
 }
 
-- (BOOL)showBookmarkName
+- (BOOL)showProfileName
 {
-    return defaultShowBookmarkName;
+    return defaultShowProfileName;
 }
 
 - (BOOL)instantReplay
@@ -1758,7 +1758,7 @@ static float versionNumber;
 }
 
 // URL handler stuff
-- (Bookmark *)handlerBookmarkForURL:(NSString *)url
+- (Profile *)handlerProfileForURL:(NSString *)url
 {
     NSString* handlerId = (NSString*) LSCopyDefaultHandlerForURLScheme((CFStringRef) url);
     if ([handlerId isEqualToString:@"com.googlecode.iterm2"] ||
@@ -1767,11 +1767,11 @@ static float versionNumber;
         if (!guid) {
             return nil;
         }
-        int theIndex = [dataSource indexOfBookmarkWithGuid:guid];
+        int theIndex = [dataSource indexOfProfileWithGuid:guid];
         if (theIndex < 0) {
             return nil;
         }
-        return [dataSource bookmarkAtIndex:theIndex];
+        return [dataSource profileAtIndex:theIndex];
     } else {
         return nil;
     }
@@ -1781,13 +1781,13 @@ static float versionNumber;
 - (int)numberOfRowsInTableView: (NSTableView *)aTableView
 {
     if (aTableView == keyMappings) {
-        NSString* guid = [bookmarksTableView selectedGuid];
+        NSString* guid = [profilesTableView selectedGuid];
         if (!guid) {
             return 0;
         }
-        Bookmark* bookmark = [dataSource bookmarkWithGuid:guid];
-        NSAssert(bookmark, @"Null node");
-        return [iTermKeyBindingMgr numberOfMappingsForBookmark:bookmark];
+        Profile* profile = [dataSource profileWithGuid:guid];
+        NSAssert(profile, @"Null node");
+        return [iTermKeyBindingMgr numberOfMappingsForProfile:profile];
     } else if (aTableView == globalKeyMappings) {
         return [[iTermKeyBindingMgr globalKeyMap] count];
     }
@@ -1799,12 +1799,12 @@ static float versionNumber;
 
 - (NSString*)keyComboAtIndex:(int)rowIndex originator:(id)originator
 {
-    if ([self _originatorIsBookmark:originator]) {
-        NSString* guid = [bookmarksTableView selectedGuid];
+    if ([self _originatorIsProfile:originator]) {
+        NSString* guid = [profilesTableView selectedGuid];
         NSAssert(guid, @"Null guid unexpected here");
-        Bookmark* bookmark = [dataSource bookmarkWithGuid:guid];
-        NSAssert(bookmark, @"Can't find node");
-        return [iTermKeyBindingMgr shortcutAtIndex:rowIndex forBookmark:bookmark];
+        Profile* profile = [dataSource profileWithGuid:guid];
+        NSAssert(profile, @"Can't find node");
+        return [iTermKeyBindingMgr shortcutAtIndex:rowIndex forProfile:profile];
     } else {
         return [iTermKeyBindingMgr globalShortcutAtIndex:rowIndex];
     }
@@ -1812,12 +1812,12 @@ static float versionNumber;
 
 - (NSDictionary*)keyInfoAtIndex:(int)rowIndex originator:(id)originator
 {
-    if ([self _originatorIsBookmark:originator]) {
-        NSString* guid = [bookmarksTableView selectedGuid];
+    if ([self _originatorIsProfile:originator]) {
+        NSString* guid = [profilesTableView selectedGuid];
         NSAssert(guid, @"Null guid unexpected here");
-        Bookmark* bookmark = [dataSource bookmarkWithGuid:guid];
-        NSAssert(bookmark, @"Can't find node");
-        return [iTermKeyBindingMgr mappingAtIndex:rowIndex forBookmark:bookmark];
+        Profile* profile = [dataSource profileWithGuid:guid];
+        NSAssert(profile, @"Can't find node");
+        return [iTermKeyBindingMgr mappingAtIndex:rowIndex forProfile:profile];
     } else {
         return [iTermKeyBindingMgr globalMappingAtIndex:rowIndex];
     }
@@ -1842,15 +1842,15 @@ static float versionNumber;
 - (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(int)rowIndex
 {
     if (aTableView == keyMappings) {
-        NSString* guid = [bookmarksTableView selectedGuid];
+        NSString* guid = [profilesTableView selectedGuid];
         NSAssert(guid, @"Null guid unexpected here");
-        Bookmark* bookmark = [dataSource bookmarkWithGuid:guid];
-        NSAssert(bookmark, @"Can't find node");
+        Profile* profile = [dataSource profileWithGuid:guid];
+        NSAssert(profile, @"Can't find node");
         
         if (aTableColumn == keyCombinationColumn) {
-            return [iTermKeyBindingMgr formatKeyCombination:[iTermKeyBindingMgr shortcutAtIndex:rowIndex forBookmark:bookmark]];
+            return [iTermKeyBindingMgr formatKeyCombination:[iTermKeyBindingMgr shortcutAtIndex:rowIndex forProfile:profile]];
         } else if (aTableColumn == actionColumn) {
-            return [iTermKeyBindingMgr formatAction:[iTermKeyBindingMgr mappingAtIndex:rowIndex forBookmark:bookmark]];
+            return [iTermKeyBindingMgr formatAction:[iTermKeyBindingMgr mappingAtIndex:rowIndex forProfile:profile]];
         }
     } else if (aTableView == globalKeyMappings) {
         if (aTableColumn == globalKeyCombinationColumn) {
@@ -1882,13 +1882,13 @@ static float versionNumber;
     [nonAsciiFontField setStringValue: fontName];
 }
 
-- (void)underlyingBookmarkDidChange
+- (void)underlyingProfileDidChange
 {
-    NSString* guid = [bookmarksTableView selectedGuid];
+    NSString* guid = [profilesTableView selectedGuid];
     if (guid) {
-        Bookmark* bookmark = [dataSource bookmarkWithGuid:guid];
-        if (bookmark) {
-            [self updateBookmarkFields:bookmark];
+        Profile* profile = [dataSource profileWithGuid:guid];
+        if (profile) {
+            [self updateProfileFields:profile];
         }
     }
 }
@@ -1927,41 +1927,41 @@ static float versionNumber;
 - (void)updateShortcutTitles
 {
     // Reset titles of all shortcuts.
-    for (int i = 0; i < [bookmarkShortcutKey numberOfItems]; ++i) {
-        NSMenuItem* item = [bookmarkShortcutKey itemAtIndex:i];
+    for (int i = 0; i < [profileShortcutKey numberOfItems]; ++i) {
+        NSMenuItem* item = [profileShortcutKey itemAtIndex:i];
         [item setTitle:[self shortcutKeyForTag:[item tag]]];
     }
     
-    // Add bookmark names to shortcuts that are bound.
-    for (int i = 0; i < [dataSource numberOfBookmarks]; ++i) {
-        Bookmark* temp = [dataSource bookmarkAtIndex:i];
+    // Add profile names to shortcuts that are bound.
+    for (int i = 0; i < [dataSource numberOfProfiles]; ++i) {
+        Profile* temp = [dataSource profileAtIndex:i];
         NSString* existingShortcut = [temp objectForKey:KEY_SHORTCUT];
         const int tag = [self shortcutTagForKey:existingShortcut];
         if (tag != -1) {
-            //NSLog(@"Bookmark %@ has shortcut %@", [temp objectForKey:KEY_NAME], existingShortcut);
-            const int theIndex = [bookmarkShortcutKey indexOfItemWithTag:tag];
-            NSMenuItem* item = [bookmarkShortcutKey itemAtIndex:theIndex];
+            //NSLog(@"Profile %@ has shortcut %@", [temp objectForKey:KEY_NAME], existingShortcut);
+            const int theIndex = [profileShortcutKey indexOfItemWithTag:tag];
+            NSMenuItem* item = [profileShortcutKey itemAtIndex:theIndex];
             NSString* newTitle = [NSString stringWithFormat:@"%@ (%@)", existingShortcut, [temp objectForKey:KEY_NAME]];
             [item setTitle:newTitle];
         }
     }
 }
 
-- (void)_populateBookmarkUrlSchemesFromDict:(Bookmark*)dict
+- (void)_populateProfileUrlSchemesFromDict:(Profile*)dict
 {
-    if ([[[bookmarkUrlSchemes menu] itemArray] count] == 0) {
+    if ([[[profileUrlSchemes menu] itemArray] count] == 0) {
         NSArray* urlArray = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleURLTypes"];
         for (int i=0; i<[urlArray count]; i++) {
-            [bookmarkUrlSchemes addItemWithTitle:[[[urlArray objectAtIndex:i] objectForKey: @"CFBundleURLSchemes"] objectAtIndex:0]];
+            [profileUrlSchemes addItemWithTitle:[[[urlArray objectAtIndex:i] objectForKey: @"CFBundleURLSchemes"] objectAtIndex:0]];
         }
-        [bookmarkUrlSchemes setTitle:@"Select URL Schemes…"];
+        [profileUrlSchemes setTitle:@"Select URL Schemes…"];
     }
     
     NSString* guid = [dict objectForKey:KEY_GUID];
-    [[bookmarkUrlSchemes menu] setAutoenablesItems:YES];
-    [[bookmarkUrlSchemes menu] setDelegate:self];
-    for (NSMenuItem* item in [[bookmarkUrlSchemes menu] itemArray]) {
-        Bookmark* handler = [self handlerBookmarkForURL:[item title]];
+    [[profileUrlSchemes menu] setAutoenablesItems:YES];
+    [[profileUrlSchemes menu] setDelegate:self];
+    for (NSMenuItem* item in [[profileUrlSchemes menu] itemArray]) {
+        Profile* handler = [self handlerProfileForURL:[item title]];
         if (handler && [[handler objectForKey:KEY_GUID] isEqualToString:guid]) {
             [item setState:NSOnState];
         } else {
@@ -1971,21 +1971,21 @@ static float versionNumber;
 }
 
 // TODO: Model or Helper?
-// Update the values in form fields to reflect the bookmark's state
-- (void)updateBookmarkFields:(NSDictionary *)dict
+// Update the values in form fields to reflect the profile's state
+- (void)updateProfileFields:(NSDictionary *)dict
 {
-    if ([dataSource numberOfBookmarks] < 2 || !dict) {
-        [removeBookmarkButton setEnabled:NO];
+    if ([dataSource numberOfProfiles] < 2 || !dict) {
+        [removeProfileButton setEnabled:NO];
     } else {
-        [removeBookmarkButton setEnabled:[[bookmarksTableView selectedGuids] count] < [[bookmarksTableView dataSource] numberOfBookmarks]];
+        [removeProfileButton setEnabled:[[profilesTableView selectedGuids] count] < [[profilesTableView dataSource] numberOfProfiles]];
     }
     if (!dict) {
-        [bookmarksSettingsTabViewParent setHidden:YES];
-        [bookmarksPopup setEnabled:NO];
+        [profilesSettingsTabViewParent setHidden:YES];
+        [profilesPopup setEnabled:NO];
         return;
     } else {
-        [bookmarksSettingsTabViewParent setHidden:NO];
-        [bookmarksPopup setEnabled:YES];
+        [profilesSettingsTabViewParent setHidden:NO];
+        [profilesPopup setEnabled:YES];
     }
     
     NSString* name;
@@ -2002,52 +2002,52 @@ static float versionNumber;
     customDir = [dict objectForKey:KEY_CUSTOM_DIRECTORY];
     
     // General tab
-    [bookmarkName setStringValue:name];
-    [bookmarkShortcutKey selectItemWithTag:[self shortcutTagForKey:shortcut]];
+    [profileName setStringValue:name];
+    [profileShortcutKey selectItemWithTag:[self shortcutTagForKey:shortcut]];
     
     [self updateShortcutTitles];
     
     if ([customCommand isEqualToString:@"Yes"]) {
-        [bookmarkCommandType selectCellWithTag:0];
+        [profileCommandType selectCellWithTag:0];
     } else {
-        [bookmarkCommandType selectCellWithTag:1];
+        [profileCommandType selectCellWithTag:1];
     }
-    [bookmarkCommand setStringValue:command];
+    [profileCommand setStringValue:command];
     
     if ([customDir isEqualToString:@"Yes"]) {
-        [bookmarkDirectoryType selectCellWithTag:0];
+        [profileDirectoryType selectCellWithTag:0];
     } else if ([customDir isEqualToString:@"Recycle"]) {
-        [bookmarkDirectoryType selectCellWithTag:2];
+        [profileDirectoryType selectCellWithTag:2];
     } else {
-        [bookmarkDirectoryType selectCellWithTag:1];
+        [profileDirectoryType selectCellWithTag:1];
     }
-    [bookmarkDirectory setStringValue:dir];
-    [self _populateBookmarkUrlSchemesFromDict:dict];
+    [profileDirectory setStringValue:dir];
+    [self _populateProfileUrlSchemesFromDict:dict];
     
     // Colors tab
-    [ansi0Color setColor:[ProfilesModel decodeColor:[dict objectForKey:KEY_ANSI_0_COLOR]]];
-    [ansi1Color setColor:[ProfilesModel decodeColor:[dict objectForKey:KEY_ANSI_1_COLOR]]];
-    [ansi2Color setColor:[ProfilesModel decodeColor:[dict objectForKey:KEY_ANSI_2_COLOR]]];
-    [ansi3Color setColor:[ProfilesModel decodeColor:[dict objectForKey:KEY_ANSI_3_COLOR]]];
-    [ansi4Color setColor:[ProfilesModel decodeColor:[dict objectForKey:KEY_ANSI_4_COLOR]]];
-    [ansi5Color setColor:[ProfilesModel decodeColor:[dict objectForKey:KEY_ANSI_5_COLOR]]];
-    [ansi6Color setColor:[ProfilesModel decodeColor:[dict objectForKey:KEY_ANSI_6_COLOR]]];
-    [ansi7Color setColor:[ProfilesModel decodeColor:[dict objectForKey:KEY_ANSI_7_COLOR]]];
-    [ansi8Color setColor:[ProfilesModel decodeColor:[dict objectForKey:KEY_ANSI_8_COLOR]]];
-    [ansi9Color setColor:[ProfilesModel decodeColor:[dict objectForKey:KEY_ANSI_9_COLOR]]];
-    [ansi10Color setColor:[ProfilesModel decodeColor:[dict objectForKey:KEY_ANSI_10_COLOR]]];
-    [ansi11Color setColor:[ProfilesModel decodeColor:[dict objectForKey:KEY_ANSI_11_COLOR]]];
-    [ansi12Color setColor:[ProfilesModel decodeColor:[dict objectForKey:KEY_ANSI_12_COLOR]]];
-    [ansi13Color setColor:[ProfilesModel decodeColor:[dict objectForKey:KEY_ANSI_13_COLOR]]];
-    [ansi14Color setColor:[ProfilesModel decodeColor:[dict objectForKey:KEY_ANSI_14_COLOR]]];
-    [ansi15Color setColor:[ProfilesModel decodeColor:[dict objectForKey:KEY_ANSI_15_COLOR]]];
-    [foregroundColor setColor:[ProfilesModel decodeColor:[dict objectForKey:KEY_FOREGROUND_COLOR]]];
-    [backgroundColor setColor:[ProfilesModel decodeColor:[dict objectForKey:KEY_BACKGROUND_COLOR]]];
-    [boldColor setColor:[ProfilesModel decodeColor:[dict objectForKey:KEY_BOLD_COLOR]]];
-    [selectionColor setColor:[ProfilesModel decodeColor:[dict objectForKey:KEY_SELECTION_COLOR]]];
-    [selectedTextColor setColor:[ProfilesModel decodeColor:[dict objectForKey:KEY_SELECTED_TEXT_COLOR]]];
-    [cursorColor setColor:[ProfilesModel decodeColor:[dict objectForKey:KEY_CURSOR_COLOR]]];
-    [cursorTextColor setColor:[ProfilesModel decodeColor:[dict objectForKey:KEY_CURSOR_TEXT_COLOR]]];
+    [ansi0Color setColor:[ProfileModel decodeColor:[dict objectForKey:KEY_ANSI_0_COLOR]]];
+    [ansi1Color setColor:[ProfileModel decodeColor:[dict objectForKey:KEY_ANSI_1_COLOR]]];
+    [ansi2Color setColor:[ProfileModel decodeColor:[dict objectForKey:KEY_ANSI_2_COLOR]]];
+    [ansi3Color setColor:[ProfileModel decodeColor:[dict objectForKey:KEY_ANSI_3_COLOR]]];
+    [ansi4Color setColor:[ProfileModel decodeColor:[dict objectForKey:KEY_ANSI_4_COLOR]]];
+    [ansi5Color setColor:[ProfileModel decodeColor:[dict objectForKey:KEY_ANSI_5_COLOR]]];
+    [ansi6Color setColor:[ProfileModel decodeColor:[dict objectForKey:KEY_ANSI_6_COLOR]]];
+    [ansi7Color setColor:[ProfileModel decodeColor:[dict objectForKey:KEY_ANSI_7_COLOR]]];
+    [ansi8Color setColor:[ProfileModel decodeColor:[dict objectForKey:KEY_ANSI_8_COLOR]]];
+    [ansi9Color setColor:[ProfileModel decodeColor:[dict objectForKey:KEY_ANSI_9_COLOR]]];
+    [ansi10Color setColor:[ProfileModel decodeColor:[dict objectForKey:KEY_ANSI_10_COLOR]]];
+    [ansi11Color setColor:[ProfileModel decodeColor:[dict objectForKey:KEY_ANSI_11_COLOR]]];
+    [ansi12Color setColor:[ProfileModel decodeColor:[dict objectForKey:KEY_ANSI_12_COLOR]]];
+    [ansi13Color setColor:[ProfileModel decodeColor:[dict objectForKey:KEY_ANSI_13_COLOR]]];
+    [ansi14Color setColor:[ProfileModel decodeColor:[dict objectForKey:KEY_ANSI_14_COLOR]]];
+    [ansi15Color setColor:[ProfileModel decodeColor:[dict objectForKey:KEY_ANSI_15_COLOR]]];
+    [foregroundColor setColor:[ProfileModel decodeColor:[dict objectForKey:KEY_FOREGROUND_COLOR]]];
+    [backgroundColor setColor:[ProfileModel decodeColor:[dict objectForKey:KEY_BACKGROUND_COLOR]]];
+    [boldColor setColor:[ProfileModel decodeColor:[dict objectForKey:KEY_BOLD_COLOR]]];
+    [selectionColor setColor:[ProfileModel decodeColor:[dict objectForKey:KEY_SELECTION_COLOR]]];
+    [selectedTextColor setColor:[ProfileModel decodeColor:[dict objectForKey:KEY_SELECTED_TEXT_COLOR]]];
+    [cursorColor setColor:[ProfileModel decodeColor:[dict objectForKey:KEY_CURSOR_COLOR]]];
+    [cursorTextColor setColor:[ProfileModel decodeColor:[dict objectForKey:KEY_CURSOR_TEXT_COLOR]]];
     
     BOOL smartCursorColor;
     if ([dict objectForKey:KEY_SMART_CURSOR_COLOR]) {
@@ -2086,18 +2086,19 @@ static float versionNumber;
     } else {
         [spaceButton selectItemWithTag:0];
     }
-    [normalFontField setStringValue:[[ProfilesModel fontWithDesc:[dict objectForKey:KEY_NORMAL_FONT]] displayName]];
+    [normalFontField setStringValue:[[ProfileModel fontWithDesc:[dict objectForKey:KEY_NORMAL_FONT]] displayName]];
     if (normalFont) {
         [normalFont release];
     }
-    normalFont = [ProfilesModel fontWithDesc:[dict objectForKey:KEY_NORMAL_FONT]];
+    normalFont = [ProfileModel fontWithDesc:[dict objectForKey:KEY_NORMAL_FONT]];
     [normalFont retain];
     
-    [nonAsciiFontField setStringValue:[[ProfilesModel fontWithDesc:[dict objectForKey:KEY_NON_ASCII_FONT]] displayName]];
+    [nonAsciiFontField setStringValue:[[ProfileModel fontWithDesc:[dict objectForKey:KEY_NON_ASCII_FONT]] displayName]];
     if (nonAsciiFont) {
         [nonAsciiFont release];
     }
-    nonAsciiFont = [ProfilesModel fontWithDesc:[dict objectForKey:KEY_NON_ASCII_FONT]];
+    nonAsciiFont = [ProfileModel
+ fontWithDesc:[dict objectForKey:KEY_NON_ASCII_FONT]];
     [nonAsciiFont retain];
     
     [self _updateFontsDisplay];
@@ -2159,7 +2160,7 @@ static float versionNumber;
     [xtermMouseReporting setState:[[dict objectForKey:KEY_XTERM_MOUSE_REPORTING] boolValue] ? NSOnState : NSOffState];
     [disableSmcupRmcup setState:[[dict objectForKey:KEY_DISABLE_SMCUP_RMCUP] boolValue] ? NSOnState : NSOffState];
     [scrollbackWithStatusBar setState:[[dict objectForKey:KEY_SCROLLBACK_WITH_STATUS_BAR] boolValue] ? NSOnState : NSOffState];
-    [bookmarkGrowlNotifications setState:[[dict objectForKey:KEY_BOOKMARK_GROWL_NOTIFICATIONS] boolValue] ? NSOnState : NSOffState];
+    [profileGrowlNotifications setState:[[dict objectForKey:KEY_BOOKMARK_GROWL_NOTIFICATIONS] boolValue] ? NSOnState : NSOffState];
     [characterEncoding setTitle:[NSString localizedNameOfStringEncoding:[[dict objectForKey:KEY_CHARACTER_ENCODING] unsignedIntValue]]];
     [scrollbackLines setIntValue:[[dict objectForKey:KEY_SCROLLBACK_LINES] intValue]];
     [unlimitedScrollback setState:[[dict objectForKey:KEY_UNLIMITED_SCROLLBACK] boolValue] ? NSOnState : NSOffState];
@@ -2188,11 +2189,11 @@ static float versionNumber;
     [tags setObjectValue:[dict objectForKey:KEY_TAGS]];
     // If a keymapping for the delete key was added, make sure the
     // "delete sends ^h" checkbox is correct
-    BOOL sendCH = [self _deleteSendsCtrlHInBookmark:dict];
+    BOOL sendCH = [self _deleteSendsCtrlHInProfile:dict];
     [deleteSendsCtrlHButton setState:sendCH ? NSOnState : NSOffState];
     
     // Epilogue
-    [bookmarksTableView reloadData];
+    [profilesTableView reloadData];
     [copyTo reloadData];
 }
 
@@ -2233,7 +2234,7 @@ static float versionNumber;
         }
     }
     
-    [self bookmarkSettingChanged:fontManager];
+    [self profileSettingChanged:fontManager];
 }
 
 - (NSString*)_chooseBackgroundImage
@@ -2320,9 +2321,9 @@ static float versionNumber;
     [tabView selectTabViewItem:appearanceTabViewItem];
 }
 
-- (IBAction)showBookmarksTabView:(id)sender
+- (IBAction)showProfilesTabView:(id)sender
 {
-    [tabView selectTabViewItem:bookmarksTabViewItem];
+    [tabView selectTabViewItem:profilesTabViewItem];
 }
 
 - (IBAction)showKeyboardTabView:(id)sender
@@ -2330,7 +2331,7 @@ static float versionNumber;
     [tabView selectTabViewItem:keyboardTabViewItem];
 }
 
-- (void)connectBookmarkWithGuid:(NSString*)guid toScheme:(NSString*)scheme
+- (void)connectProfileWithGuid:(NSString*)guid toScheme:(NSString*)scheme
 {
     NSURL *appURL = nil;
     OSStatus err;
@@ -2380,13 +2381,13 @@ static float versionNumber;
     id obj = [aNotification object];
     if (obj == wordChars) {
         defaultWordChars = [[wordChars stringValue] retain];
-    } else if (obj == bookmarkName ||
+    } else if (obj == profileName ||
                obj == columnsField ||
                obj == rowsField ||
                obj == scrollbackLines ||
                obj == terminalType ||
                obj == idleCode) {
-        [self bookmarkSettingChanged:nil];
+        [self profileSettingChanged:nil];
     } else if (obj == tagFilter) {
         NSLog(@"Tag filter changed");
     }
@@ -2394,7 +2395,7 @@ static float versionNumber;
 
 - (void)textDidChange:(NSNotification *)aNotification
 {
-    [self bookmarkSettingChanged:nil];
+    [self profileSettingChanged:nil];
 }
 
 - (BOOL)onScreen
@@ -2466,26 +2467,26 @@ static float versionNumber;
         [valueToSend setHidden:NO];
         [[valueToSend cell] setPlaceholderString:@"ex: 0x7f 0x20"];
         [escPlus setHidden:YES];
-        [bookmarkPopupButton setHidden:YES];
+        [profilePopupButton setHidden:YES];
         [profileLabel setHidden:YES];
     } else if (tag == KEY_ACTION_TEXT) {
         [valueToSend setHidden:NO];
         [[valueToSend cell] setPlaceholderString:@"Enter value to send"];
         [escPlus setHidden:YES];
-        [bookmarkPopupButton setHidden:YES];
+        [profilePopupButton setHidden:YES];
         [profileLabel setHidden:YES];
     } else if (tag == KEY_ACTION_SELECT_MENU_ITEM) {
         [valueToSend setHidden:NO];
         [[valueToSend cell] setPlaceholderString:@"Enter name of menu item"];
         [escPlus setHidden:YES];
-        [bookmarkPopupButton setHidden:YES];
+        [profilePopupButton setHidden:YES];
         [profileLabel setHidden:YES];
     } else if (tag == KEY_ACTION_ESCAPE_SEQUENCE) {
         [valueToSend setHidden:NO];
         [[valueToSend cell] setPlaceholderString:@"characters to send"];
         [escPlus setHidden:NO];
         [escPlus setStringValue:@"Esc+"];
-        [bookmarkPopupButton setHidden:YES];
+        [profilePopupButton setHidden:YES];
         [profileLabel setHidden:YES];
     } else if (tag == KEY_ACTION_SPLIT_VERTICALLY_WITH_PROFILE ||
                tag == KEY_ACTION_SPLIT_HORIZONTALLY_WITH_PROFILE ||
@@ -2493,7 +2494,7 @@ static float versionNumber;
                tag == KEY_ACTION_NEW_WINDOW_WITH_PROFILE) {
         [valueToSend setHidden:YES];
         [profileLabel setHidden:NO];
-        [bookmarkPopupButton setHidden:NO];
+        [profilePopupButton setHidden:NO];
         [escPlus setHidden:YES];
     } else if (tag == KEY_ACTION_DO_NOT_REMAP_MODIFIERS ||
                tag == KEY_ACTION_REMAP_LOCALLY) {
@@ -2501,13 +2502,13 @@ static float versionNumber;
         [valueToSend setStringValue:@""];
         [escPlus setHidden:NO];
         [escPlus setStringValue:@"Modifier remapping disabled: type the actual key combo you want to affect."];
-        [bookmarkPopupButton setHidden:YES];
+        [profilePopupButton setHidden:YES];
         [profileLabel setHidden:YES];
     } else {
         [valueToSend setHidden:YES];
         [valueToSend setStringValue:@""];
         [escPlus setHidden:YES];
-        [bookmarkPopupButton setHidden:YES];
+        [profilePopupButton setHidden:YES];
         [profileLabel setHidden:YES];
     }
 }
@@ -2515,8 +2516,8 @@ static float versionNumber;
 - (IBAction)actionChanged:(id)sender
 {
     [action setTitle:[[sender selectedItem] title]];
-    [self _populatePopUpButtonWithBookmarks:bookmarkPopupButton
-                               selectedGuid:[[bookmarkPopupButton selectedItem] representedObject]];
+    [self _populatePopUpButtonWithProfiles:profilePopupButton
+                               selectedGuid:[[profilePopupButton selectedItem] representedObject]];
     [self updateValueToSend];
 }
 
@@ -2558,15 +2559,15 @@ static float versionNumber;
 
 - (IBAction)removeMapping:(id)sender
 {
-    NSString* guid = [bookmarksTableView selectedGuid];
+    NSString* guid = [profilesTableView selectedGuid];
     if (!guid) {
         NSBeep();
         return;
     }
-    NSMutableDictionary* tempDict = [NSMutableDictionary dictionaryWithDictionary:[dataSource bookmarkWithGuid:guid]];
+    NSMutableDictionary* tempDict = [NSMutableDictionary dictionaryWithDictionary:[dataSource profileWithGuid:guid]];
     NSAssert(tempDict, @"Can't find node");
-    [iTermKeyBindingMgr removeMappingAtIndex:[keyMappings selectedRow] inBookmark:tempDict];
-    [dataSource setBookmark:tempDict withGuid:guid];
+    [iTermKeyBindingMgr removeMappingAtIndex:[keyMappings selectedRow] inProfile:tempDict];
+    [dataSource setProfile:tempDict withGuid:guid];
     [keyMappings reloadData];
 }
 
@@ -2580,14 +2581,14 @@ static float versionNumber;
 
 - (void)setKeyMappingsToPreset:(NSString*)presetName
 {
-    NSString* guid = [bookmarksTableView selectedGuid];
+    NSString* guid = [profilesTableView selectedGuid];
     NSAssert(guid, @"Null guid unexpected here");
-    NSMutableDictionary* tempDict = [NSMutableDictionary dictionaryWithDictionary:[dataSource bookmarkWithGuid:guid]];
+    NSMutableDictionary* tempDict = [NSMutableDictionary dictionaryWithDictionary:[dataSource profileWithGuid:guid]];
     NSAssert(tempDict, @"Can't find node");
-    [iTermKeyBindingMgr setKeyMappingsToPreset:presetName inBookmark:tempDict];
-    [dataSource setBookmark:tempDict withGuid:guid];
+    [iTermKeyBindingMgr setKeyMappingsToPreset:presetName inProfile:tempDict];
+    [dataSource setProfile:tempDict withGuid:guid];
     [keyMappings reloadData];
-    [self bookmarkSettingChanged:nil];
+    [self profileSettingChanged:nil];
 }
 
 - (void)setGlobalKeyMappingsToPreset:(NSString*)presetName
@@ -2608,10 +2609,10 @@ static float versionNumber;
 }
 
 
-- (void)copyAttributes:(BulkCopySettings)attributes fromBookmark:(NSString*)guid toBookmark:(NSString*)destGuid
+- (void)copyAttributes:(BulkCopySettings)attributes fromProfile:(NSString*)guid toProfile:(NSString*)destGuid
 {
-    Bookmark* dest = [dataSource bookmarkWithGuid:destGuid];
-    Bookmark* src = [[BookmarkModel sharedInstance] bookmarkWithGuid:guid];
+    Profile* dest = [dataSource profileWithGuid:destGuid];
+    Profile* src = [[ProfileModel sharedInstance] profileWithGuid:guid];
     NSMutableDictionary* newDict = [[[NSMutableDictionary alloc] initWithDictionary:dest] autorelease];
     NSString** keys = NULL;
     NSString* colorsKeys[] = {
@@ -2723,10 +2724,10 @@ static float versionNumber;
         }
     }
     
-    [dataSource setBookmark:newDict withGuid:[dest objectForKey:KEY_GUID]];
+    [dataSource setProfile:newDict withGuid:[dest objectForKey:KEY_GUID]];
 }
 
-- (IBAction)cancelCopyBookmarks:(id)sender
+- (IBAction)cancelCopyProfiles:(id)sender
 {
     [NSApp endSheet:copyPanel];
 }
@@ -2742,10 +2743,10 @@ static float versionNumber;
     return [prefs boolForKey:@"dockIconTogglesWindow"];
 }
 
-- (Bookmark*)hotkeyBookmark
+- (Profile*)hotkeyProfile
 {
-    if (defaultHotKeyBookmarkGuid) {
-        return [[BookmarkModel sharedInstance] bookmarkWithGuid:defaultHotKeyBookmarkGuid];
+    if (defaultHotKeyProfileGuid) {
+        return [[ProfileModel sharedInstance] profileWithGuid:defaultHotKeyProfileGuid];
     } else {
         return nil;
     }
@@ -2758,8 +2759,8 @@ static float versionNumber;
 
 - (void)_reloadURLHandlers:(NSNotification *)aNotification
 {
-    // TODO: maybe something here for the current bookmark?
-    [self _populateHotKeyBookmarksMenu];
+    // TODO: maybe something here for the current profile?
+    [self _populateHotKeyProfilesMenu];
 }
 
 @end

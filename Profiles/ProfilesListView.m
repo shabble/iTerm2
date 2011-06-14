@@ -22,9 +22,9 @@
  **  along with this program; if not, write to the Free Software
  */
 
-#import "Profiles/ProfilesModel.h"
+#import "Profiles/ProfileModel.h"
 #import "Profiles/ProfilesListView.h"
-#import "Profiles/ProfilesManager.h"
+#import "Profiles/ProfileManager.h"
 
 #define ProfilesTableViewDataType @"iTerm2BookmarkGuid"
 
@@ -39,10 +39,10 @@ const int kInterWidgetMargin = 10;
 @interface ProfileRow : NSObject
 {
     NSString* guid;
-    ProfilesModel* underlyingModel;
+    ProfileModel* underlyingModel;
 }
 
-- (id)initWithProfile:(Profile*)profile underlyingModel:(ProfilesModel*)underlyingModel;
+- (id)initWithProfile:(Profile*)profile underlyingModel:(ProfileModel*)underlyingModel;
 - (void)dealloc;
 - (Profile*)profile;
 
@@ -61,7 +61,7 @@ typedef enum { IsDefault = 1, IsNotDefault = 2 } ProfileRowIsDefault;
 
 @implementation ProfileRow
 
-- (id)initWithProfile:(Profile*)profile underlyingModel:(ProfilesModel*)newUnderlyingModel;
+- (id)initWithProfile:(Profile*)profile underlyingModel:(ProfileModel*)newUnderlyingModel;
 {
     self = [super init];
     if (self) {
@@ -89,7 +89,7 @@ typedef enum { IsDefault = 1, IsNotDefault = 2 } ProfileRowIsDefault;
 
 - (NSNumber*)default
 {
-    BOOL isDefault = [[[self profile] objectForKey:KEY_GUID] isEqualToString:[[[ProfilesModel sharedInstance] defaultProfile] objectForKey:KEY_GUID]];
+    BOOL isDefault = [[[self profile] objectForKey:KEY_GUID] isEqualToString:[[[ProfileModel sharedInstance] defaultProfile] objectForKey:KEY_GUID]];
     return [NSNumber numberWithInt:isDefault ? IsDefault : IsNotDefault];
 }
 
@@ -115,9 +115,9 @@ typedef enum { IsDefault = 1, IsNotDefault = 2 } ProfileRowIsDefault;
 
 @end
 
-@implementation ProfilesModelWrapper
+@implementation ProfileModelWrapper
 
-- (id)initWithModel:(ProfilesModel*)model
+- (id)initWithModel:(ProfileModel*)model
 {
     self = [super init];
     if (self) {
@@ -182,7 +182,7 @@ typedef enum { IsDefault = 1, IsNotDefault = 2 } ProfileRowIsDefault;
     return -1;
 }
 
-- (ProfilesModel*)underlyingModel
+- (ProfileModel*)underlyingModel
 {
     return underlyingModel;
 }
@@ -399,18 +399,18 @@ typedef enum { IsDefault = 1, IsNotDefault = 2 } ProfileRowIsDefault;
     [searchCell setSearchMenuTemplate:cellMenu];
 }
 
-- (void)setUnderlyingDatasource:(ProfilesModel*)dataSource
+- (void)setUnderlyingDatasource:(ProfileModel*)dataSource
 {
     [dataSource_ autorelease];
-    dataSource_ = [[ProfilesModelWrapper alloc] initWithModel:dataSource];
+    dataSource_ = [[ProfileModelWrapper alloc] initWithModel:dataSource];
 }
 
 - (id)initWithFrame:(NSRect)frameRect
 {
-    return [self initWithFrame:frameRect model:[ProfilesModel sharedInstance]];
+    return [self initWithFrame:frameRect model:[ProfileModel sharedInstance]];
 }
 
-- (id)initWithFrame:(NSRect)frameRect model:(ProfilesModel*)dataSource
+- (id)initWithFrame:(NSRect)frameRect model:(ProfileModel*)dataSource
 {
     self = [super initWithFrame:frameRect];
     [self setUnderlyingDatasource:dataSource];
@@ -499,7 +499,7 @@ typedef enum { IsDefault = 1, IsNotDefault = 2 } ProfileRowIsDefault;
     return self;
 }
 
-- (ProfilesModelWrapper*)dataSource
+- (ProfileModelWrapper*)dataSource
 {
     return dataSource_;
 }
@@ -618,7 +618,7 @@ typedef enum { IsDefault = 1, IsNotDefault = 2 } ProfileRowIsDefault;
         rect.origin.y = 0;
         rect.size = size;
         [image lockFocus];
-        if ([[profile objectForKey:KEY_GUID] isEqualToString:[[[ProfilesModel sharedInstance] defaultProfile] objectForKey:KEY_GUID]]) {
+        if ([[profile objectForKey:KEY_GUID] isEqualToString:[[[ProfileModel sharedInstance] defaultProfile] objectForKey:KEY_GUID]]) {
             NSPoint destPoint;
             destPoint.x = (size.width - [starImage size].width) / 2;
             destPoint.y = (rowHeight_ - [starImage size].height) / 2;

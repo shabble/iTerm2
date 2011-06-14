@@ -44,14 +44,14 @@ typedef enum { CURSOR_UNDERLINE, CURSOR_VERTICAL, CURSOR_BOX } ITermCursorType;
 
 
 #import <Cocoa/Cocoa.h>
-#import "Profiles/ProfilesModel.h"
+#import "Profiles/ProfileModel.h"
 #import "Profiles/ProfilesListView.h"
 
 
 @interface PreferencesModel : NSObject {
 
-    ProfilesModel* bookmarkDataSource;
-    BOOL           oneBookmarkMode;
+    ProfileModel* profileDataSource;
+    BOOL           oneProfileMode;
 
     // This is actually the tab style. It takes one of these values:
     // 0: Metal
@@ -60,7 +60,7 @@ typedef enum { CURSOR_UNDERLINE, CURSOR_VERTICAL, CURSOR_BOX } ITermCursorType;
     // other: Adium
     // Bound to Metal/Aqua/Unified/Adium button
     int defaultWindowStyle;
-    BOOL oneBookmarkOnly; // redundant? See oneBookMarkMode above.
+    BOOL oneProfileOnly; // redundant? See oneProfileMode above.
 
     // This gives a value from NSTabViewType, which as of OS 10.6 is:
     // Bound to Top/Bottom button
@@ -101,7 +101,7 @@ typedef enum { CURSOR_UNDERLINE, CURSOR_VERTICAL, CURSOR_BOX } ITermCursorType;
     BOOL defaultHotkeyTogglesWindow;
 
     // TODO: ???
-    NSString* defaultHotKeyBookmarkGuid;
+    NSString* defaultHotKeyProfileGuid;
 
     // Enable bonjour
     BOOL defaultEnableBonjour;
@@ -130,8 +130,8 @@ typedef enum { CURSOR_UNDERLINE, CURSOR_VERTICAL, CURSOR_BOX } ITermCursorType;
 
     // Minimum contrast
 
-    // open bookmarks when iterm starts
-    BOOL defaultOpenBookmark;
+    // open profiles when iterm starts
+    BOOL defaultOpenProfile;
 
     // quit when all windows are closed
     BOOL defaultQuitWhenAllWindowsClosed;
@@ -165,8 +165,8 @@ typedef enum { CURSOR_UNDERLINE, CURSOR_VERTICAL, CURSOR_BOX } ITermCursorType;
     // Show job name in title
     BOOL defaultJobName;
 
-    // Show bookmark name in title
-    BOOL defaultShowBookmarkName;
+    // Show profile name in title
+    BOOL defaultShowProfileName;
 
     // instant replay
     BOOL defaultInstantReplay;
@@ -197,12 +197,12 @@ typedef enum { CURSOR_UNDERLINE, CURSOR_VERTICAL, CURSOR_BOX } ITermCursorType;
     NSString* globalToolbarId;
     NSString* appearanceToolbarId;
     NSString* keyboardToolbarId;
-    NSString* bookmarksToolbarId;
+    NSString* profilesToolbarId;
 
     // url handler stuff
     NSMutableDictionary *urlHandlersByGuid;
 
-    // Bookmarks -----------------------------
+    // Profiles -----------------------------
 
     // General tab
 
@@ -226,7 +226,7 @@ typedef enum { CURSOR_UNDERLINE, CURSOR_VERTICAL, CURSOR_BOX } ITermCursorType;
     BOOL newMapping;  // true if the keymap sheet is open for adding a new entry
     id modifyMappingOriginator;  // widget that caused add new mapping window to open
 
-    // Copy Bookmark Settings...
+    // Copy Profile Settings...
 
     // Keyboard ------------------------------
     int defaultControl;
@@ -247,8 +247,8 @@ typedef enum { CURSOR_UNDERLINE, CURSOR_VERTICAL, CURSOR_BOX } ITermCursorType;
 @property (readwrite,retain) NSMutableDictionary *preferences;
 
 
-@property (readwrite,retain) ProfilesModel *bookmarkDataSource;
-@property (readwrite,assign) BOOL           oneBookmarkMode;
+@property (readwrite,retain) ProfileModel *profileDataSource;
+@property (readwrite,assign) BOOL           oneProfileMode;
 
     // This is actually the tab style. It takes one of these values:
     // 0: Metal
@@ -257,7 +257,7 @@ typedef enum { CURSOR_UNDERLINE, CURSOR_VERTICAL, CURSOR_BOX } ITermCursorType;
     // other: Adium
     // Bound to Metal/Aqua/Unified/Adium button
 @property (readwrite,assign) int  defaultWindowStyle;
-@property (readwrite,assign) BOOL oneBookmarkOnly; 
+@property (readwrite,assign) BOOL oneProfileOnly; 
 
     // This gives a value from NSTabViewType, which as of OS 10.6 is:
     // Bound to Top/Bottom button
@@ -298,7 +298,7 @@ typedef enum { CURSOR_UNDERLINE, CURSOR_VERTICAL, CURSOR_BOX } ITermCursorType;
 @property (readwrite,assign) BOOL defaultHotkeyTogglesWindow;
 
     // TODO: ???
-@property (readwrite,copy)   NSString* defaultHotKeyBookmarkGuid;
+@property (readwrite,copy)   NSString* defaultHotKeyProfileGuid;
 
     // Enable bonjour
 @property (readwrite,assign) BOOL defaultEnableBonjour;
@@ -327,8 +327,8 @@ typedef enum { CURSOR_UNDERLINE, CURSOR_VERTICAL, CURSOR_BOX } ITermCursorType;
 
     // Minimum contrast
 
-    // open bookmarks when iterm starts
-@property (readwrite,assign) BOOL defaultOpenBookmark;
+    // open profiles when iterm starts
+@property (readwrite,assign) BOOL defaultOpenProfile;
 
     // quit when all windows are closed
 @property (readwrite,assign) BOOL defaultQuitWhenAllWindowsClosed;
@@ -362,8 +362,8 @@ typedef enum { CURSOR_UNDERLINE, CURSOR_VERTICAL, CURSOR_BOX } ITermCursorType;
     // Show job name in title
 @property (readwrite,assign) BOOL defaultJobName;
 
-    // Show bookmark name in title
-@property (readwrite,assign) BOOL defaultShowBookmarkName;
+    // Show profile name in title
+@property (readwrite,assign) BOOL defaultShowProfileName;
 
     // instant replay
 @property (readwrite,assign) BOOL defaultInstantReplay;
@@ -393,7 +393,7 @@ typedef enum { CURSOR_UNDERLINE, CURSOR_VERTICAL, CURSOR_BOX } ITermCursorType;
 @property (readwrite,copy)   NSString* globalToolbarId;
 @property (readwrite,copy)   NSString* appearanceToolbarId;
 @property (readwrite,copy)   NSString* keyboardToolbarId;
-@property (readwrite,copy)   NSString* bookmarksToolbarId;
+@property (readwrite,copy)   NSString* profilesToolbarId;
 
     // url handler stuff
 @property (readwrite,retain) NSMutableDictionary *urlHandlersByGuid;

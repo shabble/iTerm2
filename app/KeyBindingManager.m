@@ -277,7 +277,7 @@ static NSDictionary* globalKeyMap;
 
 + (NSString*)_profileNameForGuid:(NSString*)guid
 {
-    return [[[ProfilesModel sharedInstance] profileWithGuid:guid] objectForKey:KEY_NAME];
+    return [[[ProfileModel sharedInstance] profileWithGuid:guid] objectForKey:KEY_NAME];
 }
 
 + (NSString *)formatAction:(NSDictionary *)keyInfo
