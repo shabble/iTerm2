@@ -22,9 +22,9 @@
  **  along with this program; if not, write to the Free Software
  */
 
-#import "Profiles/ProfileModel.h"
-#import "Profiles/ProfilesListView.h"
-#import "Profiles/ProfileManager.h"
+#import "ProfileModel.h"
+#import "ProfilesListView.h"
+#import "ProfileManager.h"
 
 #define ProfilesTableViewDataType @"iTerm2BookmarkGuid"
 

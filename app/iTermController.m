@@ -32,15 +32,15 @@
 #define DEBUG_METHOD_TRACE    0
 
 #import <Carbon/Carbon.h>
-#import "GTM/GTMCarbonEvent.h"
+#import "../Vendor/GTM/GTMCarbonEvent.h"
 
-#import "App/iTermController.h"
-#import "App/iTermApplicationDelegate.h"
-#import "App/iTermApplication.h"
-#import "App/KeyBindingManager.h"
+#import "iTermController.h"
+#import "iTermApplicationDelegate.h"
+#import "iTermApplication.h"
+#import "KeyBindingManager.h"
 
-#import "Prefs/PreferencePanelController.h"
-#import "Profiles/ProfileManager.h"
+#import "../Prefs/PreferencePanelController.h"
+#import "../Profiles/ProfileManager.h"
 
 // Constants for saved window arrangement key names.
 //static NSString* DEFAULT_ARRANGEMENT_NAME = @"Default";
@@ -331,16 +331,19 @@ return NO;
 void OnHotKeyEvent(void)
 {
     NSLog(@"hotkey pressed");
-    PreferencePanelController* prefPanel = [PreferencePanelController sharedInstance];
-    if ([prefPanel hotkeyTogglesWindow]) {
+    //PreferencePanelController* prefPanel = [PreferencePanelController sharedInstance];
+    
+  //  if ([prefPanel hotkeyTogglesWindow]) {
+    if (0) {
+        
         NSLog(@"visor enabled");
     } else if ([NSApp isActive]) {
-        NSWindow* prefWindow = [prefPanel window];
-        NSWindow* appKeyWindow = [[NSApplication sharedApplication] keyWindow];
-        if (prefWindow != appKeyWindow ||
+        //NSWindow* prefWindow = [prefPanel window];
+        //NSWindow* appKeyWindow = [[NSApplication sharedApplication] keyWindow];
+      /*  if (prefWindow != appKeyWindow ||
             ![iTermApplication isTextFieldInFocus:[prefPanel hotkeyField]]) {
             [NSApp hide:nil];
-        }
+        }*/
     } else {
         //iTermController* controller = [iTermController sharedInstance];
         [[NSApplication sharedApplication] activateIgnoringOtherApps:YES];
@@ -401,7 +404,7 @@ static CGEventRef OnTappedEvent(CGEventTapProxy proxy, CGEventType type, CGEvent
         NSString *keyBindingText;
         PreferencePanelController* prefPanel = [PreferencePanelController sharedInstance];
         //PreferencesProfilesHelper* profilesHelper = [prefPanelController prefsProfilesHelper];
-        BOOL tempDisabled = [prefPanel remappingDisabledTemporarily];
+        BOOL tempDisabled = NO; // [prefPanel remappingDisabledTemporarily];
         int action = [KeyBindingManager actionForKeyCode:unmodunicode
                                                modifiers:modflag
                                                     text:&keyBindingText
@@ -417,7 +420,7 @@ static CGEventRef OnTappedEvent(CGEventTapProxy proxy, CGEventType type, CGEvent
             event = eventCopy;
             eventCopy = temp;
         }
-        BOOL keySheetOpen = [[prefPanel keySheet] isKeyWindow] && [prefPanel keySheetIsOpen];
+        BOOL keySheetOpen = NO; //[[prefPanel keySheet] isKeyWindow] && [prefPanel keySheetIsOpen];
         if ((!tempDisabled && !isDoNotRemap) ||  // normal case, whether keysheet is open or not
             (!tempDisabled && isDoNotRemap && keySheetOpen)) {  // about to change dnr to non-dnr
             [KeyBindingManager remapModifiersInCGEvent:event
@@ -465,7 +468,7 @@ static CGEventRef OnTappedEvent(CGEventTapProxy proxy, CGEventType type, CGEvent
     if (callDirectly) {
         // Send keystroke directly to preference panel when setting do-not-remap for a key; for
         // system keys, NSApp sendEvent: is never called so this is the last chance.
-        [[PreferencePanelController sharedInstance] shortcutKeyDown:cocoaEvent];
+        //[[PreferencePanelController sharedInstance] shortcutKeyDown:cocoaEvent];
         return nil;
     }
     if (local) {

@@ -9,7 +9,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "Prefs/PreferencePanelController.h"
+#import "../Prefs/PreferencePanelController.h"
 
 int main(int argc, const char *argv[])
 {

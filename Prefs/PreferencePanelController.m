@@ -23,13 +23,15 @@
  **  along with this program; if not, write to the Free Software
  **  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
+#import "PreferenceKeys.h"
+#import "PreferencePanelController.h"
 
-#import "Prefs/PreferencePanelController.h"
-#import "App/iTermController.h"
-#import "App/KeyBindingManager.h"
-#import "Profiles/ProfileManager.h"
-#import "Profiles/ProfileModel.h"
-#import "Prefs/PreferenceKeys.h"
+#import "../App/iTermController.h"
+#import "../App/KeyBindingManager.h"
+
+#import "../Profiles/ProfileManager.h"
+#import "../Profiles/ProfileModel.h"
+
 
 #define CUSTOM_COLOR_PRESETS @"Custom Color Presets"
 #define HOTKEY_WINDOW_GENERATED_PROFILE_NAME @"Hotkey Window"
@@ -39,6 +41,8 @@ NSString* kDeleteKeyString = @"0x7f-0x0";
 //static float versionNumber;
 
 @implementation PreferencePanelController
+
+@synthesize model=model_;
 
 + (PreferencePanelController*)sharedInstance;
 {
@@ -68,13 +72,25 @@ NSString* kDeleteKeyString = @"0x7f-0x0";
     return shared;
 }
 
-- (void)init
+- (id)init
 {
-    prefsGeneralTab    = nil;
-    prefsAppearanceTab = nil;
-    prefsProfilesTab   = nil;
-    prefsKeybindsTab   = nil;
+    if ((self = [super init])) {
+        prefsGeneralTab    = nil;
+        prefsAppearanceTab = nil;
+        prefsProfilesTab   = nil;
+        prefsKeybindsTab   = nil;
+        model_ = [PreferencesModel sharedInstance];
+    }
+    return self;
 }
+
+- (void)dealloc
+{
+    //[model_ saveToUserPreferences];
+    [model_ release];
+    [super dealloc];
+}
+
 
 - (IBAction)showGlobalTabView:(id)sender
 {
@@ -82,6 +98,8 @@ NSString* kDeleteKeyString = @"0x7f-0x0";
     if (prefsGeneralTab == nil) {
         prefsGeneralTab = [[PreferencesGeneralHelper alloc]
                                 initWithNibName:@"PrefsGeneralView" bundle:nil];
+        [prefsGeneralTab setModel:model_];
+        
         NSView *v = [prefsGeneralTab view];
         [globalTabViewItem setView:v];
     }
@@ -174,11 +192,6 @@ NSString* kDeleteKeyString = @"0x7f-0x0";
             nil];
 }
 
-- (void)dealloc
-{
-    //[defaultWordChars release];
-    [super dealloc];
-}
 
 - (void)run
 {

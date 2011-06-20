@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>GlobalKeyBinds</key>
+	<dict/>
+	<key>Profiles</key>
+	<dict/>
+	<key>Appearance</key>
+	<dict/>
+	<key>General</key>
+	<dict>
+		<key>defaultString</key>
+		<dict>
+			<key>type</key>
+			<string>string</string>
+			<key>tooltip</key>
+			<string>some horses?</string>
+			<key>comments</key>
+			<string>no</string>
+		</dict>
+		<key>defaultOpenProfile</key>
+		<dict>
+			<key>type</key>
+			<string>boolean</string>
+			<key>tooltip</key>
+			<string>Open Profiles window each time iTerm starts</string>
+			<key>comments</key>
+			<string>none</string>
+		</dict>
+		<key>defaultQuitWhenAllWindowsClosed</key>
+		<dict>
+			<key>type</key>
+			<string>boolean</string>
+			<key>tooltip</key>
+			<string>Should iTerm quit when all the terminal windows have been closed?</string>
+			<key>comments</key>
+			<string>none</string>
+		</dict>
+		<key>defaultOpenArrangementAtStartup</key>
+		<dict>
+			<key>type</key>
+			<string>boolean</string>
+			<key>tooltip</key>
+			<string>Open saved window configuration on startup?</string>
+			<key>comments</key>
+			<string>none</string>
+		</dict>
+	</dict>
+	<key>ProfileModel</key>
+	<dict>
+		<key>Type</key>
+		<string>Thing</string>
+		<key>Tooltip</key>
+		<string>This is a thing</string>
+		<key>Comments</key>
+		<string>Some comments about a thing</string>
+	</dict>
+</dict>
+</plist>

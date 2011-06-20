@@ -25,12 +25,12 @@
  **  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#import "Prefs/PreferenceKeys.h"
+#import "../Prefs/PreferenceKeys.h"
 
-#import "Prefs/PreferencePanelController.h"
-#import "App/KeyBindingManager.h"
-#import "Profiles/ProfileManager.h"
-#import "Profiles/ProfileModel.h"
+#import "../Prefs/PreferencePanelController.h"
+#import "../App/KeyBindingManager.h"
+#import "ProfileManager.h"
+#import "ProfileModel.h"
 
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -52,8 +52,10 @@
 
 - (id)init
 {
-    self = [super init];
-
+    if ((self = [super init])) {
+        
+    }
+/*
     NSUserDefaults* prefs = [NSUserDefaults standardUserDefaults];
 
     if ([prefs objectForKey:KEY_DEPRECATED_BOOKMARKS] && ![prefs objectForKey:KEY_NEW_BOOKMARKS]) {
@@ -78,7 +80,7 @@
         [[ProfileModel sharedInstance] addProfile:aDict];
         [aDict release];
     }
-
+*/
     return self;
 }
 

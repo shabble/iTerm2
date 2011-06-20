@@ -44,21 +44,11 @@ typedef enum { CURSOR_UNDERLINE, CURSOR_VERTICAL, CURSOR_BOX } ITermCursorType;
 
 
 #import <Cocoa/Cocoa.h>
-#import "Profiles/ProfileModel.h"
-#import "Profiles/ProfilesListView.h"
+#import "../Profiles/ProfileModel.h"
+#import "../Profiles/ProfilesListView.h"
+#import "../Misc/NSUserDefaults+NSColorSupport.h"
 
-//
-//  UserModel.h
-//  colour-matrix
-//
-//  Created by shabble on 16/06/2011.
-//  Copyright 2011 . All rights reserved.
-//
-
-#import <Cocoa/Cocoa.h>
-#import "NSUserDefaults+NSColorSupport.h"
-
-@interface UserModel : NSObject {
+@interface PreferencesModel : NSObject {
     
     NSUserDefaultsController *userDefaultsController_;
     NSSet *validKeys_;
@@ -66,7 +56,12 @@ typedef enum { CURSOR_UNDERLINE, CURSOR_VERTICAL, CURSOR_BOX } ITermCursorType;
 }
 
 @property (nonatomic,readwrite,assign) NSUserDefaultsController *userDefaultsController;
+@property (nonatomic,readwrite,assign) NSSet *validKeys;
 
++ (PreferencesModel*)sharedInstance;
+
+- (id)init;
+- (void)dealloc;
 - (void)resetToFactoryDefaults;
 - (void)saveToUserPreferences;
 - (void)loadFromUserPreferences;
@@ -77,9 +72,11 @@ typedef enum { CURSOR_UNDERLINE, CURSOR_VERTICAL, CURSOR_BOX } ITermCursorType;
 - (id)prefs;
 - (NSDictionary*)initialValues;
 
+- (void)loadSchemaFromFile:(NSString*)theFile;
+
 @end
 
-@interface UserModel (KeyValueCoding)
+@interface PreferencesModel (KeyValueCoding)
 
 - (id)valueForKey:(NSString *)key;
 - (void)setValue:(id)value forKey:(NSString *)key;
@@ -87,6 +84,7 @@ typedef enum { CURSOR_UNDERLINE, CURSOR_VERTICAL, CURSOR_BOX } ITermCursorType;
 
 @end
 
+/*
 
 @interface PreferencesModel : NSObject {
 
@@ -100,6 +98,7 @@ typedef enum { CURSOR_UNDERLINE, CURSOR_VERTICAL, CURSOR_BOX } ITermCursorType;
     // other: Adium
     // Bound to Metal/Aqua/Unified/Adium button
     int defaultWindowStyle;
+ 
     BOOL oneProfileOnly; // redundant? See oneProfileMode above.
 
     // This gives a value from NSTabViewType, which as of OS 10.6 is:
@@ -469,3 +468,4 @@ typedef enum { CURSOR_UNDERLINE, CURSOR_VERTICAL, CURSOR_BOX } ITermCursorType;
 // * add load/save code
 // * add obj instance to xib?
 @end
+ */

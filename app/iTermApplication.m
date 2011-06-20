@@ -29,11 +29,11 @@
  */
 
 #import "iTermApplication.h"
-#import "App/iTermController.h"
-#import "App/KeyBindingManager.h"
+#import "iTermController.h"
+#import "KeyBindingManager.h"
 
-#import "Prefs/PreferencePanelController.h"
-#import "Prefs/PreferenceKeys.h"
+#import "../Prefs/PreferencePanelController.h"
+#import "../Prefs/PreferenceKeys.h"
 
 @implementation iTermApplication
 

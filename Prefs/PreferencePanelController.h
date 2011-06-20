@@ -25,14 +25,14 @@
  */
 
 #import <Cocoa/Cocoa.h>
-#import "Profiles/ProfileModel.h"
-#import "Profiles/ProfilesListView.h"
-#import "Prefs/PreferencesModel.h"
+#import "../Profiles/ProfileModel.h"
+#import "../Profiles/ProfilesListView.h"
+#import "PreferencesModel.h"
 
-#import "Prefs/PreferencesGeneralHelper.h"
-#import "Prefs/PreferencesAppearanceHelper.h"
-#import "Prefs/PreferencesProfilesHelper.h"
-#import "Prefs/PreferencesGlobalKeybindingsHelper.h"
+#import "PreferencesGeneralHelper.h"
+#import "PreferencesAppearanceHelper.h"
+#import "PreferencesProfilesHelper.h"
+#import "PreferencesGlobalKeybindingsHelper.h"
 
 #define OPT_NORMAL 0
 #define OPT_META   1
@@ -458,8 +458,11 @@
     IBOutlet PreferencesGlobalKeybindingsHelper *prefsKeybindsTab;
     //IBOutlet NSView *prefsGlobalKeybindingsView;
 
-    
+    PreferencesModel *model_;
 }
+
+@property (nonatomic,readonly,retain) PreferencesModel *model;
+
 
 typedef enum { BulkCopyColors, BulkCopyDisplay, BulkCopyWindow, BulkCopyTerminal, BulkCopyKeyboard } BulkCopySettings;
 
@@ -474,7 +477,9 @@ typedef enum { BulkCopyColors, BulkCopyDisplay, BulkCopyWindow, BulkCopyTerminal
 
 - (void)run;
 - (void)awakeFromNib;
+- (id)init;
 - (void)dealloc;
+
 
 /*
 - (id)initWithDataSource:(ProfileModel*)model userDefaults:(NSUserDefaults*)userDefaults;

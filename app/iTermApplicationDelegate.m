@@ -27,14 +27,14 @@
  **  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#import "App/iTermApplicationDelegate.h"
-#import "App/iTermController.h"
-#import "Prefs/PreferenceKeys.h"
-#import "Prefs/PreferencePanelController.h"
+#import "iTermApplicationDelegate.h"
+#import "iTermController.h"
+#import "../Prefs/PreferenceKeys.h"
+#import "../Prefs/PreferencePanelController.h"
 
 
-#import "Profiles/ProfilesWindow.h"
-#import "Profiles/ProfileManager.h"
+#import "../Profiles/ProfilesWindow.h"
+#import "../Profiles/ProfileManager.h"
 
 #include <unistd.h>
 
@@ -250,10 +250,10 @@ int gDebugLogFile = -1;
                                                  name:@"iTermWindowBecameKey"
                                                object:nil];
 
-    [[NSNotificationCenter defaultCenter] addObserver: self
+ /*   [[NSNotificationCenter defaultCenter] addObserver: self
                                              selector: @selector(updateAddressBookMenu:)
                                                  name: @"iTermReloadAddressBook"
-                                               object: nil];
+                                               object: nil]; */
 
     [[NSNotificationCenter defaultCenter] addObserver: self
                                              selector: @selector(buildSessionSubmenu:)
@@ -281,7 +281,7 @@ int gDebugLogFile = -1;
                                                         andEventID:kAEGetURL];
 
     aboutController = nil;
-    //launchTime_ = [[NSDate date] retain];
+    launchTime_ = [[NSDate date] retain];
 
     NSLog(@"AppDelegate Done initing");
     return self;

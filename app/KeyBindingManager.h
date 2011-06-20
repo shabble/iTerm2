@@ -25,7 +25,7 @@
  */
 
 #import <Cocoa/Cocoa.h>
-#import "Profiles/ProfileModel.h"
+#import "../Profiles/ProfileModel.h"
 
 // Key Definitions
 #define KEY_CURSOR_DOWN                 0

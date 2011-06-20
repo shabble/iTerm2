@@ -24,7 +24,7 @@
 
 #import <Cocoa/Cocoa.h>
 #import "ProfileModel.h"
-#import "Search/iTermSearchField.h"
+#import "../Search/iTermSearchField.h"
 
 //@class iTermSearchField;
 @class ProfileRow;

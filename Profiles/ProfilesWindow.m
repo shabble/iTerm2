@@ -23,9 +23,9 @@
 */
 
 #import "ProfilesWindow.h"
-#import "Profiles/ProfileModel.h"
-#import "App/iTermController.h"
-#import "Prefs/PreferencePanelController.h"
+#import "ProfileModel.h"
+#import "../App/iTermController.h"
+#import "../Prefs/PreferencePanelController.h"
 
 typedef enum {
     HORIZONTAL_PANE,
@@ -133,15 +133,15 @@ typedef enum {
 
 - (IBAction)editProfiles:(id)sender
 {
-    [[PreferencePanelController sharedInstance] run];
-    [[PreferencePanelController sharedInstance] showProfiles];
+    //[[PreferencePanelController sharedInstance] run];
+    //[[PreferencePanelController sharedInstance] showProfiles];
 }
 
 - (IBAction)editSelectedProfile:(id)sender
 {
     NSString* guid = [tableView_ selectedGuid];
     if (guid) {
-        [[PreferencePanelController sharedInstance] openToProfile:guid];
+        //[[PreferencePanelController sharedInstance] openToProfile:guid];
     }
 }
 

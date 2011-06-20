@@ -25,10 +25,10 @@
  **  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#import "Prefs/PreferencesProfilesHelper.h"
-#import "Prefs/PreferencePanelController.h"
-#import "Profiles/ProfileModel.h"
-#import "Prefs/PreferencesModel.h"
+#import "PreferencesProfilesHelper.h"
+#import "PreferencePanelController.h"
+#import "../Profiles/ProfileModel.h"
+#import "PreferencesModel.h"
 
 
 @implementation PreferencesProfilesHelper

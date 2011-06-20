@@ -8,6 +8,7 @@
 		<string key="IBDocument.HIToolboxVersion">353.00</string>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
+			<integer value="2"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -35,7 +36,7 @@
 				<string key="NSClassName">NSApplication</string>
 			</object>
 			<object class="NSView" id="936865998">
-				<nil key="NSNextResponder"/>
+				<reference key="NSNextResponder"/>
 				<int key="NSvFlags">256</int>
 				<object class="NSMutableArray" key="NSSubviews">
 					<bool key="EncodedWithXMLCoder">YES</bool>
@@ -736,8 +737,41 @@
 							<int key="NSPeriodicInterval">25</int>
 						</object>
 					</object>
+					<object class="NSButton" id="618065857">
+						<reference key="NSNextResponder" ref="936865998"/>
+						<int key="NSvFlags">268</int>
+						<string key="NSFrame">{{608, 171}, {96, 32}}</string>
+						<reference key="NSSuperview" ref="936865998"/>
+						<bool key="NSEnabled">YES</bool>
+						<object class="NSButtonCell" key="NSCell" id="77568185">
+							<int key="NSCellFlags">67239424</int>
+							<int key="NSCellFlags2">134217728</int>
+							<string key="NSContents">Meep</string>
+							<reference key="NSSupport" ref="813337874"/>
+							<reference key="NSControlView" ref="618065857"/>
+							<int key="NSButtonFlags">-2038284033</int>
+							<int key="NSButtonFlags2">129</int>
+							<string key="NSAlternateContents"/>
+							<string key="NSKeyEquivalent"/>
+							<int key="NSPeriodicDelay">200</int>
+							<int key="NSPeriodicInterval">25</int>
+						</object>
+					</object>
 				</object>
 				<string key="NSFrameSize">{782, 400}</string>
+				<reference key="NSSuperview"/>
+			</object>
+			<object class="NSObjectController" id="862843488">
+				<object class="NSMutableArray" key="NSDeclaredKeys">
+					<bool key="EncodedWithXMLCoder">YES</bool>
+					<string>defaultOpenProfile</string>
+					<string>defaultOpenArrangementAtStartup</string>
+					<string>defaultQuitWhenAllWindowsClosed</string>
+					<string>thingie</string>
+					<string>defaultString</string>
+				</object>
+				<bool key="NSEditable">YES</bool>
+				<object class="_NSManagedProxy" key="_NSManagedProxy"/>
 			</object>
 		</object>
 		<object class="IBObjectContainer" key="IBDocument.Objects">
@@ -903,6 +937,94 @@
 					</object>
 					<int key="connectionID">83</int>
 				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">saveButtonPress:</string>
+						<reference key="source" ref="1001"/>
+						<reference key="destination" ref="618065857"/>
+					</object>
+					<int key="connectionID">110</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBBindingConnection" key="connection">
+						<string key="label">contentObject: model</string>
+						<reference key="source" ref="862843488"/>
+						<reference key="destination" ref="1001"/>
+						<object class="NSNibBindingConnector" key="connector">
+							<reference key="NSSource" ref="862843488"/>
+							<reference key="NSDestination" ref="1001"/>
+							<string key="NSLabel">contentObject: model</string>
+							<string key="NSBinding">contentObject</string>
+							<string key="NSKeyPath">model</string>
+							<int key="NSNibBindingConnectorVersion">2</int>
+						</object>
+					</object>
+					<int key="connectionID">121</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBBindingConnection" key="connection">
+						<string key="label">value: selection.defaultString</string>
+						<reference key="source" ref="95883074"/>
+						<reference key="destination" ref="862843488"/>
+						<object class="NSNibBindingConnector" key="connector">
+							<reference key="NSSource" ref="95883074"/>
+							<reference key="NSDestination" ref="862843488"/>
+							<string key="NSLabel">value: selection.defaultString</string>
+							<string key="NSBinding">value</string>
+							<string key="NSKeyPath">selection.defaultString</string>
+							<int key="NSNibBindingConnectorVersion">2</int>
+						</object>
+					</object>
+					<int key="connectionID">123</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBBindingConnection" key="connection">
+						<string key="label">value: selection.defaultOpenProfile</string>
+						<reference key="source" ref="1019911664"/>
+						<reference key="destination" ref="862843488"/>
+						<object class="NSNibBindingConnector" key="connector">
+							<reference key="NSSource" ref="1019911664"/>
+							<reference key="NSDestination" ref="862843488"/>
+							<string key="NSLabel">value: selection.defaultOpenProfile</string>
+							<string key="NSBinding">value</string>
+							<string key="NSKeyPath">selection.defaultOpenProfile</string>
+							<int key="NSNibBindingConnectorVersion">2</int>
+						</object>
+					</object>
+					<int key="connectionID">125</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBBindingConnection" key="connection">
+						<string key="label">value: selection.defaultOpenArrangementAtStartup</string>
+						<reference key="source" ref="361661567"/>
+						<reference key="destination" ref="862843488"/>
+						<object class="NSNibBindingConnector" key="connector">
+							<reference key="NSSource" ref="361661567"/>
+							<reference key="NSDestination" ref="862843488"/>
+							<string key="NSLabel">value: selection.defaultOpenArrangementAtStartup</string>
+							<string key="NSBinding">value</string>
+							<string key="NSKeyPath">selection.defaultOpenArrangementAtStartup</string>
+							<int key="NSNibBindingConnectorVersion">2</int>
+						</object>
+					</object>
+					<int key="connectionID">127</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBBindingConnection" key="connection">
+						<string key="label">value: selection.defaultQuitWhenAllWindowsClosed</string>
+						<reference key="source" ref="957200148"/>
+						<reference key="destination" ref="862843488"/>
+						<object class="NSNibBindingConnector" key="connector">
+							<reference key="NSSource" ref="957200148"/>
+							<reference key="NSDestination" ref="862843488"/>
+							<string key="NSLabel">value: selection.defaultQuitWhenAllWindowsClosed</string>
+							<string key="NSBinding">value</string>
+							<string key="NSKeyPath">selection.defaultQuitWhenAllWindowsClosed</string>
+							<int key="NSNibBindingConnectorVersion">2</int>
+						</object>
+					</object>
+					<int key="connectionID">129</int>
+				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
 				<object class="NSArray" key="orderedObjects">
@@ -938,7 +1060,6 @@
 						<reference key="object" ref="936865998"/>
 						<object class="NSMutableArray" key="children">
 							<bool key="EncodedWithXMLCoder">YES</bool>
-							<reference ref="811841708"/>
 							<reference ref="478721203"/>
 							<reference ref="52180027"/>
 							<reference ref="997958335"/>
@@ -967,6 +1088,8 @@
 							<reference ref="248844296"/>
 							<reference ref="840872315"/>
 							<reference ref="946166179"/>
+							<reference ref="811841708"/>
+							<reference ref="618065857"/>
 							<reference ref="1019911664"/>
 						</object>
 						<reference key="parent" ref="1002"/>
@@ -1401,6 +1524,25 @@
 						<reference key="object" ref="92334964"/>
 						<reference key="parent" ref="811841708"/>
 					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">85</int>
+						<reference key="object" ref="862843488"/>
+						<reference key="parent" ref="1002"/>
+					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">107</int>
+						<reference key="object" ref="618065857"/>
+						<object class="NSMutableArray" key="children">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<reference ref="77568185"/>
+						</object>
+						<reference key="parent" ref="936865998"/>
+					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">108</int>
+						<reference key="object" ref="77568185"/>
+						<reference key="parent" ref="618065857"/>
+					</object>
 				</object>
 			</object>
 			<object class="NSMutableDictionary" key="flattenedProperties">
@@ -1413,6 +1555,8 @@
 					<string>10.IBPluginDependency</string>
 					<string>10.IBViewBoundsToFrameTransform</string>
 					<string>10.ImportedFromIB2</string>
+					<string>107.IBPluginDependency</string>
+					<string>108.IBPluginDependency</string>
 					<string>11.IBPluginDependency</string>
 					<string>11.IBViewBoundsToFrameTransform</string>
 					<string>12.IBPluginDependency</string>
@@ -1503,6 +1647,7 @@
 					<string>7.IBViewBoundsToFrameTransform</string>
 					<string>8.IBPluginDependency</string>
 					<string>8.IBViewBoundsToFrameTransform</string>
+					<string>85.IBPluginDependency</string>
 					<string>9.IBPluginDependency</string>
 					<string>9.IBViewBoundsToFrameTransform</string>
 				</object>
@@ -1516,6 +1661,8 @@
 						<bytes key="NSTransformStruct">P4AAAL+AAABBIAAAwsoAAA</bytes>
 					</object>
 					<reference ref="5"/>
+					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
+					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<object class="NSAffineTransform">
 						<bytes key="NSTransformStruct">P4AAAL+AAADAQAAAwxQAAA</bytes>
@@ -1552,7 +1699,7 @@
 					<object class="NSAffineTransform">
 						<bytes key="NSTransformStruct">P4AAAL+AAABC4gAAwsYAAA</bytes>
 					</object>
-					<string>{{49, 226}, {782, 400}}</string>
+					<string>{{79, 456}, {782, 400}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<object class="NSAffineTransform">
@@ -1645,6 +1792,7 @@
 						<bytes key="NSTransformStruct">P4AAAL+AAABBEAAAw1UAAA</bytes>
 					</object>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
+					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<object class="NSAffineTransform">
 						<bytes key="NSTransformStruct">P4AAAL+AAADAQAAAwxQAAA</bytes>
 					</object>
@@ -1670,7 +1818,7 @@
 				</object>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">83</int>
+			<int key="maxID">129</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -1685,15 +1833,31 @@
 				<object class="IBPartialClassDescription">
 					<string key="className">PreferencesGeneralHelper</string>
 					<string key="superclassName">NSViewController</string>
+					<object class="NSMutableDictionary" key="actions">
+						<string key="NS.key.0">saveButtonPress:</string>
+						<string key="NS.object.0">id</string>
+					</object>
+					<object class="NSMutableDictionary" key="outlets">
+						<string key="NS.key.0">model</string>
+						<string key="NS.object.0">PreferencesModel</string>
+					</object>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
 						<string key="minorKey">Prefs/PreferencesGeneralHelper.h</string>
 					</object>
 				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">PreferencesModel</string>
+					<string key="superclassName">NSObject</string>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">Prefs/PreferencesModel.h</string>
+					</object>
+				</object>
 			</object>
 		</object>
 		<int key="IBDocument.localizationMode">0</int>
-		<string key="IBDocument.LastKnownRelativeProjectPath">iTerm.xcodeproj</string>
+		<string key="IBDocument.LastKnownRelativeProjectPath">../iTerm.xcodeproj</string>
 		<int key="IBDocument.defaultPropertyAccessControl">3</int>
 	</data>
 </archive>
