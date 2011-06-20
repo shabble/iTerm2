@@ -78,12 +78,19 @@ typedef struct {
 - (void)setDefaultByGuid:(NSString*)guid;
 - (void)moveGuid:(NSString*)guid toRow:(int)row;
 - (void)rebuildMenus;
+
 // Return the absolute index of a profile given its index with the filter applied.
 - (int)convertFilteredIndex:(int)theIndex withFilter:(NSString*)filter;
 - (void)dump;
 - (NSArray*)profiles;
 - (NSArray*)guids;
-- (void)addProfile:(Profile*)profile toMenu:(NSMenu*)menu startingAtItem:(int)skip withTags:(NSArray*)tags params:(JournalParams*)params atPos:(int)pos;
+
+- (void)addProfile:(Profile*)profile
+            toMenu:(NSMenu*)menu
+    startingAtItem:(int)skip
+          withTags:(NSArray*)tags
+            params:(JournalParams*)params
+             atPos:(int)pos;
 
 // Tell all listeners that the model has changed.
 - (void)postChangeNotification;

@@ -50,6 +50,9 @@
 		2C93EF7413A0988D004D78DD /* PreferencesAppearanceHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C93EF7113A0988D004D78DD /* PreferencesAppearanceHelper.h */; };
 		2C93EF7513A0988D004D78DD /* PreferencesGeneralHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C93EF7213A0988D004D78DD /* PreferencesGeneralHelper.h */; };
 		2C93EF7613A0988D004D78DD /* PreferencesGlobalKeybindingsHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C93EF7313A0988D004D78DD /* PreferencesGlobalKeybindingsHelper.h */; };
+		2CAED74F13AF2A3400D06287 /* TestTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CAED74E13AF2A3400D06287 /* TestTest.m */; };
+		2CAED78A13AF2DD800D06287 /* RemoteProfileDiscovery.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CAED78913AF2DD800D06287 /* RemoteProfileDiscovery.m */; };
+		2CAED78C13AF2DE000D06287 /* RemoteProfileDiscovery.h in Headers */ = {isa = PBXBuildFile; fileRef = 2CAED78B13AF2DE000D06287 /* RemoteProfileDiscovery.h */; };
 		2CE27518139B06F0005797CA /* iTerm.icns in Resources */ = {isa = PBXBuildFile; fileRef = 2CE27509139B06F0005797CA /* iTerm.icns */; };
 		2CE27546139B08F0005797CA /* Copy-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 2CE27527139B08F0005797CA /* Copy-icon.png */; };
 		2CE27547139B08F0005797CA /* IBarCursor.png in Resources */ = {isa = PBXBuildFile; fileRef = 2CE27528139B08F0005797CA /* IBarCursor.png */; };
@@ -98,6 +101,16 @@
 		874206530564169600CFC3F1 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0464AB2F006CD2EC7F000001 /* AppKit.framework */; };
 		9325FF500FB54E00004EC67C /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9325FF4E0FB54E00004EC67C /* MainMenu.xib */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		2CAED75013AF2A4300D06287 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 0464AB0C006CD2EC7F000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 874206460564169600CFC3F1 /* iTermprefs */;
+			remoteInfo = iTermprefs;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		0464AB2F006CD2EC7F000001 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
@@ -157,6 +170,12 @@
 		2C93EF7113A0988D004D78DD /* PreferencesAppearanceHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PreferencesAppearanceHelper.h; path = Prefs/PreferencesAppearanceHelper.h; sourceTree = "<group>"; };
 		2C93EF7213A0988D004D78DD /* PreferencesGeneralHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PreferencesGeneralHelper.h; path = Prefs/PreferencesGeneralHelper.h; sourceTree = "<group>"; };
 		2C93EF7313A0988D004D78DD /* PreferencesGlobalKeybindingsHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PreferencesGlobalKeybindingsHelper.h; path = Prefs/PreferencesGlobalKeybindingsHelper.h; sourceTree = "<group>"; };
+		2CAED74613AF29EE00D06287 /* PreferencesTesting.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = PreferencesTesting.octest; path = build/Deployment/PreferencesTesting.octest; sourceTree = "<group>"; };
+		2CAED74713AF29EE00D06287 /* PreferencesTesting-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "PreferencesTesting-Info.plist"; sourceTree = "<group>"; };
+		2CAED74D13AF2A3400D06287 /* TestTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestTest.h; path = tests/unit/TestTest.h; sourceTree = "<group>"; };
+		2CAED74E13AF2A3400D06287 /* TestTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestTest.m; path = tests/unit/TestTest.m; sourceTree = "<group>"; };
+		2CAED78913AF2DD800D06287 /* RemoteProfileDiscovery.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RemoteProfileDiscovery.m; path = Profiles/RemoteProfileDiscovery.m; sourceTree = "<group>"; };
+		2CAED78B13AF2DE000D06287 /* RemoteProfileDiscovery.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RemoteProfileDiscovery.h; path = Profiles/RemoteProfileDiscovery.h; sourceTree = "<group>"; };
 		2CE274E8139B06F0005797CA /* images */ = {isa = PBXFileReference; lastKnownFileType = folder; path = images; sourceTree = "<group>"; };
 		2CE27509139B06F0005797CA /* iTerm.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = iTerm.icns; sourceTree = "<group>"; };
 		2CE2750A139B06F0005797CA /* properties */ = {isa = PBXFileReference; lastKnownFileType = folder; path = properties; sourceTree = "<group>"; };
@@ -209,6 +228,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		2CAED74313AF29EE00D06287 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		874206510564169600CFC3F1 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -238,6 +264,9 @@
 				2CE27487139B0655005797CA /* Resources_xx */,
 				0464AB2E006CD2EC7F000001 /* External Frameworks */,
 				0464AB32006CD2EC7F000001 /* Products */,
+				2CAED74713AF29EE00D06287 /* PreferencesTesting-Info.plist */,
+				2CAED74D13AF2A3400D06287 /* TestTest.h */,
+				2CAED74E13AF2A3400D06287 /* TestTest.m */,
 			);
 			name = JTerminal;
 			sourceTree = "<group>";
@@ -257,6 +286,7 @@
 		0464AB15006CD2EC7F000001 /* Headers */ = {
 			isa = PBXGroup;
 			children = (
+				2CAED78B13AF2DE000D06287 /* RemoteProfileDiscovery.h */,
 				2C16E52C13A75732002F1F58 /* GTMCarbonEvent.h */,
 				2C16E52D13A75732002F1F58 /* GTMDebugSelectorValidation.h */,
 				2C16E52E13A75732002F1F58 /* GTMDefines.h */,
@@ -306,6 +336,7 @@
 			isa = PBXGroup;
 			children = (
 				2C16E59113A766C0002F1F58 /* iTermPrefs.app */,
+				2CAED74613AF29EE00D06287 /* PreferencesTesting.octest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -334,6 +365,7 @@
 				2CE2762D139B2A87005797CA /* PreferencePanelController.m */,
 				2C1C0F17139FD32500E1DA75 /* iTermSearchField.m */,
 				2C93EF6B13A09861004D78DD /* PreferencesAppearanceHelper.m */,
+				2CAED78913AF2DD800D06287 /* RemoteProfileDiscovery.m */,
 				2C93EF6C13A09861004D78DD /* PreferencesGeneralHelper.m */,
 				2C93EF6D13A09861004D78DD /* PreferencesGlobalKeybindingsHelper.m */,
 				2CE2761D139B2977005797CA /* PreferencesModel.m */,
@@ -447,12 +479,32 @@
 				2C16E53313A75732002F1F58 /* GTMDefines.h in Headers */,
 				2C16E53413A75732002F1F58 /* GTMObjectSingleton.h in Headers */,
 				2C16E53513A75732002F1F58 /* GTMTypeCasting.h in Headers */,
+				2CAED78C13AF2DE000D06287 /* RemoteProfileDiscovery.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		2CAED74513AF29EE00D06287 /* PreferencesTesting */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2CAED74B13AF29EF00D06287 /* Build configuration list for PBXNativeTarget "PreferencesTesting" */;
+			buildPhases = (
+				2CAED74113AF29EE00D06287 /* Resources */,
+				2CAED74213AF29EE00D06287 /* Sources */,
+				2CAED74313AF29EE00D06287 /* Frameworks */,
+				2CAED74413AF29EE00D06287 /* ShellScript */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				2CAED75113AF2A4300D06287 /* PBXTargetDependency */,
+			);
+			name = PreferencesTesting;
+			productName = PreferencesTesting;
+			productReference = 2CAED74613AF29EE00D06287 /* PreferencesTesting.octest */;
+			productType = "com.apple.product-type.bundle";
+		};
 		874206460564169600CFC3F1 /* iTermprefs */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = BB024D35096EE4080021E793 /* Build configuration list for PBXNativeTarget "iTermprefs" */;
@@ -495,11 +547,19 @@
 			projectRoot = "";
 			targets = (
 				874206460564169600CFC3F1 /* iTermprefs */,
+				2CAED74513AF29EE00D06287 /* PreferencesTesting */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		2CAED74113AF29EE00D06287 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		8742064A0564169600CFC3F1 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -555,7 +615,31 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		2CAED74413AF29EE00D06287 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Run the unit tests in this test bundle.\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
+		2CAED74213AF29EE00D06287 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2CAED74F13AF2A3400D06287 /* TestTest.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		8742064E0564169600CFC3F1 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -577,10 +661,19 @@
 				2C93EF7013A09861004D78DD /* PreferencesGlobalKeybindingsHelper.m in Sources */,
 				2C16E42F13A7443D002F1F58 /* ProfileModel.m in Sources */,
 				2C16E53713A7573A002F1F58 /* GTMCarbonEvent.m in Sources */,
+				2CAED78A13AF2DD800D06287 /* RemoteProfileDiscovery.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		2CAED75113AF2A4300D06287 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 874206460564169600CFC3F1 /* iTermprefs */;
+			targetProxy = 2CAED75013AF2A4300D06287 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		1D1158C913444D29009B366F /* iTerm2 Help */ = {
@@ -619,6 +712,84 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		2CAED74813AF29EF00D06287 /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Cocoa.framework/Headers/Cocoa.h";
+				INFOPLIST_FILE = "PreferencesTesting-Info.plist";
+				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Cocoa,
+					"-framework",
+					SenTestingKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = PreferencesTesting;
+				WRAPPER_EXTENSION = octest;
+			};
+			name = Development;
+		};
+		2CAED74913AF29EF00D06287 /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Cocoa.framework/Headers/Cocoa.h";
+				INFOPLIST_FILE = "PreferencesTesting-Info.plist";
+				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Cocoa,
+					"-framework",
+					SenTestingKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = PreferencesTesting;
+				WRAPPER_EXTENSION = octest;
+				ZERO_LINK = NO;
+			};
+			name = Deployment;
+		};
+		2CAED74A13AF29EF00D06287 /* Default */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				FRAMEWORK_SEARCH_PATHS = "$(DEVELOPER_LIBRARY_DIR)/Frameworks";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/Cocoa.framework/Headers/Cocoa.h";
+				INFOPLIST_FILE = "PreferencesTesting-Info.plist";
+				INSTALL_PATH = "$(USER_LIBRARY_DIR)/Bundles";
+				OTHER_LDFLAGS = (
+					"-framework",
+					Cocoa,
+					"-framework",
+					SenTestingKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = PreferencesTesting;
+				WRAPPER_EXTENSION = octest;
+			};
+			name = Default;
+		};
 		BB024D36096EE4080021E793 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -842,6 +1013,16 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		2CAED74B13AF29EF00D06287 /* Build configuration list for PBXNativeTarget "PreferencesTesting" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2CAED74813AF29EF00D06287 /* Development */,
+				2CAED74913AF29EF00D06287 /* Deployment */,
+				2CAED74A13AF29EF00D06287 /* Default */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Default;
+		};
 		BB024D35096EE4080021E793 /* Build configuration list for PBXNativeTarget "iTermprefs" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

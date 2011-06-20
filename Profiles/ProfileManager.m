@@ -6,9 +6,9 @@
  **  Author: Fabian, Ujwal S. Setlur
  **      Initial code by Kiichi Kusama
  **
- **  Project: iTerm
+ **  Project: iTerm2
  **
- **  Description: keeps track of the address book data.
+ **  Description: keeps track of the profiles data.
  **
  **  This program is free software; you can redistribute it and/or modify
  **  it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@
  **  along with this program; if not, write to the Free Software
  **  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
+
 #import "Prefs/PreferenceKeys.h"
 
 #import "Prefs/PreferencePanelController.h"
@@ -149,9 +150,9 @@
         return [NSColor blackColor];
     }
 
-    return [NSColor colorWithCalibratedRed:[[plist objectForKey:@"Red Component"] floatValue]
+    return [NSColor colorWithCalibratedRed:[[plist objectForKey:@"Red Component"]   floatValue]
                                      green:[[plist objectForKey:@"Green Component"] floatValue]
-                                      blue:[[plist objectForKey:@"Blue Component"] floatValue]
+                                      blue:[[plist objectForKey:@"Blue Component"]  floatValue]
                                      alpha:1.0];
 }
 
