@@ -9,7 +9,7 @@
 #import <Cocoa/Cocoa.h>
 
 
-@interface PreferencesGlobalKeybindingsHelper : NSObject {
+@interface PreferencesGlobalKeybindingsHelper : NSViewController {
     
     // Keyboard ------------------------------
  /*   int defaultControl;

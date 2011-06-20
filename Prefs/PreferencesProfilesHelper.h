@@ -30,7 +30,7 @@
 #import "Prefs/PreferenceKeys.h"
 
 
-@interface PreferencesProfilesHelper : NSObject //<ProfilesTableDelegate> 
+@interface PreferencesProfilesHelper : NSViewController //<ProfilesTableDelegate> 
 {
  /*   
     IBOutlet NSTabView* profilesSettingsTabViewParent;

@@ -29,6 +29,11 @@
 #import "Profiles/ProfilesListView.h"
 #import "Prefs/PreferencesModel.h"
 
+#import "Prefs/PreferencesGeneralHelper.h"
+#import "Prefs/PreferencesAppearanceHelper.h"
+#import "Prefs/PreferencesProfilesHelper.h"
+#import "Prefs/PreferencesGlobalKeybindingsHelper.h"
+
 #define OPT_NORMAL 0
 #define OPT_META   1
 #define OPT_ESC    2
@@ -48,20 +53,7 @@
 @interface PreferencePanelController : NSWindowController //<ProfilesTableDelegate>
 {
     
-    IBOutlet NSToolbar* toolbar;
-    IBOutlet NSTabView* tabView;
-    IBOutlet NSToolbarItem* globalToolbarItem;
-    IBOutlet NSTabViewItem* globalTabViewItem;
-    IBOutlet NSToolbarItem* appearanceToolbarItem;
-    IBOutlet NSTabViewItem* appearanceTabViewItem;
-    IBOutlet NSToolbarItem* keyboardToolbarItem;
-    IBOutlet NSTabViewItem* keyboardTabViewItem;
-    IBOutlet NSToolbarItem* profilesToolbarItem;
-    IBOutlet NSTabViewItem* profilesTabViewItem;
-    NSString* globalToolbarId;
-    NSString* appearanceToolbarId;
-    NSString* keyboardToolbarId;
-    NSString* profilesToolbarId;
+    
 
     /*
     
@@ -432,13 +424,48 @@
     IBOutlet NSButton* globalRemoveMappingButton;
     IBOutlet NSButton* globalAddNewMapping;
   */
+    
+    IBOutlet NSToolbar* toolbar;
+    IBOutlet NSTabView* tabView;
+    
+    IBOutlet NSToolbarItem* globalToolbarItem;
+    IBOutlet NSTabViewItem* globalTabViewItem;
+    
+    IBOutlet NSToolbarItem* appearanceToolbarItem;
+    IBOutlet NSTabViewItem* appearanceTabViewItem;
+
+    IBOutlet NSToolbarItem* profilesToolbarItem;
+    IBOutlet NSTabViewItem* profilesTabViewItem;
+
+    IBOutlet NSToolbarItem* keyboardToolbarItem;
+    IBOutlet NSTabViewItem* keyboardTabViewItem;
+    
+    NSString* globalToolbarId;
+    NSString* appearanceToolbarId;
+    NSString* keyboardToolbarId;
+    NSString* profilesToolbarId;
+    
+    
+    IBOutlet PreferencesGeneralHelper           *prefsGeneralTab;
+    //IBOutlet NSView *prefsGeneralView;
+    
+    IBOutlet PreferencesAppearanceHelper        *prefsAppearanceTab;
+    //IBOutlet NSView *prefsAppearanceView;
+    
+    IBOutlet PreferencesProfilesHelper          *prefsProfilesTab;
+    //IBOutlet NSView *prefsProfilesView;
+
+    IBOutlet PreferencesGlobalKeybindingsHelper *prefsKeybindsTab;
+    //IBOutlet NSView *prefsGlobalKeybindingsView;
+
+    
 }
 
 typedef enum { BulkCopyColors, BulkCopyDisplay, BulkCopyWindow, BulkCopyTerminal, BulkCopyKeyboard } BulkCopySettings;
 
 + (PreferencePanelController*)sharedInstance;
 + (PreferencePanelController*)sessionsInstance;
-+ (BOOL)migratePreferences;
+//+ (BOOL)migratePreferences;
 
 - (IBAction)showGlobalTabView:(id)sender;
 - (IBAction)showAppearanceTabView:(id)sender;

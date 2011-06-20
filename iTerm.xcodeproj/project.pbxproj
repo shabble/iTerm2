@@ -54,6 +54,9 @@
 		2CAED78A13AF2DD800D06287 /* RemoteProfileDiscovery.m in Sources */ = {isa = PBXBuildFile; fileRef = 2CAED78913AF2DD800D06287 /* RemoteProfileDiscovery.m */; };
 		2CAED78C13AF2DE000D06287 /* RemoteProfileDiscovery.h in Headers */ = {isa = PBXBuildFile; fileRef = 2CAED78B13AF2DE000D06287 /* RemoteProfileDiscovery.h */; };
 		2CAED79013AF326F00D06287 /* PrefsGeneralView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CAED78F13AF326F00D06287 /* PrefsGeneralView.xib */; };
+		2CAED82D13AF41D200D06287 /* PrefsAppearanceView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CAED82C13AF41D200D06287 /* PrefsAppearanceView.xib */; };
+		2CAED84313AF43B000D06287 /* PrefsProfilesView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CAED84213AF43B000D06287 /* PrefsProfilesView.xib */; };
+		2CAED84613AF45C400D06287 /* PrefsKeybindsView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2CAED84513AF45C400D06287 /* PrefsKeybindsView.xib */; };
 		2CE27518139B06F0005797CA /* iTerm.icns in Resources */ = {isa = PBXBuildFile; fileRef = 2CE27509139B06F0005797CA /* iTerm.icns */; };
 		2CE27546139B08F0005797CA /* Copy-icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 2CE27527139B08F0005797CA /* Copy-icon.png */; };
 		2CE27547139B08F0005797CA /* IBarCursor.png in Resources */ = {isa = PBXBuildFile; fileRef = 2CE27528139B08F0005797CA /* IBarCursor.png */; };
@@ -178,6 +181,9 @@
 		2CAED78913AF2DD800D06287 /* RemoteProfileDiscovery.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RemoteProfileDiscovery.m; path = Profiles/RemoteProfileDiscovery.m; sourceTree = "<group>"; };
 		2CAED78B13AF2DE000D06287 /* RemoteProfileDiscovery.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RemoteProfileDiscovery.h; path = Profiles/RemoteProfileDiscovery.h; sourceTree = "<group>"; };
 		2CAED78F13AF326F00D06287 /* PrefsGeneralView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PrefsGeneralView.xib; sourceTree = "<group>"; };
+		2CAED82C13AF41D200D06287 /* PrefsAppearanceView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PrefsAppearanceView.xib; sourceTree = "<group>"; };
+		2CAED84213AF43B000D06287 /* PrefsProfilesView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PrefsProfilesView.xib; sourceTree = "<group>"; };
+		2CAED84513AF45C400D06287 /* PrefsKeybindsView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PrefsKeybindsView.xib; sourceTree = "<group>"; };
 		2CE274E8139B06F0005797CA /* images */ = {isa = PBXFileReference; lastKnownFileType = folder; path = images; sourceTree = "<group>"; };
 		2CE27509139B06F0005797CA /* iTerm.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = iTerm.icns; sourceTree = "<group>"; };
 		2CE2750A139B06F0005797CA /* properties */ = {isa = PBXFileReference; lastKnownFileType = folder; path = properties; sourceTree = "<group>"; };
@@ -390,6 +396,9 @@
 				2CAED78F13AF326F00D06287 /* PrefsGeneralView.xib */,
 				9325FF4E0FB54E00004EC67C /* MainMenu.xib */,
 				9325FF400FB54DF1004EC67C /* PreferencePanel.xib */,
+				2CAED82C13AF41D200D06287 /* PrefsAppearanceView.xib */,
+				2CAED84213AF43B000D06287 /* PrefsProfilesView.xib */,
+				2CAED84513AF45C400D06287 /* PrefsKeybindsView.xib */,
 			);
 			name = "XIB Files";
 			sourceTree = "<group>";
@@ -614,6 +623,9 @@
 				2C1C0F01139FD16600E1DA75 /* GTM in Resources */,
 				2C1C0F13139FD30000E1DA75 /* Search in Resources */,
 				2CAED79013AF326F00D06287 /* PrefsGeneralView.xib in Resources */,
+				2CAED82D13AF41D200D06287 /* PrefsAppearanceView.xib in Resources */,
+				2CAED84313AF43B000D06287 /* PrefsProfilesView.xib in Resources */,
+				2CAED84613AF45C400D06287 /* PrefsKeybindsView.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

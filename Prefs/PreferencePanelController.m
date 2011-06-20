@@ -36,7 +36,7 @@
 
 NSString* kDeleteKeyString = @"0x7f-0x0";
 
-static float versionNumber;
+//static float versionNumber;
 
 @implementation PreferencePanelController
 
@@ -68,23 +68,61 @@ static float versionNumber;
     return shared;
 }
 
+- (void)init
+{
+    prefsGeneralTab    = nil;
+    prefsAppearanceTab = nil;
+    prefsProfilesTab   = nil;
+    prefsKeybindsTab   = nil;
+}
+
 - (IBAction)showGlobalTabView:(id)sender
 {
+    NSLog(@"Selecting global tab view");
+    if (prefsGeneralTab == nil) {
+        prefsGeneralTab = [[PreferencesGeneralHelper alloc]
+                                initWithNibName:@"PrefsGeneralView" bundle:nil];
+        NSView *v = [prefsGeneralTab view];
+        [globalTabViewItem setView:v];
+    }
+
     [tabView selectTabViewItem:globalTabViewItem];
 }
 
 - (IBAction)showAppearanceTabView:(id)sender
 {
+    NSLog(@"Selecting appearance tab view");
+    if (prefsAppearanceTab == nil) {
+        prefsAppearanceTab = [[PreferencesAppearanceHelper alloc]
+                                initWithNibName:@"PrefsAppearanceView" bundle:nil];
+        NSView *v = [prefsAppearanceTab view];
+        [appearanceTabViewItem setView:v];
+    }
     [tabView selectTabViewItem:appearanceTabViewItem];
 }
 
 - (IBAction)showProfilesTabView:(id)sender
 {
+    NSLog(@"Selecting profiles tab view");
+    if (prefsProfilesTab == nil) {
+        prefsProfilesTab = [[PreferencesProfilesHelper alloc]
+                                initWithNibName:@"PrefsProfilesView" bundle:nil];
+        NSView *v = [prefsProfilesTab view];
+        [profilesTabViewItem setView:v];
+    }
     [tabView selectTabViewItem:profilesTabViewItem];
 }
 
 - (IBAction)showKeyboardTabView:(id)sender
 {
+    NSLog(@"Selecting keyboard tab view");
+    if (prefsKeybindsTab == nil) {
+        prefsKeybindsTab = [[PreferencesGlobalKeybindingsHelper alloc]
+                                initWithNibName:@"PrefsKeybindsView" bundle:nil];
+        NSView *v = [prefsKeybindsTab view];
+        [keyboardTabViewItem setView:v];
+    }
+    
     [tabView selectTabViewItem:keyboardTabViewItem];
 }
 
@@ -155,6 +193,7 @@ static float versionNumber;
     //[wordChars setDelegate: self];
     
     [[self window] setLevel:NSNormalWindowLevel];
+    
     //NSString* guid = [profilesTableView selectedGuid];
 /*    [profilesTableView reloadData];
     if ([[profilesTableView selectedGuids] count] == 1) {
@@ -268,15 +307,19 @@ static float versionNumber;
     //NSAssert(profilesTableView, @"Null table view");
     // [profilesTableView setUnderlyingDatasource:dataSource];
     
-    profilesToolbarId = [profilesToolbarItem itemIdentifier];
-    globalToolbarId = [globalToolbarItem itemIdentifier];
+    profilesToolbarId   = [profilesToolbarItem itemIdentifier];
+    globalToolbarId     = [globalToolbarItem itemIdentifier];
     appearanceToolbarId = [appearanceToolbarItem itemIdentifier];
-    keyboardToolbarId = [keyboardToolbarItem itemIdentifier];
+    keyboardToolbarId   = [keyboardToolbarItem itemIdentifier];
+
+    // select the global tab, and send a message to ourselves to
+    // trigger the subview xib loading.
     [toolbar setSelectedItemIdentifier:globalToolbarId];
+    [self showGlobalTabView:self];
     
     // add list of encodings
-    NSEnumerator *anEnumerator;
-    NSNumber *anEncoding;
+    //NSEnumerator *anEnumerator;
+    //NSNumber *anEncoding;
     
     /*
     [characterEncoding removeAllItems];
@@ -3337,7 +3380,7 @@ static float versionNumber;
 - (void)_reloadURLHandlers:(NSNotification *)aNotification
 {
     // TODO: maybe something here for the current profile?
-    [self _populateHotKeyProfilesMenu];
+    //[self _populateHotKeyProfilesMenu];
 }
 
 @end
