@@ -30,7 +30,7 @@
 
 #import <Foundation/Foundation.h>
 #import <Cocoa/Cocoa.h>
-#import "Profiles/ProfileModel.h"
+#import "../Profiles/ProfileModel.h"
 
 // Prefs-level keys
 #define KEY_DEFAULT_GUID                @"Default Bookmark Guid"  // use this instead (not in a bookmark)

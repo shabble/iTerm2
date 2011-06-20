@@ -27,31 +27,58 @@
 
 #import "PreferencesModel.h"
 
-
-//
-//  UserModel.m
-//  colour-matrix
-//
-//  Created by shabble on 16/06/2011.
-//  Copyright 2011 . All rights reserved.
-//
-
-#import "UserModel.h"
-
-@implementation UserModel
+@implementation PreferencesModel
 
 @synthesize userDefaultsController=userDefaultsController_;
+@synthesize validKeys=validKeys_;
+
++ (PreferencesModel*)sharedInstance;
+{
+    static PreferencesModel* shared = nil;
+    if (!shared) {
+        shared = [[self alloc] init];
+        //shared->oneProfileMode = NO;
+    }
+    return shared;
+}
 
 
 - (id)init
 {
-    if (self = [super init]) {
-        validKeys_ = [[NSSet alloc] initWithObjects:@"firstName", @"lastName", @"age", @"version", nil];
+    if ((self = [super init])) {
+        NSString *preferencesSchemaPath = [[NSBundle mainBundle] pathForResource:@"UserPreferenceSchema" ofType:@"plist"];
+        [self loadSchemaFromFile:preferencesSchemaPath];
         resetInProgress_ = NO;
         self.userDefaultsController = [NSUserDefaultsController sharedUserDefaultsController];
         [self configureUserDefaults];
     }
     return self;
+}
+
+- (void)dealloc
+{
+    [self saveToUserPreferences];
+    [self.validKeys release];
+    [super dealloc];
+}
+
+- (void)loadSchemaFromFile:(NSString*)theFile
+{
+    NSLog(@"Schema Filename: %@", theFile);
+    NSDictionary *schemaDict = [NSDictionary dictionaryWithContentsOfFile:theFile];
+    NSMutableSet *keys = [[NSMutableSet alloc] init];
+    NSAssert(schemaDict != nil, @"User Preferences Schema is not nil");
+    // TODO: Abstract these further? To #defines?
+    NSArray *categories = [NSArray arrayWithObjects:@"General", @"Appearance", @"Profiles", @"GlobalKeyBinds", nil];
+    for (NSString *categoryName in categories) {
+        NSLog(@"processing category: %@", categoryName);
+        NSDictionary *categoryDict = (NSDictionary *)[schemaDict valueForKey:categoryName];
+        //NSLog(@" dict: %@ keys are: %@", categoryDict, [categoryDict allKeys]);
+        [keys addObjectsFromArray:[categoryDict allKeys]];
+    }
+    self.validKeys = [[NSSet alloc] initWithSet:keys];
+    NSLog(@"Keys loaded from schema: %@", self.validKeys);
+    [keys release];
 }
 
 - (void)configureUserDefaults
@@ -60,7 +87,8 @@
     NSDictionary   *userDefaultsValuesDict;
     NSUserDefaults *defaults;
     
-    [self.userDefaultsController setAppliesImmediately:NO];
+//    [self.userDefaultsController setAppliesImmediately:NO];
+    [self.userDefaultsController setAppliesImmediately:YES];
     
     // load the default values for the user defaults
     userDefaultsValuesPath = [[NSBundle mainBundle] pathForResource:@"AppDefaults"
@@ -68,19 +96,19 @@
     userDefaultsValuesDict
     = [NSDictionary dictionaryWithContentsOfFile:userDefaultsValuesPath];
     
+    NSLog(@"PMODEL: configuring UserDefaults from %@", userDefaultsValuesPath);
     
     // set them in the standard user defaults
     defaults = [self.userDefaultsController defaults];
     //[defaults setPersistentDomain:userDefaultsValuesDict forName:self.preferencesDomain];
     [defaults registerDefaults:userDefaultsValuesDict];
-    NSLog(@"XXX firstName is currnetly: %@", [defaults valueForKey:@"firstName"]);
     [self.userDefaultsController setInitialValues:userDefaultsValuesDict];
-    
     [self updateAllModelValues];
 }
 
 - (void)updateAllModelValues
 {
+    NSLog(@"PMODEL: Updating all Model Values");
     id prefs = [self prefs];
     for (NSString *str in [validKeys_ allObjects]) {
         id value = [prefs valueForKey:str];
@@ -134,7 +162,7 @@
 
 @end
 
-@implementation UserModel (KeyValueCoding)
+@implementation PreferencesModel (KeyValueCoding)
 
 - (id)valueForKey:(NSString*)key;
 {
@@ -142,6 +170,7 @@
         return [[self prefs] valueForKey:key];
     } else if ([key isEqual:@"self"]) {
         // necessary for the NSObjectController bindings.
+        NSLog(@"PMODEL: Self requested");
         return self;
     } else {
         return [self valueForUndefinedKey:key];
@@ -174,6 +203,7 @@
 
 @end
 
+/*
 @implementation PreferencesModel
 
 @synthesize  profileDataSource;
@@ -243,3 +273,4 @@
 @synthesize  defaultSwitchWindowModifier;
  
 @end
+*/

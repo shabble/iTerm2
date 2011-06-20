@@ -72,9 +72,9 @@
  */
 #import <Carbon/Carbon.h>
 
-#import "Prefs/PreferenceKeys.h"
-#import "App/KeyBindingManager.h"
-#import "Prefs/PreferencePanelController.h"
+#import "../Prefs/PreferenceKeys.h"
+#import "KeyBindingManager.h"
+#import "../Prefs/PreferencePanelController.h"
 
 static NSDictionary* globalKeyMap;
 
@@ -790,62 +790,85 @@ static NSDictionary* globalKeyMap;
 
 + (NSInteger)_cgMaskForLeftCommandKey:(PreferencePanelController*)pp
 {
-    return [self _cgMaskForMod:[pp leftCommand]];
+   // return [self _cgMaskForMod:[pp leftCommand]];
+    return 1;
+
 }
 
 + (NSInteger)_cgMaskForRightCommandKey:(PreferencePanelController*)pp
 {
-    return [self _cgMaskForMod:[pp rightCommand]];
+    //return [self _cgMaskForMod:[pp rightCommand]];
+    return 1;
+
 }
 
 + (NSInteger)_nxMaskForLeftCommandKey:(PreferencePanelController*)pp
 {
-    return [self _nxMaskForLeftMod:[pp leftCommand]];
+    //return [self _nxMaskForLeftMod:[pp leftCommand]];
+    return 1;
+
 }
 
 + (NSInteger)_nxMaskForRightCommandKey:(PreferencePanelController*)pp
 {
-    return [self _nxMaskForRightMod:[pp rightCommand]];
+    //return [self _nxMaskForRightMod:[pp rightCommand]];
+    return 1;
+
 }
 
 + (NSInteger)_cgMaskForLeftAlternateKey:(PreferencePanelController*)pp
 {
-    return [self _cgMaskForMod:[pp leftOption]];
+//    return [self _cgMaskForMod:[pp leftOption]];
+    return 1;
+
 }
 
 + (NSInteger)_cgMaskForRightAlternateKey:(PreferencePanelController*)pp
 {
-    return [self _cgMaskForMod:[pp rightOption]];
+  //  return [self _cgMaskForMod:[pp rightOption]];
+    return 1;
+
 }
 
 + (NSInteger)_nxMaskForLeftAlternateKey:(PreferencePanelController*)pp
 {
-    return [self _nxMaskForLeftMod:[pp leftOption]];
+   // return [self _nxMaskForLeftMod:[pp leftOption]];
+    return 1;
+
 }
 
 + (NSInteger)_nxMaskForRightAlternateKey:(PreferencePanelController*)pp
 {
-    return [self _nxMaskForRightMod:[pp rightOption]];
+  //  return [self _nxMaskForRightMod:[pp rightOption]];
+    return 1;
+
 }
 
 + (NSInteger)_cgMaskForLeftControlKey:(PreferencePanelController*)pp
 {
-    return [self _cgMaskForMod:[pp control]];
+   // return [self _cgMaskForMod:[pp control]];
+    return 1;
+
 }
 
 + (NSInteger)_cgMaskForRightControlKey:(PreferencePanelController*)pp
 {
-    return [self _cgMaskForMod:[pp control]];
+  //  return [self _cgMaskForMod:[pp control]];
+    return 1;
+
 }
 
 + (NSInteger)_nxMaskForLeftControlKey:(PreferencePanelController*)pp
 {
-    return [self _nxMaskForLeftMod:[pp control]];
+ //   return [self _nxMaskForLeftMod:[pp control]];
+    return 1;
+
 }
 
 + (NSInteger)_nxMaskForRightControlKey:(PreferencePanelController*)pp
 {
-    return [self _nxMaskForRightMod:[pp control]];
+  //  return [self _nxMaskForRightMod:[pp control]];
+    return 1;
 }
 
 + (CGEventRef)remapModifiersInCGEvent:(CGEventRef)cgEvent prefPanel:(PreferencePanelController*)pp

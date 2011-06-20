@@ -75,7 +75,7 @@
             return NO;
     }
 }
-/*
+
 // override to catch key press events very early on
 - (void)sendEvent:(NSEvent*)event
 {
@@ -194,6 +194,6 @@
 
     [super sendEvent: event];
 }
-*/
+
 @end
 

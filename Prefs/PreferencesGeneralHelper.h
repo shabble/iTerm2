@@ -7,10 +7,16 @@
 //
 
 #import <Cocoa/Cocoa.h>
-
+#import "PreferencesModel.h"
 
 @interface PreferencesGeneralHelper : NSViewController {
-
+    IBOutlet PreferencesModel *model;
 }
+
+@property (nonatomic,readwrite,assign) PreferencesModel *model;
+
+- (id)initWithModel:(PreferencesModel *)aModel;
+
+- (IBAction)saveButtonPress:(id)sender;
 
 @end

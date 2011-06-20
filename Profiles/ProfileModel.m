@@ -23,8 +23,8 @@
  **  along with this program; if not, write to the Free Software
  */
 
-#import "Prefs/PreferenceKeys.h"
-#import "Profiles/ProfileModel.h"
+#import "../Prefs/PreferenceKeys.h"
+#import "ProfileModel.h"
 
 
 // TODO: What's this?

@@ -29,8 +29,8 @@
 
 #import <Foundation/Foundation.h>
 #import <Cocoa/Cocoa.h>
-#import "Profiles/ProfileModel.h"
-#import "Prefs/PreferenceKeys.h"
+#import "ProfileModel.h"
+#import "../Prefs/PreferenceKeys.h"
 
 @interface ProfileManager : NSObject
 {
