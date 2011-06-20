@@ -307,10 +307,10 @@ NSString* kDeleteKeyString = @"0x7f-0x0";
     //NSAssert(profilesTableView, @"Null table view");
     // [profilesTableView setUnderlyingDatasource:dataSource];
     
-    profilesToolbarId   = [profilesToolbarItem itemIdentifier];
-    globalToolbarId     = [globalToolbarItem itemIdentifier];
+    profilesToolbarId   = [profilesToolbarItem   itemIdentifier];
+    globalToolbarId     = [globalToolbarItem     itemIdentifier];
     appearanceToolbarId = [appearanceToolbarItem itemIdentifier];
-    keyboardToolbarId   = [keyboardToolbarItem itemIdentifier];
+    keyboardToolbarId   = [keyboardToolbarItem   itemIdentifier];
 
     // select the global tab, and send a message to ourselves to
     // trigger the subview xib loading.
@@ -766,14 +766,15 @@ NSString* kDeleteKeyString = @"0x7f-0x0";
     }
 }
 
-
+*/
 - (void)handleWindowWillCloseNotification:(NSNotification *)notification
 {
     // This is so tags get saved because Cocoa doesn't notify you that the
     // field changed unless the user presses enter twice in it (!).
-    [self profileSettingChanged:nil];
-}
 
+    // [self profileSettingChanged:nil];
+}
+/*
 - (void)genericCloseSheet:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo
 {
     [action setTitle:@"Ignore"];

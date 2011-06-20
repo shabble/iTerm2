@@ -76,7 +76,7 @@ int gDebugLogFile = -1;
     NSLog(@"WillFinishLaunching");
 
         // read preferences
-    [PreferencePanelController migratePreferences];
+    //[PreferencePanelController migratePreferences];
     [ProfileManager sharedInstance];
     [PreferencePanelController sharedInstance];
 }
@@ -153,7 +153,7 @@ int gDebugLogFile = -1;
     [iTermController sharedInstanceRelease];
 
     // save preferences
-    [[PreferencePanelController sharedInstance] savePreferences];
+    //[[PreferencePanelController sharedInstance] savePreferences];
 
     return YES;
 }
@@ -198,12 +198,13 @@ int gDebugLogFile = -1;
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)app
 {
-    const double kMinRunningTime = 10;
+/*    const double kMinRunningTime = 10;
     if ([[NSDate date] timeIntervalSinceDate:launchTime_] < kMinRunningTime) {
         return NO;
     }
     quittingBecauseLastWindowClosed_ = [[PreferencePanelController sharedInstance] quitWhenAllWindowsClosed];
-    return quittingBecauseLastWindowClosed_;
+    return quittingBecauseLastWindowClosed_; */
+    return NO;
 }
 
 - (BOOL)applicationShouldHandleReopen:(NSApplication *)theApplication hasVisibleWindows:(BOOL)flag
@@ -280,7 +281,7 @@ int gDebugLogFile = -1;
                                                         andEventID:kAEGetURL];
 
     aboutController = nil;
-    launchTime_ = [[NSDate date] retain];
+    //launchTime_ = [[NSDate date] retain];
 
     NSLog(@"AppDelegate Done initing");
     return self;
@@ -336,8 +337,6 @@ static void FlushDebugLog() {
         assert(written == [data length]);
         [gDebugLogStr setString:@""];
 }
-
-
 
 - (IBAction)toggleSecureInput:(id)sender
 {
@@ -424,7 +423,7 @@ void DebugLog(NSString* value)
                 }
         }
 }
-
+ 
 /// About window
 
 - (NSAttributedString *)_linkTo:(NSString *)urlString title:(NSString *)title
@@ -448,7 +447,7 @@ void DebugLog(NSString* value)
         [aboutController showWindow:self];
         return;
     }
-
+/*
     NSDictionary *myDict = [[NSBundle bundleForClass:[self class]] infoDictionary];
     NSString *versionString = [NSString stringWithFormat: @"Build %@\n\n", [myDict objectForKey:@"CFBundleVersion"]];
 
@@ -469,7 +468,7 @@ void DebugLog(NSString* value)
     [[AUTHORS textStorage] appendAttributedString: bugsAString];
     [[AUTHORS textStorage] appendAttributedString: creditsAString];
     [AUTHORS setAlignment: NSCenterTextAlignment range: NSMakeRange(0, [[AUTHORS textStorage] length])];
-
+*/
     aboutController = [[NSWindowController alloc] initWithWindow:ABOUT];
     [aboutController showWindow:ABOUT];
 }
@@ -515,14 +514,14 @@ void DebugLog(NSString* value)
 
 - (void) nonTerminalWindowBecameKey: (NSNotification *) aNotification
 {
-    [closeTab setAction:nil];
+    /*[closeTab setAction:nil];
     [closeTab setKeyEquivalent:@""];
     [closeWindow setKeyEquivalent:@"w"];
-    [closeWindow setKeyEquivalentModifierMask:NSCommandKeyMask];
+    [closeWindow setKeyEquivalentModifierMask:NSCommandKeyMask]; */
 }
 
 
-
+/*
 - (void)updateAddressBookMenu:(NSNotification*)aNotification
 {
     JournalParams params;
@@ -538,11 +537,11 @@ void DebugLog(NSString* value)
                          params:&params];
 }
 
-
+*/
 
 - (BOOL)validateMenuItem:(NSMenuItem *)menuItem
 {
-    return NO;
+    return YES;
 }
 
 @end

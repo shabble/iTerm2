@@ -111,7 +111,7 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 0464AB0C006CD2EC7F000001 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 874206460564169600CFC3F1 /* iTermprefs */;
+			remoteGlobalIDString = 874206460564169600CFC3F1;
 			remoteInfo = iTermprefs;
 		};
 /* End PBXContainerItemProxy section */
@@ -174,7 +174,7 @@
 		2C93EF7113A0988D004D78DD /* PreferencesAppearanceHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PreferencesAppearanceHelper.h; path = Prefs/PreferencesAppearanceHelper.h; sourceTree = "<group>"; };
 		2C93EF7213A0988D004D78DD /* PreferencesGeneralHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PreferencesGeneralHelper.h; path = Prefs/PreferencesGeneralHelper.h; sourceTree = "<group>"; };
 		2C93EF7313A0988D004D78DD /* PreferencesGlobalKeybindingsHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PreferencesGlobalKeybindingsHelper.h; path = Prefs/PreferencesGlobalKeybindingsHelper.h; sourceTree = "<group>"; };
-		2CAED74613AF29EE00D06287 /* PreferencesTesting.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; name = PreferencesTesting.octest; path = build/Deployment/PreferencesTesting.octest; sourceTree = "<group>"; };
+		2CAED74613AF29EE00D06287 /* PreferencesTesting.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PreferencesTesting.octest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2CAED74713AF29EE00D06287 /* PreferencesTesting-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "PreferencesTesting-Info.plist"; sourceTree = "<group>"; };
 		2CAED74D13AF2A3400D06287 /* TestTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestTest.h; path = tests/unit/TestTest.h; sourceTree = "<group>"; };
 		2CAED74E13AF2A3400D06287 /* TestTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestTest.m; path = tests/unit/TestTest.m; sourceTree = "<group>"; };
