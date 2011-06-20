@@ -60,7 +60,7 @@ void DebugLog(NSString* value);
     NSWindowController *aboutController;
     IBOutlet id ABOUT;
     IBOutlet NSTextView *AUTHORS;
-    
+/*    
     // Menu items
     IBOutlet NSMenu     *bookmarkMenu;
     IBOutlet NSMenuItem *selectTab;
@@ -74,7 +74,7 @@ void DebugLog(NSString* value);
     IBOutlet NSMenuItem *toggleBookmarksView;
     IBOutlet NSMenuItem *irNext;
     IBOutlet NSMenuItem *irPrev;
-
+*/
     IBOutlet NSMenuItem *secureInput;
     IBOutlet NSMenuItem *useTransparency;
     IBOutlet NSMenuItem *maximizePane;
@@ -82,6 +82,7 @@ void DebugLog(NSString* value);
     BOOL quittingBecauseLastWindowClosed_;
 
     NSDate* launchTime_;
+
 }
 
 - (void)awakeFromNib;
