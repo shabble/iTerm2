@@ -47,6 +47,46 @@ typedef enum { CURSOR_UNDERLINE, CURSOR_VERTICAL, CURSOR_BOX } ITermCursorType;
 #import "Profiles/ProfileModel.h"
 #import "Profiles/ProfilesListView.h"
 
+//
+//  UserModel.h
+//  colour-matrix
+//
+//  Created by shabble on 16/06/2011.
+//  Copyright 2011 . All rights reserved.
+//
+
+#import <Cocoa/Cocoa.h>
+#import "NSUserDefaults+NSColorSupport.h"
+
+@interface UserModel : NSObject {
+    
+    NSUserDefaultsController *userDefaultsController_;
+    NSSet *validKeys_;
+    BOOL  resetInProgress_;
+}
+
+@property (nonatomic,readwrite,assign) NSUserDefaultsController *userDefaultsController;
+
+- (void)resetToFactoryDefaults;
+- (void)saveToUserPreferences;
+- (void)loadFromUserPreferences;
+
+- (void)updateAllModelValues;
+- (void)configureUserDefaults;
+
+- (id)prefs;
+- (NSDictionary*)initialValues;
+
+@end
+
+@interface UserModel (KeyValueCoding)
+
+- (id)valueForKey:(NSString *)key;
+- (void)setValue:(id)value forKey:(NSString *)key;
++ (BOOL)automaticallyNotifiesObserversForKey:(NSString *)theKey;
+
+@end
+
 
 @interface PreferencesModel : NSObject {
 
