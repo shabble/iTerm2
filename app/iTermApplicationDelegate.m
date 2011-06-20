@@ -447,7 +447,6 @@ void DebugLog(NSString* value)
         [aboutController showWindow:self];
         return;
     }
-/*
     NSDictionary *myDict = [[NSBundle bundleForClass:[self class]] infoDictionary];
     NSString *versionString = [NSString stringWithFormat: @"Build %@\n\n", [myDict objectForKey:@"CFBundleVersion"]];
 
@@ -468,7 +467,7 @@ void DebugLog(NSString* value)
     [[AUTHORS textStorage] appendAttributedString: bugsAString];
     [[AUTHORS textStorage] appendAttributedString: creditsAString];
     [AUTHORS setAlignment: NSCenterTextAlignment range: NSMakeRange(0, [[AUTHORS textStorage] length])];
-*/
+
     aboutController = [[NSWindowController alloc] initWithWindow:ABOUT];
     [aboutController showWindow:ABOUT];
 }
