@@ -8,7 +8,7 @@
 		<string key="IBDocument.HIToolboxVersion">353.00</string>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="1923"/>
+			<integer value="1944"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -189,7 +189,7 @@
 								<object class="NSTabViewItem" id="403608584">
 									<string key="NSIdentifier">1</string>
 									<object class="NSView" key="NSView" id="505411774">
-										<nil key="NSNextResponder"/>
+										<reference key="NSNextResponder" ref="415305200"/>
 										<int key="NSvFlags">256</int>
 										<object class="NSMutableArray" key="NSSubviews">
 											<bool key="EncodedWithXMLCoder">YES</bool>
@@ -892,6 +892,7 @@
 											</object>
 										</object>
 										<string key="NSFrameSize">{782, 400}</string>
+										<reference key="NSSuperview" ref="415305200"/>
 									</object>
 									<string key="NSLabel">Global Settings</string>
 									<reference key="NSColor" ref="303715562"/>
@@ -1433,7 +1434,7 @@
 								<object class="NSTabViewItem" id="745611275">
 									<string key="NSIdentifier">2</string>
 									<object class="NSView" key="NSView" id="105539794">
-										<reference key="NSNextResponder" ref="415305200"/>
+										<nil key="NSNextResponder"/>
 										<int key="NSvFlags">256</int>
 										<object class="NSMutableArray" key="NSSubviews">
 											<bool key="EncodedWithXMLCoder">YES</bool>
@@ -6018,7 +6019,6 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 											</object>
 										</object>
 										<string key="NSFrameSize">{782, 400}</string>
-										<reference key="NSSuperview" ref="415305200"/>
 									</object>
 									<string key="NSLabel">Bookmarks</string>
 									<reference key="NSColor" ref="303715562"/>
@@ -7223,14 +7223,14 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 									<reference key="NSTabView" ref="415305200"/>
 								</object>
 							</object>
-							<reference key="NSSelectedTabViewItem" ref="745611275"/>
+							<reference key="NSSelectedTabViewItem" ref="403608584"/>
 							<reference key="NSFont" ref="966507434"/>
 							<int key="NSTvFlags">6</int>
 							<bool key="NSAllowTruncatedLabels">YES</bool>
 							<bool key="NSDrawsBackground">YES</bool>
 							<object class="NSMutableArray" key="NSSubviews">
 								<bool key="EncodedWithXMLCoder">YES</bool>
-								<reference ref="105539794"/>
+								<reference ref="505411774"/>
 							</object>
 						</object>
 					</object>
@@ -7254,7 +7254,7 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 				<nil key="NSViewClass"/>
 				<string key="NSWindowContentMaxSize">{3.40282e+38, 3.40282e+38}</string>
 				<object class="NSView" key="NSWindowView" id="520202052">
-					<reference key="NSNextResponder"/>
+					<nil key="NSNextResponder"/>
 					<int key="NSvFlags">256</int>
 					<object class="NSMutableArray" key="NSSubviews">
 						<bool key="EncodedWithXMLCoder">YES</bool>
@@ -7263,7 +7263,6 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 							<int key="NSvFlags">256</int>
 							<string key="NSFrame">{{17, 119}, {127, 18}}</string>
 							<reference key="NSSuperview" ref="520202052"/>
-							<reference key="NSWindow"/>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSTextFieldCell" key="NSCell" id="454802824">
 								<int key="NSCellFlags">67239424</int>
@@ -7280,7 +7279,6 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 							<int key="NSvFlags">256</int>
 							<string key="NSFrame">{{17, 94}, {127, 17}}</string>
 							<reference key="NSSuperview" ref="520202052"/>
-							<reference key="NSWindow"/>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSTextFieldCell" key="NSCell" id="452027374">
 								<int key="NSCellFlags">67239424</int>
@@ -7297,7 +7295,6 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 							<int key="NSvFlags">256</int>
 							<string key="NSFrame">{{146, 88}, {243, 26}}</string>
 							<reference key="NSSuperview" ref="520202052"/>
-							<reference key="NSWindow"/>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSPopUpButtonCell" key="NSCell" id="598568968">
 								<int key="NSCellFlags">-2076049856</int>
@@ -7788,7 +7785,6 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 							<int key="NSvFlags">256</int>
 							<string key="NSFrame">{{314, 12}, {78, 32}}</string>
 							<reference key="NSSuperview" ref="520202052"/>
-							<reference key="NSWindow"/>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSButtonCell" key="NSCell" id="720795186">
 								<int key="NSCellFlags">67239424</int>
@@ -7810,7 +7806,6 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 							<int key="NSvFlags">256</int>
 							<string key="NSFrame">{{232, 12}, {82, 32}}</string>
 							<reference key="NSSuperview" ref="520202052"/>
-							<reference key="NSWindow"/>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSButtonCell" key="NSCell" id="559952938">
 								<int key="NSCellFlags">67239424</int>
@@ -7832,7 +7827,6 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 							<int key="NSvFlags">268</int>
 							<string key="NSFrame">{{106, 48}, {283, 33}}</string>
 							<reference key="NSSuperview" ref="520202052"/>
-							<reference key="NSWindow"/>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSTextFieldCell" key="NSCell" id="237488033">
 								<int key="NSCellFlags">67239424</int>
@@ -7849,7 +7843,6 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 							<int key="NSvFlags">268</int>
 							<string key="NSFrame">{{149, 119}, {237, 22}}</string>
 							<reference key="NSSuperview" ref="520202052"/>
-							<reference key="NSWindow"/>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSTextFieldCell" key="NSCell" id="960173401">
 								<int key="NSCellFlags">-1804468671</int>
@@ -7867,7 +7860,6 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 							<int key="NSvFlags">256</int>
 							<string key="NSFrame">{{149, 62}, {237, 22}}</string>
 							<reference key="NSSuperview" ref="520202052"/>
-							<reference key="NSWindow"/>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSTextFieldCell" key="NSCell" id="435894387">
 								<int key="NSCellFlags">-1804468671</int>
@@ -7886,7 +7878,6 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 							<int key="NSvFlags">-2147483380</int>
 							<string key="NSFrame">{{146, 58}, {243, 26}}</string>
 							<reference key="NSSuperview" ref="520202052"/>
-							<reference key="NSWindow"/>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSPopUpButtonCell" key="NSCell" id="328518743">
 								<int key="NSCellFlags">-2076049856</int>
@@ -7919,7 +7910,6 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 							<int key="NSvFlags">-2147483380</int>
 							<string key="NSFrame">{{96, 64}, {48, 17}}</string>
 							<reference key="NSSuperview" ref="520202052"/>
-							<reference key="NSWindow"/>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSTextFieldCell" key="NSCell" id="201599073">
 								<int key="NSCellFlags">68288064</int>
@@ -7933,8 +7923,6 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 						</object>
 					</object>
 					<string key="NSFrameSize">{406, 157}</string>
-					<reference key="NSSuperview"/>
-					<reference key="NSWindow"/>
 				</object>
 				<string key="NSScreenRect">{{0, 0}, {1440, 878}}</string>
 				<string key="NSMaxSize">{3.40282e+38, 3.40282e+38}</string>
@@ -8129,7 +8117,7 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 				<nil key="NSViewClass"/>
 				<string key="NSWindowContentMaxSize">{3.40282e+38, 3.40282e+38}</string>
 				<object class="NSView" key="NSWindowView" id="234439939">
-					<reference key="NSNextResponder"/>
+					<nil key="NSNextResponder"/>
 					<int key="NSvFlags">256</int>
 					<object class="NSMutableArray" key="NSSubviews">
 						<bool key="EncodedWithXMLCoder">YES</bool>
@@ -8138,7 +8126,6 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 							<int key="NSvFlags">268</int>
 							<string key="NSFrame">{{17, 362}, {438, 17}}</string>
 							<reference key="NSSuperview" ref="234439939"/>
-							<reference key="NSWindow"/>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSTextFieldCell" key="NSCell" id="259518439">
 								<int key="NSCellFlags">68288064</int>
@@ -8155,7 +8142,6 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 							<int key="NSvFlags">268</int>
 							<string key="NSFrame">{{17, 303}, {200, 17}}</string>
 							<reference key="NSSuperview" ref="234439939"/>
-							<reference key="NSWindow"/>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSTextFieldCell" key="NSCell" id="601000691">
 								<int key="NSCellFlags">68288064</int>
@@ -8172,7 +8158,6 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 							<int key="NSvFlags">268</int>
 							<string key="NSFrame">{{30, 338}, {63, 18}}</string>
 							<reference key="NSSuperview" ref="234439939"/>
-							<reference key="NSWindow"/>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSButtonCell" key="NSCell" id="261652169">
 								<int key="NSCellFlags">67239424</int>
@@ -8195,7 +8180,6 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 							<int key="NSvFlags">268</int>
 							<string key="NSFrame">{{97, 338}, {51, 18}}</string>
 							<reference key="NSSuperview" ref="234439939"/>
-							<reference key="NSWindow"/>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSButtonCell" key="NSCell" id="64416722">
 								<int key="NSCellFlags">67239424</int>
@@ -8218,7 +8202,6 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 							<int key="NSvFlags">268</int>
 							<string key="NSFrame">{{154, 338}, {72, 18}}</string>
 							<reference key="NSSuperview" ref="234439939"/>
-							<reference key="NSWindow"/>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSButtonCell" key="NSCell" id="64084554">
 								<int key="NSCellFlags">67239424</int>
@@ -8241,7 +8224,6 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 							<int key="NSvFlags">268</int>
 							<string key="NSFrame">{{234, 338}, {78, 18}}</string>
 							<reference key="NSSuperview" ref="234439939"/>
-							<reference key="NSWindow"/>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSButtonCell" key="NSCell" id="464520681">
 								<int key="NSCellFlags">67239424</int>
@@ -8264,7 +8246,6 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 							<int key="NSvFlags">268</int>
 							<string key="NSFrame">{{321, 338}, {82, 18}}</string>
 							<reference key="NSSuperview" ref="234439939"/>
-							<reference key="NSWindow"/>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSButtonCell" key="NSCell" id="322594743">
 								<int key="NSCellFlags">67239424</int>
@@ -8287,7 +8268,6 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 							<int key="NSvFlags">12</int>
 							<string key="NSFrame">{{32, 60}, {420, 235}}</string>
 							<reference key="NSSuperview" ref="234439939"/>
-							<reference key="NSWindow"/>
 							<string key="NSClassName">ProfilesListView</string>
 						</object>
 						<object class="NSButton" id="150370130">
@@ -8295,7 +8275,6 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 							<int key="NSvFlags">268</int>
 							<string key="NSFrame">{{362, 12}, {96, 32}}</string>
 							<reference key="NSSuperview" ref="234439939"/>
-							<reference key="NSWindow"/>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSButtonCell" key="NSCell" id="451282784">
 								<int key="NSCellFlags">67239424</int>
@@ -8316,7 +8295,6 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 							<int key="NSvFlags">268</int>
 							<string key="NSFrame">{{266, 12}, {96, 32}}</string>
 							<reference key="NSSuperview" ref="234439939"/>
-							<reference key="NSWindow"/>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSButtonCell" key="NSCell" id="972981165">
 								<int key="NSCellFlags">-2080244224</int>
@@ -8334,8 +8312,6 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 						</object>
 					</object>
 					<string key="NSFrameSize">{472, 398}</string>
-					<reference key="NSSuperview"/>
-					<reference key="NSWindow"/>
 				</object>
 				<string key="NSScreenRect">{{0, 0}, {1440, 878}}</string>
 				<string key="NSMaxSize">{3.40282e+38, 3.40282e+38}</string>
@@ -17543,9 +17519,9 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 					<bool key="EncodedWithXMLCoder">YES</bool>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<reference ref="5"/>
-					<string>{{2, 284}, {842, 454}}</string>
+					<string>{{557, 304}, {842, 454}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{2, 284}, {842, 454}}</string>
+					<string>{{557, 304}, {842, 454}}</string>
 					<reference ref="5"/>
 					<reference ref="5"/>
 					<reference ref="5"/>
@@ -18887,29 +18863,6 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 						<bool key="EncodedWithXMLCoder">YES</bool>
 						<object class="NSMutableArray" key="dict.sortedKeys">
 							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>_commonDisplaySelectFont:</string>
-							<string>actionChanged:</string>
-							<string>addNewMapping:</string>
-							<string>addProfile:</string>
-							<string>cancelCopyProfiles:</string>
-							<string>closeKeyMapping:</string>
-							<string>closeWindow:</string>
-							<string>copyProfiles:</string>
-							<string>copyToProfile:</string>
-							<string>displaySelectFont:</string>
-							<string>duplicateProfile:</string>
-							<string>editKeyMapping:</string>
-							<string>globalRemoveMapping:</string>
-							<string>loadColorPreset:</string>
-							<string>openCopyProfiles:</string>
-							<string>presetKeyMappingsItemSelected:</string>
-							<string>profileSettingChanged:</string>
-							<string>profileUrlSchemeHandlerChanged:</string>
-							<string>removeMapping:</string>
-							<string>removeProfile:</string>
-							<string>saveKeyMapping:</string>
-							<string>setAsDefault:</string>
-							<string>settingChanged:</string>
 							<string>showAppearanceTabView:</string>
 							<string>showGlobalTabView:</string>
 							<string>showKeyboardTabView:</string>
@@ -18921,424 +18874,35 @@ AAMAAAABAAEAAAFTAAMAAAAEAAAFwgAAAAAACAAIAAgACAABAAEAAQABA</bytes>
 							<string>id</string>
 							<string>id</string>
 							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
 						</object>
 					</object>
 					<object class="NSMutableDictionary" key="outlets">
 						<bool key="EncodedWithXMLCoder">YES</bool>
 						<object class="NSMutableArray" key="dict.sortedKeys">
 							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>action</string>
-							<string>actionColumn</string>
-							<string>addNewMapping</string>
-							<string>addProfileButton</string>
-							<string>advancedFontRendering</string>
-							<string>ansi0Color</string>
-							<string>ansi10Color</string>
-							<string>ansi11Color</string>
-							<string>ansi12Color</string>
-							<string>ansi13Color</string>
-							<string>ansi14Color</string>
-							<string>ansi15Color</string>
-							<string>ansi1Color</string>
-							<string>ansi2Color</string>
-							<string>ansi3Color</string>
-							<string>ansi4Color</string>
-							<string>ansi5Color</string>
-							<string>ansi6Color</string>
-							<string>ansi7Color</string>
-							<string>ansi8Color</string>
-							<string>ansi9Color</string>
 							<string>appearanceTabViewItem</string>
 							<string>appearanceToolbarItem</string>
-							<string>asciiAntiAliased</string>
-							<string>backgroundColor</string>
-							<string>backgroundImage</string>
-							<string>backgroundImagePreview</string>
-							<string>blinkAllowed</string>
-							<string>blinkingCursor</string>
-							<string>blur</string>
-							<string>boldColor</string>
-							<string>bulkCopyLabel</string>
-							<string>characterEncoding</string>
-							<string>checkColorInvertedCursor</string>
-							<string>checkTestRelease</string>
-							<string>checkUpdate</string>
-							<string>closeSessionsOnEnd</string>
-							<string>closingHotkeySwitchesSpaces</string>
-							<string>cmdSelection</string>
-							<string>columnsField</string>
-							<string>columnsLabel</string>
-							<string>controlButton</string>
-							<string>copyButton</string>
-							<string>copyColors</string>
-							<string>copyDisplay</string>
-							<string>copyKeyboard</string>
-							<string>copyPanel</string>
-							<string>copyTerminal</string>
-							<string>copyTo</string>
-							<string>copyToProfileButton</string>
-							<string>copyWindow</string>
-							<string>cursorColor</string>
-							<string>cursorColorLabel</string>
-							<string>cursorTextColor</string>
-							<string>cursorTextColorLabel</string>
-							<string>cursorType</string>
-							<string>deleteSendsCtrlHButton</string>
-							<string>dimInactiveSplitPanes</string>
-							<string>disableSmcupRmcup</string>
-							<string>disableWindowResizing</string>
-							<string>displayFontAccessoryView</string>
-							<string>displayFontSpacingHeight</string>
-							<string>displayFontSpacingWidth</string>
-							<string>displayFontsLabel</string>
-							<string>displayNAFontButton</string>
-							<string>displayRegularFontButton</string>
-							<string>editKeyMappingWindow</string>
-							<string>enableBonjour</string>
-							<string>escPlus</string>
-							<string>flashingBell</string>
-							<string>focusFollowsMouse</string>
-							<string>foregroundColor</string>
-							<string>fsTabDelay</string>
-							<string>globalActionColumn</string>
-							<string>globalAddNewMapping</string>
-							<string>globalKeyCombinationColumn</string>
-							<string>globalKeyMappings</string>
-							<string>globalRemoveMappingButton</string>
 							<string>globalTabViewItem</string>
 							<string>globalToolbarItem</string>
-							<string>hideScrollbar</string>
-							<string>hideTab</string>
-							<string>highlightTabLabels</string>
-							<string>hotkey</string>
-							<string>hotkeyField</string>
-							<string>hotkeyLabel</string>
-							<string>hotkeyProfile</string>
-							<string>hotkeyTogglesWindow</string>
-							<string>idleCode</string>
-							<string>instantReplay</string>
-							<string>irMemory</string>
-							<string>jobName</string>
-							<string>keyCombinationColumn</string>
-							<string>keyMappings</string>
-							<string>keyPress</string>
 							<string>keyboardTabViewItem</string>
 							<string>keyboardToolbarItem</string>
-							<string>leftCommandButton</string>
-							<string>leftOptionButton</string>
-							<string>maxVertically</string>
-							<string>menuToSelect</string>
-							<string>middleButtonPastesFromClipboard</string>
-							<string>minimumContrast</string>
-							<string>modifyMappingOriginator</string>
-							<string>nameShortcutColumn</string>
-							<string>newWindowttributesHeader</string>
-							<string>nonAsciiDoubleWidth</string>
-							<string>nonAsciiFontField</string>
-							<string>nonasciiAntiAliased</string>
-							<string>normalFontField</string>
-							<string>onlyWhenMoreTabs</string>
-							<string>openArrangementAtStartup</string>
-							<string>openProfile</string>
-							<string>optionKeySends</string>
-							<string>passOnControlLeftClick</string>
-							<string>presetsErrorLabel</string>
-							<string>presetsMenu</string>
-							<string>presetsPopupButton</string>
-							<string>profileCommand</string>
-							<string>profileCommandLabel</string>
-							<string>profileCommandType</string>
-							<string>profileDirectory</string>
-							<string>profileDirectoryLabel</string>
-							<string>profileDirectoryType</string>
-							<string>profileGrowlNotifications</string>
-							<string>profileLabel</string>
-							<string>profileName</string>
-							<string>profilePopupButton</string>
-							<string>profileSettingsGeneralTab</string>
-							<string>profileShortcutKey</string>
-							<string>profileShortcutKeyLabel</string>
-							<string>profileShortcutKeyModifiersLabel</string>
-							<string>profileTagsLabel</string>
-							<string>profileUrlSchemes</string>
-							<string>profileUrlSchemesHeaderLabel</string>
-							<string>profileUrlSchemesLabel</string>
-							<string>profilesPopup</string>
-							<string>profilesSettingsTabViewParent</string>
 							<string>profilesTabViewItem</string>
-							<string>profilesTableView</string>
 							<string>profilesToolbarItem</string>
-							<string>promptOnClose</string>
-							<string>promptOnQuit</string>
-							<string>quitWhenAllWindowsClosed</string>
-							<string>removeMappingButton</string>
-							<string>removeProfileButton</string>
-							<string>rightCommandButton</string>
-							<string>rightOptionButton</string>
-							<string>rightOptionKeySends</string>
-							<string>rowsField</string>
-							<string>rowsLabel</string>
-							<string>savePasteHistory</string>
-							<string>screenButton</string>
-							<string>screenLabel</string>
-							<string>scrollbackLines</string>
-							<string>scrollbackWithStatusBar</string>
-							<string>selectedTextColor</string>
-							<string>selectionColor</string>
-							<string>selectionCopiesText</string>
-							<string>sendCodeWhenIdle</string>
-							<string>shellImageColumn</string>
-							<string>showProfileName</string>
-							<string>showWindowBorder</string>
-							<string>silenceBell</string>
-							<string>smartPlacement</string>
-							<string>spaceButton</string>
-							<string>spaceLabel</string>
-							<string>strokeThickness</string>
-							<string>strokeThicknessLabel</string>
-							<string>strokeThicknessMaxLabel</string>
-							<string>strokeThicknessMinLabel</string>
-							<string>switchTabModifierButton</string>
-							<string>switchWindowModifierButton</string>
-							<string>syncTitle</string>
-							<string>tabPosition</string>
 							<string>tabView</string>
-							<string>tagFilter</string>
-							<string>tags</string>
-							<string>terminalType</string>
 							<string>toolbar</string>
-							<string>transparency</string>
-							<string>unlimitedScrollback</string>
-							<string>useBoldFont</string>
-							<string>useBrightBold</string>
-							<string>useCompactLabel</string>
-							<string>valueToSend</string>
-							<string>visualBell</string>
-							<string>windowNumber</string>
-							<string>windowStyle</string>
-							<string>windowTypeButton</string>
-							<string>windowTypeLabel</string>
-							<string>wordChars</string>
-							<string>xtermMouseReporting</string>
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>NSPopUpButton</string>
-							<string>NSTableColumn</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSColorWell</string>
-							<string>NSColorWell</string>
-							<string>NSColorWell</string>
-							<string>NSColorWell</string>
-							<string>NSColorWell</string>
-							<string>NSColorWell</string>
-							<string>NSColorWell</string>
-							<string>NSColorWell</string>
-							<string>NSColorWell</string>
-							<string>NSColorWell</string>
-							<string>NSColorWell</string>
-							<string>NSColorWell</string>
-							<string>NSColorWell</string>
-							<string>NSColorWell</string>
-							<string>NSColorWell</string>
-							<string>NSColorWell</string>
 							<string>NSTabViewItem</string>
 							<string>NSToolbarItem</string>
-							<string>NSButton</string>
-							<string>NSColorWell</string>
-							<string>NSButton</string>
-							<string>NSImageView</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSColorWell</string>
-							<string>NSTextField</string>
-							<string>NSPopUpButton</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSTextField</string>
-							<string>NSTextField</string>
-							<string>NSPopUpButton</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSPanel</string>
-							<string>NSButton</string>
-							<string>ProfilesListView</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSColorWell</string>
-							<string>NSTextField</string>
-							<string>NSColorWell</string>
-							<string>NSTextField</string>
-							<string>NSMatrix</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSView</string>
-							<string>NSSlider</string>
-							<string>NSSlider</string>
-							<string>NSTextField</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSWindow</string>
-							<string>NSButton</string>
-							<string>NSTextField</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSColorWell</string>
-							<string>NSSlider</string>
-							<string>NSTableColumn</string>
-							<string>NSButton</string>
-							<string>NSTableColumn</string>
-							<string>NSTableView</string>
-							<string>NSButton</string>
 							<string>NSTabViewItem</string>
 							<string>NSToolbarItem</string>
-							<string>NSButton</string>
-							<string>id</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSTextField</string>
-							<string>NSTextField</string>
-							<string>NSPopUpButton</string>
-							<string>NSButton</string>
-							<string>NSTextField</string>
-							<string>NSButton</string>
-							<string>NSTextField</string>
-							<string>NSButton</string>
-							<string>NSTableColumn</string>
-							<string>NSTableView</string>
-							<string>NSTextField</string>
 							<string>NSTabViewItem</string>
 							<string>NSToolbarItem</string>
-							<string>NSPopUpButton</string>
-							<string>NSPopUpButton</string>
-							<string>NSButton</string>
-							<string>NSPopUpButton</string>
-							<string>NSButton</string>
-							<string>NSSlider</string>
-							<string>id</string>
-							<string>NSTableColumn</string>
-							<string>NSTextField</string>
-							<string>NSButton</string>
-							<string>NSTextField</string>
-							<string>NSButton</string>
-							<string>NSTextField</string>
-							<string>id</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSMatrix</string>
-							<string>NSButton</string>
-							<string>NSTextField</string>
-							<string>NSMenu</string>
-							<string>NSPopUpButton</string>
-							<string>NSTextField</string>
-							<string>NSTextField</string>
-							<string>NSMatrix</string>
-							<string>NSTextField</string>
-							<string>NSTextField</string>
-							<string>NSMatrix</string>
-							<string>NSButton</string>
-							<string>NSTextField</string>
-							<string>NSTextField</string>
-							<string>NSPopUpButton</string>
 							<string>NSTabViewItem</string>
-							<string>NSPopUpButton</string>
-							<string>NSTextField</string>
-							<string>NSTextField</string>
-							<string>NSTextField</string>
-							<string>NSPopUpButton</string>
-							<string>NSTextField</string>
-							<string>NSTextField</string>
-							<string>NSPopUpButton</string>
+							<string>NSToolbarItem</string>
 							<string>NSTabView</string>
-							<string>NSTabViewItem</string>
-							<string>ProfilesListView</string>
-							<string>NSToolbarItem</string>
-							<string>id</string>
-							<string>id</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSPopUpButton</string>
-							<string>NSPopUpButton</string>
-							<string>NSMatrix</string>
-							<string>NSTextField</string>
-							<string>NSTextField</string>
-							<string>NSButton</string>
-							<string>NSPopUpButton</string>
-							<string>NSTextField</string>
-							<string>NSTextField</string>
-							<string>NSButton</string>
-							<string>NSColorWell</string>
-							<string>NSColorWell</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSTableColumn</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSPopUpButton</string>
-							<string>NSTextField</string>
-							<string>NSSlider</string>
-							<string>NSTextField</string>
-							<string>NSTextField</string>
-							<string>NSTextField</string>
-							<string>NSPopUpButton</string>
-							<string>NSPopUpButton</string>
-							<string>NSButton</string>
-							<string>NSPopUpButton</string>
-							<string>NSTabView</string>
-							<string>NSTextField</string>
-							<string>NSTokenField</string>
-							<string>NSComboBox</string>
 							<string>NSToolbar</string>
-							<string>NSSlider</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSTextField</string>
-							<string>NSButton</string>
-							<string>NSButton</string>
-							<string>NSPopUpButton</string>
-							<string>NSPopUpButton</string>
-							<string>NSTextField</string>
-							<string>NSTextField</string>
-							<string>NSButton</string>
 						</object>
 					</object>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">

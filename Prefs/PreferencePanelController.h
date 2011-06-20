@@ -45,8 +45,26 @@
 
 @class iTermController;
 
-@interface PreferencePanelController : NSWindowController <ProfilesTableDelegate>
+@interface PreferencePanelController : NSWindowController //<ProfilesTableDelegate>
 {
+    
+    IBOutlet NSToolbar* toolbar;
+    IBOutlet NSTabView* tabView;
+    IBOutlet NSToolbarItem* globalToolbarItem;
+    IBOutlet NSTabViewItem* globalTabViewItem;
+    IBOutlet NSToolbarItem* appearanceToolbarItem;
+    IBOutlet NSTabViewItem* appearanceTabViewItem;
+    IBOutlet NSToolbarItem* keyboardToolbarItem;
+    IBOutlet NSTabViewItem* keyboardTabViewItem;
+    IBOutlet NSToolbarItem* profilesToolbarItem;
+    IBOutlet NSTabViewItem* profilesTabViewItem;
+    NSString* globalToolbarId;
+    NSString* appearanceToolbarId;
+    NSString* keyboardToolbarId;
+    NSString* profilesToolbarId;
+
+    /*
+    
     ProfileModel* dataSource;
     BOOL oneProfileMode;
 
@@ -239,21 +257,7 @@
 
     NSUserDefaults *prefs;
 
-    IBOutlet NSToolbar* toolbar;
-    IBOutlet NSTabView* tabView;
-    IBOutlet NSToolbarItem* globalToolbarItem;
-    IBOutlet NSTabViewItem* globalTabViewItem;
-    IBOutlet NSToolbarItem* appearanceToolbarItem;
-    IBOutlet NSTabViewItem* appearanceTabViewItem;
-    IBOutlet NSToolbarItem* keyboardToolbarItem;
-    IBOutlet NSTabViewItem* keyboardTabViewItem;
-    IBOutlet NSToolbarItem* profilesToolbarItem;
-    IBOutlet NSTabViewItem* profilesTabViewItem;
-    NSString* globalToolbarId;
-    NSString* appearanceToolbarId;
-    NSString* keyboardToolbarId;
-    NSString* profilesToolbarId;
-
+  
     // url handler stuff
     NSMutableDictionary *urlHandlersByGuid;
 
@@ -427,6 +431,7 @@
     IBOutlet NSTableColumn* globalActionColumn;
     IBOutlet NSButton* globalRemoveMappingButton;
     IBOutlet NSButton* globalAddNewMapping;
+  */
 }
 
 typedef enum { BulkCopyColors, BulkCopyDisplay, BulkCopyWindow, BulkCopyTerminal, BulkCopyKeyboard } BulkCopySettings;
@@ -440,10 +445,13 @@ typedef enum { BulkCopyColors, BulkCopyDisplay, BulkCopyWindow, BulkCopyTerminal
 - (IBAction)showProfilesTabView:(id)sender;
 - (IBAction)showKeyboardTabView:(id)sender;
 
+- (void)run;
+- (void)awakeFromNib;
+- (void)dealloc;
 
+/*
 - (id)initWithDataSource:(ProfileModel*)model userDefaults:(NSUserDefaults*)userDefaults;
 - (void)setOneBokmarkOnly;
-- (void)awakeFromNib;
 - (void)handleWindowWillCloseNotification:(NSNotification *)notification;
 - (void)genericCloseSheet:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
 - (void)editKeyMapping:(id)sender;
@@ -455,10 +463,9 @@ typedef enum { BulkCopyColors, BulkCopyDisplay, BulkCopyWindow, BulkCopyTerminal
 - (NSArray *)toolbarAllowedItemIdentifiers:(NSToolbar *)toolbar;
 - (NSArray *)toolbarDefaultItemIdentifiers:(NSToolbar *)toolbar;
 - (NSArray *)toolbarSelectableItemIdentifiers: (NSToolbar *)toolbar;
-- (void)dealloc;
 - (void)readPreferences;
 - (void)savePreferences;
-- (void)run;
+
 - (IBAction)settingChanged:(id)sender;
 - (BOOL)advancedFontRendering;
 - (float)strokeThickness;
@@ -589,6 +596,6 @@ typedef enum { BulkCopyColors, BulkCopyDisplay, BulkCopyWindow, BulkCopyTerminal
 - (BOOL)hotkeyTogglesWindow;
 - (BOOL)dockIconTogglesWindow;
 - (Profile*)hotkeyProfile;
-
+*/
 @end
 

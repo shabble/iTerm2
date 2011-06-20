@@ -45,9 +45,10 @@ static float versionNumber;
     static PreferencePanelController* shared = nil;
 
     if (!shared) {
-        shared = [[self alloc] initWithDataSource:[ProfileModel sharedInstance]
-                                     userDefaults:[NSUserDefaults standardUserDefaults]];
-        shared->oneProfileMode = NO;
+        shared = [[self alloc] init];
+       // shared = [[self alloc] initWithDataSource:[ProfileModel sharedInstance]
+       //                              userDefaults:[NSUserDefaults standardUserDefaults]];
+        //shared->oneProfileMode = NO;
     }
 
     return shared;
@@ -58,19 +59,273 @@ static float versionNumber;
     static PreferencePanelController* shared = nil;
 
     if (!shared) {
-        shared = [[self alloc] initWithDataSource:[ProfileModel sessionsInstance]
+        /*shared = [[self alloc] initWithDataSource:[ProfileModel sessionsInstance]
                                      userDefaults:nil];
-        shared->oneProfileMode = YES;
+        shared->oneProfileMode = YES; */
+        shared = [[self alloc] init];
     }
 
     return shared;
 }
 
+- (IBAction)showGlobalTabView:(id)sender
+{
+    [tabView selectTabViewItem:globalTabViewItem];
+}
+
+- (IBAction)showAppearanceTabView:(id)sender
+{
+    [tabView selectTabViewItem:appearanceTabViewItem];
+}
+
+- (IBAction)showProfilesTabView:(id)sender
+{
+    [tabView selectTabViewItem:profilesTabViewItem];
+}
+
+- (IBAction)showKeyboardTabView:(id)sender
+{
+    [tabView selectTabViewItem:keyboardTabViewItem];
+}
+
+- (BOOL)validateToolbarItem:(NSToolbarItem *)theItem
+{
+    return TRUE;
+}
+
+- (NSToolbarItem *)toolbar:(NSToolbar *)toolbar itemForItemIdentifier:(NSString *)itemIdentifier willBeInsertedIntoToolbar:(BOOL)flag
+{
+    if (!flag) {
+        return nil;
+    }
+    if ([itemIdentifier isEqual:globalToolbarId]) {
+        return globalToolbarItem;
+    } else if ([itemIdentifier isEqual:appearanceToolbarId]) {
+        return appearanceToolbarItem;
+    } else if ([itemIdentifier isEqual:profilesToolbarId]) {
+        return profilesToolbarItem;
+    } else if ([itemIdentifier isEqual:keyboardToolbarId]) {
+        return keyboardToolbarItem;
+    } else {
+        return nil;
+    }
+}
+
+- (NSArray *)toolbarAllowedItemIdentifiers:(NSToolbar *)toolbar
+{
+    return [NSArray arrayWithObjects:globalToolbarId,
+            appearanceToolbarId,
+            profilesToolbarId,
+            keyboardToolbarId,
+            nil];
+}
+
+- (NSArray *)toolbarDefaultItemIdentifiers:(NSToolbar *)toolbar
+{
+    return [NSArray arrayWithObjects:globalToolbarId, appearanceToolbarId, profilesToolbarId, keyboardToolbarId, nil];
+}
+
+- (NSArray *)toolbarSelectableItemIdentifiers: (NSToolbar *)toolbar
+{
+    // Optional delegate method: Returns the identifiers of the subset of
+    // toolbar items that are selectable.
+    return [NSArray arrayWithObjects:globalToolbarId,
+            appearanceToolbarId,
+            profilesToolbarId,
+            keyboardToolbarId,
+            nil];
+}
+
+- (void)dealloc
+{
+    //[defaultWordChars release];
+    [super dealloc];
+}
+
+- (void)run
+{
+    NSLog(@"Run() called in PrefPanelController");
+    // load nib if we haven't already
+    if ([self window] == nil) {
+        [self initWithWindowNibName:@"PreferencePanel"];
+    }
+    
+    [[self window] setDelegate: self]; // also forces window to load
+    
+    //[wordChars setDelegate: self];
+    
+    [[self window] setLevel:NSNormalWindowLevel];
+    //NSString* guid = [profilesTableView selectedGuid];
+/*    [profilesTableView reloadData];
+    if ([[profilesTableView selectedGuids] count] == 1) {
+        Profile* dict = [dataSource profileWithGuid:guid];
+        [profilesSettingsTabViewParent setHidden:NO];
+        [profilesPopup setEnabled:NO];
+        [self updateProfileFields:dict];
+    } else {
+        [profilesPopup setEnabled:YES];
+        [profilesSettingsTabViewParent setHidden:YES];
+        if ([[profilesTableView selectedGuids] count] == 0) {
+            [removeProfileButton setEnabled:NO];
+        } else {
+            [removeProfileButton setEnabled:[[profilesTableView selectedGuids] count] < [[profilesTableView dataSource] numberOfProfiles]];
+        }
+        [self updateProfileFields:nil];
+    }
+  
+    if (![profilesTableView selectedGuid] && [profilesTableView numberOfRows]) {
+        [profilesTableView selectRowIndex:0];
+    }
+    
+    [controlButton selectItemWithTag:defaultControl];
+    [leftOptionButton selectItemWithTag:defaultLeftOption];
+    [rightOptionButton selectItemWithTag:defaultRightOption];
+    [leftCommandButton selectItemWithTag:defaultLeftCommand];
+    [rightCommandButton selectItemWithTag:defaultRightCommand];
+    
+    [switchTabModifierButton selectItemWithTag:defaultSwitchTabModifier];
+    [switchWindowModifierButton selectItemWithTag:defaultSwitchWindowModifier];
+    
+    int rowIndex = [globalKeyMappings selectedRow];
+    if (rowIndex >= 0) {
+        [globalRemoveMappingButton setEnabled:YES];
+    } else {
+        [globalRemoveMappingButton setEnabled:NO];
+    }
+    */
+    //[globalKeyMappings reloadData];
+    
+    [self showWindow:self];
+    // Show the window.
+    [[self window] makeKeyAndOrderFront:self];
+    NSLog(@"run() complete");
+    
+    /*
+     [windowStyle selectItemAtIndex: defaultWindowStyle];
+     [tabPosition selectItemAtIndex: defaultTabViewType];
+     [selectionCopiesText setState:defaultCopySelection?NSOnState:NSOffState];
+     [middleButtonPastesFromClipboard setState:defaultPasteFromClipboard?NSOnState:NSOffState];
+     [hideTab setState:defaultHideTab?NSOnState:NSOffState];
+     [promptOnClose setState:defaultPromptOnClose?NSOnState:NSOffState];
+     [promptOnQuit setState:defaultPromptOnQuit?NSOnState:NSOffState];
+     [onlyWhenMoreTabs setState:defaultOnlyWhenMoreTabs?NSOnState:NSOffState];
+     [onlyWhenMoreTabs setEnabled: defaultPromptOnClose];
+     [focusFollowsMouse setState: defaultFocusFollowsMouse?NSOnState:NSOffState];
+     [hotkeyTogglesWindow setState: defaultHotkeyTogglesWindow?NSOnState:NSOffState];
+     [self _populateHotKeyProfilesMenu];
+     [enableBonjour setState: defaultEnableBonjour?NSOnState:NSOffState];
+     [cmdSelection setState: defaultCmdSelection?NSOnState:NSOffState];
+     [passOnControlLeftClick setState: defaultPassOnControlLeftClick?NSOnState:NSOffState];
+     [maxVertically setState: defaultMaxVertically?NSOnState:NSOffState];
+     [closingHotkeySwitchesSpaces setState:defaultClosingHotkeySwitchesSpaces?NSOnState:NSOffState];
+     [useCompactLabel setState: defaultUseCompactLabel?NSOnState:NSOffState];
+     [highlightTabLabels setState: defaultHighlightTabLabels?NSOnState:NSOffState];
+     [advancedFontRendering setState: defaultAdvancedFontRendering?NSOnState:NSOffState];
+     [strokeThickness setEnabled:defaultAdvancedFontRendering];
+     [strokeThicknessLabel setTextColor:defaultAdvancedFontRendering ? [NSColor blackColor] : [NSColor disabledControlTextColor]];
+     [strokeThicknessMinLabel setTextColor:defaultAdvancedFontRendering ? [NSColor blackColor] : [NSColor disabledControlTextColor]];
+     [strokeThicknessMaxLabel setTextColor:defaultAdvancedFontRendering ? [NSColor blackColor] : [NSColor disabledControlTextColor]];
+     [strokeThickness setFloatValue:defaultStrokeThickness];
+     [fsTabDelay setFloatValue:defaultFsTabDelay];
+     
+     [openProfile setState: defaultOpenProfile?NSOnState:NSOffState];
+     [wordChars setStringValue: ([defaultWordChars length] > 0)?defaultWordChars:@""];
+     [quitWhenAllWindowsClosed setState: defaultQuitWhenAllWindowsClosed?NSOnState:NSOffState];
+     [checkUpdate setState: defaultCheckUpdate?NSOnState:NSOffState];
+     [hideScrollbar setState: defaultHideScrollbar?NSOnState:NSOffState];
+     [smartPlacement setState: defaultSmartPlacement?NSOnState:NSOffState];
+     [windowNumber setState: defaultWindowNumber?NSOnState:NSOffState];
+     [jobName setState: defaultJobName?NSOnState:NSOffState];
+     [showProfileName setState: defaultShowProfileName?NSOnState:NSOffState];
+     [savePasteHistory setState: defaultSavePasteHistory?NSOnState:NSOffState];
+     [openArrangementAtStartup setState:defaultOpenArrangementAtStartup ? NSOnState : NSOffState];
+     [openArrangementAtStartup setEnabled:[[iTermController sharedInstance] hasWindowArrangement]];
+     if (![[iTermController sharedInstance] hasWindowArrangement]) {
+     [openArrangementAtStartup setState:NO];
+     }
+     [hotkey setState: defaultHotkey?NSOnState:NSOffState];
+     if (defaultHotkeyCode) {
+     [hotkeyField setStringValue:[KeyBindingManager formatKeyCombination:[NSString stringWithFormat:@"0x%x-0x%x", defaultHotkeyChar, defaultHotkeyModifiers]]];
+     } else {
+     [hotkeyField setStringValue:@""];
+     }
+     [hotkeyField setEnabled:defaultHotkey];
+     [hotkeyLabel setTextColor:defaultHotkey ? [NSColor blackColor] : [NSColor disabledControlTextColor]];
+     [hotkeyTogglesWindow setEnabled:defaultHotkey];
+     [hotkeyProfile setEnabled:(defaultHotkey && defaultHotkeyTogglesWindow)];
+     
+     [irMemory setIntValue:defaultIrMemory];
+     [checkTestRelease setState:defaultCheckTestRelease?NSOnState:NSOffState];
+     [dimInactiveSplitPanes setState:defaultDimInactiveSplitPanes?NSOnState:NSOffState];
+     [showWindowBorder setState:defaultShowWindowBorder?NSOnState:NSOffState];
+     */
+}
+
+- (void)awakeFromNib
+{
+    [self window];
+    [[self window] setCollectionBehavior:NSWindowCollectionBehaviorMoveToActiveSpace];
+    //NSAssert(profilesTableView, @"Null table view");
+    // [profilesTableView setUnderlyingDatasource:dataSource];
+    
+    profilesToolbarId = [profilesToolbarItem itemIdentifier];
+    globalToolbarId = [globalToolbarItem itemIdentifier];
+    appearanceToolbarId = [appearanceToolbarItem itemIdentifier];
+    keyboardToolbarId = [keyboardToolbarItem itemIdentifier];
+    [toolbar setSelectedItemIdentifier:globalToolbarId];
+    
+    // add list of encodings
+    NSEnumerator *anEnumerator;
+    NSNumber *anEncoding;
+    
+    /*
+    [characterEncoding removeAllItems];
+    anEnumerator = [[[iTermController sharedInstance] sortedEncodingList] objectEnumerator];
+    while ((anEncoding = [anEnumerator nextObject]) != NULL) {
+        [characterEncoding addItemWithTitle:[NSString localizedNameOfStringEncoding:[anEncoding unsignedIntValue]]];
+        [[characterEncoding lastItem] setTag:[anEncoding unsignedIntValue]];
+    }
+    [self setScreens];
+    
+    [keyMappings setDoubleAction:@selector(editKeyMapping:)];
+    [globalKeyMappings setDoubleAction:@selector(editKeyMapping:)];
+    keyString = nil;
+    
+    [copyTo allowMultipleSelections];
+    
+    // Add presets to preset color selection.
+    [self _rebuildColorPresetsMenu];
+    
+    // Add preset keybindings to button-popup-list.
+    NSArray* presetArray = [KeyBindingManager presetKeyMappingsNames];
+    if (presetArray != nil) {
+        [presetsPopupButton addItemsWithTitles:presetArray];
+    } else {
+        [presetsPopupButton setEnabled:NO];
+        [presetsErrorLabel setFont:[NSFont boldSystemFontOfSize:12]];
+        [presetsErrorLabel setStringValue:@"PresetKeyMappings.plist failed to load"];
+    }
+    */
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(handleWindowWillCloseNotification:)
+                                                 name:NSWindowWillCloseNotification object: [self window]];
+    /*
+    if (oneProfileMode) {
+        [self setOneBokmarkOnly];
+    }*/
+    
+    //[[tags cell] setDelegate:self];
+    //[tags setDelegate:self];
+}
+
+#pragma mark -
+#pragma mark PENDING
 
 /*
  Static method to copy old preferences file, iTerm.plist or net.sourceforge.iTerm.plist, to new
  preferences file, com.googlecode.iterm2.plist
  */
+/*
 + (BOOL) migratePreferences {
 
     NSString *prefDir = [[[NSHomeDirectory()
@@ -468,59 +723,6 @@ static float versionNumber;
     }
 }
 
-- (void)awakeFromNib
-{
-    [self window];
-    [[self window] setCollectionBehavior:NSWindowCollectionBehaviorMoveToActiveSpace];
-    //NSAssert(profilesTableView, @"Null table view");
-    [profilesTableView setUnderlyingDatasource:dataSource];
-
-    profilesToolbarId = [profilesToolbarItem itemIdentifier];
-    globalToolbarId = [globalToolbarItem itemIdentifier];
-    appearanceToolbarId = [appearanceToolbarItem itemIdentifier];
-    keyboardToolbarId = [keyboardToolbarItem itemIdentifier];
-    [toolbar setSelectedItemIdentifier:globalToolbarId];
-
-    // add list of encodings
-    NSEnumerator *anEnumerator;
-    NSNumber *anEncoding;
-
-    [characterEncoding removeAllItems];
-    anEnumerator = [[[iTermController sharedInstance] sortedEncodingList] objectEnumerator];
-    while ((anEncoding = [anEnumerator nextObject]) != NULL) {
-        [characterEncoding addItemWithTitle:[NSString localizedNameOfStringEncoding:[anEncoding unsignedIntValue]]];
-        [[characterEncoding lastItem] setTag:[anEncoding unsignedIntValue]];
-    }
-    [self setScreens];
-
-    [keyMappings setDoubleAction:@selector(editKeyMapping:)];
-    [globalKeyMappings setDoubleAction:@selector(editKeyMapping:)];
-    keyString = nil;
-
-    [copyTo allowMultipleSelections];
-
-    // Add presets to preset color selection.
-    [self _rebuildColorPresetsMenu];
-
-    // Add preset keybindings to button-popup-list.
-    NSArray* presetArray = [KeyBindingManager presetKeyMappingsNames];
-    if (presetArray != nil) {
-        [presetsPopupButton addItemsWithTitles:presetArray];
-    } else {
-        [presetsPopupButton setEnabled:NO];
-        [presetsErrorLabel setFont:[NSFont boldSystemFontOfSize:12]];
-        [presetsErrorLabel setStringValue:@"PresetKeyMappings.plist failed to load"];
-    }
-
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(handleWindowWillCloseNotification:)
-                                                 name:NSWindowWillCloseNotification object: [self window]];
-    if (oneProfileMode) {
-        [self setOneBokmarkOnly];
-    }
-    [[tags cell] setDelegate:self];
-    [tags setDelegate:self];
-}
 
 - (void)handleWindowWillCloseNotification:(NSNotification *)notification
 {
@@ -766,59 +968,6 @@ static float versionNumber;
     [NSApp endSheet:editKeyMappingWindow];
 }
 
-- (BOOL)validateToolbarItem:(NSToolbarItem *)theItem
-{
-    return TRUE;
-}
-
-- (NSToolbarItem *)toolbar:(NSToolbar *)toolbar itemForItemIdentifier:(NSString *)itemIdentifier willBeInsertedIntoToolbar:(BOOL)flag
-{
-    if (!flag) {
-        return nil;
-    }
-    if ([itemIdentifier isEqual:globalToolbarId]) {
-        return globalToolbarItem;
-    } else if ([itemIdentifier isEqual:appearanceToolbarId]) {
-        return appearanceToolbarItem;
-    } else if ([itemIdentifier isEqual:profilesToolbarId]) {
-        return profilesToolbarItem;
-    } else if ([itemIdentifier isEqual:keyboardToolbarId]) {
-        return keyboardToolbarItem;
-    } else {
-        return nil;
-    }
-}
-
-- (NSArray *)toolbarAllowedItemIdentifiers:(NSToolbar *)toolbar
-{
-    return [NSArray arrayWithObjects:globalToolbarId,
-                                     appearanceToolbarId,
-                                     profilesToolbarId,
-                                     keyboardToolbarId,
-                                     nil];
-}
-
-- (NSArray *)toolbarDefaultItemIdentifiers:(NSToolbar *)toolbar
-{
-    return [NSArray arrayWithObjects:globalToolbarId, appearanceToolbarId, profilesToolbarId, keyboardToolbarId, nil];
-}
-
-- (NSArray *)toolbarSelectableItemIdentifiers: (NSToolbar *)toolbar
-{
-    // Optional delegate method: Returns the identifiers of the subset of
-    // toolbar items that are selectable.
-    return [NSArray arrayWithObjects:globalToolbarId,
-                                     appearanceToolbarId,
-                                     profilesToolbarId,
-                                     keyboardToolbarId,
-                                     nil];
-}
-
-- (void)dealloc
-{
-    [defaultWordChars release];
-    [super dealloc];
-}
 
 // Force the key binding for delete to be either ^H or absent.
 - (void)_setDeleteKeyMapToCtrlH:(BOOL)sendCtrlH inProfile:(NSMutableDictionary*)profile
@@ -1061,124 +1210,6 @@ static float versionNumber;
                                selectedGuid:defaultHotKeyProfileGuid];
 }
 
-- (void)run
-{
-    NSLog(@"Run() called in PrefPanelController");
-    // load nib if we haven't already
-    if ([self window] == nil) {
-        [self initWithWindowNibName:@"PreferencePanel"];
-    }
-
-    [[self window] setDelegate: self]; // also forces window to load
-
-    [wordChars setDelegate: self];
-
-    [[self window] setLevel:NSNormalWindowLevel];
-    NSString* guid = [profilesTableView selectedGuid];
-    [profilesTableView reloadData];
-    if ([[profilesTableView selectedGuids] count] == 1) {
-        Profile* dict = [dataSource profileWithGuid:guid];
-        [profilesSettingsTabViewParent setHidden:NO];
-        [profilesPopup setEnabled:NO];
-        [self updateProfileFields:dict];
-    } else {
-        [profilesPopup setEnabled:YES];
-        [profilesSettingsTabViewParent setHidden:YES];
-        if ([[profilesTableView selectedGuids] count] == 0) {
-            [removeProfileButton setEnabled:NO];
-        } else {
-            [removeProfileButton setEnabled:[[profilesTableView selectedGuids] count] < [[profilesTableView dataSource] numberOfProfiles]];
-        }
-        [self updateProfileFields:nil];
-    }
-
-    if (![profilesTableView selectedGuid] && [profilesTableView numberOfRows]) {
-        [profilesTableView selectRowIndex:0];
-    }
-
-    [controlButton selectItemWithTag:defaultControl];
-    [leftOptionButton selectItemWithTag:defaultLeftOption];
-    [rightOptionButton selectItemWithTag:defaultRightOption];
-    [leftCommandButton selectItemWithTag:defaultLeftCommand];
-    [rightCommandButton selectItemWithTag:defaultRightCommand];
-
-    [switchTabModifierButton selectItemWithTag:defaultSwitchTabModifier];
-    [switchWindowModifierButton selectItemWithTag:defaultSwitchWindowModifier];
-
-    int rowIndex = [globalKeyMappings selectedRow];
-    if (rowIndex >= 0) {
-        [globalRemoveMappingButton setEnabled:YES];
-    } else {
-        [globalRemoveMappingButton setEnabled:NO];
-    }
-
-    //[globalKeyMappings reloadData];
-
-    [self showWindow:self];
-    // Show the window.
-    [[self window] makeKeyAndOrderFront:self];
-    NSLog(@"run() complete");
-    
-/*
-    [windowStyle selectItemAtIndex: defaultWindowStyle];
-    [tabPosition selectItemAtIndex: defaultTabViewType];
-    [selectionCopiesText setState:defaultCopySelection?NSOnState:NSOffState];
-    [middleButtonPastesFromClipboard setState:defaultPasteFromClipboard?NSOnState:NSOffState];
-    [hideTab setState:defaultHideTab?NSOnState:NSOffState];
-    [promptOnClose setState:defaultPromptOnClose?NSOnState:NSOffState];
-    [promptOnQuit setState:defaultPromptOnQuit?NSOnState:NSOffState];
-    [onlyWhenMoreTabs setState:defaultOnlyWhenMoreTabs?NSOnState:NSOffState];
-    [onlyWhenMoreTabs setEnabled: defaultPromptOnClose];
-    [focusFollowsMouse setState: defaultFocusFollowsMouse?NSOnState:NSOffState];
-    [hotkeyTogglesWindow setState: defaultHotkeyTogglesWindow?NSOnState:NSOffState];
-    [self _populateHotKeyProfilesMenu];
-    [enableBonjour setState: defaultEnableBonjour?NSOnState:NSOffState];
-    [cmdSelection setState: defaultCmdSelection?NSOnState:NSOffState];
-    [passOnControlLeftClick setState: defaultPassOnControlLeftClick?NSOnState:NSOffState];
-    [maxVertically setState: defaultMaxVertically?NSOnState:NSOffState];
-    [closingHotkeySwitchesSpaces setState:defaultClosingHotkeySwitchesSpaces?NSOnState:NSOffState];
-    [useCompactLabel setState: defaultUseCompactLabel?NSOnState:NSOffState];
-    [highlightTabLabels setState: defaultHighlightTabLabels?NSOnState:NSOffState];
-    [advancedFontRendering setState: defaultAdvancedFontRendering?NSOnState:NSOffState];
-    [strokeThickness setEnabled:defaultAdvancedFontRendering];
-    [strokeThicknessLabel setTextColor:defaultAdvancedFontRendering ? [NSColor blackColor] : [NSColor disabledControlTextColor]];
-    [strokeThicknessMinLabel setTextColor:defaultAdvancedFontRendering ? [NSColor blackColor] : [NSColor disabledControlTextColor]];
-    [strokeThicknessMaxLabel setTextColor:defaultAdvancedFontRendering ? [NSColor blackColor] : [NSColor disabledControlTextColor]];
-    [strokeThickness setFloatValue:defaultStrokeThickness];
-    [fsTabDelay setFloatValue:defaultFsTabDelay];
-
-    [openProfile setState: defaultOpenProfile?NSOnState:NSOffState];
-    [wordChars setStringValue: ([defaultWordChars length] > 0)?defaultWordChars:@""];
-    [quitWhenAllWindowsClosed setState: defaultQuitWhenAllWindowsClosed?NSOnState:NSOffState];
-    [checkUpdate setState: defaultCheckUpdate?NSOnState:NSOffState];
-    [hideScrollbar setState: defaultHideScrollbar?NSOnState:NSOffState];
-    [smartPlacement setState: defaultSmartPlacement?NSOnState:NSOffState];
-    [windowNumber setState: defaultWindowNumber?NSOnState:NSOffState];
-    [jobName setState: defaultJobName?NSOnState:NSOffState];
-    [showProfileName setState: defaultShowProfileName?NSOnState:NSOffState];
-    [savePasteHistory setState: defaultSavePasteHistory?NSOnState:NSOffState];
-    [openArrangementAtStartup setState:defaultOpenArrangementAtStartup ? NSOnState : NSOffState];
-    [openArrangementAtStartup setEnabled:[[iTermController sharedInstance] hasWindowArrangement]];
-    if (![[iTermController sharedInstance] hasWindowArrangement]) {
-        [openArrangementAtStartup setState:NO];
-    }
-    [hotkey setState: defaultHotkey?NSOnState:NSOffState];
-    if (defaultHotkeyCode) {
-        [hotkeyField setStringValue:[KeyBindingManager formatKeyCombination:[NSString stringWithFormat:@"0x%x-0x%x", defaultHotkeyChar, defaultHotkeyModifiers]]];
-    } else {
-        [hotkeyField setStringValue:@""];
-    }
-    [hotkeyField setEnabled:defaultHotkey];
-    [hotkeyLabel setTextColor:defaultHotkey ? [NSColor blackColor] : [NSColor disabledControlTextColor]];
-    [hotkeyTogglesWindow setEnabled:defaultHotkey];
-    [hotkeyProfile setEnabled:(defaultHotkey && defaultHotkeyTogglesWindow)];
-
-    [irMemory setIntValue:defaultIrMemory];
-    [checkTestRelease setState:defaultCheckTestRelease?NSOnState:NSOffState];
-    [dimInactiveSplitPanes setState:defaultDimInactiveSplitPanes?NSOnState:NSOffState];
-    [showWindowBorder setState:defaultShowWindowBorder?NSOnState:NSOffState];
-*/
-}
 
 - (BOOL)advancedFontRendering
 {
@@ -1344,9 +1375,10 @@ static float versionNumber;
         defaultCheckUpdate = ([checkUpdate state] == NSOnState);
         defaultSmartPlacement = ([smartPlacement state] == NSOnState);
         defaultSavePasteHistory = ([savePasteHistory state] == NSOnState);
+*/
 /*        if (!defaultSavePasteHistory) {
             [[PasteboardHistory sharedInstance] eraseHistory];
-        } */
+        } 
         defaultOpenArrangementAtStartup = ([openArrangementAtStartup state] == NSOnState);
 
         defaultIrMemory = [irMemory intValue];
@@ -2310,13 +2342,15 @@ static float versionNumber;
         [[PreferencePanelController sharedInstance] profileTableSelectionDidChange:[PreferencePanelController sharedInstance]->profilesTableView];
 
         // Update existing sessions
-        /*
+      */
+/*
         int n = [[iTermController sharedInstance] numberOfTerminals];
         for (int i = 0; i < n; ++i) {
             PseudoTerminal* pty = [[iTermController sharedInstance] terminalAtIndex:i];
             [pty reloadProfiles];
         }
 */
+/*
         // Update user defaults
         [[NSUserDefaults standardUserDefaults] setObject:[[ProfileModel sharedInstance] rawData]
                                                   forKey: @"New Profiles"];
@@ -2528,6 +2562,7 @@ static float versionNumber;
     [self updateShortcutTitles];
 
     // Update existing sessions
+*/
 /*    int n = [[iTermController sharedInstance] numberOfTerminals];
     for (int i = 0; i < n; ++i) {
         PseudoTerminal* pty = [[iTermController sharedInstance] terminalAtIndex:i];
@@ -2535,6 +2570,7 @@ static float versionNumber;
 
     }
   */
+/*
     if (prefs) {
         [prefs setObject:[dataSource rawData] forKey: @"New Profiles"];
     }
@@ -2613,25 +2649,6 @@ static float versionNumber;
     }
 }
 
-- (IBAction)showGlobalTabView:(id)sender
-{
-    [tabView selectTabViewItem:globalTabViewItem];
-}
-
-- (IBAction)showAppearanceTabView:(id)sender
-{
-    [tabView selectTabViewItem:appearanceTabViewItem];
-}
-
-- (IBAction)showProfilesTabView:(id)sender
-{
-    [tabView selectTabViewItem:profilesTabViewItem];
-}
-
-- (IBAction)showKeyboardTabView:(id)sender
-{
-    [tabView selectTabViewItem:keyboardTabViewItem];
-}
 
 - (void)connectProfileWithGuid:(NSString*)guid toScheme:(NSString*)scheme
 {
@@ -3311,7 +3328,7 @@ static float versionNumber;
         return nil;
     }
 }
-
+*/
 @end
 
 

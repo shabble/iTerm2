@@ -9,7 +9,7 @@
 #import <Cocoa/Cocoa.h>
 
 
-@interface PreferencesGeneralHelper : NSObject {
+@interface PreferencesGeneralHelper : NSViewController {
 
 }
 
