@@ -53,7 +53,16 @@
             NSString *tooltip = (NSString *)[prefKeyDict valueForKey:@"tooltip"];
             NSObject *defaultValue = [prefKeyDict valueForKey:@"default"];
 
-            [tooltips setObject:tooltip forKey:prefKey];
+            /* deal with badly formatted text in the plist */
+            NSString *tooltipSingleLine
+                = [tooltip stringByReplacingOccurrencesOfString:@"\n"
+                                                     withString:@" "];
+            NSString *tooltipWithTrimmedWhitespace
+                = [tooltipSingleLine stringByReplacingOccurrencesOfRegex:@"\\s+"
+                                                              withString:@" "];
+
+            [tooltips setObject:tooltipWithTrimmedWhitespace forKey:prefKey];
+            
             [defaults setObject:defaultValue forKey:prefKey];
         }
         //NSLog(@" dict: %@ keys are: %@", categoryDict, [categoryDict allKeys]);

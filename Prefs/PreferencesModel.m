@@ -78,24 +78,18 @@
     [super dealloc];
 }
 
-
 - (void)configureUserDefaults
 {
-    NSUserDefaults *defaults;
-    
-//    [self.userDefaultsController setAppliesImmediately:NO];
+    //  [self.userDefaultsController setAppliesImmediately:NO];
     [self.userDefaultsController setAppliesImmediately:YES];
     
-    // TODO: dump this in favour of schema defaults.
-/*    userDefaultsValuesPath = [[NSBundle mainBundle] pathForResource:@"AppDefaults"
-                                                             ofType:@"plist"];
-    userDefaultsValuesDict
-    = [NSDictionary dictionaryWithContentsOfFile:userDefaultsValuesPath];
+    NSUserDefaults *defaults = [self.userDefaultsController defaults];
 
-    NSLog(@"PMODEL: configuring UserDefaults from %@", userDefaultsValuesPath);
-*/    
-    // set them in the standard user defaults
-    defaults = [self.userDefaultsController defaults];
+#ifdef DEBUG
+    /* set the tooltip delay lower than default. Value in ms */
+    [defaults setObject:[NSNumber numberWithInt:500] forKey:@"NSInitialToolTipDelay"];
+#endif
+    
     //[defaults setPersistentDomain:userDefaultsValuesDict forName:self.preferencesDomain];
     [defaults registerDefaults:self.defaultValues];
     [self.userDefaultsController setInitialValues:self.defaultValues];
@@ -136,7 +130,9 @@
     
     NSString *domain = [[NSBundle mainBundle] bundleIdentifier];
     NSLog(@"bundle: %@", domain);
-    NSDictionary *customPrefs = [[self.userDefaultsController defaults] persistentDomainForName:domain];
+    NSDictionary *customPrefs 
+        = [[self.userDefaultsController defaults] persistentDomainForName:domain];
+    
     resetInProgress_ = YES;
     for (NSString *key in [customPrefs allKeys]) {
         id value = [customPrefs valueForKey:key];
