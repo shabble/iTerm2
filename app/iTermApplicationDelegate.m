@@ -35,6 +35,7 @@
 
 #import "../Profiles/ProfilesWindow.h"
 #import "../Profiles/ProfileManager.h"
+#import "../Misc/StringIntValueTransformer.h"
 
 #include <unistd.h>
 
@@ -45,6 +46,14 @@ BOOL gDebugLogging = NO;
 int gDebugLogFile = -1;
 
 @implementation iTermAboutWindow
+
+
++ (void)initialize
+{
+    [NSValueTransformer setValueTransformer:[[StringIntValueTransformer new] autorelease]
+                                    forName:@"intFromString"];
+}
+
 
 - (IBAction)closeCurrentSession:(id)sender
 {

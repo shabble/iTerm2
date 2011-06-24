@@ -38,6 +38,9 @@
 		2C27618E1395D57A00D340AA /* ProfileManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2761881395D57A00D340AA /* ProfileManager.m */; };
 		2C29CDB413B42DA90091AC7E /* PreferencesMigrator.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C29CDB313B42DA90091AC7E /* PreferencesMigrator.m */; };
 		2C29CDB613B42DB30091AC7E /* PreferencesMigrator.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C29CDB513B42DB30091AC7E /* PreferencesMigrator.h */; };
+		2C29CE8A13B48BD80091AC7E /* Misc in Resources */ = {isa = PBXBuildFile; fileRef = 2C29CE7D13B48BD80091AC7E /* Misc */; };
+		2C29CE8C13B48C210091AC7E /* StringIntValueTransformer.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C29CE8B13B48C210091AC7E /* StringIntValueTransformer.m */; };
+		2C29CE8E13B48C2D0091AC7E /* StringIntValueTransformer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C29CE8D13B48C2D0091AC7E /* StringIntValueTransformer.h */; };
 		2C7EE22C13960462000305E6 /* iTermApplication.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C7EE1FD13960462000305E6 /* iTermApplication.h */; };
 		2C7EE22D13960462000305E6 /* iTermApplicationDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C7EE1FE13960462000305E6 /* iTermApplicationDelegate.h */; };
 		2C7EE22E13960462000305E6 /* iTermController.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C7EE1FF13960462000305E6 /* iTermController.h */; };
@@ -165,6 +168,9 @@
 		2C2761881395D57A00D340AA /* ProfileManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ProfileManager.m; path = Profiles/ProfileManager.m; sourceTree = "<group>"; };
 		2C29CDB313B42DA90091AC7E /* PreferencesMigrator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PreferencesMigrator.m; path = Prefs/PreferencesMigrator.m; sourceTree = "<group>"; };
 		2C29CDB513B42DB30091AC7E /* PreferencesMigrator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PreferencesMigrator.h; path = Prefs/PreferencesMigrator.h; sourceTree = "<group>"; };
+		2C29CE7D13B48BD80091AC7E /* Misc */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Misc; sourceTree = "<group>"; };
+		2C29CE8B13B48C210091AC7E /* StringIntValueTransformer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = StringIntValueTransformer.m; path = Misc/StringIntValueTransformer.m; sourceTree = "<group>"; };
+		2C29CE8D13B48C2D0091AC7E /* StringIntValueTransformer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = StringIntValueTransformer.h; path = Misc/StringIntValueTransformer.h; sourceTree = "<group>"; };
 		2C7EE1FD13960462000305E6 /* iTermApplication.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = iTermApplication.h; path = App/iTermApplication.h; sourceTree = "<group>"; };
 		2C7EE1FE13960462000305E6 /* iTermApplicationDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = iTermApplicationDelegate.h; path = App/iTermApplicationDelegate.h; sourceTree = "<group>"; };
 		2C7EE1FF13960462000305E6 /* iTermController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = iTermController.h; path = App/iTermController.h; sourceTree = "<group>"; };
@@ -287,6 +293,7 @@
 		0464AB0E006CD2EC7F000001 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				2C29CE7D13B48BD80091AC7E /* Misc */,
 				2C1C0F12139FD30000E1DA75 /* Search */,
 				2C7EE32313960BC4000305E6 /* iTerm */,
 				2C275FD91395C70600D340AA /* App */,
@@ -301,6 +308,7 @@
 			children = (
 				2C29CDB513B42DB30091AC7E /* PreferencesMigrator.h */,
 				2CAED78B13AF2DE000D06287 /* RemoteProfileDiscovery.h */,
+				2C29CE8D13B48C2D0091AC7E /* StringIntValueTransformer.h */,
 				2C16E52C13A75732002F1F58 /* GTMCarbonEvent.h */,
 				2C16E52D13A75732002F1F58 /* GTMDebugSelectorValidation.h */,
 				2C16E52E13A75732002F1F58 /* GTMDefines.h */,
@@ -377,6 +385,7 @@
 			isa = PBXGroup;
 			children = (
 				2C29CDB313B42DA90091AC7E /* PreferencesMigrator.m */,
+				2C29CE8B13B48C210091AC7E /* StringIntValueTransformer.m */,
 				2C16E53613A7573A002F1F58 /* GTMCarbonEvent.m */,
 				2C16E42C13A7443D002F1F58 /* ProfileManager.m */,
 				2C16E42D13A7443D002F1F58 /* ProfileModel.m */,
@@ -505,6 +514,7 @@
 				2C16E53513A75732002F1F58 /* GTMTypeCasting.h in Headers */,
 				2CAED78C13AF2DE000D06287 /* RemoteProfileDiscovery.h in Headers */,
 				2C29CDB613B42DB30091AC7E /* PreferencesMigrator.h in Headers */,
+				2C29CE8E13B48C2D0091AC7E /* StringIntValueTransformer.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -641,6 +651,7 @@
 				2CAED88913AF491C00D06287 /* PrefsProfilesView.xib in Resources */,
 				2CAEDA0513AF930700D06287 /* UserPreferenceSchema.plist in Resources */,
 				2CAEDB0613AFA35B00D06287 /* AppDefaults.plist in Resources */,
+				2C29CE8A13B48BD80091AC7E /* Misc in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -694,6 +705,7 @@
 				2C16E53713A7573A002F1F58 /* GTMCarbonEvent.m in Sources */,
 				2CAED78A13AF2DD800D06287 /* RemoteProfileDiscovery.m in Sources */,
 				2C29CDB413B42DA90091AC7E /* PreferencesMigrator.m in Sources */,
+				2C29CE8C13B48C210091AC7E /* StringIntValueTransformer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
