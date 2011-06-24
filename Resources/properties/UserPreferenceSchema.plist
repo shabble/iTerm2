@@ -73,7 +73,7 @@
 			<key>comments</key>
 			<string>none</string>
 		</dict>
-		<key>CmdFullscreenShowTabDelay</key>
+		<key>CmdFullscreenShowTabbarDelay</key>
 		<dict>
 			<key>default</key>
             <real>1.0</real>
@@ -86,6 +86,61 @@
 			<string>none</string>
 		</dict>
         <!-- col 2 -->
+		<key>TitleShowsWindowNumber</key>
+		<dict>
+			<key>default</key>
+            <false />
+			<key>tooltip</key>
+			<string>TODO</string>
+			<key>comments</key>
+			<string>none</string>
+		</dict>
+		<key>TitleShowsActiveJobName</key>
+		<dict>
+			<key>default</key>
+            <false />
+			<key>tooltip</key>
+			<string>TODO</string>
+			<key>comments</key>
+			<string>none</string>
+		</dict>
+		<key>TitleShowsProfileName</key>
+		<dict>
+			<key>default</key>
+            <false />
+			<key>tooltip</key>
+			<string>TODO</string>
+			<key>comments</key>
+			<string>none</string>
+		</dict>
+		<key>HidesScrollbarAndResize</key>
+		<dict>
+			<key>default</key>
+            <false />
+			<key>tooltip</key>
+			<string>TODO</string>
+			<key>comments</key>
+			<string>none</string>
+		</dict>
+		<key>DimsInactivePanes</key>
+		<dict>
+			<key>default</key>
+            <false />
+			<key>tooltip</key>
+			<string>TODO</string>
+			<key>comments</key>
+			<string>none</string>
+		</dict>
+		<key>HasWindowBorder</key>
+		<dict>
+			<key>default</key>
+            <false />
+			<key>tooltip</key>
+			<string>TODO</string>
+			<key>comments</key>
+			<string>none</string>
+		</dict>
+
     </dict>
 	<key>General</key>
 	<dict>
@@ -142,7 +197,7 @@
 			<key>default</key>
             <true />
 			<key>tooltip</key>
-			<string></string>
+			<string>Show a confirmation dialog on ⌘Q</string>
 			<key>comments</key>
 			<string>none</string>
 		</dict>
