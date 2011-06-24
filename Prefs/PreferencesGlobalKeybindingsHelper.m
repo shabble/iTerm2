@@ -11,4 +11,19 @@
 
 @implementation PreferencesGlobalKeybindingsHelper
 
+@synthesize model=model_;
+
+- (id)initWithModel:(PreferencesModel*)prefsModel
+{
+    if ((self = [super init])) {
+        self.model = prefsModel;
+    }
+    return self;
+}
+
+- (void)awakeFromNib
+{
+    NSLog(@"KeyboardBindings Helper awaking from Nib, with model: %@", self.model);    
+}
+
 @end

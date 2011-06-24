@@ -7,10 +7,14 @@
 //
 
 #import <Cocoa/Cocoa.h>
-
+#import "PreferencesModel.h"
 
 @interface PreferencesAppearanceHelper : NSViewController {
-
+    IBOutlet PreferencesModel *model_;
 }
+
+@property (nonatomic,readwrite,assign) PreferencesModel *model;
+
+- (id)initWithModel:(PreferencesModel *)prefsModel;
 
 @end

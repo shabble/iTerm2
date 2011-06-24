@@ -11,19 +11,19 @@
 
 @implementation PreferencesGeneralHelper
 
-@synthesize model;
+@synthesize model=model_;
 
-- (id)initWithModel:(PreferencesModel *)aModel
+- (id)initWithModel:(PreferencesModel *)prefsModel
 {
     if ((self = [super init])) {
-        model = aModel;
+        self.model = prefsModel;
     }
     return self;
 }
 
 - (void)awakeFromNib
 {
-    NSLog(@"General Helper awaking from Nib, with modeL: %@", model);
+    NSLog(@"General Helper awaking from Nib, with model: %@", self.model);
 
 }
 

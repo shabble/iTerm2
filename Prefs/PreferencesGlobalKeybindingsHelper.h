@@ -7,9 +7,11 @@
 //
 
 #import <Cocoa/Cocoa.h>
-
+#import "PreferencesModel.h"
 
 @interface PreferencesGlobalKeybindingsHelper : NSViewController {
+    
+    IBOutlet PreferencesModel *model_;
     
     // Keyboard ------------------------------
  /*   int defaultControl;
@@ -37,5 +39,9 @@
     IBOutlet NSButton* globalAddNewMapping;
   */
 }
+
+@property (nonatomic,readwrite,assign) PreferencesModel *model;
+
+- (id)initWithModel:(PreferencesModel *)prefsModel;
 
 @end
