@@ -8,6 +8,7 @@
 		<string key="IBDocument.HIToolboxVersion">353.00</string>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
+			<integer value="2"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -35,14 +36,14 @@
 				<string key="NSClassName">NSApplication</string>
 			</object>
 			<object class="NSView" id="83983248">
-				<nil key="NSNextResponder"/>
+				<reference key="NSNextResponder"/>
 				<int key="NSvFlags">256</int>
 				<object class="NSMutableArray" key="NSSubviews">
 					<bool key="EncodedWithXMLCoder">YES</bool>
 					<object class="NSTextField" id="85025088">
 						<reference key="NSNextResponder" ref="83983248"/>
 						<int key="NSvFlags">268</int>
-						<string key="NSFrame">{{5, 371}, {146, 17}}</string>
+						<string key="NSFrame">{{8, 371}, {146, 17}}</string>
 						<reference key="NSSuperview" ref="83983248"/>
 						<bool key="NSEnabled">YES</bool>
 						<object class="NSTextFieldCell" key="NSCell" id="862788982">
@@ -770,7 +771,7 @@
 									<object class="NSTableView" id="145300807">
 										<reference key="NSNextResponder" ref="471312160"/>
 										<int key="NSvFlags">256</int>
-										<string key="NSFrameSize">{387, 304}</string>
+										<string key="NSFrameSize">{387, 302}</string>
 										<reference key="NSSuperview" ref="471312160"/>
 										<bool key="NSEnabled">YES</bool>
 										<object class="NSTableHeaderView" key="NSHeaderView" id="847283078">
@@ -878,7 +879,7 @@
 										<bool key="NSAllowsTypeSelect">YES</bool>
 									</object>
 								</object>
-								<string key="NSFrame">{{1, 17}, {387, 304}}</string>
+								<string key="NSFrame">{{1, 17}, {387, 302}}</string>
 								<reference key="NSSuperview" ref="923278509"/>
 								<reference key="NSNextKeyView" ref="145300807"/>
 								<reference key="NSDocView" ref="145300807"/>
@@ -893,7 +894,7 @@
 							<object class="NSScroller" id="1070989592">
 								<reference key="NSNextResponder" ref="923278509"/>
 								<int key="NSvFlags">256</int>
-								<string key="NSFrame">{{388, 17}, {15, 304}}</string>
+								<string key="NSFrame">{{388, 17}, {15, 302}}</string>
 								<reference key="NSSuperview" ref="923278509"/>
 								<reference key="NSTarget" ref="923278509"/>
 								<string key="NSAction">_doScroller:</string>
@@ -925,7 +926,7 @@
 							</object>
 							<reference ref="418155540"/>
 						</object>
-						<string key="NSFrame">{{367, 42}, {404, 322}}</string>
+						<string key="NSFrame">{{367, 43}, {404, 320}}</string>
 						<reference key="NSSuperview" ref="83983248"/>
 						<reference key="NSNextKeyView" ref="471312160"/>
 						<int key="NSsFlags">18</int>
@@ -933,12 +934,13 @@
 						<reference key="NSHScroller" ref="878310543"/>
 						<reference key="NSContentView" ref="471312160"/>
 						<reference key="NSHeaderClipView" ref="1066138229"/>
+						<reference key="NSCornerView" ref="418155540"/>
 						<bytes key="NSScrollAmts">QSAAAEEgAABBmAAAQZgAAA</bytes>
 					</object>
 					<object class="NSButton" id="35384352">
 						<reference key="NSNextResponder" ref="83983248"/>
 						<int key="NSvFlags">256</int>
-						<string key="NSFrame">{{365, 12}, {21, 22}}</string>
+						<string key="NSFrame">{{367.5, 10}, {24, 24}}</string>
 						<reference key="NSSuperview" ref="83983248"/>
 						<bool key="NSEnabled">YES</bool>
 						<object class="NSButtonCell" key="NSCell" id="877430047">
@@ -964,7 +966,7 @@
 					<object class="NSButton" id="485211950">
 						<reference key="NSNextResponder" ref="83983248"/>
 						<int key="NSvFlags">256</int>
-						<string key="NSFrame">{{387, 12}, {20, 22}}</string>
+						<string key="NSFrame">{{392, 10}, {24, 24}}</string>
 						<reference key="NSSuperview" ref="83983248"/>
 						<bool key="NSEnabled">YES</bool>
 						<object class="NSButtonCell" key="NSCell" id="915695916">
@@ -990,7 +992,7 @@
 					<object class="NSPopUpButton" id="342969406">
 						<reference key="NSNextResponder" ref="83983248"/>
 						<int key="NSvFlags">268</int>
-						<string key="NSFrame">{{408, 12}, {144, 22}}</string>
+						<string key="NSFrame">{{416, 10}, {144, 24}}</string>
 						<reference key="NSSuperview" ref="83983248"/>
 						<bool key="NSEnabled">YES</bool>
 						<object class="NSPopUpButtonCell" key="NSCell" id="547476687">
@@ -1066,13 +1068,13 @@
 					<object class="NSTextField" id="694765513">
 						<reference key="NSNextResponder" ref="83983248"/>
 						<int key="NSvFlags">268</int>
-						<string key="NSFrame">{{241, 186}, {65, 17}}</string>
+						<string key="NSFrame">{{241, 186}, {74, 17}}</string>
 						<reference key="NSSuperview" ref="83983248"/>
 						<bool key="NSEnabled">YES</bool>
 						<object class="NSTextFieldCell" key="NSCell" id="709488163">
 							<int key="NSCellFlags">68288064</int>
 							<int key="NSCellFlags2">272630784</int>
-							<string key="NSContents">+Number</string>
+							<string key="NSContents">+ Number</string>
 							<reference key="NSSupport" ref="440532557"/>
 							<reference key="NSControlView" ref="694765513"/>
 							<reference key="NSBackgroundColor" ref="815542570"/>
@@ -1082,13 +1084,13 @@
 					<object class="NSTextField" id="294564065">
 						<reference key="NSNextResponder" ref="83983248"/>
 						<int key="NSvFlags">268</int>
-						<string key="NSFrame">{{241, 156}, {65, 17}}</string>
+						<string key="NSFrame">{{241, 156}, {74, 17}}</string>
 						<reference key="NSSuperview" ref="83983248"/>
 						<bool key="NSEnabled">YES</bool>
 						<object class="NSTextFieldCell" key="NSCell" id="919532898">
 							<int key="NSCellFlags">68288064</int>
 							<int key="NSCellFlags2">272630784</int>
-							<string key="NSContents">+Number</string>
+							<string key="NSContents">+ Number</string>
 							<reference key="NSSupport" ref="440532557"/>
 							<reference key="NSControlView" ref="294564065"/>
 							<reference key="NSBackgroundColor" ref="815542570"/>
@@ -1098,7 +1100,7 @@
 					<object class="NSTextField" id="495485126">
 						<reference key="NSNextResponder" ref="83983248"/>
 						<int key="NSvFlags">268</int>
-						<string key="NSFrame">{{65, 186}, {128, 17}}</string>
+						<string key="NSFrame">{{64, 186}, {100, 17}}</string>
 						<reference key="NSSuperview" ref="83983248"/>
 						<bool key="NSEnabled">YES</bool>
 						<object class="NSTextFieldCell" key="NSCell" id="708930671">
@@ -1303,6 +1305,46 @@
 					</object>
 				</object>
 				<string key="NSFrameSize">{782, 400}</string>
+				<reference key="NSSuperview"/>
+			</object>
+			<object class="NSObjectController" id="206001869">
+				<object class="NSMutableArray" key="NSDeclaredKeys">
+					<bool key="EncodedWithXMLCoder">YES</bool>
+					<string>ControlMappedAs</string>
+					<string>LeftOptionMappedAs</string>
+					<string>RightOptionMappedAs</string>
+					<string>LeftCmdMappedAs</string>
+					<string>RightCmdMappedAs</string>
+					<string>TabSwitchNumberModifiers</string>
+					<string>WindowSwitchNumberModifiers</string>
+					<string>GobalHotkeyEnabled</string>
+					<string>GlobalHotkey</string>
+					<string>GlobalHotkeyTrigger</string>
+					<string>GlobalHotkeyTogglesWindow</string>
+					<string>GlobalHotkeyWindowUsesProfile</string>
+					<string>GlobalHotkeyEnabled</string>
+				</object>
+				<bool key="NSEditable">YES</bool>
+				<object class="_NSManagedProxy" key="_NSManagedProxy"/>
+			</object>
+			<object class="NSObjectController" id="141867837">
+				<object class="NSMutableArray" key="NSDeclaredKeys">
+					<bool key="EncodedWithXMLCoder">YES</bool>
+					<string>GlobalHotkeyWindowUsesProfile</string>
+					<string>GlobalHotkeyTogglesWindow</string>
+					<string>GlobalHotkeyTrigger</string>
+					<string>GobalHotkeyEnabled</string>
+					<string>WindowSwitchNumberModifiers</string>
+					<string>TabSwitchNumberModifiers</string>
+					<string>RightCmdMappedAs</string>
+					<string>LeftCmdMappedAs</string>
+					<string>RightOptionMappedAs</string>
+					<string>LeftOptionMappedAs</string>
+					<string>ControlMappedAs</string>
+					<string>GlobalHotkeyEnabled</string>
+				</object>
+				<bool key="NSEditable">YES</bool>
+				<object class="_NSManagedProxy" key="_NSManagedProxy"/>
 			</object>
 		</object>
 		<object class="IBObjectContainer" key="IBDocument.Objects">
@@ -1428,6 +1470,390 @@
 					</object>
 					<int key="connectionID">126</int>
 				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBBindingConnection" key="connection">
+						<string key="label">contentObject: model</string>
+						<reference key="source" ref="206001869"/>
+						<reference key="destination" ref="1001"/>
+						<object class="NSNibBindingConnector" key="connector">
+							<reference key="NSSource" ref="206001869"/>
+							<reference key="NSDestination" ref="1001"/>
+							<string key="NSLabel">contentObject: model</string>
+							<string key="NSBinding">contentObject</string>
+							<string key="NSKeyPath">model</string>
+							<int key="NSNibBindingConnectorVersion">2</int>
+						</object>
+					</object>
+					<int key="connectionID">130</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBBindingConnection" key="connection">
+						<string key="label">contentObject: model.toolTips</string>
+						<reference key="source" ref="141867837"/>
+						<reference key="destination" ref="1001"/>
+						<object class="NSNibBindingConnector" key="connector">
+							<reference key="NSSource" ref="141867837"/>
+							<reference key="NSDestination" ref="1001"/>
+							<string key="NSLabel">contentObject: model.toolTips</string>
+							<string key="NSBinding">contentObject</string>
+							<string key="NSKeyPath">model.toolTips</string>
+							<int key="NSNibBindingConnectorVersion">2</int>
+						</object>
+					</object>
+					<int key="connectionID">132</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBBindingConnection" key="connection">
+						<string key="label">selectedIndex: selection.ControlMappedAs</string>
+						<reference key="source" ref="361064384"/>
+						<reference key="destination" ref="206001869"/>
+						<object class="NSNibBindingConnector" key="connector">
+							<reference key="NSSource" ref="361064384"/>
+							<reference key="NSDestination" ref="206001869"/>
+							<string key="NSLabel">selectedIndex: selection.ControlMappedAs</string>
+							<string key="NSBinding">selectedIndex</string>
+							<string key="NSKeyPath">selection.ControlMappedAs</string>
+							<int key="NSNibBindingConnectorVersion">2</int>
+						</object>
+					</object>
+					<int key="connectionID">134</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBBindingConnection" key="connection">
+						<string key="label">selectedIndex: selection.LeftOptionMappedAs</string>
+						<reference key="source" ref="286070719"/>
+						<reference key="destination" ref="206001869"/>
+						<object class="NSNibBindingConnector" key="connector">
+							<reference key="NSSource" ref="286070719"/>
+							<reference key="NSDestination" ref="206001869"/>
+							<string key="NSLabel">selectedIndex: selection.LeftOptionMappedAs</string>
+							<string key="NSBinding">selectedIndex</string>
+							<string key="NSKeyPath">selection.LeftOptionMappedAs</string>
+							<int key="NSNibBindingConnectorVersion">2</int>
+						</object>
+					</object>
+					<int key="connectionID">136</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBBindingConnection" key="connection">
+						<string key="label">selectedIndex: selection.RightOptionMappedAs</string>
+						<reference key="source" ref="952638649"/>
+						<reference key="destination" ref="206001869"/>
+						<object class="NSNibBindingConnector" key="connector">
+							<reference key="NSSource" ref="952638649"/>
+							<reference key="NSDestination" ref="206001869"/>
+							<string key="NSLabel">selectedIndex: selection.RightOptionMappedAs</string>
+							<string key="NSBinding">selectedIndex</string>
+							<string key="NSKeyPath">selection.RightOptionMappedAs</string>
+							<int key="NSNibBindingConnectorVersion">2</int>
+						</object>
+					</object>
+					<int key="connectionID">138</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBBindingConnection" key="connection">
+						<string key="label">selectedIndex: selection.LeftCmdMappedAs</string>
+						<reference key="source" ref="690970636"/>
+						<reference key="destination" ref="206001869"/>
+						<object class="NSNibBindingConnector" key="connector">
+							<reference key="NSSource" ref="690970636"/>
+							<reference key="NSDestination" ref="206001869"/>
+							<string key="NSLabel">selectedIndex: selection.LeftCmdMappedAs</string>
+							<string key="NSBinding">selectedIndex</string>
+							<string key="NSKeyPath">selection.LeftCmdMappedAs</string>
+							<int key="NSNibBindingConnectorVersion">2</int>
+						</object>
+					</object>
+					<int key="connectionID">140</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBBindingConnection" key="connection">
+						<string key="label">selectedIndex: selection.RightCmdMappedAs</string>
+						<reference key="source" ref="62267735"/>
+						<reference key="destination" ref="206001869"/>
+						<object class="NSNibBindingConnector" key="connector">
+							<reference key="NSSource" ref="62267735"/>
+							<reference key="NSDestination" ref="206001869"/>
+							<string key="NSLabel">selectedIndex: selection.RightCmdMappedAs</string>
+							<string key="NSBinding">selectedIndex</string>
+							<string key="NSKeyPath">selection.RightCmdMappedAs</string>
+							<int key="NSNibBindingConnectorVersion">2</int>
+						</object>
+					</object>
+					<int key="connectionID">142</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBBindingConnection" key="connection">
+						<string key="label">selectedIndex: selection.TabSwitchNumberModifiers</string>
+						<reference key="source" ref="289277373"/>
+						<reference key="destination" ref="206001869"/>
+						<object class="NSNibBindingConnector" key="connector">
+							<reference key="NSSource" ref="289277373"/>
+							<reference key="NSDestination" ref="206001869"/>
+							<string key="NSLabel">selectedIndex: selection.TabSwitchNumberModifiers</string>
+							<string key="NSBinding">selectedIndex</string>
+							<string key="NSKeyPath">selection.TabSwitchNumberModifiers</string>
+							<int key="NSNibBindingConnectorVersion">2</int>
+						</object>
+					</object>
+					<int key="connectionID">144</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBBindingConnection" key="connection">
+						<string key="label">selectedIndex: selection.WindowSwitchNumberModifiers</string>
+						<reference key="source" ref="329620130"/>
+						<reference key="destination" ref="206001869"/>
+						<object class="NSNibBindingConnector" key="connector">
+							<reference key="NSSource" ref="329620130"/>
+							<reference key="NSDestination" ref="206001869"/>
+							<string key="NSLabel">selectedIndex: selection.WindowSwitchNumberModifiers</string>
+							<string key="NSBinding">selectedIndex</string>
+							<string key="NSKeyPath">selection.WindowSwitchNumberModifiers</string>
+							<int key="NSNibBindingConnectorVersion">2</int>
+						</object>
+					</object>
+					<int key="connectionID">145</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBBindingConnection" key="connection">
+						<string key="label">value: selection.GlobalHotkeyTrigger</string>
+						<reference key="source" ref="913472215"/>
+						<reference key="destination" ref="206001869"/>
+						<object class="NSNibBindingConnector" key="connector">
+							<reference key="NSSource" ref="913472215"/>
+							<reference key="NSDestination" ref="206001869"/>
+							<string key="NSLabel">value: selection.GlobalHotkeyTrigger</string>
+							<string key="NSBinding">value</string>
+							<string key="NSKeyPath">selection.GlobalHotkeyTrigger</string>
+							<int key="NSNibBindingConnectorVersion">2</int>
+						</object>
+					</object>
+					<int key="connectionID">149</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBBindingConnection" key="connection">
+						<string key="label">value: selection.GlobalHotkeyTogglesWindow</string>
+						<reference key="source" ref="621617256"/>
+						<reference key="destination" ref="206001869"/>
+						<object class="NSNibBindingConnector" key="connector">
+							<reference key="NSSource" ref="621617256"/>
+							<reference key="NSDestination" ref="206001869"/>
+							<string key="NSLabel">value: selection.GlobalHotkeyTogglesWindow</string>
+							<string key="NSBinding">value</string>
+							<string key="NSKeyPath">selection.GlobalHotkeyTogglesWindow</string>
+							<int key="NSNibBindingConnectorVersion">2</int>
+						</object>
+					</object>
+					<int key="connectionID">152</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBBindingConnection" key="connection">
+						<string key="label">selectedIndex: selection.GlobalHotkeyWindowUsesProfile</string>
+						<reference key="source" ref="614011662"/>
+						<reference key="destination" ref="206001869"/>
+						<object class="NSNibBindingConnector" key="connector">
+							<reference key="NSSource" ref="614011662"/>
+							<reference key="NSDestination" ref="206001869"/>
+							<string key="NSLabel">selectedIndex: selection.GlobalHotkeyWindowUsesProfile</string>
+							<string key="NSBinding">selectedIndex</string>
+							<string key="NSKeyPath">selection.GlobalHotkeyWindowUsesProfile</string>
+							<int key="NSNibBindingConnectorVersion">2</int>
+						</object>
+					</object>
+					<int key="connectionID">155</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBBindingConnection" key="connection">
+						<string key="label">toolTip: selection.GlobalHotkeyWindowUsesProfile</string>
+						<reference key="source" ref="614011662"/>
+						<reference key="destination" ref="141867837"/>
+						<object class="NSNibBindingConnector" key="connector">
+							<reference key="NSSource" ref="614011662"/>
+							<reference key="NSDestination" ref="141867837"/>
+							<string key="NSLabel">toolTip: selection.GlobalHotkeyWindowUsesProfile</string>
+							<string key="NSBinding">toolTip</string>
+							<string key="NSKeyPath">selection.GlobalHotkeyWindowUsesProfile</string>
+							<int key="NSNibBindingConnectorVersion">2</int>
+						</object>
+					</object>
+					<int key="connectionID">157</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBBindingConnection" key="connection">
+						<string key="label">toolTip: selection.GlobalHotkeyTogglesWindow</string>
+						<reference key="source" ref="621617256"/>
+						<reference key="destination" ref="141867837"/>
+						<object class="NSNibBindingConnector" key="connector">
+							<reference key="NSSource" ref="621617256"/>
+							<reference key="NSDestination" ref="141867837"/>
+							<string key="NSLabel">toolTip: selection.GlobalHotkeyTogglesWindow</string>
+							<string key="NSBinding">toolTip</string>
+							<string key="NSKeyPath">selection.GlobalHotkeyTogglesWindow</string>
+							<int key="NSNibBindingConnectorVersion">2</int>
+						</object>
+					</object>
+					<int key="connectionID">159</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBBindingConnection" key="connection">
+						<string key="label">toolTip: selection.GlobalHotkeyTrigger</string>
+						<reference key="source" ref="913472215"/>
+						<reference key="destination" ref="141867837"/>
+						<object class="NSNibBindingConnector" key="connector">
+							<reference key="NSSource" ref="913472215"/>
+							<reference key="NSDestination" ref="141867837"/>
+							<string key="NSLabel">toolTip: selection.GlobalHotkeyTrigger</string>
+							<string key="NSBinding">toolTip</string>
+							<string key="NSKeyPath">selection.GlobalHotkeyTrigger</string>
+							<int key="NSNibBindingConnectorVersion">2</int>
+						</object>
+					</object>
+					<int key="connectionID">161</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBBindingConnection" key="connection">
+						<string key="label">toolTip: selection.WindowSwitchNumberModifiers</string>
+						<reference key="source" ref="329620130"/>
+						<reference key="destination" ref="141867837"/>
+						<object class="NSNibBindingConnector" key="connector">
+							<reference key="NSSource" ref="329620130"/>
+							<reference key="NSDestination" ref="141867837"/>
+							<string key="NSLabel">toolTip: selection.WindowSwitchNumberModifiers</string>
+							<string key="NSBinding">toolTip</string>
+							<string key="NSKeyPath">selection.WindowSwitchNumberModifiers</string>
+							<int key="NSNibBindingConnectorVersion">2</int>
+						</object>
+					</object>
+					<int key="connectionID">165</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBBindingConnection" key="connection">
+						<string key="label">toolTip: selection.TabSwitchNumberModifiers</string>
+						<reference key="source" ref="289277373"/>
+						<reference key="destination" ref="141867837"/>
+						<object class="NSNibBindingConnector" key="connector">
+							<reference key="NSSource" ref="289277373"/>
+							<reference key="NSDestination" ref="141867837"/>
+							<string key="NSLabel">toolTip: selection.TabSwitchNumberModifiers</string>
+							<string key="NSBinding">toolTip</string>
+							<string key="NSKeyPath">selection.TabSwitchNumberModifiers</string>
+							<int key="NSNibBindingConnectorVersion">2</int>
+						</object>
+					</object>
+					<int key="connectionID">167</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBBindingConnection" key="connection">
+						<string key="label">toolTip: selection.RightCmdMappedAs</string>
+						<reference key="source" ref="62267735"/>
+						<reference key="destination" ref="141867837"/>
+						<object class="NSNibBindingConnector" key="connector">
+							<reference key="NSSource" ref="62267735"/>
+							<reference key="NSDestination" ref="141867837"/>
+							<string key="NSLabel">toolTip: selection.RightCmdMappedAs</string>
+							<string key="NSBinding">toolTip</string>
+							<string key="NSKeyPath">selection.RightCmdMappedAs</string>
+							<int key="NSNibBindingConnectorVersion">2</int>
+						</object>
+					</object>
+					<int key="connectionID">170</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBBindingConnection" key="connection">
+						<string key="label">toolTip: selection.LeftCmdMappedAs</string>
+						<reference key="source" ref="690970636"/>
+						<reference key="destination" ref="141867837"/>
+						<object class="NSNibBindingConnector" key="connector">
+							<reference key="NSSource" ref="690970636"/>
+							<reference key="NSDestination" ref="141867837"/>
+							<string key="NSLabel">toolTip: selection.LeftCmdMappedAs</string>
+							<string key="NSBinding">toolTip</string>
+							<string key="NSKeyPath">selection.LeftCmdMappedAs</string>
+							<int key="NSNibBindingConnectorVersion">2</int>
+						</object>
+					</object>
+					<int key="connectionID">173</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBBindingConnection" key="connection">
+						<string key="label">toolTip: selection.RightOptionMappedAs</string>
+						<reference key="source" ref="952638649"/>
+						<reference key="destination" ref="141867837"/>
+						<object class="NSNibBindingConnector" key="connector">
+							<reference key="NSSource" ref="952638649"/>
+							<reference key="NSDestination" ref="141867837"/>
+							<string key="NSLabel">toolTip: selection.RightOptionMappedAs</string>
+							<string key="NSBinding">toolTip</string>
+							<string key="NSKeyPath">selection.RightOptionMappedAs</string>
+							<int key="NSNibBindingConnectorVersion">2</int>
+						</object>
+					</object>
+					<int key="connectionID">175</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBBindingConnection" key="connection">
+						<string key="label">toolTip: selection.LeftOptionMappedAs</string>
+						<reference key="source" ref="286070719"/>
+						<reference key="destination" ref="141867837"/>
+						<object class="NSNibBindingConnector" key="connector">
+							<reference key="NSSource" ref="286070719"/>
+							<reference key="NSDestination" ref="141867837"/>
+							<string key="NSLabel">toolTip: selection.LeftOptionMappedAs</string>
+							<string key="NSBinding">toolTip</string>
+							<string key="NSKeyPath">selection.LeftOptionMappedAs</string>
+							<int key="NSNibBindingConnectorVersion">2</int>
+						</object>
+					</object>
+					<int key="connectionID">178</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBBindingConnection" key="connection">
+						<string key="label">toolTip: selection.ControlMappedAs</string>
+						<reference key="source" ref="361064384"/>
+						<reference key="destination" ref="141867837"/>
+						<object class="NSNibBindingConnector" key="connector">
+							<reference key="NSSource" ref="361064384"/>
+							<reference key="NSDestination" ref="141867837"/>
+							<string key="NSLabel">toolTip: selection.ControlMappedAs</string>
+							<string key="NSBinding">toolTip</string>
+							<string key="NSKeyPath">selection.ControlMappedAs</string>
+							<int key="NSNibBindingConnectorVersion">2</int>
+						</object>
+					</object>
+					<int key="connectionID">180</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBBindingConnection" key="connection">
+						<string key="label">value: selection.GlobalHotkeyEnabled</string>
+						<reference key="source" ref="204308684"/>
+						<reference key="destination" ref="206001869"/>
+						<object class="NSNibBindingConnector" key="connector">
+							<reference key="NSSource" ref="204308684"/>
+							<reference key="NSDestination" ref="206001869"/>
+							<string key="NSLabel">value: selection.GlobalHotkeyEnabled</string>
+							<string key="NSBinding">value</string>
+							<string key="NSKeyPath">selection.GlobalHotkeyEnabled</string>
+							<int key="NSNibBindingConnectorVersion">2</int>
+						</object>
+					</object>
+					<int key="connectionID">181</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBBindingConnection" key="connection">
+						<string key="label">toolTip: selection.GlobalHotkeyEnabled</string>
+						<reference key="source" ref="204308684"/>
+						<reference key="destination" ref="141867837"/>
+						<object class="NSNibBindingConnector" key="connector">
+							<reference key="NSSource" ref="204308684"/>
+							<reference key="NSDestination" ref="141867837"/>
+							<string key="NSLabel">toolTip: selection.GlobalHotkeyEnabled</string>
+							<string key="NSBinding">toolTip</string>
+							<string key="NSKeyPath">selection.GlobalHotkeyEnabled</string>
+							<int key="NSNibBindingConnectorVersion">2</int>
+						</object>
+					</object>
+					<int key="connectionID">182</int>
+				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
 				<object class="NSArray" key="orderedObjects">
@@ -1472,7 +1898,6 @@
 							<reference ref="86425842"/>
 							<reference ref="161874048"/>
 							<reference ref="452934697"/>
-							<reference ref="583853085"/>
 							<reference ref="495485126"/>
 							<reference ref="294564065"/>
 							<reference ref="694765513"/>
@@ -1485,14 +1910,15 @@
 							<reference ref="286070719"/>
 							<reference ref="110386599"/>
 							<reference ref="361064384"/>
-							<reference ref="342969406"/>
-							<reference ref="485211950"/>
-							<reference ref="35384352"/>
 							<reference ref="923278509"/>
 							<reference ref="318519814"/>
 							<reference ref="452269733"/>
 							<reference ref="493293006"/>
 							<reference ref="85025088"/>
+							<reference ref="35384352"/>
+							<reference ref="485211950"/>
+							<reference ref="583853085"/>
+							<reference ref="342969406"/>
 						</object>
 						<reference key="parent" ref="1002"/>
 					</object>
@@ -2270,6 +2696,18 @@
 						<reference key="object" ref="55861121"/>
 						<reference key="parent" ref="21565171"/>
 					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">127</int>
+						<reference key="object" ref="206001869"/>
+						<reference key="parent" ref="1002"/>
+						<string key="objectName">Values Controller</string>
+					</object>
+					<object class="IBObjectRecord">
+						<int key="objectID">128</int>
+						<reference key="object" ref="141867837"/>
+						<reference key="parent" ref="1002"/>
+						<string key="objectName">Tooltip Controller</string>
+					</object>
 				</object>
 			</object>
 			<object class="NSMutableDictionary" key="flattenedProperties">
@@ -2292,11 +2730,17 @@
 					<string>108.IBPluginDependency</string>
 					<string>109.IBPluginDependency</string>
 					<string>11.IBPluginDependency</string>
+					<string>11.IBViewIntegration.shadowBlurRadius</string>
+					<string>11.IBViewIntegration.shadowColor</string>
+					<string>11.IBViewIntegration.shadowOffsetHeight</string>
+					<string>11.IBViewIntegration.shadowOffsetWidth</string>
 					<string>110.IBEditorWindowLastContentRect</string>
 					<string>110.IBPluginDependency</string>
 					<string>111.IBPluginDependency</string>
 					<string>12.IBPluginDependency</string>
 					<string>12.IBViewBoundsToFrameTransform</string>
+					<string>127.IBPluginDependency</string>
+					<string>128.IBPluginDependency</string>
 					<string>13.IBPluginDependency</string>
 					<string>13.IBViewBoundsToFrameTransform</string>
 					<string>14.IBPluginDependency</string>
@@ -2311,6 +2755,9 @@
 					<string>18.IBViewBoundsToFrameTransform</string>
 					<string>19.IBPluginDependency</string>
 					<string>19.IBViewBoundsToFrameTransform</string>
+					<string>2.IBEditorWindowLastContentRect</string>
+					<string>2.IBPluginDependency</string>
+					<string>2.IBViewEditorWindowController.showingLayoutRectangles</string>
 					<string>20.IBPluginDependency</string>
 					<string>20.IBViewBoundsToFrameTransform</string>
 					<string>21.IBPluginDependency</string>
@@ -2456,13 +2903,19 @@
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{543, 396}, {302, 23}}</string>
+					<real value="0.000000e+00"/>
+					<reference ref="844344822"/>
+					<real value="0.000000e+00"/>
+					<real value="0.000000e+00"/>
+					<string>{{62, 419}, {293, 23}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<object class="NSAffineTransform">
 						<bytes key="NSTransformStruct">P4AAAL+AAABBiAAAww0AAA</bytes>
 					</object>
+					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
+					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<object class="NSAffineTransform">
 						<bytes key="NSTransformStruct">P4AAAL+AAABBiAAAw0wAAA</bytes>
@@ -2491,6 +2944,9 @@
 					<object class="NSAffineTransform">
 						<bytes key="NSTransformStruct">P4AAAL+AAABDIwAAw7WAAA</bytes>
 					</object>
+					<string>{{276, 450}, {782, 400}}</string>
+					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
+					<boolean value="YES" id="5"/>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<object class="NSAffineTransform">
 						<bytes key="NSTransformStruct">P4AAAL+AAABDIwAAw5AAAA</bytes>
@@ -2519,7 +2975,7 @@
 					<object class="NSAffineTransform">
 						<bytes key="NSTransformStruct">P4AAAL+AAABDrIAAwoAAAA</bytes>
 					</object>
-					<boolean value="YES" id="5"/>
+					<reference ref="5"/>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<object class="NSAffineTransform">
 						<bytes key="NSTransformStruct">P4AAAL+AAABDooAAwoAAAA</bytes>
@@ -2580,7 +3036,7 @@
 					</object>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{267, 388}, {194, 103}}</string>
+					<string>{{431, 717}, {197, 103}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -2613,7 +3069,7 @@
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{267, 313}, {194, 103}}</string>
+					<string>{{431, 642}, {197, 103}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -2625,7 +3081,7 @@
 						<bytes key="NSTransformStruct">P4AAAL+AAABCnAAAwx0AAA</bytes>
 					</object>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{267, 388}, {194, 103}}</string>
+					<string>{{431, 616}, {197, 103}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -2633,7 +3089,7 @@
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{320, 446}, {80, 63}}</string>
+					<string>{{198, 542}, {83, 63}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -2643,7 +3099,7 @@
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{196, 367}, {157, 63}}</string>
+					<string>{{198, 512}, {83, 63}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -2673,7 +3129,7 @@
 				</object>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">126</int>
+			<int key="maxID">182</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -2688,15 +3144,27 @@
 				<object class="IBPartialClassDescription">
 					<string key="className">PreferencesGlobalKeybindingsHelper</string>
 					<string key="superclassName">NSViewController</string>
+					<object class="NSMutableDictionary" key="outlets">
+						<string key="NS.key.0">model_</string>
+						<string key="NS.object.0">PreferencesModel</string>
+					</object>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
 						<string key="minorKey">Prefs/PreferencesGlobalKeybindingsHelper.h</string>
 					</object>
 				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">PreferencesModel</string>
+					<string key="superclassName">NSObject</string>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">Prefs/PreferencesModel.h</string>
+					</object>
+				</object>
 			</object>
 		</object>
 		<int key="IBDocument.localizationMode">0</int>
-		<string key="IBDocument.LastKnownRelativeProjectPath">iTerm.xcodeproj</string>
+		<string key="IBDocument.LastKnownRelativeProjectPath">../iTerm.xcodeproj</string>
 		<int key="IBDocument.defaultPropertyAccessControl">3</int>
 	</data>
 </archive>
