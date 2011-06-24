@@ -96,6 +96,14 @@
     [self updateAllModelValues];
 }
 
+- (void)migratePreferences
+{
+    PreferencesMigrator *migrationHandler = [[PreferencesMigrator alloc] init];
+    if ([migrationHandler preferencesRequireMigration]) {
+        [migrationHandler migratePreferences];
+    }
+}
+
 - (void)updateAllModelValues
 {
     NSLog(@"PMODEL: Updating all Model Values");

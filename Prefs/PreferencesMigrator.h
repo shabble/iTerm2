@@ -34,7 +34,8 @@
     
 }
 
-+ (BOOL) migratePreferences;
+- (BOOL) migratePreferences;
+- (BOOL) preferencesRequireMigration;
 
 @end
 

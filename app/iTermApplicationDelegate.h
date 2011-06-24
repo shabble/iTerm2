@@ -47,8 +47,6 @@ extern BOOL gDebugLogging;
 void DebugLog(NSString* value);
 
 @interface iTermAboutWindow : NSPanel
-{
-}
 
 - (IBAction)closeCurrentSession:(id)sender;
 
@@ -60,9 +58,9 @@ void DebugLog(NSString* value);
     NSWindowController *aboutController;
     IBOutlet id ABOUT;
     IBOutlet NSTextView *AUTHORS;
-/*    
+    
     // Menu items
-    IBOutlet NSMenu     *bookmarkMenu;
+    IBOutlet NSMenu     *profilesMenu_;
     IBOutlet NSMenuItem *selectTab;
     IBOutlet NSMenuItem *previousTerminal;
     IBOutlet NSMenuItem *nextTerminal;
@@ -74,7 +72,7 @@ void DebugLog(NSString* value);
     IBOutlet NSMenuItem *toggleBookmarksView;
     IBOutlet NSMenuItem *irNext;
     IBOutlet NSMenuItem *irPrev;
-*/
+
     IBOutlet NSMenuItem *secureInput;
     IBOutlet NSMenuItem *useTransparency;
     IBOutlet NSMenuItem *maximizePane;
@@ -85,32 +83,34 @@ void DebugLog(NSString* value);
 
 }
 
+@property (nonatomic,readwrite,assign) NSMenu *profilesMenu;
+
 - (void)awakeFromNib;
+
+- (IBAction)debugLogging:(id)sender;
+- (IBAction)showAboutWindow:(id)sender;
+- (IBAction)showPrefWindow:(id)sender;
+
+@end
+
+@interface iTermApplicationDelegate (ApplicationDelegate)
 
 // NSApplication Delegate methods
 - (void)applicationWillFinishLaunching:(NSNotification *)aNotification;
 - (BOOL)applicationShouldTerminate: (NSNotification *) theNotification;
 - (BOOL)application:(NSApplication *)theApplication openFile:(NSString *)filename;
-
-//- (NSMenu*)bookmarksMenu;
-
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)app;
-
 - (BOOL)applicationShouldHandleReopen:(NSApplication *)theApplication hasVisibleWindows:(BOOL)flag;
+
+@end
+
+@interface iTermApplicationDelegate (Notifications)
+// Notifications
+- (void)reloadMenus:(NSNotification*)aNotification;
+- (void)nonTerminalWindowBecameKey:(NSNotification *)aNotification;
 
 - (void)applicationDidBecomeActive:(NSNotification *)aNotification;
 - (void)applicationDidResignActive:(NSNotification *)aNotification;
-
-
-- (IBAction)debugLogging:(id)sender;
-
-    // About window
-- (IBAction)showAbout:(id)sender;
-- (IBAction)showPrefWindow:(id)sender;
-
-// Notifications
-- (void)reloadMenus: (NSNotification *) aNotification;
-- (void)nonTerminalWindowBecameKey: (NSNotification *) aNotification;
 
 // font control
 

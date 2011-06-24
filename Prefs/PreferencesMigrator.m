@@ -32,11 +32,11 @@
 @implementation PreferencesMigrator
 
 /*
- Static method to copy old preferences file, iTerm.plist or net.sourceforge.iTerm.plist, to new
- preferences file, com.googlecode.iterm2.plist
+ copy old preferences file, iTerm.plist or net.sourceforge.iTerm.plist, to new
+ preferences file, com.googlecode.iterm2.plist (or even newer one: com.iterm2.iterm2.plist?)
  */
 
-+ (BOOL) migratePreferences {
+- (BOOL) migratePreferences {
 
     NSString *prefDir = [[[NSHomeDirectory()
     stringByAppendingPathComponent:@"tmp"]
@@ -66,5 +66,10 @@
     [NSUserDefaults resetStandardUserDefaults];
     return YES;
 }
- 
+
+- (BOOL)preferencesRequireMigration
+{
+    return NO; /* TODO: Fix me */
+}
+
 @end

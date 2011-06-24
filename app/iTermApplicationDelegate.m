@@ -47,11 +47,12 @@ int gDebugLogFile = -1;
 
 @implementation iTermAboutWindow
 
-
 + (void)initialize
 {
+    /* register our custom ValueTransformers as early as possible */
     [NSValueTransformer setValueTransformer:[[StringIntValueTransformer new] autorelease]
                                     forName:@"intFromString"];
+    [super initialize];
 }
 
 
@@ -65,27 +66,28 @@ int gDebugLogFile = -1;
 
 @implementation iTermApplicationDelegate
 
+@synthesize profilesMenu=profilesMenu_;
+
 // NSApplication delegate methods
 - (void)applicationWillFinishLaunching:(NSNotification *)aNotification
 {
     // Check the system version for minimum requirements.
     SInt32 gSystemVersion;
     Gestalt(gestaltSystemVersion, &gSystemVersion);
-    if(gSystemVersion < 0x1020)
-    {
-                NSRunAlertPanel(NSLocalizedStringFromTableInBundle(@"Sorry",@"iTerm", [NSBundle bundleForClass: [iTermController class]], @"Sorry"),
-                         NSLocalizedStringFromTableInBundle(@"Minimum_OS", @"iTerm", [NSBundle bundleForClass: [iTermController class]], @"OS Version"),
-                        NSLocalizedStringFromTableInBundle(@"Quit",@"iTerm", [NSBundle bundleForClass: [iTermController class]], @"Quit"),
-                         nil, nil);
-                [NSApp terminate: self];
+
+    if(gSystemVersion < 0x1050) { /* I presume this is 10.5 */
+        NSRunAlertPanel(@"Sorry", @"This application requires OS X 10.5 (Leopard) or above", @"Quit", nil, nil);
+        [NSApp terminate: self];
     }
 
-    // set the TERM_PROGRAM environment variable
+    /* set the TERM_PROGRAM environment variable */
     putenv("TERM_PROGRAM=iTerm.app");
     NSLog(@"WillFinishLaunching");
 
-        // read preferences
-    //[PreferencePanelController migratePreferences];
+    /* read preferences, upgrading from old configs if necessary */
+    [[PreferencesModel sharedInstance] migratePreferences];
+
+    /* Instantiate Root Controllers */
     [ProfileManager sharedInstance];
     [PreferencePanelController sharedInstance];
 }
@@ -435,12 +437,11 @@ void DebugLog(NSString* value)
  
 /// About window
 
-- (NSAttributedString *)_linkTo:(NSString *)urlString title:(NSString *)title
+- (NSAttributedString*)_linkTo:(NSString*)urlString title:(NSString*)title
 {
-    NSDictionary *linkAttributes = [NSDictionary dictionaryWithObject:[NSURL URLWithString:urlString]
-                                                               forKey:NSLinkAttributeName];
-    NSString *localizedTitle = NSLocalizedStringFromTableInBundle(title, @"iTerm",
-                                                                  [NSBundle bundleForClass:[self class]],
+    NSDictionary *linkAttributes 
+        = [NSDictionary dictionaryWithObject:[NSURL URLWithString:urlString] forKey:NSLinkAttributeName];
+    NSString *localizedTitle = NSLocalizedStringFromTableInBundle(title, @"iTerm", [NSBundle bundleForClass:[self class]],
                                                                   @"About");
 
     NSAttributedString *string = [[NSAttributedString alloc] initWithString:localizedTitle
@@ -449,27 +450,29 @@ void DebugLog(NSString* value)
 }
 
 
-- (IBAction)showAbout:(id)sender
+- (IBAction)showAboutWindow:(id)sender
 {
-    // check if an About window is shown already
+    /* check if an About window is shown already */
     if (aboutController) {
         [aboutController showWindow:self];
         return;
     }
+    
     NSDictionary *myDict = [[NSBundle bundleForClass:[self class]] infoDictionary];
     NSString *versionString = [NSString stringWithFormat: @"Build %@\n\n", [myDict objectForKey:@"CFBundleVersion"]];
 
-    NSAttributedString *webAString = [self _linkTo:@"http://iterm2.com/" title:@"Home Page\n"];
-    NSAttributedString *bugsAString = [self _linkTo:@"http://code.google.com/p/iterm2/issues/entry" title:@"Report a bug\n\n"];
+    NSAttributedString *webAString     = [self _linkTo:@"http://iterm2.com/" title:@"Home Page\n"];
+    NSAttributedString *bugsAString    = [self _linkTo:@"http://code.google.com/p/iterm2/issues/entry" title:@"Report a bug\n\n"];
     NSAttributedString *creditsAString = [self _linkTo:@"http://code.google.com/p/iterm2/wiki/Credits" title:@"Credits"];
 
-    NSDictionary *linkTextViewAttributes = [NSDictionary dictionaryWithObjectsAndKeys:
-        [NSNumber numberWithInt: NSSingleUnderlineStyle], NSUnderlineStyleAttributeName,
-        [NSColor blueColor], NSForegroundColorAttributeName,
-        [NSCursor pointingHandCursor], NSCursorAttributeName,
-        NULL];
+    NSDictionary *linkTextViewAttributes
+        = [NSDictionary dictionaryWithObjectsAndKeys:
+            [NSNumber numberWithInt: NSSingleUnderlineStyle], NSUnderlineStyleAttributeName,
+            [NSColor blueColor], NSForegroundColorAttributeName,
+            [NSCursor pointingHandCursor], NSCursorAttributeName,
+          nil];
 
-    [AUTHORS setLinkTextAttributes: linkTextViewAttributes];
+    [AUTHORS setLinkTextAttributes:linkTextViewAttributes];
     [[AUTHORS textStorage] deleteCharactersInRange: NSMakeRange(0, [[AUTHORS textStorage] length])];
     [[AUTHORS textStorage] appendAttributedString:[[[NSAttributedString alloc] initWithString:versionString] autorelease]];
     [[AUTHORS textStorage] appendAttributedString: webAString];

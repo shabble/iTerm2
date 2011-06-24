@@ -73,6 +73,7 @@ typedef enum { CURSOR_UNDERLINE, CURSOR_VERTICAL, CURSOR_BOX } ITermCursorType;
 - (void)resetToFactoryDefaults;
 - (void)saveToUserPreferences;
 - (void)loadFromUserPreferences;
+- (void)migratePreferences;
 
 - (void)updateAllModelValues;
 - (void)configureUserDefaults;
