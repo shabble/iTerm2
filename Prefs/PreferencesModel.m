@@ -30,7 +30,10 @@
 @implementation PreferencesModel
 
 @synthesize userDefaultsController=userDefaultsController_;
-@synthesize validKeys=validKeys_;
+@synthesize preferenceKeys=preferenceKeys_;
+@synthesize toolTips=tooltips_;
+@synthesize defaultValues=defaultValues_;
+
 
 + (PreferencesModel*)sharedInstance;
 {
@@ -46,8 +49,16 @@
 - (id)init
 {
     if ((self = [super init])) {
-        NSString *preferencesSchemaPath = [[NSBundle mainBundle] pathForResource:@"UserPreferenceSchema" ofType:@"plist"];
-        [self loadSchemaFromFile:preferencesSchemaPath];
+        NSString *preferencesSchemaPath = [[NSBundle mainBundle]
+                                           pathForResource:@"UserPreferenceSchema" 
+                                           ofType:@"plist"];
+
+        // TODO: do we even need to store schema? Could throw it away after this parse.
+        schema_ = [[PreferencesSchema alloc] initWithSchemaFromFile:preferencesSchemaPath];
+        self.preferenceKeys = [schema_ preferenceKeysSet];
+        self.toolTips       = [schema_ tooltipsDictionary];
+        self.defaultValues  = [schema_ defaultValuesDictionary];
+
         resetInProgress_ = NO;
         self.userDefaultsController = [NSUserDefaultsController sharedUserDefaultsController];
         [self configureUserDefaults];
@@ -58,60 +69,45 @@
 - (void)dealloc
 {
     [self saveToUserPreferences];
-    [self.validKeys release];
+    [self.preferenceKeys release];
+    [self.defaultValues  release];
+    [self.toolTips       release];
+
+    [schema_ release];
+    
     [super dealloc];
 }
 
-- (void)loadSchemaFromFile:(NSString*)theFile
-{
-    NSLog(@"Schema Filename: %@", theFile);
-    NSDictionary *schemaDict = [NSDictionary dictionaryWithContentsOfFile:theFile];
-    NSMutableSet *keys = [[NSMutableSet alloc] init];
-    NSAssert(schemaDict != nil, @"User Preferences Schema is not nil");
-    // TODO: Abstract these further? To #defines?
-    NSArray *categories = [NSArray arrayWithObjects:@"General", @"Appearance", @"Profiles", @"GlobalKeyBinds", nil];
-    for (NSString *categoryName in categories) {
-        NSLog(@"processing category: %@", categoryName);
-        NSDictionary *categoryDict = (NSDictionary *)[schemaDict valueForKey:categoryName];
-        //NSLog(@" dict: %@ keys are: %@", categoryDict, [categoryDict allKeys]);
-        [keys addObjectsFromArray:[categoryDict allKeys]];
-    }
-    self.validKeys = [[NSSet alloc] initWithSet:keys];
-    NSLog(@"Keys loaded from schema: %@", self.validKeys);
-    [keys release];
-}
 
 - (void)configureUserDefaults
 {
-    NSString       *userDefaultsValuesPath;
-    NSDictionary   *userDefaultsValuesDict;
     NSUserDefaults *defaults;
     
 //    [self.userDefaultsController setAppliesImmediately:NO];
     [self.userDefaultsController setAppliesImmediately:YES];
     
-    // load the default values for the user defaults
-    userDefaultsValuesPath = [[NSBundle mainBundle] pathForResource:@"AppDefaults"
+    // TODO: dump this in favour of schema defaults.
+/*    userDefaultsValuesPath = [[NSBundle mainBundle] pathForResource:@"AppDefaults"
                                                              ofType:@"plist"];
     userDefaultsValuesDict
     = [NSDictionary dictionaryWithContentsOfFile:userDefaultsValuesPath];
-    
+
     NSLog(@"PMODEL: configuring UserDefaults from %@", userDefaultsValuesPath);
-    
+*/    
     // set them in the standard user defaults
     defaults = [self.userDefaultsController defaults];
     //[defaults setPersistentDomain:userDefaultsValuesDict forName:self.preferencesDomain];
-    [defaults registerDefaults:userDefaultsValuesDict];
-    [self.userDefaultsController setInitialValues:userDefaultsValuesDict];
+    [defaults registerDefaults:self.defaultValues];
+    [self.userDefaultsController setInitialValues:self.defaultValues];
     [self updateAllModelValues];
 }
 
 - (void)updateAllModelValues
 {
     NSLog(@"PMODEL: Updating all Model Values");
-    id prefs = [self prefs];
-    for (NSString *str in [validKeys_ allObjects]) {
-        id value = [prefs valueForKey:str];
+    id values = [self values];
+    for (NSString *str in [preferenceKeys_ allObjects]) {
+        id value = [values valueForKey:str];
         NSLog(@"setting %@ to %@", str, value);
         [self setValue:value forKey:str];
     }
@@ -130,13 +126,13 @@
 
 - (void)saveToUserPreferences
 {
-    NSLog(@"MODEL: save to user prefs");
+    NSLog(@"MODEL: save to user preferences");
     [self.userDefaultsController save:self];
 }
 
 - (void)loadFromUserPreferences
 {
-    NSLog(@"MODEL: load from user prefs");
+    NSLog(@"MODEL: load from user preferences");
     
     NSString *domain = [[NSBundle mainBundle] bundleIdentifier];
     NSLog(@"bundle: %@", domain);
@@ -150,7 +146,7 @@
     resetInProgress_ = NO;
 }
 
-- (id)prefs
+- (id)values
 {
     return [self.userDefaultsController values];
 }
@@ -166,30 +162,36 @@
 
 - (id)valueForKey:(NSString*)key;
 {
-    if ([validKeys_ containsObject:key]) {
-        return [[self prefs] valueForKey:key];
-    } else if ([key isEqual:@"self"]) {
-        // necessary for the NSObjectController bindings.
+    if ([preferenceKeys_ containsObject:key]) {
+        return [[self values] valueForKey:key];        
+    }
+    
+    /* special cases which redirect to the appropriate accessors */
+    if ([key isEqual:@"toolTips"]) {
+        return self.toolTips;
+    }
+
+    /* access to self is necessary for the NSObjectController bindings. */
+    if ([key isEqual:@"self"]) {
         NSLog(@"PMODEL: Self requested");
         return self;
-    } else {
-        return [self valueForUndefinedKey:key];
     }
-    return nil;
+    
+    return [self valueForUndefinedKey:key];
 }
 
 - (void)setValue:(id)value forKey:(NSString *)key
 {
     NSLog(@"setValue: %@ ForKey: %@", value, key);
-    if ([validKeys_ containsObject:key]) {
+    if ([preferenceKeys_ containsObject:key]) {
         NSLog(@"key: %@ is valid", key);
-        id originalValue = [[self prefs] valueForKey:key];
+        id originalValue = [[self values] valueForKey:key];
         if ([originalValue isEqual:value] && ! resetInProgress_) {
             return;
         }
         NSLog(@"Values differ, going to update");
         [self willChangeValueForKey:key];
-        [[self prefs] setValue:value forKey:key];
+        [[self values] setValue:value forKey:key];
         [self didChangeValueForKey:key];
     } else {
         NSLog(@"Invalid key: %@", key);
