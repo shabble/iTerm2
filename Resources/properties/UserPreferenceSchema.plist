@@ -12,7 +12,108 @@
     </dict>
 
 	<key>GlobalKeyBinds</key>
-	<dict/>
+	<dict>
+		<key>ControlMappedAs</key>
+		<dict>
+			<key>default</key>
+            <integer>1</integer>
+			<key>tooltip</key>
+			<string>TODO</string>
+			<key>comments</key>
+			<string>1: Ctrl, LOpt: 2, ROpt: 3, LCmd: 7, RCmd: 8</string>
+		</dict>
+		<key>LeftOptionMappedAs</key>
+		<dict>
+			<key>default</key>
+            <integer>2</integer>
+			<key>tooltip</key>
+			<string>TODO</string>
+			<key>comments</key>
+			<string></string>
+		</dict>
+		<key>RightOptionMappedAs</key>
+		<dict>
+			<key>default</key>
+            <integer>3</integer>
+			<key>tooltip</key>
+			<string>TODO</string>
+			<key>comments</key>
+			<string></string>
+		</dict>
+		<key>LeftCmdMappedAs</key>
+		<dict>
+			<key>default</key>
+            <integer>7</integer>
+			<key>tooltip</key>
+			<string>TODO</string>
+			<key>comments</key>
+			<string></string>
+		</dict>
+		<key>RightCmdMappedAs</key>
+		<dict>
+			<key>default</key>
+            <integer>8</integer>
+			<key>tooltip</key>
+			<string>TODO</string>
+			<key>comments</key>
+			<string></string>
+		</dict>
+		<key>TabSwitchNumberModifiers</key>
+		<dict>
+			<key>default</key>
+            <integer>4</integer>
+			<key>tooltip</key>
+			<string>TODO</string>
+			<key>comments</key>
+			<string>Opt: 5, Cmd: 4, Cmd+Opt: 6</string>
+		</dict>
+		<key>WindowSwitchNumberModifiers</key>
+		<dict>
+			<key>default</key>
+            <integer>6</integer>
+			<key>tooltip</key>
+			<string>TODO</string>
+			<key>comments</key>
+			<string></string>
+		</dict>
+		<key>GlobalHotkeyEnabled</key>
+		<dict>
+			<key>default</key>
+            <false />
+			<key>tooltip</key>
+			<string>TODO</string>
+			<key>comments</key>
+			<string></string>
+		</dict>
+		<key>GlobalHotkeyTrigger</key>
+		<dict>
+			<key>default</key>
+            <string>2</string>
+			<key>tooltip</key>
+			<string>TODO</string>
+			<key>comments</key>
+			<string></string>
+		</dict>
+		<key>GlobalHotkeyTogglesWindow</key>
+		<dict>
+			<key>default</key>
+            <true />
+			<key>tooltip</key>
+			<string>TODO</string>
+			<key>comments</key>
+			<string></string>
+		</dict>
+		<key>GlobalHotkeyWindowUsesProfile</key>
+		<dict>
+			<key>default</key>
+            <string></string>
+			<key>tooltip</key>
+			<string>TODO</string>
+			<key>comments</key>
+			<string></string>
+		</dict>
+
+	</dict>
 
 	<key>Profiles</key>
 	<dict/>
