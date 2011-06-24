@@ -47,16 +47,24 @@ typedef enum { CURSOR_UNDERLINE, CURSOR_VERTICAL, CURSOR_BOX } ITermCursorType;
 #import "../Profiles/ProfileModel.h"
 #import "../Profiles/ProfilesListView.h"
 #import "../Misc/NSUserDefaults+NSColorSupport.h"
+#import "PreferencesSchema.h"
+#import "PreferencesMigrator.h"
 
 @interface PreferencesModel : NSObject {
     
     NSUserDefaultsController *userDefaultsController_;
-    NSSet *validKeys_;
+    PreferencesSchema        *schema_;
+    NSSet                    *preferenceKeys_;
+    NSDictionary             *tooltips_;
+    NSDictionary             *defaultValues_;
+    
     BOOL  resetInProgress_;
 }
 
 @property (nonatomic,readwrite,assign) NSUserDefaultsController *userDefaultsController;
-@property (nonatomic,readwrite,assign) NSSet *validKeys;
+@property (nonatomic,readwrite,retain) NSSet        *preferenceKeys;
+@property (nonatomic,readwrite,retain) NSDictionary *toolTips;
+@property (nonatomic,readwrite,retain) NSDictionary *defaultValues;
 
 + (PreferencesModel*)sharedInstance;
 
@@ -69,10 +77,8 @@ typedef enum { CURSOR_UNDERLINE, CURSOR_VERTICAL, CURSOR_BOX } ITermCursorType;
 - (void)updateAllModelValues;
 - (void)configureUserDefaults;
 
-- (id)prefs;
+- (id)values;
 - (NSDictionary*)initialValues;
-
-- (void)loadSchemaFromFile:(NSString*)theFile;
 
 @end
 
