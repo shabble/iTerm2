@@ -2,50 +2,223 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+
+    <key>Metadata</key>
+    <dict>
+        <key>ConfigVersion</key>
+        <integer>1</integer>
+        <key>UserConfigVersion</key>
+        <integer>1</integer>
+    </dict>
+
 	<key>GlobalKeyBinds</key>
 	<dict/>
+
 	<key>Profiles</key>
 	<dict/>
+
 	<key>Appearance</key>
 	<dict/>
+
 	<key>General</key>
 	<dict>
-		<key>defaultString</key>
+        <!-- col 1 -->
+
+		<key>OpenProfilesWinAtStartup</key>
 		<dict>
-			<key>type</key>
-			<string>string</string>
-			<key>tooltip</key>
-			<string>some horses?</string>
-			<key>comments</key>
-			<string>no</string>
-		</dict>
-		<key>defaultOpenProfile</key>
-		<dict>
-			<key>type</key>
-			<string>boolean</string>
+			<key>default</key>
+            <false />
 			<key>tooltip</key>
 			<string>Open Profiles window each time iTerm starts</string>
 			<key>comments</key>
 			<string>none</string>
 		</dict>
-		<key>defaultQuitWhenAllWindowsClosed</key>
+		<key>OpenWinArrangementAtStartup</key>
 		<dict>
-			<key>type</key>
-			<string>boolean</string>
+			<key>default</key>
+            <true />
+			<key>tooltip</key>
+			<string>Open last saved window configuration on startup?</string>
+			<key>comments</key>
+			<string>none</string>
+		</dict>
+		<key>QuitWhenAllWindowsClosed</key>
+		<dict>
+			<key>default</key>
+            <true />
 			<key>tooltip</key>
 			<string>Should iTerm quit when all the terminal windows have been closed?</string>
 			<key>comments</key>
 			<string>none</string>
 		</dict>
-		<key>defaultOpenArrangementAtStartup</key>
+
+		<key>ConfirmSessionCloseCommands</key>
 		<dict>
-			<key>type</key>
-			<string>boolean</string>
+			<key>default</key>
+            <true />
 			<key>tooltip</key>
-			<string>Open saved window configuration on startup?</string>
+			<string></string>
 			<key>comments</key>
 			<string>none</string>
 		</dict>
+		<key>ConfirmMultipleSessionCloseCommands</key>
+		<dict>
+			<key>default</key>
+            <true />
+			<key>tooltip</key>
+			<string></string>
+			<key>comments</key>
+			<string>none</string>
+		</dict>
+		<key>ConfirmCmdQCommand</key>
+		<dict>
+			<key>default</key>
+            <true />
+			<key>tooltip</key>
+			<string></string>
+			<key>comments</key>
+			<string>none</string>
+		</dict>
+		<key>SmartWindowPlacement</key>
+		<dict>
+			<key>default</key>
+            <true />
+			<key>tooltip</key>
+			<string>Place new windows intelligently</string>
+			<key>comments</key>
+			<string>TODO: better tooltip</string>
+		</dict>
+		<key>ZoomButtonVerticalOnly</key>
+		<dict>
+			<key>default</key>
+            <false />
+			<key>tooltip</key>
+			<string>Should the zoom function only increase the number of rows
+			in your terminal, or fit it to the whole screen?</string>
+			<key>comments</key>
+			<string>none</string>
+		</dict>
+		<key>CanChangeSpacesAfterHotkeyWin</key>
+		<dict>
+			<key>default</key>
+            <false />
+			<key>tooltip</key>
+			<string>Allows focus to be returned to the previous application
+			even if it was on another Space.</string>
+			<key>comments</key>
+			<string>none</string>
+		</dict>
+		<key>InstantReplaySessionDataSize</key>
+		<dict>
+			<key>default</key>
+			<integer>4</integer>
+			<key>tooltip</key>
+			<string>
+              Maximum size of data stored for Instant Replay for each session
+            </string>
+			<key>comments</key>
+			<string>Is this RAM or Disk space?</string>
+		</dict>
+		<key>SaveCopyPasteHistory</key>
+		<dict>
+			<key>default</key>
+            <true />
+			<key>tooltip</key>
+			<string>Determines whether iTerm will save your Copy/Paste history
+			to a file or not.</string>
+			<key>comments</key>
+			<string>none</string>
+		</dict>
+        <!-- col 2 -->
+		<key>MouseCopiesOnSelect</key>
+		<dict>
+			<key>default</key>
+            <true />
+			<key>tooltip</key>
+			<string>Automatically copy text highlighted by the mouse</string>
+			<key>comments</key>
+			<string>none</string>
+		</dict>
+		<key>FocusFollowsMouse</key>
+		<dict>
+			<key>default</key>
+            <false />
+			<key>tooltip</key>
+			<string>Hovering the mouse over terminals selects them, without
+			having to click</string>
+			<key>comments</key>
+			<string>none</string>
+		</dict>
+		<key>MouseMiddleButtonPastes</key>
+		<dict>
+			<key>default</key>
+            <true />
+			<key>tooltip</key>
+			<string></string>
+			<key>comments</key>
+			<string>TODO: tooltip</string>
+		</dict>
+		<key>CmdClickLaunchesURL</key>
+		<dict>
+			<key>default</key>
+            <true />
+			<key>tooltip</key>
+			<string>Clicking on anything that looks like a URL whilst holding
+			the Cmd key will open it in your default browser</string>
+			<key>comments</key>
+			<string>none</string>
+		</dict>
+		<key>AppHandlesCtrlMouseClick</key>
+		<dict>
+			<key>default</key>
+            <true />
+			<key>tooltip</key>
+			<string>Clicking whilst holding Ctrl is sent to the running
+			application, rather than opening an iTerm context menu</string>
+			<key>comments</key>
+			<string>none</string>
+		</dict>
+		<key>SelectionWordCharacters</key>
+		<dict>
+			<key>default</key>
+            <string></string>
+			<key>tooltip</key>
+			<string>Characters that are included when double-clicking to select
+			a "word"</string>
+			<key>comments</key>
+			<string>none</string>
+		</dict>
+		<key>AddBonjourHostsToProfiles</key>
+		<dict>
+			<key>default</key>
+            <true />
+			<key>tooltip</key>
+			<string></string>
+			<key>comments</key>
+			<string>TODO: tooltip</string>
+		</dict>
+		<key>AutoCheckForUpdates</key>
+		<dict>
+			<key>default</key>
+            <false />
+			<key>tooltip</key>
+			<string>Contacts the iTerm2 website to check for new releases of the
+			software automatically</string>
+			<key>comments</key>
+			<string>none</string>
+		</dict>
+		<key>PromptForTestVersionUpdates</key>
+		<dict>
+			<key>default</key>
+            <true />
+			<key>tooltip</key>
+			<string>Ask for permission before updating to a test version of the
+			application</string>
+			<key>comments</key>
+			<string>none</string>
+		</dict>
+
+
 	</dict>
 	<key>ProfileModel</key>
 	<dict>
