@@ -377,41 +377,7 @@ NSString* kDeleteKeyString = @"0x7f-0x0";
 #pragma mark -
 #pragma mark PENDING
 
-/*
- Static method to copy old preferences file, iTerm.plist or net.sourceforge.iTerm.plist, to new
- preferences file, com.googlecode.iterm2.plist
- */
-/*
-+ (BOOL) migratePreferences {
 
-    NSString *prefDir = [[[NSHomeDirectory()
-                         stringByAppendingPathComponent:@"tmp"]
-                         stringByAppendingPathComponent:@"Library"]
-                         stringByAppendingPathComponent:@"Preferences"];
-
-    NSString *reallyOldPrefs = [prefDir stringByAppendingPathComponent:@"iTerm.plist"];
-    NSString *somewhatOldPrefs = [prefDir stringByAppendingPathComponent:@"net.sourceforge.iTerm.plist"];
-    NSString *newPrefs = [prefDir stringByAppendingPathComponent:@"com.googlecode.iterm2.plist"];
-
-    NSFileManager *mgr = [NSFileManager defaultManager];
-
-    if ([mgr fileExistsAtPath:newPrefs]) {
-        return NO;
-    }
-    NSString* source;
-    if ([mgr fileExistsAtPath:somewhatOldPrefs]) {
-        source = somewhatOldPrefs;
-    } else if ([mgr fileExistsAtPath:reallyOldPrefs]) {
-        source = reallyOldPrefs;
-    } else {
-        return NO;
-    }
-
-    NSLog(@"Preference file migrated");
-    [mgr copyPath:source toPath:newPrefs handler:nil];
-    [NSUserDefaults resetStandardUserDefaults];
-    return (YES);
-}
 
 - (id)initWithDataSource:(ProfileModel*)model userDefaults:(NSUserDefaults*)userDefaults
 {

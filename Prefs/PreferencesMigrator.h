@@ -34,5 +34,7 @@
     
 }
 
++ (BOOL) migratePreferences;
+
 @end
 
