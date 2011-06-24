@@ -800,7 +800,7 @@
 				<bool key="NSEditable">YES</bool>
 				<object class="_NSManagedProxy" key="_NSManagedProxy"/>
 			</object>
-			<object class="NSObjectController" id="198144795">
+			<object class="NSObjectController" id="311842425">
 				<object class="NSMutableArray" key="NSDeclaredKeys">
 					<bool key="EncodedWithXMLCoder">YES</bool>
 					<string>defaultOpenProfile</string>
@@ -1371,10 +1371,10 @@
 				<object class="IBConnectionRecord">
 					<object class="IBBindingConnection" key="connection">
 						<string key="label">contentObject: model.toolTips</string>
-						<reference key="source" ref="198144795"/>
+						<reference key="source" ref="311842425"/>
 						<reference key="destination" ref="1001"/>
 						<object class="NSNibBindingConnector" key="connector">
-							<reference key="NSSource" ref="198144795"/>
+							<reference key="NSSource" ref="311842425"/>
 							<reference key="NSDestination" ref="1001"/>
 							<string key="NSLabel">contentObject: model.toolTips</string>
 							<string key="NSBinding">contentObject</string>
@@ -1388,10 +1388,10 @@
 					<object class="IBBindingConnection" key="connection">
 						<string key="label">toolTip: selection.OpenProfilesWinAtStartup</string>
 						<reference key="source" ref="1019911664"/>
-						<reference key="destination" ref="198144795"/>
+						<reference key="destination" ref="311842425"/>
 						<object class="NSNibBindingConnector" key="connector">
 							<reference key="NSSource" ref="1019911664"/>
-							<reference key="NSDestination" ref="198144795"/>
+							<reference key="NSDestination" ref="311842425"/>
 							<string key="NSLabel">toolTip: selection.OpenProfilesWinAtStartup</string>
 							<string key="NSBinding">toolTip</string>
 							<string key="NSKeyPath">selection.OpenProfilesWinAtStartup</string>
@@ -1404,10 +1404,10 @@
 					<object class="IBBindingConnection" key="connection">
 						<string key="label">toolTip: selection.OpenWinArrangementAtStartup</string>
 						<reference key="source" ref="361661567"/>
-						<reference key="destination" ref="198144795"/>
+						<reference key="destination" ref="311842425"/>
 						<object class="NSNibBindingConnector" key="connector">
 							<reference key="NSSource" ref="361661567"/>
-							<reference key="NSDestination" ref="198144795"/>
+							<reference key="NSDestination" ref="311842425"/>
 							<string key="NSLabel">toolTip: selection.OpenWinArrangementAtStartup</string>
 							<string key="NSBinding">toolTip</string>
 							<string key="NSKeyPath">selection.OpenWinArrangementAtStartup</string>
@@ -1420,10 +1420,10 @@
 					<object class="IBBindingConnection" key="connection">
 						<string key="label">toolTip: selection.QuitWhenAllWindowsClosed</string>
 						<reference key="source" ref="957200148"/>
-						<reference key="destination" ref="198144795"/>
+						<reference key="destination" ref="311842425"/>
 						<object class="NSNibBindingConnector" key="connector">
 							<reference key="NSSource" ref="957200148"/>
-							<reference key="NSDestination" ref="198144795"/>
+							<reference key="NSDestination" ref="311842425"/>
 							<string key="NSLabel">toolTip: selection.QuitWhenAllWindowsClosed</string>
 							<string key="NSBinding">toolTip</string>
 							<string key="NSKeyPath">selection.QuitWhenAllWindowsClosed</string>
@@ -1436,10 +1436,10 @@
 					<object class="IBBindingConnection" key="connection">
 						<string key="label">toolTip: selection.ConfirmSessionCloseCommands</string>
 						<reference key="source" ref="1002976340"/>
-						<reference key="destination" ref="198144795"/>
+						<reference key="destination" ref="311842425"/>
 						<object class="NSNibBindingConnector" key="connector">
 							<reference key="NSSource" ref="1002976340"/>
-							<reference key="NSDestination" ref="198144795"/>
+							<reference key="NSDestination" ref="311842425"/>
 							<string key="NSLabel">toolTip: selection.ConfirmSessionCloseCommands</string>
 							<string key="NSBinding">toolTip</string>
 							<string key="NSKeyPath">selection.ConfirmSessionCloseCommands</string>
@@ -1452,10 +1452,10 @@
 					<object class="IBBindingConnection" key="connection">
 						<string key="label">toolTip: selection.ConfirmMultipleSessionCloseCommands</string>
 						<reference key="source" ref="373736876"/>
-						<reference key="destination" ref="198144795"/>
+						<reference key="destination" ref="311842425"/>
 						<object class="NSNibBindingConnector" key="connector">
 							<reference key="NSSource" ref="373736876"/>
-							<reference key="NSDestination" ref="198144795"/>
+							<reference key="NSDestination" ref="311842425"/>
 							<string key="NSLabel">toolTip: selection.ConfirmMultipleSessionCloseCommands</string>
 							<string key="NSBinding">toolTip</string>
 							<string key="NSKeyPath">selection.ConfirmMultipleSessionCloseCommands</string>
@@ -1468,10 +1468,10 @@
 					<object class="IBBindingConnection" key="connection">
 						<string key="label">toolTip: selection.ConfirmCmdQCommand</string>
 						<reference key="source" ref="149096878"/>
-						<reference key="destination" ref="198144795"/>
+						<reference key="destination" ref="311842425"/>
 						<object class="NSNibBindingConnector" key="connector">
 							<reference key="NSSource" ref="149096878"/>
-							<reference key="NSDestination" ref="198144795"/>
+							<reference key="NSDestination" ref="311842425"/>
 							<string key="NSLabel">toolTip: selection.ConfirmCmdQCommand</string>
 							<string key="NSBinding">toolTip</string>
 							<string key="NSKeyPath">selection.ConfirmCmdQCommand</string>
@@ -1484,10 +1484,10 @@
 					<object class="IBBindingConnection" key="connection">
 						<string key="label">toolTip: selection.SmartWindowPlacement</string>
 						<reference key="source" ref="402441480"/>
-						<reference key="destination" ref="198144795"/>
+						<reference key="destination" ref="311842425"/>
 						<object class="NSNibBindingConnector" key="connector">
 							<reference key="NSSource" ref="402441480"/>
-							<reference key="NSDestination" ref="198144795"/>
+							<reference key="NSDestination" ref="311842425"/>
 							<string key="NSLabel">toolTip: selection.SmartWindowPlacement</string>
 							<string key="NSBinding">toolTip</string>
 							<string key="NSKeyPath">selection.SmartWindowPlacement</string>
@@ -1500,10 +1500,10 @@
 					<object class="IBBindingConnection" key="connection">
 						<string key="label">toolTip: selection.ZoomButtonVerticalOnly</string>
 						<reference key="source" ref="829594349"/>
-						<reference key="destination" ref="198144795"/>
+						<reference key="destination" ref="311842425"/>
 						<object class="NSNibBindingConnector" key="connector">
 							<reference key="NSSource" ref="829594349"/>
-							<reference key="NSDestination" ref="198144795"/>
+							<reference key="NSDestination" ref="311842425"/>
 							<string key="NSLabel">toolTip: selection.ZoomButtonVerticalOnly</string>
 							<string key="NSBinding">toolTip</string>
 							<string key="NSKeyPath">selection.ZoomButtonVerticalOnly</string>
@@ -1516,10 +1516,10 @@
 					<object class="IBBindingConnection" key="connection">
 						<string key="label">toolTip: selection.CanChangeSpacesAfterHotkeyWin</string>
 						<reference key="source" ref="478721203"/>
-						<reference key="destination" ref="198144795"/>
+						<reference key="destination" ref="311842425"/>
 						<object class="NSNibBindingConnector" key="connector">
 							<reference key="NSSource" ref="478721203"/>
-							<reference key="NSDestination" ref="198144795"/>
+							<reference key="NSDestination" ref="311842425"/>
 							<string key="NSLabel">toolTip: selection.CanChangeSpacesAfterHotkeyWin</string>
 							<string key="NSBinding">toolTip</string>
 							<string key="NSKeyPath">selection.CanChangeSpacesAfterHotkeyWin</string>
@@ -1532,10 +1532,10 @@
 					<object class="IBBindingConnection" key="connection">
 						<string key="label">toolTip: selection.InstantReplaySessionDataSize</string>
 						<reference key="source" ref="997958335"/>
-						<reference key="destination" ref="198144795"/>
+						<reference key="destination" ref="311842425"/>
 						<object class="NSNibBindingConnector" key="connector">
 							<reference key="NSSource" ref="997958335"/>
-							<reference key="NSDestination" ref="198144795"/>
+							<reference key="NSDestination" ref="311842425"/>
 							<string key="NSLabel">toolTip: selection.InstantReplaySessionDataSize</string>
 							<string key="NSBinding">toolTip</string>
 							<string key="NSKeyPath">selection.InstantReplaySessionDataSize</string>
@@ -1548,10 +1548,10 @@
 					<object class="IBBindingConnection" key="connection">
 						<string key="label">toolTip: selection.SaveCopyPasteHistory</string>
 						<reference key="source" ref="52180027"/>
-						<reference key="destination" ref="198144795"/>
+						<reference key="destination" ref="311842425"/>
 						<object class="NSNibBindingConnector" key="connector">
 							<reference key="NSSource" ref="52180027"/>
-							<reference key="NSDestination" ref="198144795"/>
+							<reference key="NSDestination" ref="311842425"/>
 							<string key="NSLabel">toolTip: selection.SaveCopyPasteHistory</string>
 							<string key="NSBinding">toolTip</string>
 							<string key="NSKeyPath">selection.SaveCopyPasteHistory</string>
@@ -1559,6 +1559,150 @@
 						</object>
 					</object>
 					<int key="connectionID">211</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBBindingConnection" key="connection">
+						<string key="label">toolTip: selection.MouseCopiesOnSelect</string>
+						<reference key="source" ref="248844296"/>
+						<reference key="destination" ref="311842425"/>
+						<object class="NSNibBindingConnector" key="connector">
+							<reference key="NSSource" ref="248844296"/>
+							<reference key="NSDestination" ref="311842425"/>
+							<string key="NSLabel">toolTip: selection.MouseCopiesOnSelect</string>
+							<string key="NSBinding">toolTip</string>
+							<string key="NSKeyPath">selection.MouseCopiesOnSelect</string>
+							<int key="NSNibBindingConnectorVersion">2</int>
+						</object>
+					</object>
+					<int key="connectionID">214</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBBindingConnection" key="connection">
+						<string key="label">toolTip: selection.FocusFollowsMouse</string>
+						<reference key="source" ref="1022518134"/>
+						<reference key="destination" ref="311842425"/>
+						<object class="NSNibBindingConnector" key="connector">
+							<reference key="NSSource" ref="1022518134"/>
+							<reference key="NSDestination" ref="311842425"/>
+							<string key="NSLabel">toolTip: selection.FocusFollowsMouse</string>
+							<string key="NSBinding">toolTip</string>
+							<string key="NSKeyPath">selection.FocusFollowsMouse</string>
+							<int key="NSNibBindingConnectorVersion">2</int>
+						</object>
+					</object>
+					<int key="connectionID">216</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBBindingConnection" key="connection">
+						<string key="label">toolTip: selection.MouseMiddleButtonPastes</string>
+						<reference key="source" ref="53921356"/>
+						<reference key="destination" ref="311842425"/>
+						<object class="NSNibBindingConnector" key="connector">
+							<reference key="NSSource" ref="53921356"/>
+							<reference key="NSDestination" ref="311842425"/>
+							<string key="NSLabel">toolTip: selection.MouseMiddleButtonPastes</string>
+							<string key="NSBinding">toolTip</string>
+							<string key="NSKeyPath">selection.MouseMiddleButtonPastes</string>
+							<int key="NSNibBindingConnectorVersion">2</int>
+						</object>
+					</object>
+					<int key="connectionID">219</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBBindingConnection" key="connection">
+						<string key="label">toolTip: selection.CmdClickLaunchesURL</string>
+						<reference key="source" ref="591902066"/>
+						<reference key="destination" ref="311842425"/>
+						<object class="NSNibBindingConnector" key="connector">
+							<reference key="NSSource" ref="591902066"/>
+							<reference key="NSDestination" ref="311842425"/>
+							<string key="NSLabel">toolTip: selection.CmdClickLaunchesURL</string>
+							<string key="NSBinding">toolTip</string>
+							<string key="NSKeyPath">selection.CmdClickLaunchesURL</string>
+							<int key="NSNibBindingConnectorVersion">2</int>
+						</object>
+					</object>
+					<int key="connectionID">222</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBBindingConnection" key="connection">
+						<string key="label">toolTip: selection.AppHandlesCtrlMouseClick</string>
+						<reference key="source" ref="811841708"/>
+						<reference key="destination" ref="311842425"/>
+						<object class="NSNibBindingConnector" key="connector">
+							<reference key="NSSource" ref="811841708"/>
+							<reference key="NSDestination" ref="311842425"/>
+							<string key="NSLabel">toolTip: selection.AppHandlesCtrlMouseClick</string>
+							<string key="NSBinding">toolTip</string>
+							<string key="NSKeyPath">selection.AppHandlesCtrlMouseClick</string>
+							<int key="NSNibBindingConnectorVersion">2</int>
+						</object>
+					</object>
+					<int key="connectionID">225</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBBindingConnection" key="connection">
+						<string key="label">toolTip: selection.SelectionWordCharacters</string>
+						<reference key="source" ref="95883074"/>
+						<reference key="destination" ref="311842425"/>
+						<object class="NSNibBindingConnector" key="connector">
+							<reference key="NSSource" ref="95883074"/>
+							<reference key="NSDestination" ref="311842425"/>
+							<string key="NSLabel">toolTip: selection.SelectionWordCharacters</string>
+							<string key="NSBinding">toolTip</string>
+							<string key="NSKeyPath">selection.SelectionWordCharacters</string>
+							<int key="NSNibBindingConnectorVersion">2</int>
+						</object>
+					</object>
+					<int key="connectionID">227</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBBindingConnection" key="connection">
+						<string key="label">toolTip: selection.AddBonjourHostsToProfiles</string>
+						<reference key="source" ref="804413841"/>
+						<reference key="destination" ref="311842425"/>
+						<object class="NSNibBindingConnector" key="connector">
+							<reference key="NSSource" ref="804413841"/>
+							<reference key="NSDestination" ref="311842425"/>
+							<string key="NSLabel">toolTip: selection.AddBonjourHostsToProfiles</string>
+							<string key="NSBinding">toolTip</string>
+							<string key="NSKeyPath">selection.AddBonjourHostsToProfiles</string>
+							<int key="NSNibBindingConnectorVersion">2</int>
+						</object>
+					</object>
+					<int key="connectionID">230</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBBindingConnection" key="connection">
+						<string key="label">toolTip: selection.AutoCheckForUpdates</string>
+						<reference key="source" ref="135955467"/>
+						<reference key="destination" ref="311842425"/>
+						<object class="NSNibBindingConnector" key="connector">
+							<reference key="NSSource" ref="135955467"/>
+							<reference key="NSDestination" ref="311842425"/>
+							<string key="NSLabel">toolTip: selection.AutoCheckForUpdates</string>
+							<string key="NSBinding">toolTip</string>
+							<string key="NSKeyPath">selection.AutoCheckForUpdates</string>
+							<int key="NSNibBindingConnectorVersion">2</int>
+						</object>
+					</object>
+					<int key="connectionID">232</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBBindingConnection" key="connection">
+						<string key="label">toolTip: selection.PromptForTestVersionUpdates</string>
+						<reference key="source" ref="1064819790"/>
+						<reference key="destination" ref="311842425"/>
+						<object class="NSNibBindingConnector" key="connector">
+							<reference key="NSSource" ref="1064819790"/>
+							<reference key="NSDestination" ref="311842425"/>
+							<string key="NSLabel">toolTip: selection.PromptForTestVersionUpdates</string>
+							<string key="NSBinding">toolTip</string>
+							<string key="NSKeyPath">selection.PromptForTestVersionUpdates</string>
+							<int key="NSNibBindingConnectorVersion">2</int>
+						</object>
+					</object>
+					<int key="connectionID">235</int>
 				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
@@ -1600,7 +1744,6 @@
 							<reference ref="1039338976"/>
 							<reference ref="250142071"/>
 							<reference ref="19411792"/>
-							<reference ref="804413841"/>
 							<reference ref="303972232"/>
 							<reference ref="1064819790"/>
 							<reference ref="135955467"/>
@@ -1626,6 +1769,7 @@
 							<reference ref="1019911664"/>
 							<reference ref="95883074"/>
 							<reference ref="957200148"/>
+							<reference ref="804413841"/>
 						</object>
 						<reference key="parent" ref="1002"/>
 						<string key="objectName">GeneralTabView</string>
@@ -2081,7 +2225,7 @@
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">181</int>
-						<reference key="object" ref="198144795"/>
+						<reference key="object" ref="311842425"/>
 						<reference key="parent" ref="1002"/>
 						<string key="objectName">Tooltips Controller</string>
 					</object>
@@ -2362,7 +2506,7 @@
 				</object>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">211</int>
+			<int key="maxID">235</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">

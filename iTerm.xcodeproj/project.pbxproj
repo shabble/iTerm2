@@ -43,6 +43,9 @@
 		2C29CE8E13B48C2D0091AC7E /* StringIntValueTransformer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C29CE8D13B48C2D0091AC7E /* StringIntValueTransformer.h */; };
 		2C29CF3013B491D40091AC7E /* PreferencesSchema.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C29CF2F13B491D40091AC7E /* PreferencesSchema.m */; };
 		2C29CF3213B491DA0091AC7E /* PreferencesSchema.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C29CF3113B491DA0091AC7E /* PreferencesSchema.h */; };
+		2C29D03413B4ECF20091AC7E /* RegexKitLite in Resources */ = {isa = PBXBuildFile; fileRef = 2C29D02D13B4ECF20091AC7E /* RegexKitLite */; };
+		2C29D03613B4ECFF0091AC7E /* RegexKitLite.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C29D03513B4ECFF0091AC7E /* RegexKitLite.m */; };
+		2C29D03813B4ED050091AC7E /* RegexKitLite.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C29D03713B4ED050091AC7E /* RegexKitLite.h */; };
 		2C7EE22C13960462000305E6 /* iTermApplication.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C7EE1FD13960462000305E6 /* iTermApplication.h */; };
 		2C7EE22D13960462000305E6 /* iTermApplicationDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C7EE1FE13960462000305E6 /* iTermApplicationDelegate.h */; };
 		2C7EE22E13960462000305E6 /* iTermController.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C7EE1FF13960462000305E6 /* iTermController.h */; };
@@ -175,6 +178,9 @@
 		2C29CE8D13B48C2D0091AC7E /* StringIntValueTransformer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = StringIntValueTransformer.h; path = Misc/StringIntValueTransformer.h; sourceTree = "<group>"; };
 		2C29CF2F13B491D40091AC7E /* PreferencesSchema.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PreferencesSchema.m; path = Prefs/PreferencesSchema.m; sourceTree = "<group>"; };
 		2C29CF3113B491DA0091AC7E /* PreferencesSchema.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PreferencesSchema.h; path = Prefs/PreferencesSchema.h; sourceTree = "<group>"; };
+		2C29D02D13B4ECF20091AC7E /* RegexKitLite */ = {isa = PBXFileReference; lastKnownFileType = folder; name = RegexKitLite; path = Vendor/RegexKitLite; sourceTree = "<group>"; };
+		2C29D03513B4ECFF0091AC7E /* RegexKitLite.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RegexKitLite.m; path = Vendor/RegexKitLite/RegexKitLite.m; sourceTree = "<group>"; };
+		2C29D03713B4ED050091AC7E /* RegexKitLite.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RegexKitLite.h; path = Vendor/RegexKitLite/RegexKitLite.h; sourceTree = "<group>"; };
 		2C7EE1FD13960462000305E6 /* iTermApplication.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = iTermApplication.h; path = App/iTermApplication.h; sourceTree = "<group>"; };
 		2C7EE1FE13960462000305E6 /* iTermApplicationDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = iTermApplicationDelegate.h; path = App/iTermApplicationDelegate.h; sourceTree = "<group>"; };
 		2C7EE1FF13960462000305E6 /* iTermController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = iTermController.h; path = App/iTermController.h; sourceTree = "<group>"; };
@@ -310,6 +316,7 @@
 		0464AB15006CD2EC7F000001 /* Headers */ = {
 			isa = PBXGroup;
 			children = (
+				2C29D03713B4ED050091AC7E /* RegexKitLite.h */,
 				2C29CF3113B491DA0091AC7E /* PreferencesSchema.h */,
 				2C29CDB513B42DB30091AC7E /* PreferencesMigrator.h */,
 				2CAED78B13AF2DE000D06287 /* RemoteProfileDiscovery.h */,
@@ -381,6 +388,7 @@
 		2C1C0EB7139FCDB100E1DA75 /* Vendor */ = {
 			isa = PBXGroup;
 			children = (
+				2C29D02D13B4ECF20091AC7E /* RegexKitLite */,
 				2C1C0F00139FD16600E1DA75 /* GTM */,
 			);
 			name = Vendor;
@@ -389,6 +397,7 @@
 		2C2761F01395DAA100D340AA /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				2C29D03513B4ECFF0091AC7E /* RegexKitLite.m */,
 				2C29CF2F13B491D40091AC7E /* PreferencesSchema.m */,
 				2C29CDB313B42DA90091AC7E /* PreferencesMigrator.m */,
 				2C29CE8B13B48C210091AC7E /* StringIntValueTransformer.m */,
@@ -522,6 +531,7 @@
 				2C29CDB613B42DB30091AC7E /* PreferencesMigrator.h in Headers */,
 				2C29CE8E13B48C2D0091AC7E /* StringIntValueTransformer.h in Headers */,
 				2C29CF3213B491DA0091AC7E /* PreferencesSchema.h in Headers */,
+				2C29D03813B4ED050091AC7E /* RegexKitLite.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -659,6 +669,7 @@
 				2CAEDA0513AF930700D06287 /* UserPreferenceSchema.plist in Resources */,
 				2CAEDB0613AFA35B00D06287 /* AppDefaults.plist in Resources */,
 				2C29CE8A13B48BD80091AC7E /* Misc in Resources */,
+				2C29D03413B4ECF20091AC7E /* RegexKitLite in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -714,6 +725,7 @@
 				2C29CDB413B42DA90091AC7E /* PreferencesMigrator.m in Sources */,
 				2C29CE8C13B48C210091AC7E /* StringIntValueTransformer.m in Sources */,
 				2C29CF3013B491D40091AC7E /* PreferencesSchema.m in Sources */,
+				2C29D03613B4ECFF0091AC7E /* RegexKitLite.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -7,6 +7,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "../Vendor/RegexKitLite/RegexKitLite.h"
 
 #define PREFERENCES_SCHEMA_CATEGORIES @"General", @"Appearance", @"Profiles", @"GlobalKeyBinds", nil
 
