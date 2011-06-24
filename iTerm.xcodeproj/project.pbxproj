@@ -67,7 +67,6 @@
 		2C27615F1395D3ED00D340AA /* iTermApplicationDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2761591395D3ED00D340AA /* iTermApplicationDelegate.m */; };
 		2C2761601395D3ED00D340AA /* iTermController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C27615A1395D3ED00D340AA /* iTermController.m */; };
 		2C2761611395D3ED00D340AA /* iTermGrowlDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C27615B1395D3ED00D340AA /* iTermGrowlDelegate.m */; };
-		2C2761621395D3ED00D340AA /* iTermKeyBindingMgr.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C27615C1395D3ED00D340AA /* iTermKeyBindingMgr.m */; };
 		2C2761631395D3ED00D340AA /* ProcessCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C27615D1395D3ED00D340AA /* ProcessCache.m */; };
 		2C27616A1395D42400D340AA /* DVRBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2761651395D42400D340AA /* DVRBuffer.m */; };
 		2C27616B1395D42400D340AA /* DVRDecoder.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2761661395D42400D340AA /* DVRDecoder.m */; };
@@ -81,11 +80,6 @@
 		2C27617D1395D53200D340AA /* Autocomplete.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C27617A1395D53200D340AA /* Autocomplete.m */; };
 		2C27617E1395D53200D340AA /* PasteboardHistory.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C27617B1395D53200D340AA /* PasteboardHistory.m */; };
 		2C27617F1395D53200D340AA /* Popup.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C27617C1395D53200D340AA /* Popup.m */; };
-		2C2761831395D56500D340AA /* PreferencePanel.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2761821395D56500D340AA /* PreferencePanel.m */; };
-		2C27618A1395D57A00D340AA /* BookmarkListView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2761841395D57A00D340AA /* BookmarkListView.m */; };
-		2C27618B1395D57A00D340AA /* BookmarkModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2761851395D57A00D340AA /* BookmarkModel.m */; };
-		2C27618D1395D57A00D340AA /* BookmarksWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2761871395D57A00D340AA /* BookmarksWindow.m */; };
-		2C27618E1395D57A00D340AA /* ITAddressBookMgr.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2761881395D57A00D340AA /* ITAddressBookMgr.m */; };
 		2C2761941395D58F00D340AA /* FindCommandHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2761901395D58F00D340AA /* FindCommandHandler.m */; };
 		2C2761951395D58F00D340AA /* FindView.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2761911395D58F00D340AA /* FindView.m */; };
 		2C2761961395D58F00D340AA /* FindViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C2761921395D58F00D340AA /* FindViewController.m */; };
@@ -136,18 +130,10 @@
 		2C7EE23313960462000305E6 /* ITViewLocalizer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C7EE20413960462000305E6 /* ITViewLocalizer.h */; };
 		2C7EE23413960462000305E6 /* NSDateFormatterExtras.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C7EE20513960462000305E6 /* NSDateFormatterExtras.h */; };
 		2C7EE23513960462000305E6 /* NSStringITerm.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C7EE20613960462000305E6 /* NSStringITerm.h */; };
-		2C7EE23613960462000305E6 /* charmaps.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C7EE20713960462000305E6 /* charmaps.h */; };
-		2C7EE23713960462000305E6 /* Autocomplete.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C7EE20813960462000305E6 /* Autocomplete.h */; };
 		2C7EE23813960462000305E6 /* PasteboardHistory.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C7EE20913960462000305E6 /* PasteboardHistory.h */; };
 		2C7EE23913960462000305E6 /* Popup.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C7EE20A13960462000305E6 /* Popup.h */; };
 		2C7EE23A13960462000305E6 /* PreferencePanel.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C7EE20B13960462000305E6 /* PreferencePanel.h */; };
-		2C7EE23B13960462000305E6 /* BookmarkListView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C7EE20C13960462000305E6 /* BookmarkListView.h */; };
-		2C7EE23C13960462000305E6 /* BookmarkModel.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C7EE20D13960462000305E6 /* BookmarkModel.h */; };
-		2C7EE23D13960462000305E6 /* BookmarksWindow.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C7EE20E13960462000305E6 /* BookmarksWindow.h */; };
 		2C7EE23E13960462000305E6 /* ITAddressBookMgr.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C7EE20F13960462000305E6 /* ITAddressBookMgr.h */; };
-		2C7EE23F13960462000305E6 /* FindCommandHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C7EE21013960462000305E6 /* FindCommandHandler.h */; };
-		2C7EE24013960462000305E6 /* FindView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C7EE21113960462000305E6 /* FindView.h */; };
-		2C7EE24113960462000305E6 /* FindViewController.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C7EE21213960462000305E6 /* FindViewController.h */; };
 		2C7EE24213960462000305E6 /* iTermSearchField.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C7EE21313960462000305E6 /* iTermSearchField.h */; };
 		2C7EE24313960462000305E6 /* LineBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C7EE21413960462000305E6 /* LineBuffer.h */; };
 		2C7EE24413960462000305E6 /* PTYScrollView.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C7EE21513960462000305E6 /* PTYScrollView.h */; };
@@ -383,7 +369,6 @@
 		2C2761591395D3ED00D340AA /* iTermApplicationDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = iTermApplicationDelegate.m; path = App/iTermApplicationDelegate.m; sourceTree = "<group>"; };
 		2C27615A1395D3ED00D340AA /* iTermController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = iTermController.m; path = App/iTermController.m; sourceTree = "<group>"; };
 		2C27615B1395D3ED00D340AA /* iTermGrowlDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = iTermGrowlDelegate.m; path = App/iTermGrowlDelegate.m; sourceTree = "<group>"; };
-		2C27615C1395D3ED00D340AA /* iTermKeyBindingMgr.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = iTermKeyBindingMgr.m; path = App/iTermKeyBindingMgr.m; sourceTree = "<group>"; };
 		2C27615D1395D3ED00D340AA /* ProcessCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ProcessCache.m; path = App/ProcessCache.m; sourceTree = "<group>"; };
 		2C2761651395D42400D340AA /* DVRBuffer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DVRBuffer.m; path = DVR/DVRBuffer.m; sourceTree = "<group>"; };
 		2C2761661395D42400D340AA /* DVRDecoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DVRDecoder.m; path = DVR/DVRDecoder.m; sourceTree = "<group>"; };
@@ -397,11 +382,6 @@
 		2C27617A1395D53200D340AA /* Autocomplete.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Autocomplete.m; path = Popups/Autocomplete.m; sourceTree = "<group>"; };
 		2C27617B1395D53200D340AA /* PasteboardHistory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PasteboardHistory.m; path = Popups/PasteboardHistory.m; sourceTree = "<group>"; };
 		2C27617C1395D53200D340AA /* Popup.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Popup.m; path = Popups/Popup.m; sourceTree = "<group>"; };
-		2C2761821395D56500D340AA /* PreferencePanel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = PreferencePanel.m; path = Prefs/PreferencePanel.m; sourceTree = "<group>"; };
-		2C2761841395D57A00D340AA /* BookmarkListView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = BookmarkListView.m; path = Profiles/BookmarkListView.m; sourceTree = "<group>"; };
-		2C2761851395D57A00D340AA /* BookmarkModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = BookmarkModel.m; path = Profiles/BookmarkModel.m; sourceTree = "<group>"; };
-		2C2761871395D57A00D340AA /* BookmarksWindow.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = BookmarksWindow.m; path = Profiles/BookmarksWindow.m; sourceTree = "<group>"; };
-		2C2761881395D57A00D340AA /* ITAddressBookMgr.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ITAddressBookMgr.m; path = Profiles/ITAddressBookMgr.m; sourceTree = "<group>"; };
 		2C2761901395D58F00D340AA /* FindCommandHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FindCommandHandler.m; path = Search/FindCommandHandler.m; sourceTree = "<group>"; };
 		2C2761911395D58F00D340AA /* FindView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FindView.m; path = Search/FindView.m; sourceTree = "<group>"; };
 		2C2761921395D58F00D340AA /* FindViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FindViewController.m; path = Search/FindViewController.m; sourceTree = "<group>"; };
@@ -436,18 +416,10 @@
 		2C7EE20413960462000305E6 /* ITViewLocalizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ITViewLocalizer.h; path = Misc/ITViewLocalizer.h; sourceTree = "<group>"; };
 		2C7EE20513960462000305E6 /* NSDateFormatterExtras.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NSDateFormatterExtras.h; path = Misc/NSDateFormatterExtras.h; sourceTree = "<group>"; };
 		2C7EE20613960462000305E6 /* NSStringITerm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NSStringITerm.h; path = Misc/NSStringITerm.h; sourceTree = "<group>"; };
-		2C7EE20713960462000305E6 /* charmaps.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = charmaps.h; path = Misc/charmaps.h; sourceTree = "<group>"; };
-		2C7EE20813960462000305E6 /* Autocomplete.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Autocomplete.h; path = Popups/Autocomplete.h; sourceTree = "<group>"; };
 		2C7EE20913960462000305E6 /* PasteboardHistory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PasteboardHistory.h; path = Popups/PasteboardHistory.h; sourceTree = "<group>"; };
 		2C7EE20A13960462000305E6 /* Popup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Popup.h; path = Popups/Popup.h; sourceTree = "<group>"; };
 		2C7EE20B13960462000305E6 /* PreferencePanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PreferencePanel.h; path = Prefs/PreferencePanel.h; sourceTree = "<group>"; };
-		2C7EE20C13960462000305E6 /* BookmarkListView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BookmarkListView.h; path = Profiles/BookmarkListView.h; sourceTree = "<group>"; };
-		2C7EE20D13960462000305E6 /* BookmarkModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BookmarkModel.h; path = Profiles/BookmarkModel.h; sourceTree = "<group>"; };
-		2C7EE20E13960462000305E6 /* BookmarksWindow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BookmarksWindow.h; path = Profiles/BookmarksWindow.h; sourceTree = "<group>"; };
 		2C7EE20F13960462000305E6 /* ITAddressBookMgr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ITAddressBookMgr.h; path = Profiles/ITAddressBookMgr.h; sourceTree = "<group>"; };
-		2C7EE21013960462000305E6 /* FindCommandHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FindCommandHandler.h; path = Search/FindCommandHandler.h; sourceTree = "<group>"; };
-		2C7EE21113960462000305E6 /* FindView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FindView.h; path = Search/FindView.h; sourceTree = "<group>"; };
-		2C7EE21213960462000305E6 /* FindViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FindViewController.h; path = Search/FindViewController.h; sourceTree = "<group>"; };
 		2C7EE21313960462000305E6 /* iTermSearchField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = iTermSearchField.h; path = Search/iTermSearchField.h; sourceTree = "<group>"; };
 		2C7EE21413960462000305E6 /* LineBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LineBuffer.h; path = Session/LineBuffer.h; sourceTree = "<group>"; };
 		2C7EE21513960462000305E6 /* PTYScrollView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PTYScrollView.h; path = Session/PTYScrollView.h; sourceTree = "<group>"; };
@@ -660,11 +632,6 @@
 				2C7EE20413960462000305E6 /* ITViewLocalizer.h */,
 				2C7EE21F13960462000305E6 /* FakeWindow.h */,
 				2C7EE20213960462000305E6 /* GlobalSearch.h */,
-				2C7EE2E6139607FB000305E6 /* GTMCarbonEvent.h */,
-				2C7EE2E7139607FB000305E6 /* GTMDebugSelectorValidation.h */,
-				2C7EE2E8139607FB000305E6 /* GTMDefines.h */,
-				2C7EE2E9139607FB000305E6 /* GTMObjectSingleton.h */,
-				2C7EE2EA139607FB000305E6 /* GTMTypeCasting.h */,
 				2C7EE21413960462000305E6 /* LineBuffer.h */,
 				2C7EE20513960462000305E6 /* NSDateFormatterExtras.h */,
 				2C7EE20613960462000305E6 /* NSStringITerm.h */,
@@ -767,7 +734,6 @@
 			isa = PBXGroup;
 			children = (
 				2C2761991395D5B000D340AA /* LineBufferTest.m */,
-				2C27613F1395D0E400D340AA /* LineBufferTest.h */,
 			);
 			name = Tests;
 			sourceTree = "<group>";
@@ -877,13 +843,11 @@
 				2C2761911395D58F00D340AA /* FindView.m */,
 				2C2761921395D58F00D340AA /* FindViewController.m */,
 				2C27616E1395D45800D340AA /* GlobalSearch.m */,
-				2C2761881395D57A00D340AA /* ITAddressBookMgr.m */,
 				2C2761581395D3ED00D340AA /* iTermApplication.m */,
 				2C2761591395D3ED00D340AA /* iTermApplicationDelegate.m */,
 				2C27615A1395D3ED00D340AA /* iTermController.m */,
 				2C27616F1395D45800D340AA /* iTermExpose.m */,
 				2C27615B1395D3ED00D340AA /* iTermGrowlDelegate.m */,
-				2C27615C1395D3ED00D340AA /* iTermKeyBindingMgr.m */,
 				2C2761931395D58F00D340AA /* iTermSearchField.m */,
 				2C2761741395D48300D340AA /* ITViewLocalizer.m */,
 				2C2761981395D5B000D340AA /* LineBuffer.m */,
@@ -892,7 +856,6 @@
 				2C2761771395D51F00D340AA /* NSStringITerm.m */,
 				2C27617B1395D53200D340AA /* PasteboardHistory.m */,
 				2C27617C1395D53200D340AA /* Popup.m */,
-				2C2761821395D56500D340AA /* PreferencePanel.m */,
 				2C27615D1395D3ED00D340AA /* ProcessCache.m */,
 				2C2761B11395D5D800D340AA /* PseudoTerminal.m */,
 				2C2761B21395D5D800D340AA /* PTToolbarController.m */,
@@ -913,11 +876,6 @@
 				2C2761911395D58F00D340AA /* FindView.m */,
 				2C2761921395D58F00D340AA /* FindViewController.m */,
 				2C2761931395D58F00D340AA /* iTermSearchField.m */,
-				2C2761841395D57A00D340AA /* BookmarkListView.m */,
-				2C2761851395D57A00D340AA /* BookmarkModel.m */,
-				2C2761871395D57A00D340AA /* BookmarksWindow.m */,
-				2C2761881395D57A00D340AA /* ITAddressBookMgr.m */,
-				2C2761821395D56500D340AA /* PreferencePanel.m */,
 				2C27617A1395D53200D340AA /* Autocomplete.m */,
 				2C27617B1395D53200D340AA /* PasteboardHistory.m */,
 				2C27617C1395D53200D340AA /* Popup.m */,
@@ -934,7 +892,6 @@
 				2C2761591395D3ED00D340AA /* iTermApplicationDelegate.m */,
 				2C27615A1395D3ED00D340AA /* iTermController.m */,
 				2C27615B1395D3ED00D340AA /* iTermGrowlDelegate.m */,
-				2C27615C1395D3ED00D340AA /* iTermKeyBindingMgr.m */,
 				2C27615D1395D3ED00D340AA /* ProcessCache.m */,
 			);
 			name = Source;
@@ -1134,18 +1091,10 @@
 				2C7EE23313960462000305E6 /* ITViewLocalizer.h in Headers */,
 				2C7EE23413960462000305E6 /* NSDateFormatterExtras.h in Headers */,
 				2C7EE23513960462000305E6 /* NSStringITerm.h in Headers */,
-				2C7EE23613960462000305E6 /* charmaps.h in Headers */,
-				2C7EE23713960462000305E6 /* Autocomplete.h in Headers */,
 				2C7EE23813960462000305E6 /* PasteboardHistory.h in Headers */,
 				2C7EE23913960462000305E6 /* Popup.h in Headers */,
 				2C7EE23A13960462000305E6 /* PreferencePanel.h in Headers */,
-				2C7EE23B13960462000305E6 /* BookmarkListView.h in Headers */,
-				2C7EE23C13960462000305E6 /* BookmarkModel.h in Headers */,
-				2C7EE23D13960462000305E6 /* BookmarksWindow.h in Headers */,
 				2C7EE23E13960462000305E6 /* ITAddressBookMgr.h in Headers */,
-				2C7EE23F13960462000305E6 /* FindCommandHandler.h in Headers */,
-				2C7EE24013960462000305E6 /* FindView.h in Headers */,
-				2C7EE24113960462000305E6 /* FindViewController.h in Headers */,
 				2C7EE24213960462000305E6 /* iTermSearchField.h in Headers */,
 				2C7EE24313960462000305E6 /* LineBuffer.h in Headers */,
 				2C7EE24413960462000305E6 /* PTYScrollView.h in Headers */,
@@ -1266,7 +1215,6 @@
 			isa = PBXProject;
 			buildConfigurationList = BB024D39096EE4080021E793 /* Build configuration list for PBXProject "iTerm" */;
 			compatibilityVersion = "Xcode 3.1";
-			developmentRegion = English;
 			hasScannedForEncodings = 1;
 			knownRegions = (
 				English,
@@ -1440,7 +1388,6 @@
 				2C7EE25A13960584000305E6 /* RegexKitLite.m in Sources */,
 				2C2761601395D3ED00D340AA /* iTermController.m in Sources */,
 				2C2761611395D3ED00D340AA /* iTermGrowlDelegate.m in Sources */,
-				2C2761621395D3ED00D340AA /* iTermKeyBindingMgr.m in Sources */,
 				2C2761631395D3ED00D340AA /* ProcessCache.m in Sources */,
 				2C27616A1395D42400D340AA /* DVRBuffer.m in Sources */,
 				2C27616B1395D42400D340AA /* DVRDecoder.m in Sources */,
@@ -1454,11 +1401,6 @@
 				2C27617D1395D53200D340AA /* Autocomplete.m in Sources */,
 				2C27617E1395D53200D340AA /* PasteboardHistory.m in Sources */,
 				2C27617F1395D53200D340AA /* Popup.m in Sources */,
-				2C2761831395D56500D340AA /* PreferencePanel.m in Sources */,
-				2C27618A1395D57A00D340AA /* BookmarkListView.m in Sources */,
-				2C27618B1395D57A00D340AA /* BookmarkModel.m in Sources */,
-				2C27618D1395D57A00D340AA /* BookmarksWindow.m in Sources */,
-				2C27618E1395D57A00D340AA /* ITAddressBookMgr.m in Sources */,
 				2C2761941395D58F00D340AA /* FindCommandHandler.m in Sources */,
 				2C2761951395D58F00D340AA /* FindView.m in Sources */,
 				2C2761961395D58F00D340AA /* FindViewController.m in Sources */,
