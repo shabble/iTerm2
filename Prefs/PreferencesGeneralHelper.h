@@ -10,12 +10,12 @@
 #import "PreferencesModel.h"
 
 @interface PreferencesGeneralHelper : NSViewController {
-    IBOutlet PreferencesModel *model;
+    IBOutlet PreferencesModel *model_;
 }
 
 @property (nonatomic,readwrite,assign) PreferencesModel *model;
 
-- (id)initWithModel:(PreferencesModel *)aModel;
+- (id)initWithModel:(PreferencesModel *)prefsModel;
 
 - (IBAction)saveButtonPress:(id)sender;
 

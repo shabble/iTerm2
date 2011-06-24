@@ -79,7 +79,7 @@ NSString* kDeleteKeyString = @"0x7f-0x0";
         prefsAppearanceTab = nil;
         prefsProfilesTab   = nil;
         prefsKeybindsTab   = nil;
-        model_ = [PreferencesModel sharedInstance];
+        self.model         = [PreferencesModel sharedInstance];
     }
     return self;
 }
@@ -87,7 +87,8 @@ NSString* kDeleteKeyString = @"0x7f-0x0";
 - (void)dealloc
 {
     //[model_ saveToUserPreferences];
-    [model_ release];
+    [self.model release];
+    
     [super dealloc];
 }
 
@@ -113,6 +114,8 @@ NSString* kDeleteKeyString = @"0x7f-0x0";
     if (prefsAppearanceTab == nil) {
         prefsAppearanceTab = [[PreferencesAppearanceHelper alloc]
                                 initWithNibName:@"PrefsAppearanceView" bundle:nil];
+        [prefsAppearanceTab setModel:model_];
+
         NSView *v = [prefsAppearanceTab view];
         [appearanceTabViewItem setView:v];
     }
@@ -125,6 +128,7 @@ NSString* kDeleteKeyString = @"0x7f-0x0";
     if (prefsProfilesTab == nil) {
         prefsProfilesTab = [[PreferencesProfilesHelper alloc]
                                 initWithNibName:@"PrefsProfilesView" bundle:nil];
+        
         NSView *v = [prefsProfilesTab view];
         [profilesTabViewItem setView:v];
     }
@@ -137,6 +141,7 @@ NSString* kDeleteKeyString = @"0x7f-0x0";
     if (prefsKeybindsTab == nil) {
         prefsKeybindsTab = [[PreferencesGlobalKeybindingsHelper alloc]
                                 initWithNibName:@"PrefsKeybindsView" bundle:nil];
+        [prefsKeybindsTab setModel:model_];
         NSView *v = [prefsKeybindsTab view];
         [keyboardTabViewItem setView:v];
     }

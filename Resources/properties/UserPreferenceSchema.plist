@@ -18,8 +18,75 @@
 	<dict/>
 
 	<key>Appearance</key>
-	<dict/>
-
+	<dict>
+    <!-- col 1 -->
+		<key>TabStyle</key>
+		<dict>
+			<key>default</key>
+            <integer>2</integer>
+			<key>tooltip</key>
+			<string>TODO</string>
+			<key>comments</key>
+			<string>0: Metal, 1: Aqua, 2: Unified,  other: Adium</string>
+		</dict>
+		<key>TabViewType</key>
+		<dict>
+			<key>default</key>
+            <integer>0</integer>
+			<key>tooltip</key>
+			<string>TODO</string>
+			<key>comments</key>
+			<string>
+              NSTopTabsBezelBorder    = 0, NSLeftTabsBezelBorder  = 1,
+              NSBottomTabsBezelBorder = 2, NSRightTabsBezelBorder = 3,
+              NSNoTabsBezelBorder     = 4, NSNoTabsLineBorder     = 5,
+              NSNoTabsNoBorder        = 6
+            </string>
+		</dict>
+		<key>HideTabbarForSingleTab</key>
+		<dict>
+			<key>default</key>
+            <false />
+			<key>tooltip</key>
+			<string>TODO</string>
+			<key>comments</key>
+			<string>none</string>
+		</dict>
+		<key>ActivityColorsTabLabel</key>
+		<dict>
+			<key>default</key>
+            <false />
+			<key>tooltip</key>
+			<string>TODO</string>
+			<key>comments</key>
+			<string>none</string>
+		</dict>
+		<key>HideTabCloseButtonAndNumber</key>
+		<dict>
+			<key>default</key>
+            <false />
+			<key>tooltip</key>
+			<string>
+              Determines whether each tab is shown with its number and a
+			  close button.
+            </string>
+			<key>comments</key>
+			<string>none</string>
+		</dict>
+		<key>CmdFullscreenShowTabDelay</key>
+		<dict>
+			<key>default</key>
+            <real>1.0</real>
+			<key>tooltip</key>
+			<string>
+              How long it takes to display tabs when holding down Cmd in a
+			  fullscreen window.
+            </string>
+			<key>comments</key>
+			<string>none</string>
+		</dict>
+        <!-- col 2 -->
+    </dict>
 	<key>General</key>
 	<dict>
         <!-- col 1 -->
@@ -217,8 +284,6 @@
 			<key>comments</key>
 			<string>none</string>
 		</dict>
-
-
 	</dict>
 	<key>ProfileModel</key>
 	<dict>

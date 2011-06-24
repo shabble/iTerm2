@@ -461,7 +461,7 @@
     PreferencesModel *model_;
 }
 
-@property (nonatomic,readonly,retain) PreferencesModel *model;
+@property (nonatomic,readwrite,assign) PreferencesModel *model;
 
 
 typedef enum { BulkCopyColors, BulkCopyDisplay, BulkCopyWindow, BulkCopyTerminal, BulkCopyKeyboard } BulkCopySettings;
