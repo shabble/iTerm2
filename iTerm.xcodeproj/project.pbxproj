@@ -575,11 +575,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = BB024D35096EE4080021E793 /* Build configuration list for PBXNativeTarget "iTermprefs" */;
 			buildPhases = (
-				2C29D28E13B55CC30091AC7E /* ShellScript */,
 				874206480564169600CFC3F1 /* Headers */,
 				8742064A0564169600CFC3F1 /* Resources */,
 				8742064E0564169600CFC3F1 /* Sources */,
 				874206510564169600CFC3F1 /* Frameworks */,
+				2C29D28E13B55CC30091AC7E /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -702,7 +702,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "echo $($(git log -1 | head -n1 | cut -d' '  -f2 | cut -b32-) > $(SRCROOT)/version.txt";
+			shellScript = "${SRCROOT}/scripts/updateVersion.py\n";
 		};
 		2CAED74413AF29EE00D06287 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;

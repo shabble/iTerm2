@@ -18,6 +18,9 @@
 
 - (void)awakeFromNib;
 - (IBAction)closeCurrentSession:(id)sender;
-- (NSAttributedString*)_linkTo:(NSString*)urlString title:(NSString*)title withAttributes:(NSDictionary*)attributes;
+- (NSAttributedString*)createLinkTo:(NSString*)urlString
+                          withTitle:(NSString*)title
+                      andAttributes:(NSDictionary*)attributes;
+- (void)mouseEntered:(NSEvent *)anEvent;
 
 @end

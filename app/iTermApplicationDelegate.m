@@ -109,8 +109,8 @@ int gDebugLogFile = -1;
                                                        returnTypes:[NSArray arrayWithObjects:NSFilenamesPboardType, NSStringPboardType, nil]];
     //[self showPrefWindow:self];
      */
-    [[PreferencePanelController sharedInstance] run];
-
+    [PreferencePanelController sharedInstance];
+    [self showAboutWindow:self];
 }
 
 - (BOOL)applicationShouldTerminate: (NSNotification *) theNotification

@@ -11,13 +11,16 @@
 
 @implementation AboutWindowController
 
-- (NSAttributedString*)_linkTo:(NSString*)urlString
-                         title:(NSString*)title
-                withAttributes:(NSDictionary*)attributes
+- (NSAttributedString*)createLinkTo:(NSString*)urlString
+                          withTitle:(NSString*)title
+                      andAttributes:(NSDictionary*)attributes
 {
-    NSDictionary *linkAttributes
-        = [NSDictionary dictionaryWithObject:[NSURL URLWithString:urlString]
-                                      forKey:NSLinkAttributeName];
+    NSMutableDictionary *linkAttributes = [attributes mutableCopy];
+    NSURL *url = [NSURL URLWithString:urlString];
+
+    [linkAttributes setObject:url
+                       forKey:NSLinkAttributeName];
+
     NSAttributedString *string 
         = [[NSAttributedString alloc] initWithString:title attributes:linkAttributes];
     
@@ -29,40 +32,63 @@
     NSLog(@"Awoken from nib (about window)");
     
     NSNumber *underlineStyle = [NSNumber numberWithInt: NSSingleUnderlineStyle];
+
+    NSMutableParagraphStyle *centeredTextStyle
+        = [[NSMutableParagraphStyle alloc] init];
+    [centeredTextStyle setAlignment:NSCenterTextAlignment];
+    
     
     NSDictionary *linkTextViewAttributes
     = [NSDictionary dictionaryWithObjectsAndKeys:
        underlineStyle,                NSUnderlineStyleAttributeName,
        [NSColor blueColor],           NSForegroundColorAttributeName,
        [NSCursor pointingHandCursor], NSCursorAttributeName,
-       nil];
-    
+       centeredTextStyle,             NSParagraphStyleAttributeName,
+       NULL];
+
+    [centeredTextStyle release];
+
     NSDictionary *infoDict = [[NSBundle mainBundle] infoDictionary];
     NSString *versionString 
-    = [NSString stringWithFormat: @"Build %@", [infoDict objectForKey:@"CFBundleVersion"]];
+        = [NSString stringWithFormat: @"Build %@",
+            [infoDict objectForKey:@"CFBundleVersion"]];
+
+    NSCursor *cross = [NSCursor crosshairCursor];
+    [cross setOnMouseEntered:YES];
+    [cross setOnMouseExited:YES];
+        
     [version_ setStringValue:versionString];
-    
-    NSAttributedString *webAString     = [self _linkTo:@"http://iterm2.com/"
-                                                 title:@"Home Page"
-                                        withAttributes:linkTextViewAttributes];
+    [version_ setDelegate:self];
+
+    NSAttributedString *webAString = [self createLinkTo:@"http://iterm2.com/"
+                                              withTitle:@"Home Page"
+                                          andAttributes:linkTextViewAttributes];
     [homepage_ setAttributedStringValue:webAString];
     
-    NSAttributedString *bugsAString    = [self _linkTo:@"http://code.google.com/p/iterm2/issues/entry"
-                                                 title:@"Report a bug"
-                                        withAttributes:nil];
+    NSAttributedString *bugsAString = [self createLinkTo:@"http://code.google.com/p/iterm2/issues/entry"
+                                               withTitle:@"Report a bug"
+                                           andAttributes:linkTextViewAttributes];
     [bugreport_ setAttributedStringValue:bugsAString];
+
     
-    NSAttributedString *creditsAString = [self _linkTo:@"http://code.google.com/p/iterm2/wiki/Credits"
-                                                 title:@"Credits"
-                                        withAttributes:nil];
-    
+    NSMutableAttributedString *creditsAString = [[self createLinkTo:@"http://code.google.com/p/iterm2/wiki/Credits"
+                                                          withTitle:@"Credits"
+                                                      andAttributes:linkTextViewAttributes] mutableCopy];
+  
     [credits_ setAttributedStringValue:creditsAString];
+    
 }
 
 - (IBAction)closeCurrentSession:(id)sender
 {
     [self close];
 }
+
+- (void)mouseEntered:(NSEvent *)anEvent
+{
+    NSLog(@"!!!!!!");
+}
+
 /*[AUTHORS setLinkTextAttributes:linkTextViewAttributes];
 [[AUTHORS textStorage] deleteCharactersInRange: NSMakeRange(0, [[AUTHORS textStorage] length])];
 [[AUTHORS textStorage] appendAttributedString:[[[NSAttributedString alloc] initWithString:versionString] autorelease]];
