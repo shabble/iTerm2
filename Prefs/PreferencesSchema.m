@@ -31,7 +31,7 @@
 }
 - (void)loadSchemaFromFile:(NSString*)file
 {
-    NSLog(@"Loading schema from file: %@", file);
+    //NSLog(@"Loading schema from file: %@", file);
     NSDictionary *schemaDict = [NSDictionary dictionaryWithContentsOfFile:file];
     NSArray *categories      = [NSArray arrayWithObjects:PREFERENCES_SCHEMA_CATEGORIES];
     
@@ -42,7 +42,7 @@
     NSMutableDictionary *tooltips = [[NSMutableDictionary alloc] init];
 
     for (NSString *categoryName in categories) {
-        NSLog(@"processing category: %@", categoryName);
+        //NSLog(@"processing category: %@", categoryName);
         NSDictionary *categoryDict = (NSDictionary *)[schemaDict valueForKey:categoryName];
 
         [keys addObjectsFromArray:[categoryDict allKeys]];
@@ -65,15 +65,15 @@
             
             [defaults setObject:defaultValue forKey:prefKey];
         }
-        //NSLog(@" dict: %@ keys are: %@", categoryDict, [categoryDict allKeys]);
+        ////NSLog(@" dict: %@ keys are: %@", categoryDict, [categoryDict allKeys]);
     }
-    NSLog(@"Tooltips keys: %@", [tooltips allKeys]);        
+    //NSLog(@"Tooltips keys: %@", [tooltips allKeys]);        
     /* copy the values into immutable instances for our ivars */
     preferenceKeys_ = [[NSSet alloc] initWithSet:keys];
     defaultValues_  = [[NSDictionary alloc] initWithDictionary:defaults];
     tooltips_       = [[NSDictionary alloc] initWithDictionary:tooltips];
 
-    NSLog(@"Keys loaded from schema: %@", preferenceKeys_);
+    //NSLog(@"Keys loaded from schema: %@", preferenceKeys_);
 
     /* and release the mutable temps */
     [keys     release];

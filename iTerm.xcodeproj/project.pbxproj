@@ -48,6 +48,8 @@
 		2C29D03813B4ED050091AC7E /* RegexKitLite.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C29D03713B4ED050091AC7E /* RegexKitLite.h */; };
 		2C29D1A313B53E1C0091AC7E /* EventTapManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C29D1A213B53E1C0091AC7E /* EventTapManager.h */; };
 		2C29D1A513B53E220091AC7E /* EventTapManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C29D1A413B53E220091AC7E /* EventTapManager.m */; };
+		2C29D1DB13B54F2D0091AC7E /* AboutWindowController.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C29D1D913B54F2D0091AC7E /* AboutWindowController.h */; };
+		2C29D1DC13B54F2D0091AC7E /* AboutWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C29D1DA13B54F2D0091AC7E /* AboutWindowController.m */; };
 		2C7EE22C13960462000305E6 /* iTermApplication.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C7EE1FD13960462000305E6 /* iTermApplication.h */; };
 		2C7EE22D13960462000305E6 /* iTermApplicationDelegate.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C7EE1FE13960462000305E6 /* iTermApplicationDelegate.h */; };
 		2C7EE22E13960462000305E6 /* iTermController.h in Headers */ = {isa = PBXBuildFile; fileRef = 2C7EE1FF13960462000305E6 /* iTermController.h */; };
@@ -185,6 +187,8 @@
 		2C29D03713B4ED050091AC7E /* RegexKitLite.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RegexKitLite.h; path = Vendor/RegexKitLite/RegexKitLite.h; sourceTree = "<group>"; };
 		2C29D1A213B53E1C0091AC7E /* EventTapManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = EventTapManager.h; path = Misc/EventTapManager.h; sourceTree = "<group>"; };
 		2C29D1A413B53E220091AC7E /* EventTapManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = EventTapManager.m; path = Misc/EventTapManager.m; sourceTree = "<group>"; };
+		2C29D1D913B54F2D0091AC7E /* AboutWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AboutWindowController.h; path = App/AboutWindowController.h; sourceTree = "<group>"; };
+		2C29D1DA13B54F2D0091AC7E /* AboutWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AboutWindowController.m; path = App/AboutWindowController.m; sourceTree = "<group>"; };
 		2C7EE1FD13960462000305E6 /* iTermApplication.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = iTermApplication.h; path = App/iTermApplication.h; sourceTree = "<group>"; };
 		2C7EE1FE13960462000305E6 /* iTermApplicationDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = iTermApplicationDelegate.h; path = App/iTermApplicationDelegate.h; sourceTree = "<group>"; };
 		2C7EE1FF13960462000305E6 /* iTermController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = iTermController.h; path = App/iTermController.h; sourceTree = "<group>"; };
@@ -320,6 +324,7 @@
 		0464AB15006CD2EC7F000001 /* Headers */ = {
 			isa = PBXGroup;
 			children = (
+				2C29D1D913B54F2D0091AC7E /* AboutWindowController.h */,
 				2C29D1A213B53E1C0091AC7E /* EventTapManager.h */,
 				2C29D03713B4ED050091AC7E /* RegexKitLite.h */,
 				2C29CF3113B491DA0091AC7E /* PreferencesSchema.h */,
@@ -402,6 +407,7 @@
 		2C2761F01395DAA100D340AA /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				2C29D1DA13B54F2D0091AC7E /* AboutWindowController.m */,
 				2C29D1A413B53E220091AC7E /* EventTapManager.m */,
 				2C29D03513B4ECFF0091AC7E /* RegexKitLite.m */,
 				2C29CF2F13B491D40091AC7E /* PreferencesSchema.m */,
@@ -539,6 +545,7 @@
 				2C29CF3213B491DA0091AC7E /* PreferencesSchema.h in Headers */,
 				2C29D03813B4ED050091AC7E /* RegexKitLite.h in Headers */,
 				2C29D1A313B53E1C0091AC7E /* EventTapManager.h in Headers */,
+				2C29D1DB13B54F2D0091AC7E /* AboutWindowController.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -568,6 +575,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = BB024D35096EE4080021E793 /* Build configuration list for PBXNativeTarget "iTermprefs" */;
 			buildPhases = (
+				2C29D28E13B55CC30091AC7E /* ShellScript */,
 				874206480564169600CFC3F1 /* Headers */,
 				8742064A0564169600CFC3F1 /* Resources */,
 				8742064E0564169600CFC3F1 /* Sources */,
@@ -683,6 +691,19 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		2C29D28E13B55CC30091AC7E /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "echo $($(git log -1 | head -n1 | cut -d' '  -f2 | cut -b32-) > $(SRCROOT)/version.txt";
+		};
 		2CAED74413AF29EE00D06287 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -734,6 +755,7 @@
 				2C29CF3013B491D40091AC7E /* PreferencesSchema.m in Sources */,
 				2C29D03613B4ECFF0091AC7E /* RegexKitLite.m in Sources */,
 				2C29D1A513B53E220091AC7E /* EventTapManager.m in Sources */,
+				2C29D1DC13B54F2D0091AC7E /* AboutWindowController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

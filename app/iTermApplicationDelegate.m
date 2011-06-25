@@ -45,7 +45,10 @@ NSMutableString* gDebugLogStr2 = nil;
 BOOL gDebugLogging = NO;
 int gDebugLogFile = -1;
 
-@implementation iTermAboutWindow
+
+@implementation iTermApplicationDelegate
+
+@synthesize profilesMenu=profilesMenu_;
 
 + (void)initialize
 {
@@ -54,19 +57,6 @@ int gDebugLogFile = -1;
                                     forName:@"intFromString"];
     [super initialize];
 }
-
-
-- (IBAction)closeCurrentSession:(id)sender
-{
-    [self close];
-}
-
-@end
-
-
-@implementation iTermApplicationDelegate
-
-@synthesize profilesMenu=profilesMenu_;
 
 // NSApplication delegate methods
 - (void)applicationWillFinishLaunching:(NSNotification *)aNotification
@@ -253,48 +243,50 @@ int gDebugLogFile = -1;
 // init
 - (id)init
 {
-    self = [super init];
+    if ((self = [super init])) {
+        NSNotificationCenter *notifyCenter = [NSNotificationCenter defaultCenter];
+        // Add ourselves as an observer for notifications.
+        [notifyCenter addObserver:self
+                         selector:@selector(reloadMenus:)
+                             name:@"iTermWindowBecameKey"
+                           object:nil];
 
-    // Add ourselves as an observer for notifications.
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(reloadMenus:)
-                                                 name:@"iTermWindowBecameKey"
-                                               object:nil];
+     /*   [[NSNotificationCenter defaultCenter] addObserver: self
+                                                 selector: @selector(updateAddressBookMenu:)
+                                                     name: @"iTermReloadAddressBook"
+                                                   object: nil]; */
 
- /*   [[NSNotificationCenter defaultCenter] addObserver: self
-                                             selector: @selector(updateAddressBookMenu:)
-                                                 name: @"iTermReloadAddressBook"
-                                               object: nil]; */
+        [notifyCenter addObserver:self
+                         selector:@selector(buildSessionSubmenu:)
+                             name:@"iTermNumberOfSessionsDidChange"
+                           object:nil];
 
-    [[NSNotificationCenter defaultCenter] addObserver: self
-                                             selector: @selector(buildSessionSubmenu:)
-                                                 name: @"iTermNumberOfSessionsDidChange"
-                                               object: nil];
+        [notifyCenter addObserver:self
+                         selector:@selector(buildSessionSubmenu:)
+                             name:@"iTermNameOfSessionDidChange"
+                           object:nil];
 
-    [[NSNotificationCenter defaultCenter] addObserver: self
-                                             selector: @selector(buildSessionSubmenu:)
-                                                 name: @"iTermNameOfSessionDidChange"
-                                               object: nil];
+        [notifyCenter addObserver:self
+                         selector:@selector(reloadSessionMenus:)
+                             name:@"iTermSessionBecameKey"
+                           object:nil];
 
-    [[NSNotificationCenter defaultCenter] addObserver: self
-                                             selector: @selector(reloadSessionMenus:)
-                                                 name: @"iTermSessionBecameKey"
-                                               object: nil];
+        [notifyCenter addObserver:self
+                         selector:@selector(nonTerminalWindowBecameKey:)
+                             name:@"nonTerminalWindowBecameKey"
+                           object:nil];
 
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(nonTerminalWindowBecameKey:)
-                                                 name:@"nonTerminalWindowBecameKey"
-                                               object:nil];
+        [[NSAppleEventManager sharedAppleEventManager]
+                    setEventHandler:self
+                        andSelector:@selector(getUrl:withReplyEvent:)
+                      forEventClass:kInternetEventClass
+                         andEventID:kAEGetURL];
 
-    [[NSAppleEventManager sharedAppleEventManager] setEventHandler:self
-                                                       andSelector:@selector(getUrl:withReplyEvent:)
-                                                     forEventClass:kInternetEventClass
-                                                        andEventID:kAEGetURL];
+        launchTime_ = [[NSDate date] retain];
 
-    aboutController = nil;
-    launchTime_ = [[NSDate date] retain];
-
-    NSLog(@"AppDelegate Done initing");
+        NSLog(@"AppDelegate Done initing");
+    }
+    
     return self;
 }
 
@@ -322,6 +314,7 @@ int gDebugLogFile = -1;
 
 - (void) dealloc
 {
+    /* TODO: Does thsi remove all of them? */
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 
     [super dealloc];
@@ -435,57 +428,16 @@ void DebugLog(NSString* value)
         }
 }
  
-/// About window
-
-- (NSAttributedString*)_linkTo:(NSString*)urlString title:(NSString*)title
-{
-    NSDictionary *linkAttributes 
-        = [NSDictionary dictionaryWithObject:[NSURL URLWithString:urlString] forKey:NSLinkAttributeName];
-    NSString *localizedTitle = NSLocalizedStringFromTableInBundle(title, @"iTerm", [NSBundle bundleForClass:[self class]],
-                                                                  @"About");
-
-    NSAttributedString *string = [[NSAttributedString alloc] initWithString:localizedTitle
-                                                                 attributes:linkAttributes];
-    return [string autorelease];
-}
-
-
 - (IBAction)showAboutWindow:(id)sender
 {
     /* check if an About window is shown already */
-    if (aboutController) {
-        [aboutController showWindow:self];
+    if (aboutController_) {
+        [aboutController_ showWindow:self];
         return;
+    } else {
+        NSLog(@"Failed to show About Window");    
     }
-    
-    NSDictionary *myDict = [[NSBundle bundleForClass:[self class]] infoDictionary];
-    NSString *versionString = [NSString stringWithFormat: @"Build %@\n\n", [myDict objectForKey:@"CFBundleVersion"]];
-
-    NSAttributedString *webAString     = [self _linkTo:@"http://iterm2.com/" title:@"Home Page\n"];
-    NSAttributedString *bugsAString    = [self _linkTo:@"http://code.google.com/p/iterm2/issues/entry" title:@"Report a bug\n\n"];
-    NSAttributedString *creditsAString = [self _linkTo:@"http://code.google.com/p/iterm2/wiki/Credits" title:@"Credits"];
-
-    NSDictionary *linkTextViewAttributes
-        = [NSDictionary dictionaryWithObjectsAndKeys:
-            [NSNumber numberWithInt: NSSingleUnderlineStyle], NSUnderlineStyleAttributeName,
-            [NSColor blueColor], NSForegroundColorAttributeName,
-            [NSCursor pointingHandCursor], NSCursorAttributeName,
-          nil];
-
-    [AUTHORS setLinkTextAttributes:linkTextViewAttributes];
-    [[AUTHORS textStorage] deleteCharactersInRange: NSMakeRange(0, [[AUTHORS textStorage] length])];
-    [[AUTHORS textStorage] appendAttributedString:[[[NSAttributedString alloc] initWithString:versionString] autorelease]];
-    [[AUTHORS textStorage] appendAttributedString: webAString];
-    [[AUTHORS textStorage] appendAttributedString: bugsAString];
-    [[AUTHORS textStorage] appendAttributedString: creditsAString];
-    [AUTHORS setAlignment: NSCenterTextAlignment range: NSMakeRange(0, [[AUTHORS textStorage] length])];
-
-    aboutController = [[NSWindowController alloc] initWithWindow:ABOUT];
-    [aboutController showWindow:ABOUT];
 }
-
-
-
 
 // Notifications
 - (void)reloadMenus:(NSNotification *)aNotification

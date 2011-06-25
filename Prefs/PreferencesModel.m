@@ -106,18 +106,18 @@
 
 - (void)updateAllModelValues
 {
-    NSLog(@"PMODEL: Updating all Model Values");
+    //NSLog(@"PMODEL: Updating all Model Values");
     id values = [self values];
     for (NSString *str in [preferenceKeys_ allObjects]) {
         id value = [values valueForKey:str];
-        NSLog(@"setting %@ to %@", str, value);
+        //NSLog(@"setting %@ to %@", str, value);
         [self setValue:value forKey:str];
     }
 }
 
 - (void)resetToFactoryDefaults
 {   
-    NSLog(@"MODEL: reset to AppDefault settings");
+    //NSLog(@"MODEL: reset to AppDefault settings");
     
     [self.userDefaultsController revertToInitialValues:self];
     
@@ -128,23 +128,23 @@
 
 - (void)saveToUserPreferences
 {
-    NSLog(@"MODEL: save to user preferences");
+    //NSLog(@"MODEL: save to user preferences");
     [self.userDefaultsController save:self];
 }
 
 - (void)loadFromUserPreferences
 {
-    NSLog(@"MODEL: load from user preferences");
+    //NSLog(@"MODEL: load from user preferences");
     
     NSString *domain = [[NSBundle mainBundle] bundleIdentifier];
-    NSLog(@"bundle: %@", domain);
+    //NSLog(@"bundle: %@", domain);
     NSDictionary *customPrefs 
         = [[self.userDefaultsController defaults] persistentDomainForName:domain];
     
     resetInProgress_ = YES;
     for (NSString *key in [customPrefs allKeys]) {
         id value = [customPrefs valueForKey:key];
-        NSLog(@"loading key: %@ => %@", key, value);
+        //NSLog(@"loading key: %@ => %@", key, value);
         [self setValue:value forKey:key];
     }
     resetInProgress_ = NO;
@@ -177,7 +177,7 @@
 
     /* access to self is necessary for the NSObjectController bindings. */
     if ([key isEqual:@"self"]) {
-        NSLog(@"PMODEL: Self requested");
+        //NSLog(@"PMODEL: Self requested");
         return self;
     }
     
@@ -186,19 +186,19 @@
 
 - (void)setValue:(id)value forKey:(NSString *)key
 {
-    NSLog(@"setValue: %@ ForKey: %@", value, key);
+    //NSLog(@"setValue: %@ ForKey: %@", value, key);
     if ([preferenceKeys_ containsObject:key]) {
-        NSLog(@"key: %@ is valid", key);
+        //NSLog(@"key: %@ is valid", key);
         id originalValue = [[self values] valueForKey:key];
         if ([originalValue isEqual:value] && ! resetInProgress_) {
             return;
         }
-        NSLog(@"Values differ, going to update");
+        //NSLog(@"Values differ, going to update");
         [self willChangeValueForKey:key];
         [[self values] setValue:value forKey:key];
         [self didChangeValueForKey:key];
     } else {
-        NSLog(@"Invalid key: %@", key);
+        //NSLog(@"Invalid key: %@", key);
         [self setValue:value forUndefinedKey:key];
     }
 }

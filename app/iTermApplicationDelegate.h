@@ -29,6 +29,7 @@
 
 #import <Cocoa/Cocoa.h>
 #import <Carbon/Carbon.h>
+#import "AboutWindowController.h"
 
 //#define GENERAL_VERBOSE_LOGGING
 #ifdef GENERAL_VERBOSE_LOGGING
@@ -46,18 +47,11 @@ DebugLog([NSString stringWithFormat:args]); \
 extern BOOL gDebugLogging;
 void DebugLog(NSString* value);
 
-@interface iTermAboutWindow : NSPanel
-
-- (IBAction)closeCurrentSession:(id)sender;
-
-@end
 
 @interface iTermApplicationDelegate : NSObject
 {
     // about window
-    NSWindowController *aboutController;
-    IBOutlet id ABOUT;
-    IBOutlet NSTextView *AUTHORS;
+    IBOutlet AboutWindowController *aboutController_;
     
     // Menu items
     IBOutlet NSMenu     *profilesMenu_;
