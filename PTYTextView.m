@@ -1009,8 +1009,11 @@ static BOOL RectsEqual(NSRect* a, NSRect* b) {
     } else if ([attribute isEqualToString:NSAccessibilityRangeForLineParameterizedAttribute]) {
         //(NSValue *)  - (rangeValue) range of line; param:(NSNumber *)
         NSUInteger lineNumber = [(NSNumber*)parameter unsignedLongValue];
-        assert(lineNumber < [lineBreakIndexOffsets_ count]);
-        return [NSValue valueWithRange:[self _rangeOfLine:lineNumber]];
+        if (lineNumber >= [lineBreakIndexOffsets_ count]) {
+            return [NSValue valueWithRange:NSMakeRange(NSNotFound, 0)];
+        } else {
+            return [NSValue valueWithRange:[self _rangeOfLine:lineNumber]];
+        }
     } else if ([attribute isEqualToString:NSAccessibilityStringForRangeParameterizedAttribute]) {
         //(NSString *) - substring; param:(NSValue * - rangeValue)
         NSRange range = [(NSValue*)parameter rangeValue];
@@ -2271,7 +2274,9 @@ static BOOL RectsEqual(NSRect* a, NSRect* b) {
 
     dragOk_ = YES;
     PTYTextView* frontTextView = [[iTermController sharedInstance] frontTextView];
-    if (!cmdPressed && [[frontTextView->dataSource session] tab] != [[dataSource session] tab]) {
+    if (!cmdPressed &&
+        frontTextView &&
+        [[frontTextView->dataSource session] tab] != [[dataSource session] tab]) {
         // Mouse clicks in inactive tab are always handled by superclass because we don't want clicks
         // to select a split pane to be xterm-mouse-reported. We do allow cmd-clicks to go through
         // incase you're clicking on a URL.
@@ -4046,19 +4051,28 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
     int x2;
     int y2;
     int width = [dataSource width];
-    
+
+    if (x < 0) {
+        x = 0;
+    }
+    if (x >= width) {
+        x = width - 1;
+    }
+
     // Search backward from (x, y) to find the beginning of the word.
     tmpX = x;
     tmpY = y;
     // If the char at (x,y) is not whitespace, then go into a mode where
     // word characters are selected as blocks; else go into a mode where
     // whitespace is selected as a block.
-    screen_char_t sct = [dataSource getLineAtIndex:tmpY][tmpX];
+    screen_char_t* initialLine = [dataSource getLineAtIndex:tmpY];
+    assert(initialLine);
+    screen_char_t sct = initialLine[tmpX];
     BOOL selectWordChars = [self classifyChar:sct.code isComplex:sct.complexChar] != CHARTYPE_WHITESPACE;
-    
+
     while (tmpX >= 0) {
         screen_char_t* theLine = [dataSource getLineAtIndex:tmpY];
-        
+
         if ([self shouldSelectCharForWord:theLine[tmpX].code isComplex:theLine[tmpX].complexChar selectWordChars:selectWordChars]) {
             tmpX--;
             if (tmpX < 0 && tmpY > 0) {
@@ -4152,12 +4166,12 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
     if (endy) {
         *endy = tmpY;
     }
-    
+
     // Grab the contents to return.
     x2 = tmpX+1;
     y2 = tmpY;
-    
-    return ([self contentFromX:x1 Y:yStart ToX:x2 Y:y2 pad: YES]);
+
+    return [self contentFromX:x1 Y:yStart ToX:x2 Y:y2 pad: YES];
 }
 
 @end
@@ -6527,6 +6541,9 @@ static bool IsUrlChar(NSString* str)
 
 - (void)invalidateInputMethodEditorRect
 {
+    if ([dataSource width] == 0) {
+        return;
+    }
     int imeLines = ([dataSource cursorX] - 1 + [self inputMethodEditorLength] + 1) / [dataSource width] + 1;
 
     NSRect imeRect = NSMakeRect(MARGIN,
