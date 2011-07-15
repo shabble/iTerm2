@@ -52,6 +52,7 @@
 #define DEBUG_ALLOC           0
 #define DEBUG_METHOD_TRACE    0
 #define DEBUG_KEYDOWNDUMP     0
+#define ASK_ABOUT_OUTDATED_FORMAT @"AskAboutOutdatedKeyMappingForGuid%@"
 
 @implementation PTYSession
 
@@ -433,7 +434,7 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
     if (!filename) {
         return;
     }
-    NSString* cmd = [NSString stringWithFormat:@"tic -e xterm-256color %@", filename];
+    NSString* cmd = [NSString stringWithFormat:@"tic -e xterm-256color %@", [filename stringWithEscapedShellCharacters]];
     if (system("infocmp xterm-256color")) {
         switch (NSRunAlertPanel(@"Warning",
                                 @"The terminfo file for the terminal type you're using, \"xterm-256color\", is not installed on your system. Would you like to install it now?",
@@ -551,6 +552,9 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
     [SCREEN setSession:nil];
     [SCREEN setTerminal:nil];
     [TERMINAL setScreen:nil];
+    if ([[view findViewController] delegate] == self) {
+        [[view findViewController] setDelegate:nil];
+    }
 
     [updateTimer invalidate];
     [updateTimer release];
@@ -636,9 +640,14 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
     [[ProcessCache sharedInstance] notifyNewOutput];
 }
 
+- (BOOL)_growlOnForegroundTabs
+{
+    return [[[NSUserDefaults standardUserDefaults] objectForKey:@"GrowlOnForegroundTabs"] boolValue];
+}
+
 - (void)brokenPipe
 {
-    if ([SCREEN growl] && ![[self tab] isForegroundTab]) {
+    if ([SCREEN growl] && (![[self tab] isForegroundTab] || [self _growlOnForegroundTabs])) {
         [gd growlNotify:@"Session Ended"
             withDescription:[NSString stringWithFormat:@"Session \"%@\" in tab #%d just terminated.",
                              [self name],
@@ -716,6 +725,12 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
 - (BOOL)_askAboutOutdatedKeyMappings
 {
     NSNumber* n = [addressBookEntry objectForKey:KEY_ASK_ABOUT_OUTDATED_KEYMAPS];
+    if (!n) {
+        n = [[NSUserDefaults standardUserDefaults] objectForKey:[NSString stringWithFormat:ASK_ABOUT_OUTDATED_FORMAT, [addressBookEntry objectForKey:KEY_GUID]]];
+        if (!n && [addressBookEntry objectForKey:KEY_ORIGINAL_GUID]) {
+            n = [[NSUserDefaults standardUserDefaults] objectForKey:[NSString stringWithFormat:ASK_ABOUT_OUTDATED_FORMAT, [addressBookEntry objectForKey:KEY_ORIGINAL_GUID]]];
+        }
+    }
     return n ? [n boolValue] : YES;
 }
 
@@ -753,6 +768,14 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
     [model setObject:[NSNumber numberWithBool:NO]
                                        forKey:KEY_ASK_ABOUT_OUTDATED_KEYMAPS
                                    inBookmark:addressBookEntry];
+    [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:NO]
+                                              forKey:[NSString stringWithFormat:ASK_ABOUT_OUTDATED_FORMAT,
+                                                      [addressBookEntry objectForKey:KEY_GUID]]];
+    if ([addressBookEntry objectForKey:KEY_ORIGINAL_GUID]) {
+        [[NSUserDefaults standardUserDefaults] setObject:[NSNumber numberWithBool:NO]
+                                                  forKey:[NSString stringWithFormat:ASK_ABOUT_OUTDATED_FORMAT,
+                                                          [addressBookEntry objectForKey:KEY_ORIGINAL_GUID]]];
+    }
     [PTYSession reloadAllBookmarks];
 }
 
@@ -1076,25 +1099,18 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
             // Handle all "special" keys (arrows, etc.)
             NSData *data = nil;
 
-            // Set the alternate key mask iff an esc-generating modifier is
-            // pressed.
-            unsigned int hackedModflag = modflag & (~NSAlternateKeyMask);
-            if ([self shouldSendEscPrefixForModifier:modflag]) {
-                hackedModflag |= NSAlternateKeyMask;
-            }
-
             switch (unicode) {
                 case NSUpArrowFunctionKey:
-                    data = [TERMINAL keyArrowUp:hackedModflag];
+                    data = [TERMINAL keyArrowUp:modflag];
                     break;
                 case NSDownArrowFunctionKey:
-                    data = [TERMINAL keyArrowDown:hackedModflag];
+                    data = [TERMINAL keyArrowDown:modflag];
                     break;
                 case NSLeftArrowFunctionKey:
-                    data = [TERMINAL keyArrowLeft:hackedModflag];
+                    data = [TERMINAL keyArrowLeft:modflag];
                     break;
                 case NSRightArrowFunctionKey:
-                    data = [TERMINAL keyArrowRight:hackedModflag];
+                    data = [TERMINAL keyArrowRight:modflag];
                     break;
                 case NSInsertFunctionKey:
                     data = [TERMINAL keyInsert];
@@ -1104,16 +1120,16 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
                     data = [TERMINAL keyDelete];
                     break;
                 case NSHomeFunctionKey:
-                    data = [TERMINAL keyHome:hackedModflag];
+                    data = [TERMINAL keyHome:modflag];
                     break;
                 case NSEndFunctionKey:
-                    data = [TERMINAL keyEnd:hackedModflag];
+                    data = [TERMINAL keyEnd:modflag];
                     break;
                 case NSPageUpFunctionKey:
-                    data = [TERMINAL keyPageUp:hackedModflag];
+                    data = [TERMINAL keyPageUp:modflag];
                     break;
                 case NSPageDownFunctionKey:
-                    data = [TERMINAL keyPageDown:hackedModflag];
+                    data = [TERMINAL keyPageDown:modflag];
                     break;
                 case NSClearLineFunctionKey:
                     data = [@"\e" dataUsingEncoding:NSUTF8StringEncoding];
@@ -1402,6 +1418,57 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
     return info;
 }
 
+
+- (void)_pasteStringImmediately:(NSString*)aString
+{
+    if ([aString length] > 0) {
+        [self writeTask:[aString
+                         dataUsingEncoding:[TERMINAL encoding]
+                         allowLossyConversion:YES]];
+
+    }
+}
+
+- (void)_pasteWithBytePerCallPrefKey:(NSString*)bytesPerCallKey
+                        defaultValue:(int)bytesPerCallDefault
+            delayBetweenCallsPrefKey:(NSString*)delayBetweenCallsKey
+                        defaultValue:(float)delayBetweenCallsDefault
+                            selector:(SEL)selector
+{
+    NSRange range;
+    range.location = 0;
+    NSNumber* pref = [[NSUserDefaults standardUserDefaults] valueForKey:bytesPerCallKey];
+    NSNumber* delay = [[NSUserDefaults standardUserDefaults] valueForKey:delayBetweenCallsKey];
+    const int kBatchSize = pref ? [pref intValue] : bytesPerCallDefault;
+    if ([slowPasteBuffer length] > kBatchSize) {
+        range.length = kBatchSize;
+    } else {
+        range.length = [slowPasteBuffer length];
+    }
+    [self _pasteStringImmediately:[slowPasteBuffer substringWithRange:range]];
+    [slowPasteBuffer deleteCharactersInRange:range];
+    if ([slowPasteBuffer length] > 0) {
+        slowPasteTimer = [NSTimer scheduledTimerWithTimeInterval:delay ? [delay floatValue] : delayBetweenCallsDefault
+                                                          target:self
+                                                        selector:selector
+                                                        userInfo:nil
+                                                         repeats:NO];
+    } else {
+        slowPasteTimer = nil;
+    }
+}
+
+// Outputs 16 bytes every 125ms so that clients that don't buffer input can handle pasting large buffers.
+// Override the constnats by setting defaults SlowPasteBytesPerCall and SlowPasteDelayBetweenCalls
+- (void)pasteSlowly:(id)sender
+{
+    [self _pasteWithBytePerCallPrefKey:@"SlowPasteBytesPerCall"
+                          defaultValue:16
+              delayBetweenCallsPrefKey:@"SlowPasteDelayBetweenCalls"
+                          defaultValue:0.125
+                              selector:@selector(pasteSlowly:)];
+}
+
 - (void)paste:(id)sender
 {
     NSString* pbStr = [PTYSession pasteboardString];
@@ -1416,7 +1483,7 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
             [str replaceOccurrencesOfString:@" " withString:@"\\ " options:NSLiteralSearch range:NSMakeRange(0, [str length])];
         }
         if ([sender tag] & 2) {
-            [slowPasteBuffer setString:str];
+            [slowPasteBuffer appendString:[str stringWithLinefeedNewlines]];
             [self pasteSlowly:nil];
         } else {
             [self pasteString:str];
@@ -1424,44 +1491,25 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
     }
 }
 
-// Outputs 16 bytes every 125ms so that clients that don't buffer input can handle pasting large buffers.
-// Override the constnats by setting defaults SlowPasteBytesPerCall and SlowPasteDelayBetweenCalls
-- (void)pasteSlowly:(id)sender
+- (void)_pasteStringMore
 {
-    NSRange range;
-    range.location = 0;
-    NSNumber* pref = [[NSUserDefaults standardUserDefaults] valueForKey:@"SlowPasteBytesPerCall"];
-    NSNumber* delay = [[NSUserDefaults standardUserDefaults] valueForKey:@"SlowPasteDelayBetweenCalls"];
-    const int kBatchSize = pref ? [pref intValue] : 16;
-    if ([slowPasteBuffer length] > kBatchSize) {
-        range.length = kBatchSize;
-    } else {
-        range.length = [slowPasteBuffer length];
-    }
-    [self pasteString:[slowPasteBuffer substringWithRange:range]];
-    [slowPasteBuffer deleteCharactersInRange:range];
-    if ([slowPasteBuffer length] > 0) {
-        slowPasteTimer = [NSTimer scheduledTimerWithTimeInterval:delay ? [delay floatValue] : 0.125
-                                                          target:self
-                                                        selector:@selector(pasteSlowly:)
-                                                        userInfo:nil
-                                                         repeats:NO];
-    } else {
-        slowPasteTimer = nil;
-    }
+    [self _pasteWithBytePerCallPrefKey:@"QuickPasteBytesPerCall"
+                          defaultValue:256
+              delayBetweenCallsPrefKey:@"QuickPasteDelayBetweenCalls"
+                          defaultValue:0.01
+                              selector:@selector(_pasteStringMore)];
 }
 
 - (void)pasteString:(NSString *)aString
 {
-
     if ([aString length] > 0) {
-        NSString *tempString = [aString stringReplaceSubstringFrom:@"\r\n" to:@"\r"];
-        [self writeTask:[[tempString stringReplaceSubstringFrom:@"\n" to:@"\r"] dataUsingEncoding:[TERMINAL encoding]
-                                                                             allowLossyConversion:YES]];
+        // This is the "normal" way of pasting. It's fast but tends not to outrun a shell's ability to
+        // read from its buffer. Why this crazy thing? See bug 1031.
+        [slowPasteBuffer appendString:[aString stringWithLinefeedNewlines]];
+        [self _pasteStringMore];
     } else {
         NSBeep();
     }
-
 }
 
 - (void)deleteBackward:(id)sender

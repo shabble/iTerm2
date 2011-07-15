@@ -172,11 +172,6 @@ NSString *sessionsKey = @"sessions";
     self = [super initWithWindowNibName:@"PseudoTerminal"];
     NSAssert(self, @"initWithWindowNibName returned nil");
 
-    // Force the nib to load
-    [self window];
-    [commandField retain];
-    [commandField setDelegate:self];
-    [bottomBar retain];
     if (windowType == WINDOW_TYPE_FULL_SCREEN && screenNumber == -1) {
         NSUInteger n = [[NSScreen screens] indexOfObjectIdenticalTo:[[self window] screen]];
         if (n == NSNotFound) {
@@ -188,6 +183,17 @@ NSString *sessionsKey = @"sessions";
     if (windowType == WINDOW_TYPE_TOP) {
         smartLayout = NO;
     }
+    if (windowType == WINDOW_TYPE_NORMAL) {
+        // If you create a window with a minimize button and the menu bar is hidden then the
+        // minimize button is disabled. Currently the only window type with a miniaturize button
+        // is NORMAL.
+        [NSMenu setMenuBarVisible:YES];
+    }
+    // Force the nib to load
+    [self window];
+    [commandField retain];
+    [commandField setDelegate:self];
+    [bottomBar retain];
     windowType_ = windowType;
     pbHistoryView = [[PasteboardHistoryView alloc] init];
     autocompleteView = [[AutocompleteView alloc] init];
@@ -702,6 +708,8 @@ NSString *sessionsKey = @"sessions";
     [commandField release];
     [bottomBar release];
     [_toolbarController release];
+    [autocompleteView shutdown];
+    [pbHistoryView shutdown];
     [pbHistoryView release];
     [autocompleteView release];
 
@@ -1312,6 +1320,10 @@ NSString *sessionsKey = @"sessions";
         PtyLog(@"toggleFullScreenMode - set new frame to old frame: %fx%f", oldFrame_.size.width, oldFrame_.size.height);
         [[newTerminal window] setFrame:oldFrame_ display:YES];
     }
+
+    // Ensure that fullscreen windows (often hotkey windows) don't lose their collection behavior.
+    [[newTerminal window] setCollectionBehavior:[[self window] collectionBehavior]];
+
     newTerminal->useTransparency_ = useTransparency_;
     [newTerminal setIsHotKeyWindow:isHotKeyWindow_];
 
@@ -2539,10 +2551,28 @@ NSString *sessionsKey = @"sessions";
 
 - (Bookmark*)_bookmarkToSplit
 {
-    Bookmark* theBookmark = [[self currentSession] originalAddressBookEntry];
+    Bookmark* theBookmark = nil;
+
+    // Get the bookmark this session was originally created with. But look it up from its GUID because
+    // it might have changed since it was copied into originalAddressBookEntry when the bookmark was
+    // first created.
+    Bookmark* originalBookmark = [[self currentSession] originalAddressBookEntry];
+    if (originalBookmark && [originalBookmark objectForKey:KEY_GUID]) {
+        theBookmark = [[BookmarkModel sharedInstance] bookmarkWithGuid:[originalBookmark objectForKey:KEY_GUID]];
+    }
+
+    // If that fails, use its current bookmark.
     if (!theBookmark) {
         theBookmark = [[self currentSession] addressBookEntry];
     }
+
+    // I don't think that'll ever fail, but to be safe try using the original bookmark.
+    if (!theBookmark) {
+        theBookmark = originalBookmark;
+    }
+
+    // I really don't think this'll ever happen, but there's always a default bookmark to fall back
+    // on.
     if (!theBookmark) {
         theBookmark = [[BookmarkModel sharedInstance] defaultBookmark];
     }
@@ -3483,6 +3513,9 @@ NSString *sessionsKey = @"sessions";
 // Set the session to a size that fits on the screen.
 - (void)safelySetSessionSize:(PTYSession*)aSession rows:(int)rows columns:(int)columns
 {
+    if ([aSession exited]) {
+        return;
+    }
     PtyLog(@"safelySetSessionSize");
     BOOL hasScrollbar = !_fullScreen && ![[PreferencePanel sharedInstance] hideScrollbar];
     if (windowType_ == WINDOW_TYPE_NORMAL) {
@@ -4091,7 +4124,7 @@ NSString *sessionsKey = @"sessions";
     if ([self numberOfTabs] == 1 &&
         [addressbookEntry objectForKey:KEY_SPACE] &&
         [[addressbookEntry objectForKey:KEY_SPACE] intValue] == -1) {
-        [[self window] setCollectionBehavior:NSWindowCollectionBehaviorCanJoinAllSpaces];
+        [[self window] setCollectionBehavior:[[self window] collectionBehavior] | NSWindowCollectionBehaviorCanJoinAllSpaces];
     }
 
     [aSession release];

@@ -511,6 +511,10 @@ static __inline__ screen_char_t *incrementLinePointer(screen_char_t *buf_start, 
     assert(fromY < HEIGHT);
     assert(toY >= 0);
     assert(toY < HEIGHT);
+    assert(fromY <= toY);
+    if (fromY == toY) {
+        assert(fromX <= toX);
+    }
     int i = fromX + fromY * WIDTH;
     [self setRangeDirty:NSMakeRange(i, toX + toY * WIDTH - i)];
 }
@@ -571,13 +575,13 @@ static __inline__ screen_char_t *incrementLinePointer(screen_char_t *buf_start, 
     if (x == WIDTH) {
         x = WIDTH-1;
     }
-    assert(x >= 0);
-    assert(x < WIDTH);
-    assert(y >= 0);
-    assert(y < HEIGHT);
-
-    int i = x + y * WIDTH;
-    [self setDirtyAtOffset:i value:v];
+    if (x >= 0 &&
+        x < WIDTH &&
+        y >= 0 &&
+        y < HEIGHT) {
+        int i = x + y * WIDTH;
+        [self setDirtyAtOffset:i value:v];
+    }
 }
 
 - (void)setCharAtCursorDirty:(int)value
@@ -834,6 +838,8 @@ static char* FormatCont(int c)
     if (WIDTH == 0 || HEIGHT == 0 || (new_width==WIDTH && new_height==HEIGHT)) {
         return;
     }
+    new_width = MAX(new_width, 1);
+    new_height = MAX(new_height, 1);
 
     // create a new buffer and fill it with the default line.
     new_buffer_lines = (screen_char_t*)calloc(new_height * (new_width+1),
@@ -1146,12 +1152,12 @@ static char* FormatCont(int c)
     display = aDisplay;
 }
 
-- (BOOL) blinkingCursor
+- (BOOL)blinkingCursor
 {
     return (blinkingCursor);
 }
 
-- (void) setBlinkingCursor: (BOOL) flag
+- (void)setBlinkingCursor: (BOOL) flag
 {
     blinkingCursor = flag;
 }
@@ -2370,6 +2376,7 @@ void DumpBuf(screen_char_t* p, int n) {
     [self setCursorX:cx Y:cy];
     SCROLL_TOP = st;
     SCROLL_BOTTOM = sb;
+    assert(SCROLL_BOTTOM < HEIGHT);
 }
 
 - (void)eraseInDisplay:(VT100TCC)token
@@ -2544,7 +2551,7 @@ void DumpBuf(screen_char_t* p, int n) {
     if (cursorY <= SCROLL_BOTTOM) {
         [self setCursorX:cursorX Y:y > SCROLL_BOTTOM ? SCROLL_BOTTOM : y];
     } else {
-        [self setCursorX:cursorX Y:y];
+        [self setCursorX:cursorX Y:MAX(0, MIN(HEIGHT-1, y))];
     }
 
     if (cursorX < WIDTH) {
@@ -2680,6 +2687,7 @@ void DumpBuf(screen_char_t* p, int n) {
     {
         SCROLL_TOP = top;
         SCROLL_BOTTOM = bottom;
+        assert(SCROLL_BOTTOM < HEIGHT);
 
         if ([TERMINAL originMode]) {
             [self setCursorX:0 Y:SCROLL_TOP];
@@ -2875,7 +2883,7 @@ void DumpBuf(screen_char_t* p, int n) {
     DebugLog(@"insertLines");
 }
 
-- (void)deleteLines: (int)n
+- (void)deleteLines:(int)n
 {
     int i, num_lines_moved;
     screen_char_t *sourceLine, *targetLine, *aDefaultLine;
@@ -2884,7 +2892,6 @@ void DumpBuf(screen_char_t* p, int n) {
     NSLog(@"%s(%d):-[VT100Screen deleteLines; %d]", __FILE__, __LINE__, n);
 #endif
 
-    //    NSLog(@"insertLines %d[%d,%d]",n, cursorX,cursorY);
     if (n + cursorY <= SCROLL_BOTTOM) {
         // number of lines we can move down by n before we hit SCROLL_BOTTOM
         num_lines_moved = SCROLL_BOTTOM - (cursorY + n);
@@ -2907,7 +2914,9 @@ void DumpBuf(screen_char_t* p, int n) {
     }
 
     // everything between cursorY and SCROLL_BOTTOM is dirty
-    [self setDirtyFromX:0 Y:cursorY toX:WIDTH Y:SCROLL_BOTTOM];
+    if (cursorY <= SCROLL_BOTTOM) {
+        [self setDirtyFromX:0 Y:cursorY toX:WIDTH Y:SCROLL_BOTTOM];
+    }
     DebugLog(@"deleteLines");
 
 }
@@ -3544,13 +3553,8 @@ void DumpBuf(screen_char_t* p, int n) {
 // adds a line to scrollback area. Returns YES if oldest line is lost, NO otherwise
 - (int)_addLineToScrollbackImpl
 {
-    if (temp_buffer) {
-        // This is an experiment to not save to scrollback when we're in alternate
-        // screen mode. This was mentioned in a comment in bug 839 (though it's
-        // not really related).
-        return 0;
-    }
-
+    // There was an experiment to try not saving lines to scrollback when in alternate screen mode.
+    // It failed because it broke screen (see bug 1034).
     int len = WIDTH;
     if (screen_top[WIDTH].code == EOL_HARD) {
         // The line is not continued. Figure out its length by finding the last nonnull char.
