@@ -57,6 +57,7 @@ static const int MAX_WORKING_DIR_COUNT = 50;
 #import "Expose/iTermExpose.h"
 #import "RegexKitLite/RegexKitLite.h"
 #import "Misc/NSStringITerm.h"
+#import "FontSizeEstimator.h"
 
 #include <sys/time.h>
 #include <math.h>
@@ -497,6 +498,14 @@ static NSImage* wrapToBottomImage = nil;
     [self setNeedsDisplay:YES];
 }
 
+- (NSColor *)colorInColorTableWithIndex:(int)theIndex
+{
+	if (theIndex > 255) {
+		return nil;
+	}
+	return colorTable[theIndex];
+}
+
 - (NSColor*)_colorForCode:(int)theIndex alternateSemantics:(BOOL)alt bold:(BOOL)isBold
 {
     NSColor* color;
@@ -588,16 +597,21 @@ static NSImage* wrapToBottomImage = nil;
     return secondaryFont.font;
 }
 
++ (NSSize)charSizeForFont:(NSFont*)aFont horizontalSpacing:(double)hspace verticalSpacing:(double)vspace baseline:(double*)baseline
+{
+    FontSizeEstimator* fse = [FontSizeEstimator fontSizeEstimatorForFont:aFont];
+    NSSize size = [fse size];
+    size.width = ceil(size.width * hspace);
+    size.height = ceil(vspace * ceil(size.height + [aFont leading]));
+    if (baseline) {
+        *baseline = [fse baseline];
+    }
+    return size;
+}
+
 + (NSSize)charSizeForFont:(NSFont*)aFont horizontalSpacing:(double)hspace verticalSpacing:(double)vspace
 {
-    NSMutableDictionary *dic = [NSMutableDictionary dictionary];
-
-    [dic setObject:aFont forKey:NSFontAttributeName];
-    NSSize size = [@"W" sizeWithAttributes:dic];
-
-    size.width = ceil(size.width * hspace);
-    size.height = ceil(vspace * ceil([aFont ascender] - [aFont descender] + [aFont leading]));
-    return size;
+    return [PTYTextView charSizeForFont:aFont horizontalSpacing:hspace verticalSpacing:vspace baseline:nil];
 }
 
 - (double)horizontalSpacing
@@ -615,9 +629,11 @@ static NSImage* wrapToBottomImage = nil;
     horizontalSpacing:(double)horizontalSpacing
     verticalSpacing:(double)verticalSpacing
 {
+    double baseline;
     NSSize sz = [PTYTextView charSizeForFont:aFont
                            horizontalSpacing:1.0
-                             verticalSpacing:1.0];
+                             verticalSpacing:1.0
+                                    baseline:&baseline];
 
     charWidthWithoutSpacing = sz.width;
     charHeightWithoutSpacing = sz.height;
@@ -625,8 +641,8 @@ static NSImage* wrapToBottomImage = nil;
     verticalSpacing_ = verticalSpacing;
     charWidth = ceil(charWidthWithoutSpacing * horizontalSpacing);
     lineHeight = ceil(charHeightWithoutSpacing * verticalSpacing);
-    [self modifyFont:aFont info:&primaryFont];
-    [self modifyFont:naFont info:&secondaryFont];
+    [self modifyFont:aFont baseline:baseline info:&primaryFont];
+    [self modifyFont:naFont baseline:baseline info:&secondaryFont];
 
     // Cannot keep fallback fonts if the primary font changes because their
     // baseline offsets are set by the primary font. It's simplest to remove
@@ -1864,6 +1880,38 @@ static BOOL RectsEqual(NSRect* a, NSRect* b) {
     return [self smartSelectAtX:x y:y toStartX:&startX toStartY:&startY toEndX:&endX toEndY:&endY];
 }
 
+// Control-pgup and control-pgdown are handled at this level by NSWindow if no
+// view handles it. It's necessary to setUserScroll in the PTYScroller, or else
+// it scrolls back to the bottom right away. This code handles those two
+// keypresses and scrolls correctly.
+- (BOOL)performKeyEquivalent:(NSEvent *)theEvent
+{
+    NSString* unmodkeystr = [theEvent charactersIgnoringModifiers];
+    if ([unmodkeystr length] == 0) {
+        return [super performKeyEquivalent:theEvent];
+    }
+    unichar unmodunicode = [unmodkeystr length] > 0 ? [unmodkeystr characterAtIndex:0] : 0;
+
+    NSUInteger modifiers = [theEvent modifierFlags];
+    if ((modifiers & NSControlKeyMask) &&
+        (modifiers & NSFunctionKeyMask)) {
+        switch (unmodunicode) {
+            case NSPageUpFunctionKey:
+                [(PTYScroller*)([[self enclosingScrollView] verticalScroller]) setUserScroll:YES];
+                [self scrollPageUp:self];
+                return YES;
+
+            case NSPageDownFunctionKey:
+                [(PTYScroller*)([[self enclosingScrollView] verticalScroller]) setUserScroll:YES];
+                [self scrollPageDown:self];
+                return YES;
+
+            default:
+                break;
+        }
+    }
+    return [super performKeyEquivalent:theEvent];
+}
 
 - (void)keyDown:(NSEvent*)event
 {
@@ -1896,15 +1944,48 @@ static BOOL RectsEqual(NSRect* a, NSRect* b) {
         return;
     }
 
-    // Let the IME process key events
-    IM_INPUT_INSERT = NO;
-    [self interpretKeyEvents:[NSArray arrayWithObject:event]];
-
-    // If the IME didn't want it, pass it on to the delegate
+    // Control+Key doesn't work right with custom keyboard layouts. Handle ctrl+key here for the
+    // standard combinations.
+    BOOL workAroundControlBug = NO;
     if (!prev &&
-        !IM_INPUT_INSERT &&
-        ![self hasMarkedText]) {
-        [delegate keyDown:event];
+        (modflag & (NSControlKeyMask | NSCommandKeyMask | NSAlternateKeyMask)) == NSControlKeyMask) {
+        NSString *unmodkeystr = [event charactersIgnoringModifiers];
+        if ([unmodkeystr length] != 0) {
+            unichar unmodunicode = [unmodkeystr length] > 0 ? [unmodkeystr characterAtIndex:0] : 0;
+            unichar cc = 0xffff;
+            if (unmodunicode >= 'a' && unmodunicode <= 'z') {
+                cc = unmodunicode - 'a' + 1;
+            } else if (unmodunicode == ' ' || unmodunicode == '2' || unmodunicode == '@') {
+                cc = 0;
+            } else if (unmodunicode == '[') {  // esc
+                cc = 27;
+            } else if (unmodunicode == '\\') {
+                cc = 28;
+            } else if (unmodunicode == ']') {
+                cc = 29;
+            } else if (unmodunicode == '^' || unmodunicode == '6') {
+                cc = 30;
+            } else if (unmodunicode == '-' || unmodunicode == '_') {
+                cc = 31;
+            }
+            if (cc != 0xffff) {
+                [self insertText:[NSString stringWithCharacters:&cc length:1]];
+                workAroundControlBug = YES;
+            }
+        }
+    }
+
+    if (!workAroundControlBug) {
+        // Let the IME process key events
+        IM_INPUT_INSERT = NO;
+        [self interpretKeyEvents:[NSArray arrayWithObject:event]];
+
+        // If the IME didn't want it, pass it on to the delegate
+        if (!prev &&
+            !IM_INPUT_INSERT &&
+            ![self hasMarkedText]) {
+            [delegate keyDown:event];
+        }
     }
 }
 
@@ -6343,7 +6424,7 @@ static bool IsUrlChar(NSString* str)
     [self setNeedsDisplay:YES];
 }
 
-- (void)_modifyFont:(NSFont*)font into:(PTYFontInfo*)fontInfo
+- (void)_modifyFont:(NSFont*)font baseline:(double)baseline into:(PTYFontInfo*)fontInfo
 {
     if (fontInfo->font) {
         [self releaseFontInfo:fontInfo];
@@ -6351,19 +6432,19 @@ static bool IsUrlChar(NSString* str)
 
     fontInfo->font = font;
     [fontInfo->font retain];
-    fontInfo->baselineOffset = -(floorf([font leading]) - floorf([font descender]));
+    fontInfo->baselineOffset = baseline;
     fontInfo->boldVersion = NULL;
 }
 
-- (void)modifyFont:(NSFont*)font info:(PTYFontInfo*)fontInfo
+- (void)modifyFont:(NSFont*)font baseline:(double)baseline info:(PTYFontInfo*)fontInfo
 {
-    [self _modifyFont:font into:fontInfo];
+    [self _modifyFont:font baseline:baseline into:fontInfo];
     NSFontManager* fontManager = [NSFontManager sharedFontManager];
     NSFont* boldFont = [fontManager convertFont:font toHaveTrait:NSBoldFontMask];
     if (boldFont && ([fontManager traitsOfFont:boldFont] & NSBoldFontMask)) {
         fontInfo->boldVersion = (PTYFontInfo*)malloc(sizeof(PTYFontInfo));
         fontInfo->boldVersion->font = NULL;
-        [self _modifyFont:boldFont into:fontInfo->boldVersion];
+        [self _modifyFont:boldFont baseline:baseline into:fontInfo->boldVersion];
     }
 }
 
@@ -6376,7 +6457,7 @@ static bool IsUrlChar(NSString* str)
     } else {
         PTYFontInfo* info = (PTYFontInfo*) malloc(sizeof(PTYFontInfo));
         info->font = NULL;
-        [self _modifyFont:font into:info];
+        [self _modifyFont:font baseline:primaryFont.baselineOffset into:info];
 
         // Force this font to line up with the primary font's baseline.
         info->baselineOffset = primaryFont.baselineOffset;
