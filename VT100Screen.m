@@ -55,6 +55,9 @@
 #define MAX_SCROLLBACK_LINES 1000000
 #define DIRTY_MAGIC 0x76  // Used to ensure we don't go off end of dirty array
 
+// Wait this long between calls to NSBeep().
+static const double kInterBellQuietPeriod = 0.1;
+
 // we add a character at the end of line to indicate wrapping
 #define REAL_WIDTH (WIDTH+1)
 
@@ -1429,7 +1432,7 @@ static char* FormatCont(int c)
     case XTERMCC_WINDOWSIZE:
         //NSLog(@"setting window size from (%d, %d) to (%d, %d)", WIDTH, HEIGHT, token.u.csi.p[1], token.u.csi.p[2]);
         if (![[[SESSION addressBookEntry] objectForKey:KEY_DISABLE_WINDOW_RESIZING] boolValue] &&
-            ![[[SESSION tab] parentWindow] fullScreen]) {
+            ![[[SESSION tab] parentWindow] anyFullScreen]) {
             // set the column
             [[SESSION tab] sessionInitiatedResize:SESSION
                                             width:token.u.csi.p[2]
@@ -1439,7 +1442,7 @@ static char* FormatCont(int c)
         break;
     case XTERMCC_WINDOWSIZE_PIXEL:
         if (![[[SESSION addressBookEntry] objectForKey:KEY_DISABLE_WINDOW_RESIZING] boolValue] &&
-            ![[[SESSION tab] parentWindow] fullScreen]) {
+            ![[[SESSION tab] parentWindow] anyFullScreen]) {
             // TODO: Only allow this if there is a single session in the tab.
             [[SESSION tab] sessionInitiatedResize:SESSION
                                             width:(token.u.csi.p[2] / [display charWidth])
@@ -1449,14 +1452,14 @@ static char* FormatCont(int c)
     case XTERMCC_WINDOWPOS:
         //NSLog(@"setting window position to Y=%d, X=%d", token.u.csi.p[1], token.u.csi.p[2]);
         if (![[[SESSION addressBookEntry] objectForKey:KEY_DISABLE_WINDOW_RESIZING] boolValue] &&
-            ![[[SESSION tab] parentWindow] fullScreen])
+            ![[[SESSION tab] parentWindow] anyFullScreen])
             // TODO: Only allow this if there is a single session in the tab.
             [[[SESSION tab] parentWindow] windowSetFrameTopLeftPoint:NSMakePoint(token.u.csi.p[2],
                                                                                  [[[[SESSION tab] parentWindow] windowScreen] frame].size.height - token.u.csi.p[1])];
         break;
     case XTERMCC_ICONIFY:
         // TODO: Only allow this if there is a single session in the tab.
-        if (![[[SESSION tab] parentWindow] fullScreen])
+        if (![[[SESSION tab] parentWindow] anyFullScreen])
             [[[SESSION tab] parentWindow] windowPerformMiniaturize:nil];
         break;
     case XTERMCC_DEICONIFY:
@@ -1469,7 +1472,7 @@ static char* FormatCont(int c)
         break;
     case XTERMCC_LOWER:
         // TODO: Only allow this if there is a single session in the tab.
-        if (![[[SESSION tab] parentWindow] fullScreen])
+        if (![[[SESSION tab] parentWindow] anyFullScreen])
             [[[SESSION tab] parentWindow] windowOrderBack: nil];
         break;
     case XTERMCC_SU:
@@ -2954,7 +2957,17 @@ void DumpBuf(screen_char_t* p, int n) {
     NSLog(@"%s(%d):-[VT100Screen playBell]",  __FILE__, __LINE__);
 #endif
     if (PLAYBELL) {
-        NSBeep();
+        // Some bells or systems block on NSBeep so it's important to rate-limit it to prevent
+        // bells from blocking the terminal indefinitely. The small delay we insert between
+        // bells allows us to swallow up the vast majority of ^G characters when you cat a
+        // binary file.
+        static NSDate *lastBell;
+        double interval = lastBell ? [[NSDate date] timeIntervalSinceDate:lastBell] : INFINITY;
+        if (interval > kInterBellQuietPeriod) {
+            NSBeep();
+            [lastBell release];
+            lastBell = [[NSDate date] retain];
+        }
     }
     if (SHOWBELL) {
         [SESSION setBell:YES];
@@ -3225,7 +3238,6 @@ void DumpBuf(screen_char_t* p, int n) {
                               maxTime:(float)maxTime
                               toArray:(NSMutableArray*)results
 {
-    int startY, endY;
     // Append the screen contents to the scrollback buffer so they are included in the search.
     int linesPushed;
     linesPushed = [self _appendScreenToScrollback:[self _usedHeight]];
@@ -3251,26 +3263,23 @@ void DumpBuf(screen_char_t* p, int n) {
         }
 
         // Handle the current state
-        BOOL isOk;
         switch (context->status) {
-            case Matched:
+            case Matched: {
                 // NSLog(@"matched");
                 // Found a match in the text.
-                for (ResultRange* rr in context->results) {
+                NSArray *allPositions = [linebuffer convertPositions:context->results
+                                                           withWidth:WIDTH];
+                int k = 0;
+                for (ResultRange* currentResultRange in context->results) {
                     SearchResult* result = [[SearchResult alloc] init];
-                    isOk = [linebuffer convertPosition:rr->position
-                                             withWidth:WIDTH
-                                                   toX:&result->startX
-                                                   toY:&startY];
-                    assert(isOk);
-                    result->absStartY = startY + [self totalScrollbackOverflow];
 
-                    isOk = [linebuffer convertPosition:rr->position + rr->length - 1
-                                             withWidth:WIDTH
-                                                   toX:&result->endX
-                                                   toY:&endY];
-                    assert(isOk);
-                    result->absEndY = endY + [self totalScrollbackOverflow];
+                    XYRange* xyrange = [allPositions objectAtIndex:k++];
+
+                    result->startX = xyrange->xStart;
+                    result->endX = xyrange->xEnd;
+                    result->absStartY = xyrange->yStart + [self totalScrollbackOverflow];
+                    result->absEndY = xyrange->yEnd + [self totalScrollbackOverflow];
+
                     [results addObject:result];
                     [result release];
                     if (!(context->options & FindMultipleResults)) {
@@ -3283,6 +3292,7 @@ void DumpBuf(screen_char_t* p, int n) {
                 }
                 [context->results removeAllObjects];
                 break;
+            }
 
             case Searching:
                 // NSLog(@"searching");
