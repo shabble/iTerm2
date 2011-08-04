@@ -137,6 +137,10 @@ typedef enum { CURSOR_UNDERLINE, CURSOR_VERTICAL, CURSOR_BOX } ITermCursorType;
     IBOutlet NSButton *useCompactLabel;
     BOOL defaultUseCompactLabel;
 
+    // hide activity indicator
+    IBOutlet NSButton *hideActivityIndicator;
+    BOOL defaultHideActivityIndicator;
+
     // Highlight tab labels on activity
     IBOutlet NSButton *highlightTabLabels;
     BOOL defaultHighlightTabLabels;
@@ -175,6 +179,22 @@ typedef enum { CURSOR_UNDERLINE, CURSOR_VERTICAL, CURSOR_BOX } ITermCursorType;
     // Dim inactive split panes
     IBOutlet NSButton* dimInactiveSplitPanes;
     BOOL defaultDimInactiveSplitPanes;
+
+    // Animate dimming
+    IBOutlet NSButton* animateDimming;
+    BOOL defaultAnimateDimming;
+
+    // Dim background windows
+    IBOutlet NSButton* dimBackgroundWindows;
+    BOOL defaultDimBackgroundWindows;
+
+    // Dim text (and non-default background colors)
+    IBOutlet NSButton* dimOnlyText;
+    BOOL defaultDimOnlyText;
+
+    // Dimming amount
+    IBOutlet NSSlider* dimmingAmount;
+    float defaultDimmingAmount;
 
     // Window border
     IBOutlet NSButton* showWindowBorder;
@@ -339,6 +359,7 @@ typedef enum { CURSOR_UNDERLINE, CURSOR_VERTICAL, CURSOR_BOX } ITermCursorType;
     IBOutlet NSButton* useBrightBold;
     IBOutlet NSSlider *transparency;
     IBOutlet NSButton* blur;
+    IBOutlet NSSlider *blurRadius;
     IBOutlet NSButton* asciiAntiAliased;
     IBOutlet NSButton* nonasciiAntiAliased;
     IBOutlet NSButton* backgroundImage;
@@ -458,9 +479,9 @@ typedef enum { BulkCopyColors, BulkCopyDisplay, BulkCopyWindow, BulkCopyTerminal
 - (void)savePreferences;
 - (void)run;
 - (IBAction)settingChanged:(id)sender;
+- (float)fsTabDelay;
 - (BOOL)advancedFontRendering;
 - (float)strokeThickness;
-- (float)fsTabDelay;
 - (int)modifierTagToMask:(int)tag;
 - (void)windowWillLoad;
 - (void)windowWillClose:(NSNotification *)aNotification;
@@ -486,6 +507,7 @@ typedef enum { BulkCopyColors, BulkCopyDisplay, BulkCopyWindow, BulkCopyTerminal
 - (BOOL)maxVertically;
 - (BOOL)closingHotkeySwitchesSpaces;
 - (BOOL)useCompactLabel;
+- (BOOL)hideActivityIndicator;
 - (BOOL)highlightTabLabels;
 - (BOOL)openBookmark;
 - (NSString *)wordChars;
@@ -507,6 +529,10 @@ typedef enum { BulkCopyColors, BulkCopyDisplay, BulkCopyWindow, BulkCopyTerminal
 - (BOOL)showWindowBorder;
 - (BOOL)lionStyleFullscreen;
 - (BOOL)dimInactiveSplitPanes;
+- (BOOL)dimBackgroundWindows;
+- (BOOL)animateDimming;
+- (BOOL)dimOnlyText;
+- (float)dimmingAmount;
 - (BOOL)checkTestRelease;
 - (BOOL)legacySmartCursorColor;
 - (float)legacyMinimumContrast;

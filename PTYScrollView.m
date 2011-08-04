@@ -101,14 +101,27 @@
     return [super hitPart];
 }
 
+- (BOOL)_isLegacyScroller
+{
+    if ([self respondsToSelector:@selector(scrollerStyle)]) {
+        return [self scrollerStyle] == NSScrollerStyleLegacy;
+    } else {
+        return YES;
+    }
+}
+
 - (void)drawRect:(NSRect)dirtyRect {
-    if (IsLionOrLater() && self.hasDarkBackground) {
+    if (IsLionOrLater() &&
+        ![self _isLegacyScroller] &&
+        self.hasDarkBackground &&
+        dirtyRect.size.width > 0 &&
+        dirtyRect.size.height > 0) {
         NSImage *superDrawn = [[NSImage alloc] initWithSize:NSMakeSize(dirtyRect.origin.x + dirtyRect.size.width,
                                                                        dirtyRect.origin.y + dirtyRect.size.height)];
         [superDrawn lockFocus];
         [super drawRect:dirtyRect];
         [superDrawn unlockFocus];
-        
+
         NSImage *temp = [[NSImage alloc] initWithSize:[superDrawn size]];
         [temp lockFocus];
         [superDrawn drawAtPoint:dirtyRect.origin

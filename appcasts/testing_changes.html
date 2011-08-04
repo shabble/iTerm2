@@ -1,5 +1,64 @@
 These release notes are for the development builds of iTerm2. The last stable release was 1.0.0.
 
+iTerm2 1.0.0.20110731
+Bug fixes and some small features.
+
+Enhancements:
+- Draw red stripes in the background to indicate input being sent to all terminals.
+- Bring back hold cmd to show tabs in fullscreen.
+- Add preference to disable dimming animation.
+- Add escape code "Esc c" to reset terminal.
+
+Bug fixes:
+- Tighten up font spacing.
+- Restore click on dock to open default windows behavior.
+- Fix bug where blur affected windows on top, while also making Exposé work.
+- Don't indicate tab activity right after resizing the window to avoid bogus activity notifications.
+- Respect Lion fullscreen for profiles with fullscreen window type.
+- Fix how legacy scrollbars are drawn in Lion.
+- Fix returning to fullcsreen app when closing hotkey window.
+- Improve appearance of tabbar in fullscreen.
+- Use 100% of the screen in Lion fullscreen.
+- Fix memory leak.
+
+
+
+iTerm2 1.0.0.20110727
+Critical bugfix for yesterday's release, plus odds and ends.
+
+Enhancements:
+- Show tabs in fullscreen by default.
+- Add preference to hide tab's activity indicator.
+
+Bug fixes:
+- Fix bug where things turn upside down or lock up when creating a new tab or split.
+- Hide "hide scrollbar" pref on 10.7.
+- Speed up zooming on lion.
+- Restore original behavior of show/hide to actually show/hide, not just toggle focus.
+- Make right border show when there's no scrollbar and window borders are on.
+
+
+iTerm2 1.0.0.20110726
+Bug fixes and some small features. Please also read the release notes for the previous version 1.0.0.20110724. Because of a clerical error, users weren't prompted to upgrade to it.
+
+Enhancements:
+- Make tabview toggleable in fullscreen.
+- Make dock and menu bar appear by moving mouse to top/bottom of screen in non-Lion fullscreen mode. Remove hold-cmd-for-tabs.
+- Add option to dim background windows.
+- Add option to dim only foreground colors.
+- Add UI for adjusting dimming amount.
+- Add UI to make blur radius configurable.
+- Make it possible to launch iTerm2 from Applescript so it won't open any windows automatically.
+- Add ITERM_SESSION_ID environment variable that identifiers the window, tab, and pane number of each session.
+- Add hidden pref MaxPasteHistoryEntries.
+- We now update ~/Library/Applicaiton Support/iTerm/version.txt with the last run version number.
+
+Bug fixes:
+- Fix bug where nothing happens on startup (no windows opened, scripts run, etc.)
+- Fix invisibility in Exposé while blurred.
+- Restore previously active app when closing hotkey window.
+
+
 iTerm2 1.0.0.20110724
 This test release primarily fixes various Lion-related issues.
 

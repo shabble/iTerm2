@@ -529,6 +529,10 @@ static float versionNumber;
     } else {
         [lionStyleFullscreen setHidden:YES];
     }
+    [blurRadius setContinuous:YES];
+    [transparency setContinuous:YES];
+    [dimmingAmount setContinuous:YES];
+    [minimumContrast setContinuous:YES];
 }
 
 - (void)handleWindowWillCloseNotification:(NSNotification *)notification
@@ -888,11 +892,12 @@ static float versionNumber;
     defaultPassOnControlLeftClick = [prefs objectForKey:@"PassOnControlClick"]?[[prefs objectForKey:@"PassOnControlClick"] boolValue] : NO;
     defaultMaxVertically = [prefs objectForKey:@"MaxVertically"] ? [[prefs objectForKey:@"MaxVertically"] boolValue] : NO;
     defaultClosingHotkeySwitchesSpaces = [prefs objectForKey:@"ClosingHotkeySwitchesSpaces"] ? [[prefs objectForKey:@"ClosingHotkeySwitchesSpaces"] boolValue] : YES;
+    defaultFsTabDelay = [prefs objectForKey:@"FsTabDelay"] ? [[prefs objectForKey:@"FsTabDelay"] floatValue] : 1.0;
     defaultUseCompactLabel = [prefs objectForKey:@"UseCompactLabel"]?[[prefs objectForKey:@"UseCompactLabel"] boolValue]: YES;
+    defaultHideActivityIndicator = [prefs objectForKey:@"HideActivityIndicator"]?[[prefs objectForKey:@"HideActivityIndicator"] boolValue]: NO;
     defaultHighlightTabLabels = [prefs objectForKey:@"HighlightTabLabels"]?[[prefs objectForKey:@"HighlightTabLabels"] boolValue]: YES;
     defaultAdvancedFontRendering = [prefs objectForKey:@"HiddenAdvancedFontRendering"]?[[prefs objectForKey:@"HiddenAdvancedFontRendering"] boolValue] : NO;
     defaultStrokeThickness = [prefs objectForKey:@"HiddenAFRStrokeThickness"] ? [[prefs objectForKey:@"HiddenAFRStrokeThickness"] floatValue] : 0;
-    defaultFsTabDelay = [prefs objectForKey:@"FsTabDelay"] ? [[prefs objectForKey:@"FsTabDelay"] floatValue] : 1.0;
     [defaultWordChars release];
     defaultWordChars = [prefs objectForKey: @"WordCharacters"]?[[prefs objectForKey: @"WordCharacters"] retain]:@"/-+\\~_.";
     defaultOpenBookmark = [prefs objectForKey:@"OpenBookmark"]?[[prefs objectForKey:@"OpenBookmark"] boolValue]: NO;
@@ -916,6 +921,10 @@ static float versionNumber;
     defaultIrMemory = [prefs objectForKey:@"IRMemory"]?[[prefs objectForKey:@"IRMemory"] intValue] : 4;
     defaultCheckTestRelease = [prefs objectForKey:@"CheckTestRelease"]?[[prefs objectForKey:@"CheckTestRelease"] boolValue]: YES;
     defaultDimInactiveSplitPanes = [prefs objectForKey:@"DimInactiveSplitPanes"]?[[prefs objectForKey:@"DimInactiveSplitPanes"] boolValue]: YES;
+    defaultDimBackgroundWindows = [prefs objectForKey:@"DimBackgroundWindows"]?[[prefs objectForKey:@"DimBackgroundWindows"] boolValue]: NO;
+    defaultAnimateDimming = [prefs objectForKey:@"AnimateDimming"]?[[prefs objectForKey:@"AnimateDimming"] boolValue]: NO;
+    defaultDimOnlyText = [prefs objectForKey:@"DimOnlyText"]?[[prefs objectForKey:@"DimOnlyText"] boolValue]: NO;
+    defaultDimmingAmount = [prefs objectForKey:@"SplitPaneDimmingAmount"] ? [[prefs objectForKey:@"SplitPaneDimmingAmount"] floatValue] : 0.4;
     defaultShowWindowBorder = [[prefs objectForKey:@"UseBorder"] boolValue];
     defaultLionStyleFullscreen = [prefs objectForKey:@"UseLionStyleFullscreen"] ? [[prefs objectForKey:@"UseLionStyleFullscreen"] boolValue] : YES;
 
@@ -1019,14 +1028,15 @@ static float versionNumber;
     [prefs setValue:defaultHotKeyBookmarkGuid forKey:@"HotKeyBookmark"];
     [prefs setBool:defaultEnableBonjour forKey:@"EnableRendezvous"];
     [prefs setBool:defaultCmdSelection forKey:@"CommandSelection"];
+    [prefs setFloat:defaultFsTabDelay forKey:@"FsTabDelay"];
     [prefs setBool:defaultPassOnControlLeftClick forKey:@"PassOnControlClick"];
     [prefs setBool:defaultMaxVertically forKey:@"MaxVertically"];
     [prefs setBool:defaultClosingHotkeySwitchesSpaces forKey:@"ClosingHotkeySwitchesSpaces"];
     [prefs setBool:defaultUseCompactLabel forKey:@"UseCompactLabel"];
+    [prefs setBool:defaultHideActivityIndicator forKey:@"HideActivityIndicator"];
     [prefs setBool:defaultHighlightTabLabels forKey:@"HighlightTabLabels"];
     [prefs setBool:defaultAdvancedFontRendering forKey:@"HiddenAdvancedFontRendering"];
     [prefs setFloat:defaultStrokeThickness forKey:@"HiddenAFRStrokeThickness"];
-    [prefs setFloat:defaultFsTabDelay forKey:@"FsTabDelay"];
     [prefs setObject: defaultWordChars forKey: @"WordCharacters"];
     [prefs setBool:defaultOpenBookmark forKey:@"OpenBookmark"];
     [prefs setObject:[dataSource rawData] forKey: @"New Bookmarks"];
@@ -1046,6 +1056,10 @@ static float versionNumber;
     [prefs setInteger:defaultIrMemory forKey:@"IRMemory"];
     [prefs setBool:defaultCheckTestRelease forKey:@"CheckTestRelease"];
     [prefs setBool:defaultDimInactiveSplitPanes forKey:@"DimInactiveSplitPanes"];
+    [prefs setBool:defaultDimBackgroundWindows forKey:@"DimBackgroundWindows"];
+    [prefs setBool:defaultAnimateDimming forKey:@"AnimateDimming"];
+    [prefs setBool:defaultDimOnlyText forKey:@"DimOnlyText"];
+    [prefs setFloat:defaultDimmingAmount forKey:@"SplitPaneDimmingAmount"];
     [prefs setBool:defaultShowWindowBorder forKey:@"UseBorder"];
     [prefs setBool:defaultLionStyleFullscreen forKey:@"UseLionStyleFullscreen"];
 
@@ -1101,6 +1115,7 @@ static float versionNumber;
     [maxVertically setState: defaultMaxVertically?NSOnState:NSOffState];
     [closingHotkeySwitchesSpaces setState:defaultClosingHotkeySwitchesSpaces?NSOnState:NSOffState];
     [useCompactLabel setState: defaultUseCompactLabel?NSOnState:NSOffState];
+    [hideActivityIndicator setState:defaultHideActivityIndicator?NSOnState:NSOffState];
     [highlightTabLabels setState: defaultHighlightTabLabels?NSOnState:NSOffState];
     [advancedFontRendering setState: defaultAdvancedFontRendering?NSOnState:NSOffState];
     [strokeThickness setEnabled:defaultAdvancedFontRendering];
@@ -1139,6 +1154,10 @@ static float versionNumber;
     [irMemory setIntValue:defaultIrMemory];
     [checkTestRelease setState:defaultCheckTestRelease?NSOnState:NSOffState];
     [dimInactiveSplitPanes setState:defaultDimInactiveSplitPanes?NSOnState:NSOffState];
+    [animateDimming setState:defaultAnimateDimming?NSOnState:NSOffState];
+    [dimBackgroundWindows setState:defaultDimBackgroundWindows?NSOnState:NSOffState];
+    [dimOnlyText setState:defaultDimOnlyText?NSOnState:NSOffState];
+    [dimmingAmount setFloatValue:defaultDimmingAmount];
     [showWindowBorder setState:defaultShowWindowBorder?NSOnState:NSOffState];
     [lionStyleFullscreen setState:defaultLionStyleFullscreen?NSOnState:NSOffState];
 
@@ -1187,6 +1206,11 @@ static float versionNumber;
     [[self window] makeKeyAndOrderFront:self];
 }
 
+- (float)fsTabDelay
+{
+    return defaultFsTabDelay;
+}
+
 - (BOOL)advancedFontRendering
 {
     return defaultAdvancedFontRendering;
@@ -1200,11 +1224,6 @@ static float versionNumber;
 - (float)legacyMinimumContrast
 {
     return [prefs objectForKey:@"MinimumContrast"] ? [[prefs objectForKey:@"MinimumContrast"] floatValue] : 0;;
-}
-
-- (float)fsTabDelay
-{
-    return defaultFsTabDelay;
 }
 
 - (int)modifierTagToMask:(int)tag
@@ -1231,6 +1250,7 @@ static float versionNumber;
     [dict setObject:[NSNumber numberWithInt:WINDOW_TYPE_TOP] forKey:KEY_WINDOW_TYPE];
     [dict setObject:[NSNumber numberWithInt:25] forKey:KEY_ROWS];
     [dict setObject:[NSNumber numberWithFloat:0.3] forKey:KEY_TRANSPARENCY];
+    [dict setObject:[NSNumber numberWithFloat:2.0] forKey:KEY_BLUR_RADIUS];
     [dict setObject:[NSNumber numberWithBool:YES] forKey:KEY_BLUR];
     [dict setObject:[NSNumber numberWithInt:-1] forKey:KEY_SCREEN];
     [dict setObject:[NSNumber numberWithInt:-1] forKey:KEY_SPACE];
@@ -1250,15 +1270,21 @@ static float versionNumber;
         sender == tabPosition ||
         sender == hideTab ||
         sender == useCompactLabel ||
+        sender == hideActivityIndicator ||
         sender == highlightTabLabels ||
         sender == hideScrollbar ||
         sender == advancedFontRendering ||
         sender == strokeThickness ||
         sender == dimInactiveSplitPanes ||
+        sender == dimBackgroundWindows ||
+        sender == animateDimming ||
+        sender == dimOnlyText ||
+        sender == dimmingAmount ||
         sender == showWindowBorder) {
         defaultWindowStyle = [windowStyle indexOfSelectedItem];
         defaultTabViewType=[tabPosition indexOfSelectedItem];
         defaultUseCompactLabel = ([useCompactLabel state] == NSOnState);
+        defaultHideActivityIndicator = ([hideActivityIndicator state] == NSOnState);
         defaultHighlightTabLabels = ([highlightTabLabels state] == NSOnState);
         defaultAdvancedFontRendering = ([advancedFontRendering state] == NSOnState);
         [strokeThickness setEnabled:defaultAdvancedFontRendering];
@@ -1268,6 +1294,10 @@ static float versionNumber;
         defaultStrokeThickness = [strokeThickness floatValue];
         defaultHideTab = ([hideTab state] == NSOnState);
         defaultDimInactiveSplitPanes = ([dimInactiveSplitPanes state] == NSOnState);
+        defaultDimBackgroundWindows = ([dimBackgroundWindows state] == NSOnState);
+        defaultAnimateDimming= ([animateDimming state] == NSOnState);
+        defaultDimOnlyText = ([dimOnlyText state] == NSOnState);
+        defaultDimmingAmount = [dimmingAmount floatValue];
         defaultShowWindowBorder = ([showWindowBorder state] == NSOnState);
         defaultHideScrollbar = ([hideScrollbar state] == NSOnState);
         [[NSNotificationCenter defaultCenter] postNotificationName:@"iTermRefreshTerminal"
@@ -1307,7 +1337,7 @@ static float versionNumber;
                             nil,
                             nil);
         }
- 
+
         defaultFsTabDelay = [fsTabDelay floatValue];
         defaultCopySelection=([selectionCopiesText state]==NSOnState);
         defaultPasteFromClipboard=([middleButtonPastesFromClipboard state]==NSOnState);
@@ -1535,6 +1565,11 @@ static float versionNumber;
     return defaultUseCompactLabel;
 }
 
+- (BOOL)hideActivityIndicator
+{
+    return defaultHideActivityIndicator;
+}
+
 - (BOOL)highlightTabLabels
 {
     return defaultHighlightTabLabels;
@@ -1681,6 +1716,26 @@ static float versionNumber;
 - (BOOL)dimInactiveSplitPanes
 {
     return defaultDimInactiveSplitPanes;
+}
+
+- (BOOL)dimBackgroundWindows
+{
+    return defaultDimBackgroundWindows;
+}
+
+- (BOOL)animateDimming
+{
+    return defaultAnimateDimming;
+}
+
+- (BOOL)dimOnlyText
+{
+    return defaultDimOnlyText;
+}
+
+- (float)dimmingAmount
+{
+    return defaultDimmingAmount;
 }
 
 - (BOOL)showWindowBorder
@@ -2128,6 +2183,7 @@ static float versionNumber;
     }
 
     [transparency setFloatValue:[[dict objectForKey:KEY_TRANSPARENCY] floatValue]];
+    [blurRadius setFloatValue:[dict objectForKey:KEY_BLUR_RADIUS] ? [[dict objectForKey:KEY_BLUR_RADIUS] floatValue] : 2.0];
     [blur setState:[[dict objectForKey:KEY_BLUR] boolValue] ? NSOnState : NSOffState];
     if ([dict objectForKey:KEY_ASCII_ANTI_ALIASED]) {
         [asciiAntiAliased setState:[[dict objectForKey:KEY_ASCII_ANTI_ALIASED] boolValue] ? NSOnState : NSOffState];
@@ -2471,6 +2527,7 @@ static float versionNumber;
     [newDict setObject:[NSNumber numberWithBool:([useBoldFont state]==NSOnState)] forKey:KEY_USE_BOLD_FONT];
     [newDict setObject:[NSNumber numberWithBool:([useBrightBold state]==NSOnState)] forKey:KEY_USE_BRIGHT_BOLD];
     [newDict setObject:[NSNumber numberWithFloat:[transparency floatValue]] forKey:KEY_TRANSPARENCY];
+    [newDict setObject:[NSNumber numberWithFloat:[blurRadius floatValue]] forKey:KEY_BLUR_RADIUS];
     [newDict setObject:[NSNumber numberWithBool:([blur state]==NSOnState)] forKey:KEY_BLUR];
     [newDict setObject:[NSNumber numberWithBool:([asciiAntiAliased state]==NSOnState)] forKey:KEY_ASCII_ANTI_ALIASED];
     [newDict setObject:[NSNumber numberWithBool:([nonasciiAntiAliased state]==NSOnState)] forKey:KEY_NONASCII_ANTI_ALIASED];
@@ -3241,6 +3298,7 @@ static float versionNumber;
         KEY_SCREEN,
         KEY_SPACE,
         KEY_TRANSPARENCY,
+        KEY_BLUR_RADIUS,
         KEY_BLUR,
         KEY_BACKGROUND_IMAGE_LOCATION,
         KEY_SYNC_TITLE,

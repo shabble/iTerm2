@@ -1294,8 +1294,16 @@ static char* FormatCont(int c)
             }
         }
         break;
-    case VT100CSI_RIS: break;
-    case VT100CSI_RM: break;
+    case VT100CSI_RIS:
+            // As far as I can tell, this is not part of the standard and should not be
+            // supported.  -- georgen 7/31/11
+            break;
+
+    case ANSI_RIS:
+            [TERMINAL reset];
+            break;
+    case VT100CSI_RM:
+            break;
     case VT100CSI_SCS0: charset[0]=(token.u.code=='0'); break;
     case VT100CSI_SCS1: charset[1]=(token.u.code=='0'); break;
     case VT100CSI_SCS2: charset[2]=(token.u.code=='0'); break;
@@ -3569,7 +3577,6 @@ void DumpBuf(screen_char_t* p, int n) {
     if (screen_top[WIDTH].code == EOL_HARD) {
         // The line is not continued. Figure out its length by finding the last nonnull char.
         while (len > 0 && (screen_top[len - 1].code == 0)) {
-            assert(screen_top[len - 1].code != DWC_SKIP); // Impossible to have a dwc skip here.
             --len;
         }
     }
