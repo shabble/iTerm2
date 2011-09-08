@@ -78,14 +78,22 @@
 @end
 
 @protocol BookmarkTableDelegate
+@optional
 - (void)bookmarkTableSelectionDidChange:(id)bookmarkTable;
+
+@optional
 - (void)bookmarkTableSelectionWillChange:(id)bookmarkTable;
+
+@optional
 - (void)bookmarkTableRowSelected:(id)bookmarkTable;
+
+@optional
 - (NSMenu*)bookmarkTable:(id)bookmarkTable menuForEvent:(NSEvent*)theEvent;
 @end
 
 @interface BookmarkListView : NSView {
-    int rowHeight_;
+    int normalRowHeight_;
+    int rowHeightWithTags_;
     NSScrollView* scrollView_;
     iTermSearchField* searchField_;
     BookmarkTableView* tableView_;
@@ -94,17 +102,17 @@
     NSTableColumn* shortcutColumn_;
     NSTableColumn* starColumn_;
     NSTableColumn* tagsColumn_;
-    id<BookmarkTableDelegate> delegate_;
-    BOOL showGraphic_;
+    NSObject<BookmarkTableDelegate> *delegate_;
     NSSet* selectedGuids_;
     BOOL debug;
     BookmarkModelWrapper* dataSource_;
+    int margin_;
 }
 
 - (void)awakeFromNib;
 - (id)initWithFrame:(NSRect)frameRect;
 - (id)initWithFrame:(NSRect)frameRect model:(BookmarkModel*)dataSource;
-- (void)setDelegate:(id<BookmarkTableDelegate>)delegate;
+- (void)setDelegate:(NSObject<BookmarkTableDelegate> *)delegate;
 - (void)dealloc;
 - (BookmarkModelWrapper*)dataSource;
 - (void)setUnderlyingDatasource:(BookmarkModel*)dataSource;
@@ -135,7 +143,6 @@
 - (void)selectRowByGuid:(NSString*)guid;
 - (int)numberOfRows;
 - (void)hideSearch;
-- (void)setShowGraphic:(BOOL)showGraphic;
 - (void)allowEmptySelection;
 - (void)allowMultipleSelections;
 - (void)deselectAll;
@@ -144,6 +151,8 @@
 // Dont' use this if you've called allowMultipleSelections
 - (NSString*)selectedGuid;
 - (NSSet*)selectedGuids;
+- (BOOL)hasSelection;
+- (NSArray *)orderedSelectedGuids;
 - (void)dataChangeNotification:(id)sender;
 - (void)onDoubleClick:(id)sender;
 - (void)eraseQuery;
@@ -151,5 +160,8 @@
 - (void)turnOnDebug;
 - (NSTableView*)tableView;
 - (id)delegate;
+
+- (void)setFont:(NSFont *)theFont;
+- (void)disableArrowHandler;
 
 @end

@@ -24,14 +24,23 @@
 
 #import <iTerm/ITAddressBookMgr.h>
 #import <iTerm/BookmarkModel.h>
+#import "PreferencePanel.h"
 
 id gAltOpenAllRepresentedObject;
+// Set to true if a bookmark was changed automatically due to migration to a new
+// standard.
+int gMigrated;
 
 @implementation BookmarkModel
 
 + (void)initialize
 {
     gAltOpenAllRepresentedObject = [[NSObject alloc] init];
+}
+
++ (BOOL)migrated
+{
+    return gMigrated;
 }
 
 - (BookmarkModel*)init
@@ -186,6 +195,50 @@ id gAltOpenAllRepresentedObject;
     [self addBookmark:bookmark inSortedOrder:NO];
 }
 
++ (void)migratePromptOnCloseInMutableBookmark:(NSMutableDictionary *)dict
+{
+    // Migrate global "prompt on close" to per-profile prompt enum
+    if ([dict objectForKey:KEY_PROMPT_CLOSE_DEPRECATED]) {
+        // The 8/28 build incorrectly ignored the OnlyWhenMoreTabs setting
+        // when migrating PromptOnClose to KEY_PRMOPT_CLOSE. Its preference
+        // key has been changed to KEY_PROMPT_CLOSE_DEPRECATED and a new
+        // pref key with the same intended usage has been added on 9/4 but
+        // with a different name. If the setting is PROMPT_ALWAYS, then it may
+        // have been migrated incorrectly. There are three ways to get here:
+        // 1. PromptOnClose && OnlyWhenMoreTabs was migrated wrong.
+        // 2. PromptOnClose && !OnlyWhenMoreTabs was migrated right.
+        // 3. Post migration, the user set it to PROMPT_ALWAYS
+        //
+        // For case 1, redoing the migration produces the correct result.
+        // For case 2, redoing the migration has no effect.
+        // For case 3, the user's pref is overwritten. This should be rare.
+        int value = [[dict objectForKey:KEY_PROMPT_CLOSE_DEPRECATED] intValue];
+        if (value != PROMPT_ALWAYS) {
+            [dict setObject:[NSNumber numberWithInt:value]
+                     forKey:KEY_PROMPT_CLOSE];
+        }
+    }
+    if (![dict objectForKey:KEY_PROMPT_CLOSE]) {
+        BOOL promptOnClose = [[[NSUserDefaults standardUserDefaults] objectForKey:@"PromptOnClose"] boolValue];
+        NSNumber *onlyWhenNumber = [[NSUserDefaults standardUserDefaults] objectForKey:@"OnlyWhenMoreTabs"];
+        if (!onlyWhenNumber || [onlyWhenNumber boolValue]) {
+            promptOnClose = NO;
+        }
+
+        NSNumber *newValue = [NSNumber numberWithBool:promptOnClose ? PROMPT_ALWAYS : PROMPT_NEVER];
+        [dict setObject:newValue forKey:KEY_PROMPT_CLOSE];
+        gMigrated = YES;
+    }
+
+    // This is a required field to avoid setting nil values in the bookmark
+    // dict later on.
+    if (![dict objectForKey:KEY_JOBS]) {
+        [dict setObject:[NSArray arrayWithObjects:@"rlogin", @"ssh", @"slogin", @"telnet", nil]
+                 forKey:KEY_JOBS];
+        gMigrated = YES;
+    }
+}
+
 - (void)addBookmark:(Bookmark*)bookmark inSortedOrder:(BOOL)sort
 {
 
@@ -210,6 +263,7 @@ id gAltOpenAllRepresentedObject;
     if (![newBookmark objectForKey:KEY_DEFAULT_BOOKMARK]) {
         [newBookmark setObject:@"No" forKey:KEY_DEFAULT_BOOKMARK];
     }
+    [BookmarkModel migratePromptOnCloseInMutableBookmark:newBookmark];
 
     bookmark = [[newBookmark copy] autorelease];
 
@@ -619,6 +673,7 @@ id gAltOpenAllRepresentedObject;
     [altOpenAll setAlternate:YES];
     [altOpenAll setRepresentedObject:gAltOpenAllRepresentedObject];
     [menu addItem:altOpenAll];
+    [altOpenAll release];
 }
 
 + (BOOL)menuHasOpenAll:(NSMenu*)menu
@@ -706,6 +761,7 @@ id gAltOpenAllRepresentedObject;
     [item setRepresentedObject:[[[b objectForKey:KEY_GUID] copy] autorelease]];
     [item setTag:tag];
     [menu insertItem:item atIndex:pos];
+    [item release];
 }
 
 - (void)addBookmark:(Bookmark*)b toMenu:(NSMenu*)menu startingAtItem:(int)skip withTags:(NSArray*)tags params:(JournalParams*)params atPos:(int)theIndex

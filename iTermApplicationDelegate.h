@@ -60,9 +60,11 @@ void DebugLog(NSString* value);
     NSWindowController *aboutController;
     IBOutlet id ABOUT;
     IBOutlet NSTextView *AUTHORS;
-    
+
     // Menu items
     IBOutlet NSMenu     *bookmarkMenu;
+    IBOutlet NSMenu     *toolbeltMenu;
+    IBOutlet NSMenuItem *showToolbeltItem;
     IBOutlet NSMenuItem *selectTab;
     IBOutlet NSMenuItem *previousTerminal;
     IBOutlet NSMenuItem *nextTerminal;
@@ -71,9 +73,12 @@ void DebugLog(NSString* value);
     IBOutlet NSMenuItem *closeTab;
     IBOutlet NSMenuItem *closeWindow;
     IBOutlet NSMenuItem *sendInputToAllSessions;
+    IBOutlet NSMenuItem *sendInputToAllPanes;
+    IBOutlet NSMenuItem *sendInputNormally;
     IBOutlet NSMenuItem *toggleBookmarksView;
     IBOutlet NSMenuItem *irNext;
     IBOutlet NSMenuItem *irPrev;
+    IBOutlet NSMenuItem *windowArrangements_;
 
     IBOutlet NSMenuItem *secureInput;
     IBOutlet NSMenuItem *showFullScreenTabs;
@@ -85,6 +90,10 @@ void DebugLog(NSString* value);
     // If set, skip performing launch actions.
     BOOL quiet_;
     NSDate* launchTime_;
+
+    // Cross app request forgery prevention token. Get this with applescript and then include
+    // in a URI request.
+    NSString *token_;
 }
 
 - (void)awakeFromNib;
@@ -103,6 +112,7 @@ void DebugLog(NSString* value);
 - (void)applicationDidBecomeActive:(NSNotification *)aNotification;
 - (void)applicationDidResignActive:(NSNotification *)aNotification;
 
+- (IBAction)toggleToolbelt:(id)sender;
 - (IBAction)toggleFullScreenTabBar:(id)sender;
 - (IBAction)maximizePane:(id)sender;
 - (IBAction)toggleUseTransparency:(id)sender;
@@ -155,6 +165,9 @@ void DebugLog(NSString* value);
 // some subset of the flags.
 - (void)setFutureApplicationPresentationOptions:(int)flags unset:(int)antiflags;
 
+- (void)updateBroadcastMenuState;
+
+- (BOOL)showToolbelt;
 
 @end
 
@@ -164,6 +177,7 @@ void DebugLog(NSString* value);
 - (BOOL)application:(NSApplication *)sender delegateHandlesKey:(NSString *)key;
 
 - (PseudoTerminal *)currentTerminal;
+- (NSString *)uriToken;
 
 // accessors for to-many relationships:
 -(NSArray*)terminals;

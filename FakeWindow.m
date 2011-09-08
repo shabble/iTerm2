@@ -40,7 +40,7 @@
     }
 
     isFullScreen = [aTerm fullScreen];
-    isLionFullScreen = [[aTerm ptyWindow] isFullScreen];
+    isLionFullScreen = [aTerm lionFullScreen];
     isMiniaturized = [[aTerm window] isMiniaturized];
     frame = [[aTerm window] frame];
     screen = [[aTerm window] screen];
@@ -115,13 +115,6 @@
 - (BOOL)anyFullScreen
 {
     return isLionFullScreen || isFullScreen;
-}
-
-// TODO(georgen): disable send input to all sessions when you transition to
-// dvr mode; or else make it work.
-- (BOOL)sendInputToAllSessions
-{
-    return NO;
 }
 
 - (PTYSession *)currentSession
@@ -213,10 +206,6 @@
     return nil;
 }
 
-
-- (void)sendInputToAllSessions:(NSData *)data
-{
-}
 
 - (void)windowSetFrameTopLeftPoint:(NSPoint)point
 {

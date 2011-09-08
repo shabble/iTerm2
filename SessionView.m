@@ -29,6 +29,10 @@
 #import "PTYSession.h"
 #import "PTYTab.h"
 #import "PTYTextView.h"
+#import "PseudoTerminal.h"
+#import "SplitSelectionView.h"
+#import "MovePaneController.h"
+#import "PSMTabDragAssistant.h"
 
 static const float kTargetFrameRate = 1.0/60.0;
 static int nextViewId;
@@ -49,12 +53,18 @@ static NSDate* lastResizeDate_;
     lastResizeDate_ = [[NSDate date] retain];
 }
 
+- (void)_initCommon
+{
+    [self registerForDraggedTypes:[NSArray arrayWithObjects:@"iTermDragPanePBType", @"PSMTabBarControlItemPBType", nil]];
+    [lastResizeDate_ release];
+    lastResizeDate_ = [[NSDate date] retain];
+}
+
 - (id)initWithFrame:(NSRect)frame
 {
     self = [super initWithFrame:frame];
     if (self) {
-        [lastResizeDate_ release];
-        lastResizeDate_ = [[NSDate date] retain];
+        [self _initCommon];
         findView_ = [[FindViewController alloc] initWithNibName:@"FindView" bundle:nil];
         [[findView_ view] setHidden:YES];
         [self addSubview:[findView_ view]];
@@ -70,8 +80,7 @@ static NSDate* lastResizeDate_;
 {
     self = [self initWithFrame:frame];
     if (self) {
-        [lastResizeDate_ release];
-        lastResizeDate_ = [[NSDate date] retain];
+        [self _initCommon];
         session_ = [session retain];
     }
     return self;
@@ -92,6 +101,7 @@ static NSDate* lastResizeDate_;
 
 - (void)dealloc
 {
+    [self unregisterDraggedTypes];
     [session_ release];
     [super dealloc];
 }
@@ -105,6 +115,7 @@ static NSDate* lastResizeDate_;
 {
     [session_ autorelease];
     session_ = [session retain];
+    [[session_ TEXTVIEW] setDimmingAmount:currentDimmingAmount_];
 }
 
 - (void)fadeAnimation
@@ -155,7 +166,7 @@ static NSDate* lastResizeDate_;
     return [[PreferencePanel sharedInstance] dimmingAmount];
 }
 
-- (void)updateDim
+- (double)adjustedDimmingAmount
 {
     int x = 0;
     if (dim_) {
@@ -171,6 +182,13 @@ static NSDate* lastResizeDate_;
     amount = MIN(0.9, amount);
     amount = MAX(0, amount);
 
+    return amount;
+}
+
+- (void)updateDim
+{
+    double amount = [self adjustedDimmingAmount];
+
     [self _dimShadeToDimmingAmount:amount];
 }
 
@@ -182,8 +200,17 @@ static NSDate* lastResizeDate_;
     if (isDimmed == dim_) {
         return;
     }
-    dim_ = isDimmed;
-    [self updateDim];
+    if (session_) {
+        if ([[[session_ tab] realParentWindow] broadcastInputToSession:session_]) {
+            dim_ = NO;
+        } else {
+            dim_ = isDimmed;
+        }
+        [self updateDim];
+    } else {
+        dim_ = isDimmed;
+        currentDimmingAmount_ = [self adjustedDimmingAmount];
+    }
 }
 
 - (void)setBackgroundDimmed:(BOOL)backgroundDimmed
@@ -212,13 +239,17 @@ static NSDate* lastResizeDate_;
 
 - (void)rightMouseDown:(NSEvent*)event
 {
-    [[[self session] TEXTVIEW] rightMouseDown:event];
+    if (!splitSelectionView_) {
+        [[[self session] TEXTVIEW] rightMouseDown:event];
+    }
 }
 
 
 - (void)mouseDown:(NSEvent*)event
 {
-    if ([[[self session] TEXTVIEW] mouseDownImpl:event]) {
+    if (splitSelectionView_) {
+        [splitSelectionView_ mouseDown:event];
+    } else if ([[[self session] TEXTVIEW] mouseDownImpl:event]) {
         [super mouseDown:event];
     }
 }
@@ -264,6 +295,152 @@ static NSDate* lastResizeDate_;
 {
     [lastResizeDate_ release];
     lastResizeDate_ = [[NSDate date] retain];
+}
+
+- (void)saveFrameSize
+{
+    savedSize_ = [self frame].size;
+}
+
+- (void)restoreFrameSize
+{
+    [self setFrameSize:savedSize_];
+}
+
+- (void)_createSplitSelectionView:(BOOL)cancelOnly
+{
+    splitSelectionView_ = [[SplitSelectionView alloc] initAsCancelOnly:cancelOnly
+                                                             withFrame:NSMakeRect(0,
+                                                                                  0,
+                                                                                  [self frame].size.width,
+                                                                                  [self frame].size.height)
+                                                           withSession:session_
+                                                              delegate:[MovePaneController sharedInstance]];
+    [splitSelectionView_ setFrameOrigin:NSMakePoint(0, 0)];
+    [splitSelectionView_ setAutoresizingMask:NSViewWidthSizable|NSViewHeightSizable];
+    [self addSubview:splitSelectionView_];
+    [splitSelectionView_ release];
+}
+
+- (void)setSplitSelectionMode:(SplitSelectionMode)mode
+{
+    switch (mode) {
+        case kSplitSelectionModeOn:
+            if (splitSelectionView_) {
+                return;
+            }
+            [self _createSplitSelectionView:NO];
+            break;
+
+        case kSplitSelectionModeOff:
+            [splitSelectionView_ removeFromSuperview];
+            splitSelectionView_ = nil;
+            break;
+
+        case kSplitSelectionModeCancel:
+            [self _createSplitSelectionView:YES];
+            break;
+    }
+}
+
+
+#pragma mark NSDraggingSource protocol
+
+- (void)draggedImage:(NSImage *)draggedImage movedTo:(NSPoint)screenPoint
+{
+    [[NSCursor closedHandCursor] set];
+}
+
+- (NSDragOperation)draggingSourceOperationMaskForLocal:(BOOL)isLocal
+{
+    return (isLocal ? NSDragOperationMove : NSDragOperationNone);
+}
+
+- (BOOL)ignoreModifierKeysWhileDragging
+{
+    return YES;
+}
+
+- (void)draggedImage:(NSImage *)anImage endedAt:(NSPoint)aPoint operation:(NSDragOperation)operation
+{
+    if (![[MovePaneController sharedInstance] dragFailed]) {
+        [[MovePaneController sharedInstance] dropInSession:nil half:kNoHalf atPoint:aPoint];
+    }
+}
+
+#pragma mark NSDraggingDestination protocol
+- (NSDragOperation)draggingEntered:(id < NSDraggingInfo >)sender
+{
+    if ([[[sender draggingPasteboard] types] indexOfObject:@"PSMTabBarControlItemPBType"] != NSNotFound) {
+        // Dragging a tab handle. Source is a PSMTabBarControl.
+        PTYTab *theTab = [[[[PSMTabDragAssistant sharedDragAssistant] draggedCell] representedObject] identifier];
+        if (theTab == [session_ tab] || [[theTab sessions] count] > 1) {
+            return NSDragOperationNone;
+        }
+    } else if ([[MovePaneController sharedInstance] isMovingSession:[self session]]) {
+        return NSDragOperationMove;
+    }
+    NSRect frame = [self frame];
+    splitSelectionView_ = [[SplitSelectionView alloc] initWithFrame:NSMakeRect(0,
+                                                                               0,
+                                                                               frame.size.width,
+                                                                               frame.size.height)];
+    [self addSubview:splitSelectionView_];
+    [splitSelectionView_ release];
+    [[self window] orderFront:nil];
+    return NSDragOperationMove;
+}
+
+- (void)draggingExited:(id < NSDraggingInfo >)sender
+{
+    [splitSelectionView_ removeFromSuperview];
+    splitSelectionView_ = nil;
+}
+
+- (NSDragOperation)draggingUpdated:(id < NSDraggingInfo >)sender
+{
+    if ([[[sender draggingPasteboard] types] indexOfObject:@"iTermDragPanePBType"] != NSNotFound &&
+        [[MovePaneController sharedInstance] isMovingSession:[self session]]) {
+        return NSDragOperationMove;
+    }
+    NSPoint point = [self convertPointFromBase:[sender draggingLocation]];
+    [splitSelectionView_ updateAtPoint:point];
+    return NSDragOperationMove;
+}
+
+- (BOOL)performDragOperation:(id < NSDraggingInfo >)sender
+{
+    if ([[[sender draggingPasteboard] types] indexOfObject:@"iTermDragPanePBType"] != NSNotFound) {
+        if ([[MovePaneController sharedInstance] isMovingSession:[self session]]) {
+            [[MovePaneController sharedInstance] setDragFailed:YES];
+        }
+        SplitSessionHalf half = [splitSelectionView_ half];
+        [splitSelectionView_ removeFromSuperview];
+        splitSelectionView_ = nil;
+        return [[MovePaneController sharedInstance] dropInSession:[self session]
+                                                             half:half
+                                                          atPoint:[sender draggingLocation]];
+    } else {
+        // Drag a tab into a split
+        SplitSessionHalf half = [splitSelectionView_ half];
+        [splitSelectionView_ removeFromSuperview];
+        splitSelectionView_ = nil;
+        PTYTab *theTab = [[[[PSMTabDragAssistant sharedDragAssistant] draggedCell] representedObject] identifier];
+        return [[MovePaneController sharedInstance] dropTab:theTab
+                                                  inSession:[self session]
+                                                       half:half
+                                                    atPoint:[sender draggingLocation]];
+    }
+}
+
+- (BOOL)prepareForDragOperation:(id < NSDraggingInfo >)sender
+{
+    return YES;
+}
+
+- (BOOL)wantsPeriodicDraggingUpdates
+{
+    return YES;
 }
 
 @end

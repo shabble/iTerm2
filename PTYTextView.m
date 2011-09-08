@@ -59,15 +59,53 @@ static const int MAX_WORKING_DIR_COUNT = 50;
 #import "RegexKitLite/RegexKitLite.h"
 #import "iTerm/NSStringITerm.h"
 #import "FontSizeEstimator.h"
+#import "MovePaneController.h"
+#import "FutureMethods.h"
 
 #include <sys/time.h>
 #include <math.h>
+
+// When performing the "find cursor" action, a gray window is shown with a
+// transparent "hole" around the cursor. This is the radius of that hole in
+// pixels.
+const double kFindCursorHoleRadius = 30;
+
+const int kDragPaneModifiers = (NSAlternateKeyMask | NSCommandKeyMask | NSShiftKeyMask);
+
+@implementation FindCursorView
+
+@synthesize cursor;
+
+- (void)drawRect:(NSRect)dirtyRect
+{
+    const double initialAlpha = 0.7;
+    [[NSColor colorWithDeviceWhite:0.5 alpha:initialAlpha] set];
+    NSRectFill(dirtyRect);
+
+    double x = cursor.x;
+    double y = cursor.y;
+
+    const double numSteps = 2;
+    const double stepSize = 2;
+    const double initialRadius = kFindCursorHoleRadius + numSteps * stepSize;
+    double a = initialAlpha;
+    for (double focusRadius = initialRadius; a > 0 && focusRadius >= initialRadius - numSteps * stepSize; focusRadius -= stepSize) {
+        [[NSGraphicsContext currentContext] setCompositingOperation:NSCompositeCopy];
+        NSBezierPath *circle = [NSBezierPath bezierPathWithOvalInRect:NSMakeRect(x - focusRadius, y - focusRadius, focusRadius*2, focusRadius*2)];
+        a -= initialAlpha / numSteps;
+        a = MAX(0, a);
+        [[NSColor colorWithDeviceWhite:0.5 alpha:a] set];
+        [circle fill];
+    }
+}
+@end
+
 
 // Minimum distance that the mouse must move before a cmd+drag will be
 // recognized as a drag.
 static const int kDragThreshold = 3;
 static const double kBackgroundConsideredDarkThreshold = 0.5;
-
+static const int kBroadcastMargin = 4;
 // When drawing lines, we use this structure to represent a run of cells  of
 // the same font, color, and attributes.
 typedef enum {
@@ -108,11 +146,12 @@ typedef struct {
     BOOL antiAlias;
 } CharRun;
 
-// FIXME: Looks like this is leaked.
-static NSCursor* textViewCursor =  nil;
-static NSImage* bellImage = nil;
-static NSImage* wrapToTopImage = nil;
-static NSImage* wrapToBottomImage = nil;
+static NSCursor* textViewCursor;
+static NSCursor* xmrCursor;
+static NSImage* bellImage;
+static NSImage* wrapToTopImage;
+static NSImage* wrapToBottomImage;
+static NSImage* broadcastInputImage;
 
 static CGFloat PerceivedBrightness(CGFloat r, CGFloat g, CGFloat b) {
     return (RED_COEFFICIENT * r) + (GREEN_COEFFICIENT * g) + (BLUE_COEFFICIENT * b);
@@ -174,6 +213,13 @@ static CGFloat PerceivedBrightness(CGFloat r, CGFloat g, CGFloat b) {
 
     textViewCursor = [[NSCursor alloc] initWithImage:image hotSpot:hotspot];
 
+    NSString* xmrFile = [bundle
+                          pathForResource:@"IBarCursorXMR"
+                          ofType:@"png"];
+    NSImage* xmrImage = [[[NSImage alloc] initWithContentsOfFile:xmrFile] autorelease];
+    
+    xmrCursor = [[NSCursor alloc] initWithImage:xmrImage hotSpot:hotspot];
+    
     NSString* bellFile = [bundle
                           pathForResource:@"bell"
                           ofType:@"png"];
@@ -181,16 +227,28 @@ static CGFloat PerceivedBrightness(CGFloat r, CGFloat g, CGFloat b) {
     [bellImage setFlipped:YES];
 
     NSString* wrapToTopFile = [bundle
-                          pathForResource:@"wrap_to_top"
-                          ofType:@"png"];
+                               pathForResource:@"wrap_to_top"
+                               ofType:@"png"];
     wrapToTopImage = [[NSImage alloc] initWithContentsOfFile:wrapToTopFile];
     [wrapToTopImage setFlipped:YES];
 
     NSString* wrapToBottomFile = [bundle
-                               pathForResource:@"wrap_to_bottom"
-                               ofType:@"png"];
+                                  pathForResource:@"wrap_to_bottom"
+                                  ofType:@"png"];
     wrapToBottomImage = [[NSImage alloc] initWithContentsOfFile:wrapToBottomFile];
     [wrapToBottomImage setFlipped:YES];
+
+    NSString* broadcastInputFile = [bundle pathForResource:@"BroadcastInput"
+                                                    ofType:@"png"];
+    broadcastInputImage = [[NSImage alloc] initWithContentsOfFile:broadcastInputFile];
+    [broadcastInputImage setFlipped:YES];
+}
+
+- (BOOL)xtermMouseReporting
+{
+    NSEvent *event = [NSApp currentEvent];
+    return (([[self delegate] xtermMouseReporting]) &&        // Xterm mouse reporting is on
+            !([event modifierFlags] & NSAlternateKeyMask));   // Not holding Opt to disable mouse reporting
 }
 
 + (NSCursor *)textViewCursor
@@ -200,10 +258,6 @@ static CGFloat PerceivedBrightness(CGFloat r, CGFloat g, CGFloat b) {
 
 - (id)initWithFrame:(NSRect)aRect
 {
-#if DEBUG_ALLOC
-    NSLog(@"%s: 0x%x", __PRETTY_FUNCTION__, self);
-#endif
-
     self = [super initWithFrame: aRect];
     dataSource=_delegate=markedTextAttributes=NULL;
     firstMouseEventNumber_ = -1;
@@ -240,8 +294,27 @@ static CGFloat PerceivedBrightness(CGFloat r, CGFloat g, CGFloat b) {
     resultMap_ = [[NSMutableDictionary alloc] init];
 
     trouter = [[Trouter alloc] init];
+    trouterDragged = NO;
     workingDirectoryAtLines = [[NSMutableArray alloc] init];
+
+    if ([[PreferencePanel sharedInstance] threeFingerEmulatesMiddle]) {
+        [self futureSetAcceptsTouchEvents:YES];
+        [self futureSetWantsRestingTouches:YES];
+    }
+
     return self;
+}
+
+- (void)touchesBeganWithEvent:(NSEvent *)ev
+{
+    numTouches_ = [[ev futureTouchesMatchingPhase:1 | (1 << 2)/*NSTouchPhasesBegan | NSTouchPhasesStationary*/
+                                           inView:self] count];
+}
+
+- (void)touchesEndedWithEvent:(NSEvent *)ev
+{
+    numTouches_ = [[ev futureTouchesMatchingPhase:(1 << 2)/*NSTouchPhasesStationary*/
+                                           inView:self] count];
 }
 
 - (BOOL)resignFirstResponder
@@ -268,6 +341,10 @@ static CGFloat PerceivedBrightness(CGFloat r, CGFloat g, CGFloat b) {
 - (void)viewDidMoveToWindow
 {
     if ([self window]) {
+        if (trackingRectTag) {
+            [self removeTrackingRect:trackingRectTag];
+        }
+
         trackingRectTag = [self addTrackingRect:[self frame]
                                           owner:self
                                        userData:nil
@@ -437,7 +514,7 @@ static CGFloat PerceivedBrightness(CGFloat r, CGFloat g, CGFloat b) {
     [color retain];
     defaultBGColor = color;
     PTYScroller *scroller = (PTYScroller*)[[[dataSource session] SCROLLVIEW] verticalScroller];
-    BOOL isDark = ([self _perceivedBrightness:color] < kBackgroundConsideredDarkThreshold);
+    BOOL isDark = ([self perceivedBrightness:color] < kBackgroundConsideredDarkThreshold);
     backgroundBrightness_ = PerceivedBrightness([color redComponent], [color greenComponent], [color blueComponent]);
     [scroller setHasDarkBackground:isDark];
     [self setNeedsDisplay:YES];
@@ -1033,7 +1110,7 @@ static BOOL RectsEqual(NSRect* a, NSRect* b) {
  *
  * Index                   012 34
  * Char                    012345
- * allText_              = xba�ry
+ * allText_              = xba´ry
  * lineBreakCharOffests_ = [1, 4]
  * lineBreakInexOffsets_ = [1, 3]
  */
@@ -1483,6 +1560,16 @@ static BOOL RectsEqual(NSRect* a, NSRect* b) {
 {
     [self drawRect:rect to:nil];
 
+    if ([[[[dataSource session] tab] realParentWindow] broadcastInputToSession:[dataSource session]]) {
+        NSRect frame = [self visibleRect];
+        NSSize size = [broadcastInputImage size];
+        [broadcastInputImage drawAtPoint:NSMakePoint(frame.origin.x + frame.size.width - size.width - kBroadcastMargin,
+                                                     frame.origin.y + kBroadcastMargin)
+                                fromRect:NSMakeRect(0, 0, size.width, size.height)
+                               operation:NSCompositeSourceOver
+                                fraction:0.5];
+    }
+
     if (flashing_ > 0) {
         NSRect frame = [self visibleRect];
         NSImage* image = nil;
@@ -1506,6 +1593,62 @@ static BOOL RectsEqual(NSRect* a, NSRect* b) {
                   fromRect:NSMakeRect(0, 0, size.width, size.height)
                  operation:NSCompositeSourceOver
                   fraction:flashing_];
+    }
+
+    [self drawOutlineInRect:rect topOnly:NO];
+}
+
+- (void)drawOutlineInRect:(NSRect)rect topOnly:(BOOL)topOnly
+{
+    if ([[[dataSource session] tab] hasMaximizedPane]) {
+        NSColor *color = [self defaultBGColor];
+        double r = [color redComponent];
+        double g = [color greenComponent];
+        double b = [color blueComponent];
+        double pb = PerceivedBrightness(r, g, b);
+        double k;
+        if (pb <= 0.5) {
+            k = 1;
+        } else {
+            k = 0;
+        }
+        const double alpha = 0.2;
+        r = alpha * k + (1 - alpha) * r;
+        g = alpha * k + (1 - alpha) * g;
+        b = alpha * k + (1 - alpha) * b;
+        color = [NSColor colorWithCalibratedRed:r green:g blue:b alpha:1];
+
+        NSRect frame = [self visibleRect];
+        if (!topOnly) {
+            if (frame.origin.y < VMARGIN) {
+                frame.size.height += (VMARGIN - frame.origin.y);
+                frame.origin.y -= (VMARGIN - frame.origin.y);
+            }
+        }
+        NSBezierPath *path = [[[NSBezierPath alloc] init] autorelease];
+        CGFloat left = frame.origin.x + 0.5;
+        CGFloat right = frame.origin.x + frame.size.width - 0.5;
+        CGFloat top = frame.origin.y + 0.5;
+        CGFloat bottom = frame.origin.y + frame.size.height - 0.5;
+
+        if (topOnly) {
+            [path moveToPoint:NSMakePoint(left, top + VMARGIN)];
+            [path lineToPoint:NSMakePoint(left, top)];
+            [path lineToPoint:NSMakePoint(right, top)];
+            [path lineToPoint:NSMakePoint(right, top + VMARGIN)];
+        } else {
+            [path moveToPoint:NSMakePoint(left, top + VMARGIN)];
+            [path lineToPoint:NSMakePoint(left, top)];
+            [path lineToPoint:NSMakePoint(right, top)];
+            [path lineToPoint:NSMakePoint(right, bottom)];
+            [path lineToPoint:NSMakePoint(left, bottom)];
+            [path lineToPoint:NSMakePoint(left, top + VMARGIN)];
+        }
+
+        CGFloat dashPattern[2] = { 5, 5 };
+        [path setLineDash:dashPattern count:2 phase:0];
+        [color set];
+        [path stroke];
     }
 }
 
@@ -1606,7 +1749,7 @@ static BOOL RectsEqual(NSRect* a, NSRect* b) {
                         dl[i] = theLine[i].code;
                     }
                 }
-                DebugLog([NSString stringWithCString:dl]);
+                DebugLog([NSString stringWithUTF8String:dl]);
             }
 
 #ifdef DEBUG_DRAWING
@@ -1937,9 +2080,17 @@ static BOOL RectsEqual(NSRect* a, NSRect* b) {
 
 - (void)keyDown:(NSEvent*)event
 {
+    BOOL debugKeyDown = [[[NSUserDefaults standardUserDefaults] objectForKey:@"DebugKeyDown"] boolValue];
+
+    if (debugKeyDown) {
+        NSLog(@"PTYTextView keyDown BEGIN %@", event);
+    }
     DebugLog(@"PTYTextView keyDown");
     id delegate = [self delegate];
     if ([[[[[self dataSource] session] tab] realParentWindow] inInstantReplay]) {
+        if (debugKeyDown) {
+            NSLog(@"PTYTextView keyDown: in instant replay, send to delegate");
+        }
         // Delegate has special handling for this case.
         [delegate keyDown:event];
         return;
@@ -1949,6 +2100,19 @@ static BOOL RectsEqual(NSRect* a, NSRect* b) {
     BOOL prev = [self hasMarkedText];
 
     keyIsARepeat = [event isARepeat];
+    if (debugKeyDown) {
+        NSLog(@"PTYTextView keyDown modflag=%d keycode=%d", modflag, (int)keyCode);
+        NSLog(@"prev=%@", prev);
+        NSLog(@"hasActionableKeyMappingForEvent=%d", (int)[delegate hasActionableKeyMappingForEvent:event]);
+        NSLog(@"modFlag & (NSNumericPadKeyMask | NSFUnctionKeyMask)=%d", (modflag & (NSNumericPadKeyMask | NSFunctionKeyMask)));
+        NSLog(@"charactersIgnoringModififiers length=%d", (int)[[event charactersIgnoringModifiers] length]);
+        NSLog(@"delegate optionkey=%d, delegate rightOptionKey=%d", (int)[delegate optionKey], (int)[delegate rightOptionKey]);
+        NSLog(@"modflag & leftAlt == leftAlt && optionKey != NORMAL = %d", (int)((modflag & NSLeftAlternateKeyMask) == NSLeftAlternateKeyMask && [delegate optionKey] != OPT_NORMAL));
+        NSLog(@"modflag == alt && optionKey != NORMAL = %d", (int)(modflag == NSAlternateKeyMask && [delegate optionKey] != OPT_NORMAL));
+        NSLog(@"modflag & rightAlt == rightAlt && rightOptionKey != NORMAL = %d", (int)((modflag & NSRightAlternateKeyMask) == NSRightAlternateKeyMask && [delegate rightOptionKey] != OPT_NORMAL));
+        NSLog(@"isControl=%d", (int)(modflag & NSControlKeyMask));
+        NSLog(@"keycode is slash=%d, is backslash=%d", (keyCode == 0x2c), (keyCode == 0x2a));                 
+    }
 
     // Hide the cursor
     [NSCursor setHiddenUntilMouseMoves:YES];
@@ -1959,16 +2123,26 @@ static BOOL RectsEqual(NSRect* a, NSRect* b) {
          (modflag & (NSNumericPadKeyMask | NSFunctionKeyMask)) ||  // is an arrow key, f key, etc.
          ([[event charactersIgnoringModifiers] length] > 0 &&      // Will send Meta/Esc+ (length is 0 if it's a dedicated dead key)
           (((modflag & NSLeftAlternateKeyMask) == NSLeftAlternateKeyMask && [delegate optionKey] != OPT_NORMAL) ||
+           (modflag == NSAlternateKeyMask && [delegate optionKey] != OPT_NORMAL) ||  // Synergy sends an Alt key that's neither left nor right!
            ((modflag & NSRightAlternateKeyMask) == NSRightAlternateKeyMask && [delegate rightOptionKey] != OPT_NORMAL))) ||
          ((modflag & NSControlKeyMask) &&                          // a few special cases
           (keyCode == 0x2c /* slash */ || keyCode == 0x2a /* backslash */)))) {
+        if (debugKeyDown) {
+            NSLog(@"PTYTextView keyDown: process in delegate");
+        }
         [delegate keyDown:event];
         return;
     }
 
+    if (debugKeyDown) {
+        NSLog(@"Test for command key");
+    }
     if (modflag & NSCommandKeyMask) {
         // You pressed cmd+something but it's not handled by the delegate. Going further would
         // send the unmodified key to the terminal which doesn't make sense.adsjflsd
+        if (debugKeyDown) {
+            NSLog(@"PTYTextView keyDown You pressed cmd+something");
+        }
         return;
     }
 
@@ -1977,6 +2151,9 @@ static BOOL RectsEqual(NSRect* a, NSRect* b) {
     BOOL workAroundControlBug = NO;
     if (!prev &&
         (modflag & (NSControlKeyMask | NSCommandKeyMask | NSAlternateKeyMask)) == NSControlKeyMask) {
+        if (debugKeyDown) {
+            NSLog(@"Special ctrl+key handler running");
+        }
         NSString *unmodkeystr = [event charactersIgnoringModifiers];
         if ([unmodkeystr length] != 0) {
             unichar unmodunicode = [unmodkeystr length] > 0 ? [unmodkeystr characterAtIndex:0] : 0;
@@ -1998,6 +2175,9 @@ static BOOL RectsEqual(NSRect* a, NSRect* b) {
             }
             if (cc != 0xffff) {
                 [self insertText:[NSString stringWithCharacters:&cc length:1]];
+                if (debugKeyDown) {
+                    NSLog(@"PTYTextView keyDown work around control bug. cc=%d", (int)cc);
+                }
                 workAroundControlBug = YES;
             }
         }
@@ -2006,14 +2186,23 @@ static BOOL RectsEqual(NSRect* a, NSRect* b) {
     if (!workAroundControlBug) {
         // Let the IME process key events
         IM_INPUT_INSERT = NO;
+        if (debugKeyDown) {
+            NSLog(@"PTYTextView keyDown send to IME");
+        }
         [self interpretKeyEvents:[NSArray arrayWithObject:event]];
 
         // If the IME didn't want it, pass it on to the delegate
         if (!prev &&
             !IM_INPUT_INSERT &&
             ![self hasMarkedText]) {
+            if (debugKeyDown) {
+                NSLog(@"PTYTextView keyDown IME no, send to delegate");
+            }
             [delegate keyDown:event];
         }
+    }
+    if (debugKeyDown) {
+        NSLog(@"PTYTextView keyDown END");
     }
 }
 
@@ -2030,9 +2219,8 @@ static BOOL RectsEqual(NSRect* a, NSRect* b) {
     locationInTextView = [self convertPoint: locationInWindow fromView: nil];
 
     NSRect visibleRect = [[self enclosingScrollView] documentVisibleRect];
-    if (([[self delegate] xtermMouseReporting])
-        && (locationInTextView.y > visibleRect.origin.y)
-        && !([event modifierFlags] & NSAlternateKeyMask)) {
+    if ([self xtermMouseReporting] &&
+        locationInTextView.y > visibleRect.origin.y) {
         // Mouse reporting is on
         int rx, ry;
         rx = (locationInTextView.x - MARGIN - visibleRect.origin.x) / charWidth;
@@ -2071,9 +2259,9 @@ static BOOL RectsEqual(NSRect* a, NSRect* b) {
     }
 
     if ([[PreferencePanel sharedInstance] pasteFromClipboard]) {
-        [self paste: nil];
+        [self paste:nil];
     } else {
-        [self pasteSelection: nil];
+        [self pasteSelection:nil];
     }
 }
 
@@ -2084,9 +2272,7 @@ static BOOL RectsEqual(NSRect* a, NSRect* b) {
     locationInTextView = [self convertPoint: locationInWindow fromView: nil];
 
     NSRect visibleRect = [[self enclosingScrollView] documentVisibleRect];
-    if (([[self delegate] xtermMouseReporting]) &&
-        reportingMouseDown &&
-        !([event modifierFlags] & NSAlternateKeyMask)) {
+    if (([self xtermMouseReporting]) && reportingMouseDown) {
         reportingMouseDown = NO;
         int rx, ry;
         rx = (locationInTextView.x - MARGIN - visibleRect.origin.x) / charWidth;
@@ -2116,7 +2302,9 @@ static BOOL RectsEqual(NSRect* a, NSRect* b) {
                 break;
         }
     }
-    [super otherMouseUp:event];
+    if (!mouseDownIsThreeFingerClick_) {
+        [super otherMouseUp:event];
+    }
 }
 
 - (void)otherMouseDragged:(NSEvent *)event
@@ -2126,10 +2314,9 @@ static BOOL RectsEqual(NSRect* a, NSRect* b) {
     locationInTextView = [self convertPoint: locationInWindow fromView: nil];
 
     NSRect visibleRect = [[self enclosingScrollView] documentVisibleRect];
-    if (([[self delegate] xtermMouseReporting]) &&
+    if (([self xtermMouseReporting]) &&
         (locationInTextView.y > visibleRect.origin.y) &&
-        reportingMouseDown &&
-        !([event modifierFlags] & NSAlternateKeyMask)) {
+        reportingMouseDown) {
         // Mouse reporting is on.
         int rx, ry;
         rx = (locationInTextView.x - MARGIN - visibleRect.origin.x) / charWidth;
@@ -2175,9 +2362,8 @@ static BOOL RectsEqual(NSRect* a, NSRect* b) {
     locationInTextView = [self convertPoint: locationInWindow fromView: nil];
 
     NSRect visibleRect = [[self enclosingScrollView] documentVisibleRect];
-    if (([[self delegate] xtermMouseReporting]) &&
-        (locationInTextView.y > visibleRect.origin.y) &&
-        !([event modifierFlags] & NSAlternateKeyMask)) {
+    if (([self xtermMouseReporting]) &&
+        (locationInTextView.y > visibleRect.origin.y)) {
         int rx, ry;
         rx = (locationInTextView.x-MARGIN - visibleRect.origin.x)/charWidth;
         ry = (locationInTextView.y - visibleRect.origin.y)/lineHeight;
@@ -2214,9 +2400,8 @@ static BOOL RectsEqual(NSRect* a, NSRect* b) {
     locationInTextView = [self convertPoint: locationInWindow fromView: nil];
 
     NSRect visibleRect = [[self enclosingScrollView] documentVisibleRect];
-    if (([[self delegate] xtermMouseReporting]) &&
-        reportingMouseDown &&
-        !([event modifierFlags] & NSAlternateKeyMask)) {
+    if (([self xtermMouseReporting]) &&
+        reportingMouseDown) {
         // Mouse reporting is on
         reportingMouseDown = NO;
         int rx, ry;
@@ -2257,10 +2442,9 @@ static BOOL RectsEqual(NSRect* a, NSRect* b) {
     locationInTextView = [self convertPoint: locationInWindow fromView: nil];
 
     NSRect visibleRect = [[self enclosingScrollView] documentVisibleRect];
-    if (([[self delegate] xtermMouseReporting]) &&
+    if (([self xtermMouseReporting]) &&
         (locationInTextView.y > visibleRect.origin.y) &&
-        reportingMouseDown &&
-        !([event modifierFlags] & NSAlternateKeyMask)) {
+        reportingMouseDown) {
         // Mouse reporting is on.
         int rx, ry;
         rx = (locationInTextView.x -MARGIN - visibleRect.origin.x) / charWidth;
@@ -2301,9 +2485,8 @@ static BOOL RectsEqual(NSRect* a, NSRect* b) {
     locationInTextView = [self convertPoint: locationInWindow fromView: nil];
 
     NSRect visibleRect = [[self enclosingScrollView] documentVisibleRect];
-    if (([[self delegate] xtermMouseReporting]) &&
-        (locationInTextView.y > visibleRect.origin.y) &&
-        !([event modifierFlags] & NSAlternateKeyMask)) {
+    if (([self xtermMouseReporting]) &&
+        (locationInTextView.y > visibleRect.origin.y)) {
         // Mouse reporting is on.
         int rx, ry;
         rx = (locationInTextView.x-MARGIN - visibleRect.origin.x) / charWidth;
@@ -2339,13 +2522,43 @@ static BOOL RectsEqual(NSRect* a, NSRect* b) {
     [super scrollWheel:event];
 }
 
+- (void)updateCursor:(NSEvent *)event
+{
+    if (!mouseInRect_) {
+        return;
+    }
+    MouseMode mouseMode = [[dataSource terminal] mouseMode];
+
+    if (([event modifierFlags] & kDragPaneModifiers) == kDragPaneModifiers) {
+        [[NSCursor openHandCursor] set];
+    } else if (([event modifierFlags] & (NSCommandKeyMask | NSAlternateKeyMask)) == (NSCommandKeyMask | NSAlternateKeyMask)) {
+        [[NSCursor crosshairCursor] set];
+    } else if (([event modifierFlags] & (NSAlternateKeyMask | NSCommandKeyMask)) == NSCommandKeyMask) {
+        [[NSCursor pointingHandCursor] set];
+    } else if ([self xtermMouseReporting] &&
+               mouseMode != MOUSE_REPORTING_NONE &&
+               mouseMode != MOUSE_REPORTING_HILITE) {
+        [xmrCursor set];
+    } else {
+        [textViewCursor set];
+    }
+}
+
+- (void)flagsChanged:(NSEvent *)theEvent
+{
+    [self updateCursor:theEvent];
+    [super flagsChanged:theEvent];
+}
+
 - (void)mouseExited:(NSEvent *)event
 {
-    // no-op
+    mouseInRect_ = NO;
 }
 
 - (void)mouseEntered:(NSEvent *)event
 {
+    mouseInRect_ = YES;
+    [self updateCursor:event];
     if ([[PreferencePanel sharedInstance] focusFollowsMouse] &&
             [[self window] alphaValue] > 0) {
         // Some windows automatically close when they lose key status and are
@@ -2376,6 +2589,16 @@ static BOOL RectsEqual(NSRect* a, NSRect* b) {
 // Returns yes if [super mouseDown:event] should be run by caller.
 - (BOOL)mouseDownImpl:(NSEvent*)event
 {
+    mouseDownIsThreeFingerClick_ = NO;
+    if (([event modifierFlags] & kDragPaneModifiers) == kDragPaneModifiers) {
+        [[MovePaneController sharedInstance] beginDrag:[dataSource session]];
+        return NO;
+    }
+    if (numTouches_ == 3 && [[PreferencePanel sharedInstance] threeFingerEmulatesMiddle]) {
+        mouseDownIsThreeFingerClick_ = YES;
+        [self otherMouseDown:event];
+        return NO;
+    }
     const BOOL altPressed = ([event modifierFlags] & NSAlternateKeyMask) != 0;
     const BOOL cmdPressed = ([event modifierFlags] & NSCommandKeyMask) != 0;
     const BOOL shiftPressed = ([event modifierFlags] & NSShiftKeyMask) != 0;
@@ -2388,6 +2611,10 @@ static BOOL RectsEqual(NSRect* a, NSRect* b) {
         // Mouse clicks in inactive tab are always handled by superclass because we don't want clicks
         // to select a split pane to be xterm-mouse-reported. We do allow cmd-clicks to go through
         // incase you're clicking on a URL.
+        return YES;
+    }
+
+    if (([event modifierFlags] & kDragPaneModifiers) == kDragPaneModifiers) {
         return YES;
     }
 
@@ -2409,12 +2636,11 @@ static BOOL RectsEqual(NSRect* a, NSRect* b) {
     }
 
     NSRect visibleRect = [[self enclosingScrollView] documentVisibleRect];
-    
+
     if ([event eventNumber] != firstMouseEventNumber_ &&   // Not first mouse in formerly non-key app
         frontTextView == self &&                           // Is active session's textview
-        ([[self delegate] xtermMouseReporting]) &&         // Xterm mouse reporting is on
-        (locationInTextView.y > visibleRect.origin.y) &&   // Not inside the top margin
-        !([event modifierFlags] & NSAlternateKeyMask)) {   // Not holding Opt to disable mouse reporting
+        ([self xtermMouseReporting]) &&                    // Xterm mouse reporting is on
+        (locationInTextView.y > visibleRect.origin.y)) {   // Not inside the top margin
         // Mouse reporting is on.
         int rx, ry;
         rx = (locationInTextView.x - MARGIN - visibleRect.origin.x) / charWidth;
@@ -2588,7 +2814,14 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
 
 - (void)mouseUp:(NSEvent *)event
 {
+    firstMouseEventNumber_ = -1;  // Synergy seems to interfere with event numbers, so reset it here.
+    if (mouseDownIsThreeFingerClick_) {
+        [self otherMouseUp:nil];
+        mouseDownIsThreeFingerClick_ = NO;
+        return;
+    }
     dragOk_ = NO;
+    trouterDragged = NO;
     PTYTextView* frontTextView = [[iTermController sharedInstance] frontTextView];
     const BOOL cmdPressed = ([event modifierFlags] & NSCommandKeyMask) != 0;
     if (!cmdPressed &&
@@ -2617,9 +2850,8 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
 
     // Send mouse up event to host if xterm mouse reporting is on
     if (frontTextView == self &&
-        [[self delegate] xtermMouseReporting] &&
-        reportingMouseDown &&
-        !([event modifierFlags] & NSAlternateKeyMask)) {
+        [self xtermMouseReporting] &&
+        reportingMouseDown) {
         // Mouse reporting is on.
         reportingMouseDown = NO;
         int rx, ry;
@@ -2691,7 +2923,11 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
                     [self _changeDirectory:fullPath];
                 }
             } else {
-                [self _openURL:url atLine:y + 1];
+                int mods = [event modifierFlags];
+                BOOL altPressed = (mods & NSAlternateKeyMask) != 0;
+                [self _openURL:url
+                          atLine:y + 1
+                          inBackground:altPressed];
             }
         } else {
             lastFindStartX = endX;
@@ -2718,20 +2954,16 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
 
 - (void)mouseDragged:(NSEvent *)event
 {
-    if ([event eventNumber] == firstMouseEventNumber_) {
-        // We accept first mouse for the purposes of focusing a split pane but not for making a
-        // selection.
+    if (mouseDownIsThreeFingerClick_) {
         return;
     }
-    if (!dragOk_) {
-        return;
-    }
+    // Prevent accidental dragging while dragging trouter item.
+    BOOL dragThresholdMet = NO;
     NSPoint locationInWindow = [event locationInWindow];
     NSPoint locationInTextView = [self convertPoint: locationInWindow fromView: nil];
     NSRect  rectInTextView = [self visibleRect];
     int x, y;
     int width = [dataSource width];
-    NSString *theSelectedText;
 
     double logicalX = locationInTextView.x - MARGIN - charWidth/2;
     if (logicalX >= 0) {
@@ -2749,10 +2981,20 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
     y = locationInTextView.y / lineHeight;
 
     NSPoint mouseDownLocation = [mouseDownEvent locationInWindow];
+    if (EuclideanDistance(mouseDownLocation, locationInWindow) >= kDragThreshold) {
+        dragThresholdMet = YES;
+    }
+    if ([event eventNumber] == firstMouseEventNumber_) {
+        // We accept first mouse for the purposes of focusing or dragging a
+        // split pane but not for making a selection.
+        return;
+    }
+    if (!dragOk_) {
+        return;
+    }
+    NSString *theSelectedText;
 
-    if (([[self delegate] xtermMouseReporting]) &&
-        reportingMouseDown &&
-        !([event modifierFlags] & NSAlternateKeyMask)) {
+    if (([self xtermMouseReporting]) && reportingMouseDown) {
         // Mouse reporting is on.
         int rx, ry;
         NSRect visibleRect = [[self enclosingScrollView] documentVisibleRect];
@@ -2786,11 +3028,6 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
         }
     }
 
-    // Prevent accidental dragging while holding cmd.
-    BOOL dragThresholdMet = NO;
-    if (EuclideanDistance(mouseDownLocation, locationInWindow) >= kDragThreshold) {
-        dragThresholdMet = YES;
-    }
     BOOL pressingCmdOnly = ([event modifierFlags] & (NSAlternateKeyMask | NSCommandKeyMask)) == NSCommandKeyMask;
     if (!pressingCmdOnly || dragThresholdMet) {
       mouseDragged = YES;
@@ -2802,9 +3039,9 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
         dragThresholdMet) {
         // Drag and drop a selection
         if (selectMode == SELECT_BOX) {
-            theSelectedText = [self contentInBoxFromX: startX Y: startY ToX: endX Y: endY pad: NO];
+            theSelectedText = [self contentInBoxFromX:startX Y:startY ToX:endX Y:endY pad:NO];
         } else {
-            theSelectedText = [self contentFromX: startX Y: startY ToX: endX Y: endY pad: NO];
+            theSelectedText = [self contentFromX:startX Y:startY ToX:endX Y:endY pad:NO includeLastNewline:[[PreferencePanel sharedInstance] copyLastNewline]];
         }
         if ([theSelectedText length] > 0) {
             [self _dragText: theSelectedText forEvent: event];
@@ -2827,7 +3064,10 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
         return;
     }
 
-    if (startX < 0 && pressingCmdOnly) {
+    if (startX < 0 && pressingCmdOnly && trouterDragged == NO) {
+        // Only one Trouter check per drag
+        trouterDragged = YES;
+
         // Drag a file handle (only possible when there is no selection).
         NSString *path = [self _getURLForX:x y:y];
         path = [trouter getFullPath:path
@@ -2856,6 +3096,10 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
              pasteboard:pboard
                  source:self
               slideBack:YES];
+
+        // Valid drag, so we reset the flag because mouseUp doesn't get called when a drag is done
+        trouterDragged = NO;
+
         return;
 
     }
@@ -2900,7 +3144,8 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
                          Y:(int)starty
                        ToX:(int)nonInclusiveEndx
                          Y:(int)endy
-                       pad:(BOOL) pad
+                       pad:(BOOL)pad
+        includeLastNewline:(BOOL)includeLastNewline
 {
     int endx = nonInclusiveEndx-1;
     int width = [dataSource width];
@@ -2939,8 +3184,10 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
                                 [result appendString:@" "];
                             }
                         }
-                        if (y < endy && theLine[width].code == EOL_HARD) {
-                            [result appendString:@"\n"];
+                        if (theLine[width].code == EOL_HARD) {
+                            if (includeLastNewline || y < endy) {
+                                [result appendString:@"\n"];
+                            }
                         }
                         break;
                     } else {
@@ -2961,6 +3208,20 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
     }
 
     return result;
+}
+
+- (NSString *)contentFromX:(int)startx
+                         Y:(int)starty
+                       ToX:(int)nonInclusiveEndx
+                         Y:(int)endy
+                       pad:(BOOL)pad
+{
+    return [self contentFromX:startx
+                            Y:starty
+                          ToX:nonInclusiveEndx
+                            Y:endy
+                          pad:pad
+           includeLastNewline:NO];
 }
 
 - (IBAction)selectAll:(id)sender
@@ -3001,7 +3262,8 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
                                  Y:startY
                                ToX:endX
                                  Y:endY
-                               pad:pad]);
+                               pad:pad
+                includeLastNewline:[[PreferencePanel sharedInstance] copyLastNewline]]);
     }
 }
 
@@ -3011,7 +3273,8 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
                             Y:0
                           ToX:[dataSource width]
                             Y:[dataSource numberOfLines] - 1
-                          pad:NO];
+                          pad:NO
+           includeLastNewline:YES];
 }
 
 - (void)splitTextViewVertically:(id)sender
@@ -3028,6 +3291,11 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
                                                      targetSession:[dataSource session]];
 }
 
+- (void)movePane:(id)sender
+{
+    [[MovePaneController sharedInstance] movePane:[dataSource session]];
+}
+
 - (void)clearWorkingDirectories {
     [workingDirectoryAtLines removeAllObjects];
 }
@@ -3040,6 +3308,11 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
 - (void)editTextViewSession:(id)sender
 {
     [[[[dataSource session] tab] realParentWindow] editSession:[dataSource session]];
+}
+
+- (void)toggleBroadcastingInput:(id)sender
+{
+    [[[[dataSource session] tab] realParentWindow] toggleBroadcastingInputToSession:[dataSource session]];
 }
 
 - (void)closeTextViewSession:(id)sender
@@ -3081,6 +3354,15 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
     }
 }
 
+- (BOOL)_broadcastToggleable
+{
+    PseudoTerminal *pty = [[[dataSource session] tab] realParentWindow];
+    if ([pty broadcastMode] == BROADCAST_OFF && [[pty currentSession] TEXTVIEW] == self) {
+        return NO;
+    }
+    return YES;
+}
+
 - (BOOL)validateMenuItem:(NSMenuItem *)item
 {
     if ([item action] == @selector(paste:)) {
@@ -3092,6 +3374,10 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
         // Never allow cut.
         return NO;
     }
+    if ([item action]==@selector(toggleBroadcastingInput:) &&
+        [self _broadcastToggleable]) {
+        return YES;
+    }
     if ([item action]==@selector(saveDocumentAs:)) {
         return [self isAnyCharSelected];
     } else if ([item action] == @selector(selectAll:) ||
@@ -3100,6 +3386,7 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
                [item action]==@selector(clearTextViewBuffer:) ||
                [item action]==@selector(editTextViewSession:) ||
                [item action]==@selector(closeTextViewSession:) ||
+               [item action]==@selector(movePane:) ||
                ([item action] == @selector(print:) && [item tag] != 1)) {
         // We always validate the above commands
         return YES;
@@ -3117,6 +3404,11 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
     return NO;
 }
 
+- (BOOL)_haveShortSelection
+{
+    return startX > -1 && abs(startY - endY) <= 1;
+}
+
 - (NSMenu *)menuForEvent:(NSEvent *)theEvent
 {
     PTYTextView* frontTextView = [[iTermController sharedInstance] frontTextView];
@@ -3126,12 +3418,11 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
     VT100Terminal *terminal = [dataSource terminal];
     MouseMode mm = [terminal mouseMode];
     if (frontTextView == self &&
-        ([[self delegate] xtermMouseReporting]) &&
+        ([self xtermMouseReporting]) &&
         (mm == MOUSE_REPORTING_NORMAL ||
          mm == MOUSE_REPORTING_BUTTON_MOTION ||
          mm == MOUSE_REPORTING_ALL_MOTION) &&
         (locationInTextView.y > visibleRect.origin.y) &&
-        !([theEvent modifierFlags] & NSAlternateKeyMask) &&
         [[frontTextView->dataSource session] tab] == [[dataSource session] tab] &&
         [theEvent type] == NSLeftMouseDown &&
         ([theEvent modifierFlags] & NSControlKeyMask) &&
@@ -3143,6 +3434,38 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
 
     // Allocate a menu
     theMenu = [[NSMenu alloc] initWithTitle:@"Contextual Menu"];
+
+    if ([self _haveShortSelection]) {
+        BOOL addedItem = NO;
+        NSString *text = [self selectedText];
+        if ([text intValue]) {
+            [theMenu addItemWithTitle:[NSString stringWithFormat:@"%d = 0x%x", [text intValue], [text intValue]]
+                               action:@selector(bogusSelector)
+                        keyEquivalent:@""];
+            addedItem = YES;
+        } else if ([text hasPrefix:@"0x"] && [text length] <= 10) {
+            NSScanner *scanner = [NSScanner scannerWithString:text];
+
+            [scanner setScanLocation:2]; // bypass 0x
+            unsigned result;
+            if ([scanner scanHexInt:&result]) {
+                if ((int)result >= 0) {
+                    [theMenu addItemWithTitle:[NSString stringWithFormat:@"0x%x = %d", result, result]
+                                       action:@selector(bogusSelector)
+                                keyEquivalent:@""];
+                    addedItem = YES;
+                } else {
+                    [theMenu addItemWithTitle:[NSString stringWithFormat:@"0x%x = %d or %u", result, result, result]
+                                       action:@selector(bogusSelector)
+                                keyEquivalent:@""];
+                    addedItem = YES;
+                }
+            }
+        }
+        if (addedItem) {
+            [theMenu addItem:[NSMenuItem separatorItem]];
+        }
+    }
 
     // Menu items for acting on text selections
     [theMenu addItemWithTitle:NSLocalizedStringFromTableInBundle(@"Open Selection as URL",@"iTerm", [NSBundle bundleForClass: [self class]], @"Context menu")
@@ -3158,6 +3481,7 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
     // Split pane options
     [theMenu addItemWithTitle:@"Split Pane Vertically" action:@selector(splitTextViewVertically:) keyEquivalent:@""];
     [theMenu addItemWithTitle:@"Split Pane Horizontally" action:@selector(splitTextViewHorizontally:) keyEquivalent:@""];
+    [theMenu addItemWithTitle:@"Move Session to Split Pane" action:@selector(movePane:) keyEquivalent:@""];
 
     // Separator
     [theMenu addItem:[NSMenuItem separatorItem]];
@@ -3188,6 +3512,14 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
     // Edit Session
     [theMenu addItemWithTitle:@"Edit Session..."
                        action:@selector(editTextViewSession:)
+                keyEquivalent:@""];
+
+    // Separator
+    [theMenu addItem:[NSMenuItem separatorItem]];
+
+    // Toggle broadcast
+    [theMenu addItemWithTitle:@"Toggle Broadcasting Input"
+                       action:@selector(toggleBroadcastingInput:)
                 keyEquivalent:@""];
 
     // Separator
@@ -3229,14 +3561,14 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
 
 - (void)browse:(id)sender
 {
-    [self _openURL: [self selectedText]];
+    [self _openURL: [self selectedText] inBackground:NO];
 }
 
 - (void)searchInBrowser:(id)sender
 {
     NSString* url = [NSString stringWithFormat:[[PreferencePanel sharedInstance] searchCommand],
                               [[self selectedText] stringWithPercentEscape]];
-    [self _openURL:url];
+    [self _openURL:url inBackground:NO];
 }
 
 //
@@ -3396,7 +3728,7 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
     if (!aString) {
         aString = [self content];
     }
-    
+
     aData = [aString dataUsingEncoding:[[dataSource session] encoding]
                   allowLossyConversion:YES];
 
@@ -3441,7 +3773,8 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
                                                 Y:lineOffset
                                               ToX:[dataSource width]
                                                 Y:lineOffset + numLines - 1
-                                       pad: NO]];
+                                               pad:NO
+                               includeLastNewline:YES]];
             break;
         case 1: // text selection
             [self printContent: [self selectedTextWithPad:NO]];
@@ -3499,6 +3832,10 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
 - (void)insertText:(id)aString
 {
     if ([self hasMarkedText]) {
+        BOOL debugKeyDown = [[[NSUserDefaults standardUserDefaults] objectForKey:@"DebugKeyDown"] boolValue];
+        if (debugKeyDown) {
+            NSLog(@"insertText: clear marked text");
+        }
         IM_INPUT_MARKEDRANGE = NSMakeRange(0, 0);
         [markedText release];
         markedText=nil;
@@ -3529,6 +3866,10 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
 
 - (void)setMarkedText:(id)aString selectedRange:(NSRange)selRange
 {
+    BOOL debugKeyDown = [[[NSUserDefaults standardUserDefaults] objectForKey:@"DebugKeyDown"] boolValue];
+    if (debugKeyDown) {
+        NSLog(@"set marked text to %@; range %@", aString, [NSValue valueWithRange:selRange]);
+    }
     [markedText release];
     if ([aString isKindOfClass:[NSAttributedString class]]) {
         markedText = [[NSAttributedString alloc] initWithString:[aString string]
@@ -3566,6 +3907,10 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
 
 - (void)unmarkText
 {
+    BOOL debugKeyDown = [[[NSUserDefaults standardUserDefaults] objectForKey:@"DebugKeyDown"] boolValue];
+    if (debugKeyDown) {
+        NSLog(@"clear marked text");
+    }
     // As far as I can tell this is never called.
     IM_INPUT_MARKEDRANGE = NSMakeRange(0, 0);
     imeOffset = 0;
@@ -4031,8 +4376,8 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
     selectionScrollDirection = 0;
 }
 
-// Called form a timer. Update the alpha value for the graphic and request
-// that the vie be redrawn.
+// Called from a timer. Update the alpha value for the graphic and request
+// that the view be redrawn.
 - (void)setFlashAlpha
 {
     NSDate* now = [NSDate date];
@@ -4073,6 +4418,139 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
     // Turn the image to opaque and ask to redraw the screen.
     flashing_ = 1;
     [self setNeedsDisplay:YES];
+}
+
+- (NSPoint)cursorLocationInScreenCoordinates
+{
+    NSRect frame = [self visibleRect];
+    double x = MARGIN + charWidth * ([dataSource cursorX] - 1) + charWidth/2;
+    double y = frame.origin.y + VMARGIN + lineHeight * ([dataSource cursorY] - 1) + lineHeight/2;
+    if ([self hasMarkedText]) {
+        x = imeCursorLastPos_.x + 1;
+        y = imeCursorLastPos_.y + lineHeight / 2;
+    }
+    NSPoint p = NSMakePoint(x, y);
+    p = [self convertPoint:p toView:nil];
+    p = [[self window] convertBaseToScreen:p];
+    return p;
+}
+
+// Returns the location of the cursor relative to the origin of findCursorWindow_.
+- (NSPoint)globalCursorLocation
+{
+    NSPoint p = [self cursorLocationInScreenCoordinates];
+    p = [findCursorWindow_ convertScreenToBase:p];
+    return p;
+}
+
+// Returns the proper frame for findCursorWindow_, including every screen that the
+// "hole" will be in.
+- (NSRect)_cursorScreenFrame
+{
+    NSRect frame = NSZeroRect;
+    for (NSScreen *aScreen in [NSScreen screens]) {
+        NSRect screenFrame = [aScreen frame];
+        if (NSIntersectsRect([[self window] frame], screenFrame)) {
+            frame = NSUnionRect(frame, screenFrame);
+        }
+    }
+    if (NSEqualRects(frame, NSZeroRect)) {
+        frame = [[self window] frame];
+    }
+    return frame;
+}
+
+- (void)createFindCursorWindow
+{
+    findCursorWindow_ = [[NSWindow alloc] initWithContentRect:NSZeroRect
+                                                    styleMask:NSBorderlessWindowMask
+                                                      backing:NSBackingStoreBuffered
+                                                        defer:YES];
+    [findCursorWindow_ setOpaque:NO];
+    [findCursorWindow_ makeKeyAndOrderFront:nil];
+    [findCursorWindow_ setLevel:NSFloatingWindowLevel];
+    [findCursorWindow_ setAlphaValue:0];
+    [findCursorWindow_ setFrame:[self _cursorScreenFrame] display:YES];
+    [[NSAnimationContext currentContext] setDuration:0.5];
+    [[findCursorWindow_ animator] setAlphaValue:1];
+
+    findCursorView_ = [[FindCursorView alloc] initWithFrame:NSMakeRect(0, 0, [[self window] frame].size.width, [[self window] frame].size.height)];
+    NSPoint p = [self globalCursorLocation];
+    findCursorView_.cursor = p;
+    [findCursorWindow_ setContentView:findCursorView_];
+    [findCursorView_ release];
+
+    findCursorBlinkTimer_ = [NSTimer scheduledTimerWithTimeInterval:0.1
+                                                             target:self
+                                                           selector:@selector(invalidateCursor)
+                                                           userInfo:nil
+                                                            repeats:YES];
+}
+
+- (void)invalidateCursor
+{
+    [self setNeedsDisplay:YES];
+}
+
+- (void)beginFindCursor:(BOOL)hold
+{
+    [self showCursor];
+    if (!findCursorView_) {
+        [self createFindCursorWindow];
+    } else {
+        [findCursorWindow_ setAlphaValue:1];
+    }
+    [findCursorTeardownTimer_ invalidate];
+    autoHideFindCursor_ = NO;
+    if (hold) {
+        findCursorTeardownTimer_ = [NSTimer scheduledTimerWithTimeInterval:kFindCursorHoldTime
+                                                                    target:self
+                                                                  selector:@selector(startCloseFindCursorWindow)
+                                                                  userInfo:nil
+                                                                   repeats:NO];
+    } else {
+        findCursorTeardownTimer_ = nil;
+    }
+}
+
+- (void)placeFindCursorOnAutoHide
+{
+    autoHideFindCursor_ = YES;
+}
+
+- (BOOL)isFindingCursor
+{
+    return findCursorView_ != nil;
+}
+
+- (void)startCloseFindCursorWindow
+{
+    findCursorTeardownTimer_ = nil;
+    if (autoHideFindCursor_ && [self isFindingCursor]) {
+        [self endFindCursor];
+    }
+}
+
+- (void)closeFindCursorWindow:(NSTimer *)timer
+{
+    NSWindowController *win = [timer userInfo];
+    [win close];
+    [findCursorBlinkTimer_ invalidate];
+    findCursorBlinkTimer_ = nil;
+    findCursorTeardownTimer_ = nil;
+}
+
+- (void)endFindCursor
+{
+    [[findCursorWindow_ animator] setAlphaValue:0];
+    [findCursorTeardownTimer_ invalidate];
+    findCursorTeardownTimer_ = [NSTimer scheduledTimerWithTimeInterval:[[NSAnimationContext currentContext] duration]
+                                                                target:self
+                                                              selector:@selector(closeFindCursorWindow:)
+                                                              userInfo:findCursorWindow_
+                                                               repeats:NO];
+    findCursorWindow_ = nil;
+    findCursorView_ = nil;
 }
 
 - (void)drawFlippedBackground:(NSRect)bgRect toPoint:(NSPoint)dest
@@ -4226,7 +4704,7 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
         // Advance back to the right of the char that caused us to break.
         tmpX++;
     }
-    
+
     // Ensure the values are sane, although I think none of these cases will
     // ever occur.
     if (tmpX < 0) {
@@ -4242,7 +4720,7 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
     if (tmpY >= [dataSource numberOfLines]) {
         tmpY = [dataSource numberOfLines] - 1;
     }
-    
+
     // Save to startx, starty.
     if (startx) {
         *startx = tmpX;
@@ -4252,8 +4730,8 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
     }
     x1 = tmpX;
     yStart = tmpY;
-    
-    
+
+
     // Search forward from x to find the end of the word.
     tmpX = x;
     tmpY = y;
@@ -4272,12 +4750,12 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
             break;
         }
     }
-    
+
     // Back off from trailing char.
     if (tmpX != x) {
         tmpX--;
     }
-    
+
     // Sanity checks.
     if (tmpX < 0) {
         tmpX = width - 1;
@@ -4292,7 +4770,7 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
     if (tmpY >= [dataSource numberOfLines]) {
         tmpY = [dataSource numberOfLines] - 1;
     }
-    
+
     // Save to endx, endy.
     if (endx) {
         *endx = tmpX+1;
@@ -4305,7 +4783,12 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
     x2 = tmpX+1;
     y2 = tmpY;
 
-    return [self contentFromX:x1 Y:yStart ToX:x2 Y:y2 pad: YES];
+    return [self contentFromX:x1 Y:yStart ToX:x2 Y:y2 pad:YES includeLastNewline:NO];
+}
+
+- (double)perceivedBrightness:(NSColor*) c
+{
+    return PerceivedBrightness([c redComponent], [c greenComponent], [c blueComponent]);
 }
 
 @end
@@ -4522,11 +5005,6 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
                                             currentRun->numCodes);
     }
     return newRuns;
-}
-
-- (double)_perceivedBrightness:(NSColor*) c
-{
-    return PerceivedBrightness([c redComponent], [c greenComponent], [c blueComponent]);
 }
 
 - (NSColor*)colorWithRed:(double)r green:(double)g blue:(double)b alpha:(double)a withPerceivedBrightness:(CGFloat)t
@@ -5042,48 +5520,6 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
     [self _drawRuns:initialPoint runs:runs numRuns:numRuns];
 }
 
-- (void)_drawStripesInRect:(NSRect)rect
-{
-    [NSGraphicsContext saveGraphicsState];
-    NSRectClip(rect);
-    [[NSGraphicsContext currentContext] setCompositingOperation:NSCompositeSourceOver];
-
-    const CGFloat kStripeWidth = 40;
-    const double kSlope = 1;
-
-    for (CGFloat x = kSlope * -fmod(rect.origin.y, kStripeWidth * 2) -2 * kStripeWidth ;
-         x < rect.origin.x + rect.size.width;
-         x += kStripeWidth * 2) {
-        if (x + 2 * kStripeWidth + rect.size.height * kSlope < rect.origin.x) {
-            continue;
-        }
-        NSBezierPath* thePath = [NSBezierPath bezierPath];
-
-        [thePath moveToPoint:NSMakePoint(x, rect.origin.y + rect.size.height)];
-        [thePath lineToPoint:NSMakePoint(x + kSlope * rect.size.height, rect.origin.y)];
-        [thePath lineToPoint:NSMakePoint(x + kSlope * rect.size.height + kStripeWidth, rect.origin.y)];
-        [thePath lineToPoint:NSMakePoint(x + kStripeWidth, rect.origin.y + rect.size.height)];
-        [thePath closePath];
-
-        [[[NSColor redColor] colorWithAlphaComponent:0.25] set];
-        [thePath fill];
-
-        x += kStripeWidth;
-        thePath = [NSBezierPath bezierPath];
-
-        [thePath moveToPoint:NSMakePoint(x, rect.origin.y + rect.size.height)];
-        [thePath lineToPoint:NSMakePoint(x + kSlope * rect.size.height, rect.origin.y)];
-        [thePath lineToPoint:NSMakePoint(x + kSlope * rect.size.height + kStripeWidth, rect.origin.y)];
-        [thePath lineToPoint:NSMakePoint(x + kStripeWidth, rect.origin.y + rect.size.height)];
-        [thePath closePath];
-
-        [[[NSColor whiteColor] colorWithAlphaComponent:0.25] set];
-//        [thePath fill];
-        x -= kStripeWidth;
-    }
-    [NSGraphicsContext restoreGraphicsState];
-}
-
 - (BOOL)_drawLine:(int)line AtY:(double)curY toPoint:(NSPoint*)toPoint
 {
     BOOL anyBlinking = NO;
@@ -5287,10 +5723,6 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
             }
 
             // Draw red stripes in the background if sending input to all sessions
-            if ([[[[dataSource session] tab] realParentWindow] sendInputToAllSessions]) {
-                [self _drawStripesInRect:bgRect];
-            }
-
             NSPoint textOrigin;
             if (toPoint) {
                 textOrigin = NSMakePoint(toPoint->x + MARGIN + bgstart * charWidth,
@@ -5549,6 +5981,14 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
                                         cursorY,
                                         2.0,
                                         cursorHeight);
+        imeCursorLastPos_ = cursorFrame.origin;
+        if ([self isFindingCursor]) {
+            NSPoint cp = [self globalCursorLocation];
+            if (!NSEqualPoints(findCursorView_.cursor, cp)) {
+                findCursorView_.cursor = cp;
+                [findCursorView_ setNeedsDisplay:YES];
+            }
+        }
         [[self _dimmedColorFrom:[NSColor colorWithCalibratedRed:1 green:1 blue:0 alpha:1]] set];
         NSRectFill(cursorFrame);
 
@@ -5592,7 +6032,7 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
 
 - (double)_brightnessOfCharBackground:(screen_char_t)c
 {
-    return [self _perceivedBrightness:[[self _charBackground:c] colorUsingColorSpaceName:NSCalibratedRGBColorSpace]];
+    return [self perceivedBrightness:[[self _charBackground:c] colorUsingColorSpaceName:NSCalibratedRGBColorSpace]];
 }
 
 // Return the value in 'values' closest to target.
@@ -5641,6 +6081,17 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
     }
 
     return bestValue;
+}
+
+- (NSColor *)_randomColor
+{
+    double r = arc4random() % 256;
+    double g = arc4random() % 256;
+    double b = arc4random() % 256;
+    return [NSColor colorWithDeviceRed:r/255.0
+                                 green:g/255.0
+                                  blue:b/255.0
+                                 alpha:1];
 }
 
 - (void)_drawCursorTo:(NSPoint*)toOrigin
@@ -5721,7 +6172,13 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
             curX = floor(x1 * charWidth + MARGIN);
             curY = toOrigin ? toOrigin->y + (yStart + 1) * lineHeight - cursorHeight :
                 (yStart + [dataSource numberOfLines] - HEIGHT + 1) * lineHeight - cursorHeight;
-
+            if (!toOrigin && [self isFindingCursor]) {
+                NSPoint cp = [self globalCursorLocation];
+                if (!NSEqualPoints(findCursorView_.cursor, cp)) {
+                    findCursorView_.cursor = cp;
+                    [findCursorView_ setNeedsDisplay:YES];
+                }
+            }
             NSColor *bgColor;
             if (colorInvertedCursor) {
                 if (reversed) {
@@ -5739,7 +6196,7 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
                 }
 
                 NSMutableArray* constraints = [NSMutableArray arrayWithCapacity:2];
-                CGFloat bgBrightness = [self _perceivedBrightness:[bgColor colorUsingColorSpaceName:NSCalibratedRGBColorSpace]];
+                CGFloat bgBrightness = [self perceivedBrightness:[bgColor colorUsingColorSpaceName:NSCalibratedRGBColorSpace]];
                 if (x1 > 0) {
                     [constraints addObject:[NSNumber numberWithDouble:[self _brightnessOfCharBackground:theLine[x1 - 1]]]];
                 }
@@ -5761,6 +6218,9 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
             } else {
                 bgColor = [self defaultCursorColor];
                 [[bgColor colorWithAlphaComponent:alpha] set];
+            }
+            if ([self isFindingCursor]) {
+                [[self _randomColor] set];
             }
 
             BOOL frameOnly;
@@ -5818,8 +6278,8 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
                                                            alternateSemantics:fgAlt
                                                                          bold:screenChar.bold
                                                                  isBackground:NO] colorUsingColorSpaceName:NSCalibratedRGBColorSpace];
-                            CGFloat fgBrightness = [self _perceivedBrightness:proposedForeground];
-                            CGFloat bgBrightness = [self _perceivedBrightness:[bgColor colorUsingColorSpaceName:NSCalibratedRGBColorSpace]];
+                            CGFloat fgBrightness = [self perceivedBrightness:proposedForeground];
+                            CGFloat bgBrightness = [self perceivedBrightness:[bgColor colorUsingColorSpaceName:NSCalibratedRGBColorSpace]];
                             NSColor* overrideColor = nil;
                             if (!frameOnly && fabs(fgBrightness - bgBrightness) < 0.5) {
                                 // foreground and background are very similar. Just use black and
@@ -5977,169 +6437,265 @@ static double EuclideanDistance(NSPoint p1, NSPoint p2) {
     return NO;
 }
 
-static bool IsUrlChar(NSString* str)
++ (NSCharacterSet *)urlCharacterSet
 {
-    if ([str length] == 0) {
-        return NO;
-    }
-    UTF32Char theChar;
-    if ([str length] == 1) {
-        theChar = [str characterAtIndex:0];
-    } else {
-        unichar first = [str characterAtIndex:0];
-        if (IsHighSurrogate(first)) {
-            theChar = DecodeSurrogatePair(first, [str characterAtIndex:1]);
-        } else {
-            // Use the base character; combining marks won't affect the outcome.
-            theChar = first;
-        }
-    }
-    if (!theChar) {
-        return NO;
+    static NSMutableCharacterSet* urlChars;
+    if (!urlChars) {
+        urlChars = [[NSMutableCharacterSet characterSetWithCharactersInString:@".?\\/:;%=&_-,+~#@!*'()"] retain];
+        [urlChars formUnionWithCharacterSet:[NSCharacterSet alphanumericCharacterSet]];
+        [urlChars retain];
     }
 
-    static NSCharacterSet* urlChars;
-    if (!urlChars) {
-        urlChars = [[NSCharacterSet characterSetWithCharactersInString:@".?/:;%=&_-,+~#@!*'()"] retain];
-    }
-    return ([urlChars longCharacterIsMember:theChar] ||
-            [[NSCharacterSet alphanumericCharacterSet] longCharacterIsMember:theChar]);
+    return urlChars;
 }
 
-- (NSString*)_getURLForX:(int)x
-                       y:(int)y
-    respectingHardNewlines:(BOOL)respectHardNewlines
++ (NSCharacterSet *)filenameCharacterSet
 {
-    int w = [dataSource width];
-    int h = [dataSource numberOfLines];
-    NSMutableString *url = [NSMutableString string];
-    NSString* theChar = [self _getCharacterAtX:x Y:y];
-
-    if (!IsUrlChar(theChar)) {
-        return url;
+    static NSMutableCharacterSet* filenameChars;
+    if (!filenameChars) {
+        filenameChars = [[NSCharacterSet whitespaceCharacterSet] mutableCopy];
+        [filenameChars formUnionWithCharacterSet:[PTYTextView urlCharacterSet]];
     }
 
-    // Look for a left and right edge bracketed by | characters
-    // Look for a left edge
-    int leftx = 0;
-    for (int xi = x-1, yi = y; 0 <= xi; xi--) {
-        NSString* curChar = [self _getCharacterAtX:xi Y:yi];
-        if ([curChar isEqualToString:@"|"] &&
-            ((yi > 0 && [[self _getCharacterAtX:xi Y:yi-1] isEqualToString:@"|"]) ||
-             (yi < h-1 && [[self _getCharacterAtX:xi Y:yi+1] isEqualToString:@"|"]))) {
-            leftx = xi+1;
-            break;
-        }
-    }
-
-    // Look for a right edge
-    int rightx = w-1;
-    for (int xi = x+1, yi = y; xi < w; xi++) {
-        NSString* c = [self _getCharacterAtX:xi Y:yi];
-        if ([c isEqualToString:@"|"] &&
-            ((yi > 0 && [[self _getCharacterAtX:xi Y:yi-1] isEqualToString:@"|"]) ||
-             (yi < h-1 && [[self _getCharacterAtX:xi Y:yi+1] isEqualToString:@"|"]))) {
-            rightx = xi-1;
-            break;
-        }
-    }
-
-    // Move to the left
-    {
-        int endx = x-1;
-        for (int xi = endx, yi = y; xi >= leftx && 0 <= yi; xi--) {
-            NSString* curChar = [self _getCharacterAtX:xi Y:yi];
-            if (!IsUrlChar(curChar)) {
-                // Found a non-url character so append the left part of the URL.
-                [url insertString:[self contentFromX:xi+1 Y:yi ToX:endx+1 Y:yi pad: YES]
-                     atIndex:0];
-                break;
-            }
-            if (xi == leftx) {
-                // hit the start of the line
-                [url insertString:[self contentFromX:xi Y:yi ToX:endx+1 Y:yi pad: YES]
-                     atIndex:0];
-                // Try to wrap around to the previous line
-                if (yi == 0) {
-                    break;
-                }
-                yi--;
-                if (respectHardNewlines && rightx == w-1 && [self _haveHardNewlineAtY:yi]) {
-                    // Hard newline before url
-                    break;
-                }
-                if (rightx < w-1 && ![[self _getCharacterAtX:rightx+1 Y:yi] isEqualToString:@"|"]) {
-                    // Was bracketed by |s but the previous line lacks them.
-                    break;
-                }
-                // skip backslashes at the end of the line indicating wrapping.
-                xi = rightx;
-                while (xi >= leftx && [[self _getCharacterAtX:xi Y:yi] isEqualToString:@"\\"]) {
-                    xi--;
-                }
-                endx = xi;
-            }
-        }
-    }
-
-    // Move to the right
-    {
-        int startx = x;
-        for (int xi = startx+1, yi = y; xi <= rightx && yi < h; xi++) {
-            NSString* curChar = [self _getCharacterAtX:xi Y:yi];
-            if (!IsUrlChar(curChar)) {
-                // Found something non-urly. Append what we have so far.
-                [url appendString:[self contentFromX:startx Y:yi ToX:xi Y:yi pad: YES]];
-                // skip backslahes that indicate wrapping
-                while (x <= rightx && [[self _getCharacterAtX:xi Y:yi] isEqualToString:@"\\"]) {
-                    xi++;
-                }
-                if (xi <= rightx) {
-                    // before rightx there was something besides \s
-                    break;
-                }
-                // Don't respect hard newlines that are "escaped" by a \.
-                respectHardNewlines = NO;
-                // xi is left at rightx+1
-            } else if (xi == rightx) {
-                // Made it to rightx.
-                [url appendString:[self contentFromX:startx Y:yi ToX:xi+1 Y:yi pad: YES]];
-            } else {
-                // Char is valid and xi < rightx.
-                continue;
-            }
-            if (respectHardNewlines && rightx == w-1 && [self _haveHardNewlineAtY:yi]) {
-                // Don't wrap URL at hard newline
-                break;
-            }
-
-            // Wrap to the next line
-            if (yi == h-1) {
-                // got to the end of the screen.
-                break;
-            }
-            yi++;
-            if (leftx > 0 && ![[self _getCharacterAtX:leftx-1 Y:yi] isEqualToString:@"|"]) {
-                // Tried to wrap but there was no |, so stop.
-                break;
-            }
-            xi = startx = leftx;
-        }
-    }
-
-    // Grab the addressbook command
-    [url replaceOccurrencesOfString:@"\n"
-                         withString:@""
-                            options:NSLiteralSearch
-                              range:NSMakeRange(0, [url length])];
-
-    return (url);
-
+    return filenameChars;
 }
 
 - (BOOL)_stringLooksLikeURL:(NSString*)s
 {
-    return [s rangeOfRegex:@"^[a-zA-Z]{1,6}:"].location == 0;
+    // This is much harder than it sounds.
+    // [NSURL URLWithString] is supposed to do this, but it doesn't accept IDN-encoded domains like
+    // http://例子.测试
+    // Just about any word can be a URL in the local search path. The code that calls this prefers false
+    // positives, so just make sure it's not empty and doesn't have illegal characters.
+    if ([s rangeOfCharacterFromSet:[[PTYTextView urlCharacterSet] invertedSet]].location != NSNotFound) {
+        return NO;
+    }
+    if ([s length] == 0) {
+        return NO;
+    }
+    return YES;
+}
+
+- (NSMutableString *)_bruteforcePathFromBeforeString:(NSMutableString *)beforeString afterString:(NSMutableString *) afterString workingDirectory:(NSString *)workingDirectory {
+    // Remove escaping slashes
+    NSString *removeEscapingSlashes = @"\\\\([ \\(\\[\\]\\\\)])";
+    [beforeString replaceOccurrencesOfRegex:removeEscapingSlashes withString:@"$1"];
+    [afterString replaceOccurrencesOfRegex:removeEscapingSlashes withString:@"$1"];
+
+    // The parens here cause "Foo bar" to become {"Foo", " ", "bar"} rather than {"Foo", "bar"}.
+    NSMutableArray *beforeChunks = [[beforeString componentsSeparatedByRegex:@"([\t ])"] mutableCopy];
+    NSMutableArray *afterChunks = [[afterString componentsSeparatedByRegex:@"([\t ])"] mutableCopy];
+
+    NSMutableString *left = [NSMutableString string];
+
+    [beforeChunks addObject:@""]; // So there is an attempt with no left chunks
+    // Bail after 100 iterations if nothing is still found.
+    int limit = 100;
+
+    for (int i = [beforeChunks count] - 1; i >= 0; i--) {
+        [left insertString:[beforeChunks objectAtIndex:i] atIndex:0];
+        NSMutableString *possiblePath = [NSMutableString stringWithString:left];
+
+        // Do not search more than 10 chunks forward to avoid starving leftward search.
+        for (int j = 0; j < [afterChunks count] && j < 10; j++) {
+            [possiblePath appendString:[afterChunks objectAtIndex:j]];
+            if ([trouter getFullPath:possiblePath workingDirectory:workingDirectory lineNumber:NULL]) {
+                return possiblePath;
+            }
+
+            if (--limit == 0) {
+                return nil;
+            }
+        }
+    }
+    return nil;
+}
+
+// Find the bounding rectangle of what could possibly be a single semantic
+// string with a character at xi,yi. Lines of | characters are treated as a
+// vertical bound.
+- (NSRect)boundingRectForCharAtX:(int)xi y:(int)yi
+{
+    int w = [dataSource width];
+    int h = [dataSource numberOfLines];
+    int minX = 0;
+    int maxX = w - 1;
+    
+    // Find lines of at least two | characters on either side of xi,yi to define the min and max
+    // horizontal bounds.
+    for (int i = xi; i >= 0; i--) {
+        if ([[self _getCharacterAtX:i Y:yi] isEqualToString:@"|"] &&
+            ((yi > 0 && [[self _getCharacterAtX:i Y:yi - 1] isEqualToString:@"|"]) ||
+             (yi < h - 1 && [[self _getCharacterAtX:i Y:yi + 1] isEqualToString:@"|"]))) {
+            minX = i + 1;
+            break;
+        }
+    }
+    for (int i = xi; i < w; i++) {
+        if ([[self _getCharacterAtX:i Y:yi] isEqualToString:@"|"] &&
+            ((yi > 0 && [[self _getCharacterAtX:i Y:yi - 1] isEqualToString:@"|"]) ||
+             (yi < h - 1 && [[self _getCharacterAtX:i Y:yi + 1] isEqualToString:@"|"]))) {
+            maxX = i - 1;
+            break;
+        }
+    }
+
+    // We limit the esarch to 10 lines in each direction.
+    // See how high the lines of pipes go
+    int minY = MAX(0, yi - 10);
+    int maxY = MIN(h - 1, yi + 10);
+    for (int i = yi; i >= yi - 10 && i >= 0; i--) {
+        if (minX != 0) {
+            if (![[self _getCharacterAtX:minX - 1 Y:i] isEqualToString:@"|"]) {
+                minY = i + 1;
+                break;
+            }
+        }
+        if (maxX != w - 1) {
+            if (![[self _getCharacterAtX:maxX + 1 Y:i] isEqualToString:@"|"]) {
+                minY = i + 1;
+                break;
+            }
+        }
+    }
+
+    // See how low the lines of pipes go
+    for (int i = yi; i < h && i < yi + 10; i++) {
+        if (minX != 0) {
+            if (![[self _getCharacterAtX:minX - 1 Y:i] isEqualToString:@"|"]) {
+                maxY = i - 1;
+                break;
+            }
+        }
+        if (maxX != w - 1) {
+            if (![[self _getCharacterAtX:maxX + 1 Y:i] isEqualToString:@"|"]) {
+                maxY = i - 1;
+                break;
+            }
+        }
+    }
+
+    return NSMakeRect(minX, minY, maxX - minX + 1, maxY - minY + 1);
+}
+
+// Find the prefix (if dir < 0) or suffix (dir > 0) of a string having a
+// character at xi,yi.
+// If respectHardNewlines is true, then a hard newline always terminates the
+// string.
+- (NSString *)wrappedStringAtX:(int)xi y:(int)yi dir:(int)dir respectHardNewlines:(BOOL)respectHardNewlines
+{
+    int w = [dataSource width];
+    int h = [dataSource height];
+    int x = xi;
+    int y = yi;
+    NSRect bounds = [self boundingRectForCharAtX:xi y:yi];
+    int minX = bounds.origin.x;
+    int maxX = bounds.origin.x + bounds.size.width - 1;
+    int minY = bounds.origin.y;
+    int maxY = bounds.origin.y + bounds.size.height - 1;
+
+    // Walk characters until a hard newline (if respected) or the edge of the screen.
+    NSMutableString *s = [NSMutableString string];
+    screen_char_t *theLine = [dataSource getLineAtIndex:y];
+    BOOL first = YES;
+    while (y >= minY && y <= maxY) {
+        NSString* curChar = [self _getCharacterAtX:x Y:y];
+
+        if (first && dir < 0) {
+            // Skip first char when going backwards to avoid getting it in both directions
+            first = NO;
+        } else if ([curChar isEqualToString:@"\\"] && x == maxX) {
+            // Ignore backslash in last position of line
+        } else {
+            NSString *value = nil;
+            if (theLine[x].code == TAB_FILLER) {
+                if ([self isTabFillerOrphanAtX:x Y:y]) {
+                    value = @" ";
+                }
+            } else if (theLine[x].code != DWC_RIGHT &&
+                       theLine[x].code != DWC_SKIP) {
+                value = curChar;
+            }
+            if (value && [value length] > 0) {
+                if ([value length] == 1 && [value characterAtIndex:0] == 0) {
+                    value = @" ";
+                }
+                if (dir > 0) {
+                    [s appendString:value];
+                } else {
+                    [s insertString:value atIndex:0];
+                }
+            }
+        }
+
+        x += dir;
+        if (x < minX) {
+            x = maxX;
+            --y;
+            if (respectHardNewlines && y >= minY && minX == 0 && [self _haveHardNewlineAtY:y]) {
+                break;
+            }
+            if (y >= 0) {
+                theLine = [dataSource getLineAtIndex:y];
+            }
+        } else if (x > maxX) {
+            x = minX;
+            ++y;
+            if (respectHardNewlines && y <= maxY && maxX == w - 1 && [self _haveHardNewlineAtY:y]) {
+                break;
+            }
+            if (y < h) {
+                theLine = [dataSource getLineAtIndex:y];
+            }
+        }
+    }
+
+    return s;
+}
+
+// Returns a substring of contiguous characters only from a given character set
+// including some character in the middle of the "haystack" (source) string.
+- (NSString *)stringInString:(NSString *)haystack includingOffset:(int)offset fromCharacterSet:(NSCharacterSet *)charSet
+{
+    NSRange firstBadCharRange = [haystack rangeOfCharacterFromSet:[charSet invertedSet]
+                                                          options:NSBackwardsSearch
+                                                            range:NSMakeRange(0, offset)];
+    NSRange lastBadCharRange = [haystack rangeOfCharacterFromSet:[charSet invertedSet]
+                                                         options:0
+                                                           range:NSMakeRange(offset, [haystack length] - offset)];
+    int start = 0;
+    int end = [haystack length];
+    if (firstBadCharRange.location != NSNotFound) {
+        start = firstBadCharRange.location + 1;
+    }
+    if (lastBadCharRange.location != NSNotFound) {
+        end = lastBadCharRange.location;
+    }
+
+    return [haystack substringWithRange:NSMakeRange(start, end - start)];
+}
+
+- (NSString*)_getURLForX:(int)x
+                       y:(int)y
+  respectingHardNewlines:(BOOL)respectHardNewlines
+{
+    NSString *prefix = [self wrappedStringAtX:x y:y dir:-1 respectHardNewlines:respectHardNewlines];
+    NSString *suffix = [self wrappedStringAtX:x y:y dir:1 respectHardNewlines:respectHardNewlines];
+    NSString *joined = [prefix stringByAppendingString:suffix];
+    NSString *possibleUrl = [self stringInString:joined includingOffset:[prefix length] fromCharacterSet:[PTYTextView urlCharacterSet]];
+    NSString *possibleFilePart1 = [self stringInString:prefix includingOffset:[prefix length] - 1 fromCharacterSet:[PTYTextView filenameCharacterSet]];
+    NSString *possibleFilePart2 = [self stringInString:suffix includingOffset:0 fromCharacterSet:[PTYTextView filenameCharacterSet]];
+
+    NSString *filename = [self _bruteforcePathFromBeforeString:[[possibleFilePart1 mutableCopy] autorelease]
+                                                   afterString:[[possibleFilePart2 mutableCopy] autorelease]
+                                              workingDirectory:[self getWorkingDirectoryAtLine:y]];
+    if (!filename && [self _stringLooksLikeURL:possibleUrl]) {
+        return possibleUrl;
+    } else if (filename) {
+        return filename;
+    } else {
+        return @"";
+    }
 }
 
 - (NSString *)_getURLForX:(int)x
@@ -6293,7 +6849,8 @@ static bool IsUrlChar(NSString* str)
                                     Y:y
                                   ToX:[dataSource width]
                                     Y:y
-                                  pad:YES];
+                                  pad:YES
+                   includeLastNewline:NO];
     const char* utf8 = [lineContents UTF8String];
     for (int i = 0; utf8[i]; ++i) {
         if (utf8[i] != ' ') {
@@ -6307,6 +6864,11 @@ static bool IsUrlChar(NSString* str)
 - (void)logWorkingDirectoryAtLine:(long long)line
 {
     NSString *workingDirectory = [[dataSource shellTask] getWorkingDirectory];
+    [self logWorkingDirectoryAtLine:line withDirectory:workingDirectory];
+}
+
+- (void)logWorkingDirectoryAtLine:(long long)line withDirectory:(NSString *)workingDirectory
+{
     [workingDirectoryAtLines addObject:[NSArray arrayWithObjects:
           [NSNumber numberWithLongLong:line],
           workingDirectory,
@@ -6348,7 +6910,7 @@ static bool IsUrlChar(NSString* str)
     [[dataSource shellTask] writeTask:[[NSString stringWithFormat:@"\3cd \"%@\"; ls\n", path] dataUsingEncoding:[[dataSource session] encoding]]];
 }
 
-- (void)_openURL:(NSString *)aURLString atLine:(long long)line
+- (void)_openURL:(NSString *)aURLString atLine:(long long)line inBackground:(BOOL)background
 {
     NSString* trimmedURLString;
 
@@ -6356,13 +6918,28 @@ static bool IsUrlChar(NSString* str)
 
     NSString *workingDirectory = [self getWorkingDirectoryAtLine:line];
     if (![trouter openPath:trimmedURLString workingDirectory:workingDirectory]) {
-        [self _openURL:aURLString];
+        [self _openURL:aURLString inBackground:background];
     }
 
     return;
 }
 
-- (void)_openURL:(NSString *)aURLString
+// Opens a URL in the default browser in background or foreground
+- (void)openURL:(NSURL *)url inBackground:(BOOL)background
+{
+    if (background) {
+        NSArray* urls = [NSArray arrayWithObject:url];
+        [[NSWorkspace sharedWorkspace] openURLs:urls
+                                           withAppBundleIdentifier:nil
+                                           options:NSWorkspaceLaunchWithoutActivation
+                                           additionalEventParamDescriptor:nil
+                                           launchIdentifiers:nil];
+    } else {
+        [[NSWorkspace sharedWorkspace] openURL:url];
+    }
+}
+
+- (void)_openURL:(NSString *)aURLString inBackground:(BOOL)background
 {
     NSURL *url;
     NSString* trimmedURLString;
@@ -6378,7 +6955,7 @@ static bool IsUrlChar(NSString* str)
 
     NSRange range = [trimmedURLString rangeOfString:@":"];
     if (range.location == NSNotFound) {
-        trimmedURLString = [@"http://" stringByAppendingString:trimmedURLString];
+        trimmedURLString = [NSString stringWithFormat:@"http://%@", trimmedURLString];
     } else {
         // Search backwards for the start of the scheme.
         for (int i = range.location - 1; 0 <= i; i--) {
@@ -6425,7 +7002,7 @@ static bool IsUrlChar(NSString* str)
                                               inTerminal:[[iTermController sharedInstance] currentTerminal]
                                                  withURL:trimmedURLString];
     } else {
-        [[NSWorkspace sharedWorkspace] openURL:url];
+        [self openURL:url inBackground:background];
     }
 
 }
@@ -6546,6 +7123,9 @@ static bool IsUrlChar(NSString* str)
     [self setNeedsDisplay:YES];
     [self setDimOnlyText:[[PreferencePanel sharedInstance] dimOnlyText]];
 
+    BOOL emulate = [[PreferencePanel sharedInstance] threeFingerEmulatesMiddle];
+    [self futureSetAcceptsTouchEvents:emulate];
+    [self futureSetWantsRestingTouches:emulate];
 }
 
 - (void)_modifyFont:(NSFont*)font baseline:(double)baseline into:(PTYFontInfo*)fontInfo

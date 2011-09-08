@@ -1,6 +1,6 @@
 #!/bin/bash
 # Run this before uploading.
-COMPACTDATE=$(date +"%Y%m%d")
+COMPACTDATE=$(date +"%Y%m%d")b
 VERSION=$(cat version.txt | sed -e "s/%(extra)s/$COMPACTDATE/")
 NAME=$(echo $VERSION | sed -e "s/\\./_/g")
 cd build/Deployment
@@ -22,3 +22,5 @@ echo "Go upload the iTerm2-${NAME}.zip, then run:"
 echo "git tag v${VERSION}"
 echo "git push --tags"
 echo "svn commit -m ${VERSION} appcasts/testing.xml appcasts/canary.xml appcasts/testing_changes.html"
+echo "git commit -am ${VERSION}"
+echo "git push origin master"

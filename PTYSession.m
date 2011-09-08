@@ -44,7 +44,8 @@
 #import "SessionView.h"
 #import "PTYTab.h"
 #import "ProcessCache.h"
-
+#import "MovePaneController.h"
+#include <stdlib.h>
 #include <unistd.h>
 #include <sys/wait.h>
 #include <sys/time.h>
@@ -73,6 +74,10 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
     if ((self = [super init]) == nil) {
         return (nil);
     }
+
+    // The new session won't have the move-pane overlay, so just exit move pane
+    // mode.
+    [[MovePaneController sharedInstance] exitMovePaneMode];
 
     isDivorced = NO;
     gettimeofday(&lastInput, NULL);
@@ -110,6 +115,8 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
 
 - (void)dealloc
 {
+    [pasteboard_ release];
+    [pbtext_ release];
     [slowPasteBuffer release];
     if (slowPasteTimer) {
         [slowPasteTimer invalidate];
@@ -240,6 +247,18 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
     }
 }
 
++ (void)drawArrangementPreview:(NSDictionary *)arrangement frame:(NSRect)frame
+{
+    Bookmark* theBookmark = [[BookmarkModel sharedInstance] bookmarkWithGuid:[[arrangement objectForKey:SESSION_ARRANGEMENT_BOOKMARK] objectForKey:KEY_GUID]];
+    if (!theBookmark) {
+        theBookmark = [arrangement objectForKey:SESSION_ARRANGEMENT_BOOKMARK];
+    }
+    //    [self setForegroundColor:[ITAddressBookMgr decodeColor:[aDict objectForKey:KEY_FOREGROUND_COLOR]]];
+    [[ITAddressBookMgr decodeColor:[theBookmark objectForKey:KEY_BACKGROUND_COLOR]] set];
+    NSRectFill(frame);
+}
+
+
 + (PTYSession*)sessionFromArrangement:(NSDictionary*)arrangement inView:(SessionView*)sessionView inTab:(PTYTab*)theTab
 {
     PTYSession* aSession = [[[PTYSession alloc] init] autorelease];
@@ -292,9 +311,9 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
     }
 
     // Allocate a scrollview
-    SCROLLVIEW = [[PTYScrollView alloc] initWithFrame: NSMakeRect(0, 0, aRect.size.width, aRect.size.height)];
-    [SCROLLVIEW setHasVerticalScroller:(![parent anyFullScreen] &&
-                                        ![[PreferencePanel sharedInstance] hideScrollbar])];
+    SCROLLVIEW = [[PTYScrollView alloc] initWithFrame:NSMakeRect(0, 0, aRect.size.width, aRect.size.height)
+                                  hasVerticalScroller:(![parent anyFullScreen] &&
+                                                       ![[PreferencePanel sharedInstance] hideScrollbar])];
     NSParameterAssert(SCROLLVIEW != nil);
     [SCROLLVIEW setAutoresizingMask: NSViewWidthSizable|NSViewHeightSizable];
 
@@ -412,6 +431,55 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
     [TEXTVIEW clearHighlights];
 }
 
+- (void)setSplitSelectionMode:(SplitSelectionMode)mode
+{
+    [[self view] setSplitSelectionMode:mode];
+}
+
+- (NSArray *)childJobNames
+{
+    int skip = 0;
+    pid_t thePid = [SHELL pid];
+    if ([[[ProcessCache sharedInstance] getNameOfPid:thePid isForeground:nil] isEqualToString:@"login"]) {
+        skip = 1;
+    }
+    NSMutableArray *names = [NSMutableArray array];
+    for (NSNumber *n in [[ProcessCache sharedInstance] childrenOfPid:thePid levelsToSkip:skip]) {
+        pid_t pid = [n intValue];
+        NSDictionary *info = [[ProcessCache sharedInstance] dictionaryOfTaskInfoForPid:pid];
+        [names addObject:[info objectForKey:PID_INFO_NAME]];
+    }
+    return names;
+}
+
+- (BOOL)promptOnClose
+{
+    if (EXIT) {
+        return NO;
+    }
+    switch ([[addressBookEntry objectForKey:KEY_PROMPT_CLOSE] intValue]) {
+        case PROMPT_ALWAYS:
+            return YES;
+
+        case PROMPT_NEVER:
+            return NO;
+
+        case PROMPT_EX_JOBS: {
+            NSArray *jobsThatDontRequirePrompting = [addressBookEntry objectForKey:KEY_JOBS];
+            for (NSString *childName in [self childJobNames]) {
+                if ([jobsThatDontRequirePrompting indexOfObject:childName] == NSNotFound) {
+                    // This job is not in the ignore list.
+                    return YES;
+                }
+            }
+            // All jobs were in the ignore list.
+            return NO;
+        }
+    }
+
+    return YES;
+}
+
 - (void)setNewOutput:(BOOL)value
 {
     newOutput = value;
@@ -457,6 +525,20 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
     }
 }
 
+- (NSString *)_autoLogFilenameForTermId:(NSString *)termid
+{
+    // $(LOGDIR)/YYYYMMDD_HHMMSS.$(NAME).wNtNpN.$(PID).$(RANDOM).log
+    return [NSString stringWithFormat:@"%@/%@.%@.%@.%d.%0x.log",
+            [addressBookEntry objectForKey:KEY_LOGDIR],
+            [[NSDate date] descriptionWithCalendarFormat:@"%Y%m%d_%H%M%S"
+                                                timeZone:nil
+                                                  locale:nil],
+            [addressBookEntry objectForKey:KEY_NAME],
+            termid,
+            (int)getpid(),
+            (int)arc4random()];
+}
+
 - (void)startProgram:(NSString *)program
            arguments:(NSArray *)prog_argv
          environment:(NSDictionary *)prog_env
@@ -499,6 +581,9 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
                          [tab_ indexOfSessionView:[self view]]];
     [env setObject:itermId forKey:@"ITERM_SESSION_ID"];
 
+    if ([[addressBookEntry objectForKey:KEY_AUTOLOG] boolValue]) {
+        [SHELL loggingStartWithPath:[self _autoLogFilenameForTermId:itermId]];
+    }
     [SHELL launchWithPath:path
                 arguments:argv
               environment:env
@@ -506,7 +591,11 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
                    height:[SCREEN height]
                    isUTF8:isUTF8
            asLoginSession:asLoginSession];
-
+    NSString *initialText = [addressBookEntry objectForKey:KEY_INITIAL_TEXT];
+    if ([initialText length]) {
+        [SHELL writeTask:[initialText dataUsingEncoding:[self encoding]]];
+        [SHELL writeTask:[@"\n" dataUsingEncoding:[self encoding]]];
+    }
 }
 
 - (void)_maybeWarnAboutShortLivedSessions
@@ -538,6 +627,10 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
     if (EXIT) {
         [self _maybeWarnAboutShortLivedSessions];
     }
+    // The source pane may have just exited. Dogs and cats living together!
+    // Mass hysteria!
+    [[MovePaneController sharedInstance] exitMovePaneMode];
+
     // deregister from the notification center
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 
@@ -580,9 +673,22 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
 
 - (void)writeTask:(NSData*)data
 {
+    static BOOL checkedDebug;
+    static BOOL debugKeyDown;
+    if (!checkedDebug) {
+        debugKeyDown = [[[NSUserDefaults standardUserDefaults] objectForKey:@"DebugKeyDown"] boolValue];
+        checkedDebug = YES;
+    }
+    if (debugKeyDown) {
+        const char *bytes = [data bytes];
+        for (int i = 0; i < [data length]; i++) {
+            NSLog(@"writeTask keydown %d: %d (%c)", (int) bytes[i], bytes[i]);
+        }
+    }
+
     // check if we want to send this input to all the sessions
-    id<WindowControllerInterface> parent = [[self tab] parentWindow];
-    if ([parent sendInputToAllSessions] == NO) {
+    if (![[[self tab] realParentWindow] broadcastInputToSession:self]) {
+        // Send to only this session
         if (!EXIT) {
             [self setBell:NO];
             PTYScroller* ptys = (PTYScroller*)[SCROLLVIEW verticalScroller];
@@ -591,7 +697,7 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
         }
     } else {
         // send to all sessions
-        [parent sendInputToAllSessions:data];
+        [[[self tab] realParentWindow] sendInputToAllSessions:data];
     }
 }
 
@@ -606,11 +712,6 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
       DebugLog([NSString stringWithFormat:@"readTask called with %d bytes. The last byte is %d", (int)length, (int)bytes[length-1]]);
     }
 
-#if DEBUG_METHOD_TRACE
-    NSLog(@"%s(%d):-[PTYSession readTask:%@]", __FILE__, __LINE__,
-        [[NSString alloc] initWithBytes:[data bytes] length:[data length] encoding:nil]);
-#endif
-
     [TERMINAL putStreamData:data];
 
     VT100TCC token;
@@ -622,14 +723,29 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
             token.type != VT100_WAIT &&
             token.type != VT100CC_NULL)) {
         // process token
-        if (token.type != VT100_SKIP) {
-            if (token.type == VT100_NOTSUPPORT) {
-                //NSLog(@"%s(%d):not support token", __FILE__ , __LINE__);
-            } else {
+        if (token.type != VT100_SKIP) {  // VT100_SKIP = there was no data to read
+            if (pasteboard_) {
+                // We are probably copying text to the clipboard until esc]50;EndCopy^G is received.
+                if (token.type != XTERMCC_SET_KVP || ![token.u.string hasPrefix:@"CopyToClipboard"]) {
+                    // Append text to clipboard except for initial command that turns on copying to
+                    // the clipboard.
+                    [pbtext_ appendData:[NSData dataWithBytes:token.position
+                                                       length:token.length]];
+                }
+
+                // Don't allow more than 100MB to be added to the pasteboard queue in case someone
+                // forgets to send the EndCopy command.
+                const int kMaxPasteboardBytes = 100 * 1024 * 1024;
+                if ([pbtext_ length] > kMaxPasteboardBytes) {
+                    [self setPasteboard:nil];
+                }
+            }
+
+            if (token.type != VT100_NOTSUPPORT) {
                 [SCREEN putToken:token];
             }
         }
-    } // end token processing loop
+    }
 
     gettimeofday(&lastOutput, NULL);
     newOutput = YES;
@@ -847,6 +963,7 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
 // pass the keystroke as input.
 - (void)keyDown:(NSEvent *)event
 {
+    BOOL debugKeyDown = [[[NSUserDefaults standardUserDefaults] objectForKey:@"DebugKeyDown"] boolValue];
     unsigned char *send_str = NULL;
     unsigned char *dataPtr = NULL;
     int dataLength = 0;
@@ -873,10 +990,15 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
     }
     unicode = [keystr length] > 0 ? [keystr characterAtIndex:0] : 0;
     unmodunicode = [unmodkeystr length] > 0 ? [unmodkeystr characterAtIndex:0] : 0;
-
+    if (debugKeyDown) {
+        NSLog(@"PTYSession keyDown modflag=%d keystr=%@ unmodkeystr=%@ unicode=%d unmodunicode=%d", (int)modflag, keystr, unmodkeystr, (int)unicode, (int)unmodunicode);
+    }
     gettimeofday(&lastInput, NULL);
 
     if ([[[self tab] realParentWindow] inInstantReplay]) {
+        if (debugKeyDown) {
+            NSLog(@"PTYSession keyDown in IR");
+        }
         // Special key handling in IR mode, and keys never get sent to the live
         // session, even though it might be displayed.
         if (unicode == 27) {
@@ -909,7 +1031,9 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
 
 
     unsigned short keycode = [event keyCode];
-    //NSLog([NSString stringWithFormat:@"event:%@ (%x+%x)[%@][%@]:%x(%c) <%d>", event,modflag,keycode,keystr,unmodkeystr,unicode,unicode,(modflag & NSNumericPadKeyMask)]);
+    if (debugKeyDown) {
+        NSLog(@"event:%@ (%x+%x)[%@][%@]:%x(%c) <%d>", event,modflag,keycode,keystr,unmodkeystr,unicode,unicode,(modflag & NSNumericPadKeyMask));
+    }
     DebugLog([NSString stringWithFormat:@"event:%@ (%x+%x)[%@][%@]:%x(%c) <%d>", event,modflag,keycode,keystr,unmodkeystr,unicode,unicode,(modflag & NSNumericPadKeyMask)]);
 
     // Check if we have a custom key mapping for this event
@@ -919,6 +1043,9 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
                                                 keyMappings:[[self addressBookEntry] objectForKey:KEY_KEYBOARD_MAP]];
 
     if (keyBindingAction >= 0) {
+        if (debugKeyDown) {
+            NSLog(@"PTYSession keyDown action=%d", keyBindingAction);
+        }
         DebugLog([NSString stringWithFormat:@"keyBindingAction=%d", keyBindingAction]);
         // A special action was bound to this key combination.
         NSString *aString;
@@ -964,6 +1091,12 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
         }
 
         switch (keyBindingAction) {
+            case KEY_ACTION_NEXT_PANE:
+                [[self tab] nextSession];
+                break;
+            case KEY_ACTION_PREVIOUS_PANE:
+                [[self tab] previousSession];
+                break;
             case KEY_ACTION_NEXT_SESSION:
                 [[[self tab] parentWindow] nextTab:nil];
                 break;
@@ -1097,6 +1230,9 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
                 break;
         }
     } else {
+        if (debugKeyDown) {
+            NSLog(@"PTYSession keyDown no keybinding action");
+        }
         DebugLog(@"No keybinding action");
         if (EXIT) {
             DebugLog(@"Terminal already dead");
@@ -1104,6 +1240,9 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
         }
         // No special binding for this key combination.
         if (modflag & NSFunctionKeyMask) {
+            if (debugKeyDown) {
+                NSLog(@"PTYSession keyDown is a function key");
+            }
             DebugLog(@"Is a function key");
             // Handle all "special" keys (arrows, etc.)
             NSData *data = nil;
@@ -1161,13 +1300,19 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
             }
         } else if (((modflag & NSLeftAlternateKeyMask) == NSLeftAlternateKeyMask &&
                     ([self optionKey] != OPT_NORMAL)) ||
+                   (modflag == NSAlternateKeyMask && 
+                    ([self optionKey] != OPT_NORMAL)) ||  /// synergy
                    ((modflag & NSRightAlternateKeyMask) == NSRightAlternateKeyMask &&
                     ([self rightOptionKey] != OPT_NORMAL))) {
-           DebugLog(@"Option + key -> modified key");
+            if (debugKeyDown) {
+                NSLog(@"PTYSession keyDown opt + key -> modkey");
+            }
+            DebugLog(@"Option + key -> modified key");
             // A key was pressed while holding down option and the option key
             // is not behaving normally. Apply the modified behavior.
             int mode;  // The modified behavior based on which modifier is pressed.
-            if ((modflag & NSLeftAlternateKeyMask) == NSLeftAlternateKeyMask) {
+            if ((modflag == NSAlternateKeyMask) ||  // synergy
+                (modflag & NSLeftAlternateKeyMask) == NSLeftAlternateKeyMask) {
                 mode = [self optionKey];
             } else {
                 mode = [self rightOptionKey];
@@ -1189,15 +1334,24 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
                 }
             }
         } else {
+            if (debugKeyDown) {
+                NSLog(@"PTYSession keyDown regular path");
+            }
             DebugLog(@"Regular path for keypress");
             // Regular path for inserting a character from a keypress.
             int max = [keystr length];
             NSData *data=nil;
 
             if (max != 1||[keystr characterAtIndex:0] > 0x7f) {
+                if (debugKeyDown) {
+                    NSLog(@"PTYSession keyDown non-ascii");
+                }
                 DebugLog(@"Non-ascii input");
                 data = [keystr dataUsingEncoding:[TERMINAL encoding]];
             } else {
+                if (debugKeyDown) {
+                    NSLog(@"PTYSession keyDown ascii");
+                }
                 DebugLog(@"ASCII input");
                 data = [keystr dataUsingEncoding:NSUTF8StringEncoding];
             }
@@ -1205,11 +1359,17 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
             // Enter key is on numeric keypad, but not marked as such
             if (unicode == NSEnterCharacter && unmodunicode == NSEnterCharacter) {
                 modflag |= NSNumericPadKeyMask;
+                if (debugKeyDown) {
+                    NSLog(@"PTYSession keyDown enter key");
+                }
                 DebugLog(@"Enter key");
                 keystr = @"\015";  // Enter key -> 0x0d
             }
             // Check if we are in keypad mode
             if (modflag & NSNumericPadKeyMask) {
+                if (debugKeyDown) {
+                    NSLog(@"PTYSession keyDown numeric keyoad");
+                }
                 DebugLog(@"Numeric keypad mask");
                 data = [TERMINAL keypadData:unicode keystr:keystr];
             }
@@ -1224,6 +1384,9 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
                 // Do not send anything for cmd+[shift]+enter if it wasn't
                 // caught by the menu.
                 DebugLog(@"Cmd + 0-9 or cmd + enter");
+                if (debugKeyDown) {
+                    NSLog(@"PTYSession keyDown cmd+0-9 or cmd+enter");
+                }
                 data = nil;
             }
             if (data != nil) {
@@ -1231,11 +1394,18 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
                 send_strlen = [data length];
                 DebugLog([NSString stringWithFormat:@"modflag = 0x%x; send_strlen = %d; send_str[0] = '%c (0x%x)'",
                           modflag, send_strlen, send_str[0]]);
+                if (debugKeyDown) {
+                    DebugLog([NSString stringWithFormat:@"modflag = 0x%x; send_strlen = %d; send_str[0] = '%c (0x%x)'",
+                              modflag, send_strlen, send_str[0]]);
+                }
             }
 
             if ((modflag & NSControlKeyMask) &&
                 send_strlen == 1 &&
                 send_str[0] == '|') {
+                if (debugKeyDown) {
+                    NSLog(@"PTYSession keyDown c-|");
+                }
                 // Control-| is sent as Control-backslash
                 send_str = (unsigned char*)"\034";
                 send_strlen = 1;
@@ -1243,18 +1413,27 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
                        (modflag & NSShiftKeyMask) &&
                        send_strlen == 1 &&
                        send_str[0] == '/') {
+                if (debugKeyDown) {
+                    NSLog(@"PTYSession keyDown c-?");
+                }
                 // Control-shift-/ is sent as Control-?
                 send_str = (unsigned char*)"\177";
                 send_strlen = 1;
             } else if ((modflag & NSControlKeyMask) &&
                        send_strlen == 1 &&
                        send_str[0] == '/') {
+                if (debugKeyDown) {
+                    NSLog(@"PTYSession keyDown c-/");
+                }
                 // Control-/ is sent as Control-/, but needs some help to do so.
                 send_str = (unsigned char*)"\037"; // control-/
                 send_strlen = 1;
             } else if ((modflag & NSShiftKeyMask) &&
                        send_strlen == 1 &&
                        send_str[0] == '\031') {
+                if (debugKeyDown) {
+                    NSLog(@"PTYSession keyDown shift-tab -> esc[Z");
+                }
                 // Shift-tab is sent as Esc-[Z (or "backtab")
                 send_str = (unsigned char*)"\033[Z";
                 send_strlen = 3;
@@ -1463,12 +1642,17 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
                                                         userInfo:nil
                                                          repeats:NO];
     } else {
+        if ([TERMINAL bracketedPasteMode]) {
+            [self writeTask:[[NSString stringWithFormat:@"%c[201~", 27]
+                             dataUsingEncoding:[TERMINAL encoding]
+                             allowLossyConversion:YES]];
+        }
         slowPasteTimer = nil;
     }
 }
 
 // Outputs 16 bytes every 125ms so that clients that don't buffer input can handle pasting large buffers.
-// Override the constnats by setting defaults SlowPasteBytesPerCall and SlowPasteDelayBetweenCalls
+// Override the constants by setting defaults SlowPasteBytesPerCall and SlowPasteDelayBetweenCalls
 - (void)pasteSlowly:(id)sender
 {
     [self _pasteWithBytePerCallPrefKey:@"SlowPasteBytesPerCall"
@@ -1478,8 +1662,36 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
                               selector:@selector(pasteSlowly:)];
 }
 
+- (void)_pasteStringMore
+{
+    [self _pasteWithBytePerCallPrefKey:@"QuickPasteBytesPerCall"
+                          defaultValue:256
+              delayBetweenCallsPrefKey:@"QuickPasteDelayBetweenCalls"
+                          defaultValue:0.01
+                              selector:@selector(_pasteStringMore)];
+}
+
+- (void)_pasteString:(NSString *)aString
+{
+    if ([aString length] > 0) {
+        // This is the "normal" way of pasting. It's fast but tends not to
+        // outrun a shell's ability to read from its buffer. Why this crazy
+        // thing? See bug 1031.
+        [slowPasteBuffer appendString:[aString stringWithLinefeedNewlines]];
+        [self _pasteStringMore];
+    } else {
+        NSBeep();
+    }
+}
+
 - (void)paste:(id)sender
 {
+    if ([TERMINAL bracketedPasteMode]) {
+        [self writeTask:[[NSString stringWithFormat:@"%c[200~", 27]
+                         dataUsingEncoding:[TERMINAL encoding]
+                         allowLossyConversion:YES]];
+    }
+
     NSString* pbStr = [PTYSession pasteboardString];
     if (pbStr) {
         NSMutableString *str;
@@ -1495,30 +1707,19 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
             [slowPasteBuffer appendString:[str stringWithLinefeedNewlines]];
             [self pasteSlowly:nil];
         } else {
-            [self pasteString:str];
+            [self _pasteString:str];
         }
     }
 }
 
-- (void)_pasteStringMore
-{
-    [self _pasteWithBytePerCallPrefKey:@"QuickPasteBytesPerCall"
-                          defaultValue:256
-              delayBetweenCallsPrefKey:@"QuickPasteDelayBetweenCalls"
-                          defaultValue:0.01
-                              selector:@selector(_pasteStringMore)];
-}
-
 - (void)pasteString:(NSString *)aString
 {
-    if ([aString length] > 0) {
-        // This is the "normal" way of pasting. It's fast but tends not to outrun a shell's ability to
-        // read from its buffer. Why this crazy thing? See bug 1031.
-        [slowPasteBuffer appendString:[aString stringWithLinefeedNewlines]];
-        [self _pasteStringMore];
-    } else {
-        NSBeep();
+    if ([TERMINAL bracketedPasteMode]) {
+        [self writeTask:[[NSString stringWithFormat:@"%c[200~", 27]
+                         dataUsingEncoding:[TERMINAL encoding]
+                         allowLossyConversion:YES]];
     }
+    [self _pasteString:aString];
 }
 
 - (void)deleteBackward:(id)sender
@@ -1627,7 +1828,7 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
     return ([[NSString alloc] initWithFormat:@"%d;%d", fgNum, bgNum]);
 }
 
-- (void)setPreferencesFromAddressBookEntry:(NSDictionary *) aePrefs
+- (void)setPreferencesFromAddressBookEntry:(NSDictionary *)aePrefs
 {
     NSColor *colorTable[2][8];
     int i;
@@ -1749,6 +1950,7 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
            nafont:[ITAddressBookMgr fontWithDesc:[aDict objectForKey:KEY_NON_ASCII_FONT]]
         horizontalSpacing:[[aDict objectForKey:KEY_HORIZONTAL_SPACING] floatValue]
         verticalSpacing:[[aDict objectForKey:KEY_VERTICAL_SPACING] floatValue]];
+    [SCREEN setSaveToScrollbackInAlternateScreen:[aDict objectForKey:KEY_SCROLLBACK_IN_ALTERNATE_SCREEN] ? [[aDict objectForKey:KEY_SCROLLBACK_IN_ALTERNATE_SCREEN] boolValue] : YES];
 }
 
 // Contextual menu
@@ -2301,6 +2503,7 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
 - (void)setXtermMouseReporting:(BOOL)set
 {
     xtermMouseReporting = set;
+    [TEXTVIEW updateCursor:[NSApp currentEvent]];
 }
 
 
@@ -2365,7 +2568,8 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
 - (BOOL)shouldSendEscPrefixForModifier:(unsigned int)modmask
 {
     if ([self optionKey] == OPT_ESC) {
-        if ((modmask & NSLeftAlternateKeyMask) == NSLeftAlternateKeyMask) {
+        if ((modmask == NSAlternateKeyMask) ||
+            (modmask & NSLeftAlternateKeyMask) == NSLeftAlternateKeyMask) {
             return YES;
         }
     }
@@ -2393,12 +2597,18 @@ static NSString* SESSION_ARRANGEMENT_WORKING_DIRECTORY = @"Working Directory";
 
 - (void)setAddressBookEntry:(NSDictionary*)entry
 {
+    NSMutableDictionary *dict = [[entry mutableCopy] autorelease];
+    // This is the most practical way to migrate the bopy of a
+    // profile that's stored in a saved window arrangement. It doesn't get
+    // saved back into the arrangement, unfortunately.
+    [BookmarkModel migratePromptOnCloseInMutableBookmark:dict];
+
     if (!originalAddressBookEntry) {
-        originalAddressBookEntry = [NSDictionary dictionaryWithDictionary:entry];
+        originalAddressBookEntry = [NSDictionary dictionaryWithDictionary:dict];
         [originalAddressBookEntry retain];
     }
     [addressBookEntry release];
-    addressBookEntry = [entry retain];
+    addressBookEntry = [dict retain];
 }
 
 - (NSDictionary *)addressBookEntry
@@ -2464,7 +2674,7 @@ static long long timeInTenthsOfSeconds(struct timeval t)
         // We're still in the time window after the last output where updates are needed.
         anotherUpdateNeeded = YES;
     }
-    
+
     BOOL isForegroundTab = [[self tab] isForegroundTab];
     if (!isForegroundTab) {
         // Set color, other attributes of a background tab.
@@ -2650,6 +2860,11 @@ static long long timeInTenthsOfSeconds(struct timeval t)
     }
 }
 
+- (void)remarry
+{
+    isDivorced = NO;
+}
+
 - (NSString*)divorceAddressBookEntryFromPreferences
 {
     Bookmark* bookmark = [self addressBookEntry];
@@ -2724,7 +2939,7 @@ static long long timeInTenthsOfSeconds(struct timeval t)
 - (void)useStringForFind:(NSString*)string
 {
     [[view findViewController] findString:string];
-}    
+}
 
 - (void)findWithSelection
 {
@@ -2796,6 +3011,63 @@ static long long timeInTenthsOfSeconds(struct timeval t)
 - (void)clearHighlights
 {
     [TEXTVIEW clearHighlights];
+}
+
+- (NSImage *)dragImage
+{
+    NSImage *image = [self imageOfSession:YES];
+    NSImage *dragImage = [[[NSImage alloc] initWithSize:[image size]] autorelease];
+    [dragImage lockFocus];
+    [image compositeToPoint:NSZeroPoint fromRect:NSZeroRect operation:NSCompositeSourceOver fraction:0.5];
+    [dragImage unlockFocus];
+    return dragImage;
+}
+
+- (NSImage *)imageOfSession:(BOOL)flip
+{
+    [TEXTVIEW refresh];
+    NSRect theRect = [SCROLLVIEW documentVisibleRect];
+    NSImage *textviewImage = [[[NSImage alloc] initWithSize:theRect.size] autorelease];
+
+    [textviewImage lockFocus];
+    if (flip) {
+        NSAffineTransform *transform = [NSAffineTransform transform];
+        [transform scaleXBy:1.0 yBy:-1];
+        [transform translateXBy:0 yBy:-theRect.size.height];
+        [transform concat];
+    }
+
+    [TEXTVIEW drawBackground:theRect toPoint:NSMakePoint(0, 0)];
+    // Draw the background flipped, which is actually the right way up.
+    NSPoint temp = NSMakePoint(0, 0);
+    [TEXTVIEW drawRect:theRect to:&temp];
+    [textviewImage unlockFocus];
+
+    return textviewImage;
+}
+
+- (void)setPasteboard:(NSString *)pbName
+{
+    if (pbName) {
+        [pasteboard_ autorelease];
+        pasteboard_ = [pbName copy];
+        [pbtext_ release];
+        pbtext_ = [[NSMutableData alloc] init];
+    } else {
+        NSPasteboard *pboard = [NSPasteboard pasteboardWithName:pasteboard_];
+        [pboard declareTypes:[NSArray arrayWithObject:NSStringPboardType] owner:self];
+        [pboard setData:pbtext_ forType:NSStringPboardType];
+
+        [pasteboard_ release];
+        pasteboard_ = nil;
+        [pbtext_ release];
+        pbtext_ = nil;
+
+        // In case it was the find pasteboard that chagned
+        [[NSNotificationCenter defaultCenter] postNotificationName:@"iTermLoadFindStringFromSharedPasteboard"
+                                                            object:nil
+                                                          userInfo:nil];        
+    }
 }
 
 @end
@@ -2881,7 +3153,9 @@ static long long timeInTenthsOfSeconds(struct timeval t)
     }
 
     if (contentsOfFile != nil) {
-        aString = [NSString stringWithContentsOfFile:contentsOfFile];
+        aString = [NSString stringWithContentsOfFile:contentsOfFile
+                                            encoding:NSUTF8StringEncoding
+                                               error:nil];
         data = [aString dataUsingEncoding:[TERMINAL encoding]];
     }
 
@@ -2913,7 +3187,7 @@ static long long timeInTenthsOfSeconds(struct timeval t)
     CFStringEncoding cfEncoding = CFStringConvertNSStringEncodingToEncoding([self encoding]);
     // Convert it to the expected (IANA) format.
     NSString* ianaEncoding = (NSString*)CFStringConvertEncodingToIANACharSetName(cfEncoding);
-    
+
     // Fix up lowercase letters.
     static NSDictionary* lowerCaseEncodings;
     if (!lowerCaseEncodings) {
@@ -2931,7 +3205,7 @@ static long long timeInTenthsOfSeconds(struct timeval t)
             }
         }
     }
-    
+
     if (ianaEncoding != nil) {
         // Mangle the names slightly
         NSMutableString* encoding = [[[NSMutableString alloc] initWithString:ianaEncoding] autorelease];
@@ -2950,6 +3224,8 @@ static long long timeInTenthsOfSeconds(struct timeval t)
     NSString* countryCode = [[NSLocale currentLocale] objectForKey:NSLocaleCountryCode];
     if (languageCode && countryCode) {
         theLocale = [NSString stringWithFormat:@"%@_%@", languageCode, countryCode];
+    } else {
+        return [[NSLocale currentLocale] localeIdentifier];
     }
     return theLocale;
 }

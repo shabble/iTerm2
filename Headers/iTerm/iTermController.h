@@ -36,8 +36,6 @@
 @class PasteboardHistory;
 @class GTMCarbonHotKey;
 
-BOOL IsLionOrLater(void);
-
 @interface iTermController : NSObject
 {
     // PseudoTerminal objects
@@ -97,15 +95,17 @@ BOOL IsLionOrLater(void);
 - (PseudoTerminal*)terminalWithNumber:(int)n;
 - (int)allocateWindowNumber;
 
-- (BOOL)hasWindowArrangement;
 - (void)saveWindowArrangement;
-- (void)loadWindowArrangement;
+- (void)loadWindowArrangementWithName:(NSString *)theName;
 
 - (PseudoTerminal *)currentTerminal;
 - (void)terminalWillClose:(PseudoTerminal*)theTerminalWindow;
 - (NSArray*)sortedEncodingList;
 - (void)addBookmarksToMenu:(NSMenu *)aMenu startingAt:(int)startingAt;
 - (void)addBookmarksToMenu:(NSMenu *)aMenu withSelector:(SEL)selector openAllSelector:(SEL)openAllSelector startingAt:(int)startingAt;
+- (id)launchBookmark:(NSDictionary *)bookmarkData
+               inTerminal:(PseudoTerminal *)theTerm
+    disableLionFullscreen:(BOOL)disableLionFullscreen;
 - (id)launchBookmark:(NSDictionary*)bookmarkData inTerminal:(PseudoTerminal*)theTerm;
 - (id)launchBookmark:(NSDictionary *)bookmarkData inTerminal:(PseudoTerminal *)theTerm withCommand:(NSString *)command;
 - (id)launchBookmark:(NSDictionary*)bookmarkData inTerminal:(PseudoTerminal*)theTerm withURL:(NSString*)url;

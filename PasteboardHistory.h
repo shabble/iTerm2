@@ -33,6 +33,8 @@
 #import "PTYTextView.h"
 #import "Popup.h"
 
+#define kPasteboardHistoryDidChange @"PasteboardHistoryDidChange"
+
 @interface PasteboardEntry : PopupEntry {
     @public
     NSDate* timestamp;
@@ -54,14 +56,19 @@
 - (void)dealloc;
 - (NSArray*)entries;
 - (void)save:(NSString*)value;
+
+// Erases persistent history, but not in-memory.
 - (void)eraseHistory;
+
+// Erases in-memory history but not persistent copy.
+- (void)clear;
 
 - (void)_loadHistoryFromDisk;
 - (void)_writeHistoryToDisk;
 
 @end
 
-@interface PasteboardHistoryView : Popup
+@interface PasteboardHistoryWindowController : Popup
 {
     IBOutlet NSTableView* table_;
     NSTimer* minuteRefreshTimer_;

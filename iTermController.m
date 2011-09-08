@@ -50,6 +50,7 @@
 #import "iTermExpose.h"
 #import "GTMCarbonEvent.h"
 #import "iTerm.h"
+#import "WindowArrangements.h"
 
 #define HOTKEY_WINDOW_VERBOSE_LOGGING
 #ifdef HOTKEY_WINDOW_VERBOSE_LOGGING
@@ -68,11 +69,9 @@ DebugLog([NSString stringWithFormat:args]); \
 @end
 
 // Constants for saved window arrangement key names.
-static NSString* DEFAULT_ARRANGEMENT_NAME = @"Default";
 static NSString* APPLICATION_SUPPORT_DIRECTORY = @"~/Library/Application Support";
 static NSString *SUPPORT_DIRECTORY = @"~/Library/Application Support/iTerm";
 static NSString *SCRIPT_DIRECTORY = @"~/Library/Application Support/iTerm/Scripts";
-static NSString* WINDOW_ARRANGEMENTS = @"Window Arrangements";
 
 // Comparator for sorting encodings
 static NSInteger _compareEncodingByLocalizedName(id a, id b, void *unused)
@@ -87,6 +86,16 @@ BOOL IsLionOrLater(void) {
     unsigned minor;
     if ([iTermController getSystemVersionMajor:&major minor:&minor bugFix:nil]) {
         return (major == 10 && minor >= 7) || (major > 10);
+    } else {
+        return NO;
+    }
+}
+
+BOOL IsSnowLeopardOrLater(void) {
+    unsigned major;
+    unsigned minor;
+    if ([iTermController getSystemVersionMajor:&major minor:&minor bugFix:nil]) {
+        return (major == 10 && minor >= 6) || (major > 10);
     } else {
         return NO;
     }
@@ -121,16 +130,6 @@ static BOOL initDone = NO;
 {
     [shared release];
     shared = nil;
-}
-
-static BOOL IsSnowLeopardOrLater() {
-    unsigned major;
-    unsigned minor;
-    if ([iTermController getSystemVersionMajor:&major minor:&minor bugFix:nil]) {
-        return (major == 10 && minor >= 6) || (major > 10);
-    } else {
-        return NO;
-    }
 }
 
 // init
@@ -269,16 +268,38 @@ static BOOL IsSnowLeopardOrLater() {
     [NSApp _cycleWindowsReversed:NO];
 }
 
-- (BOOL)hasWindowArrangement
-{
-    return [[[NSUserDefaults standardUserDefaults] objectForKey:WINDOW_ARRANGEMENTS] objectForKey:DEFAULT_ARRANGEMENT_NAME] != nil;
+- (NSString *)_showAlertWithText:(NSString *)prompt defaultInput:(NSString *)defaultValue {
+    NSAlert *alert = [NSAlert alertWithMessageText:prompt
+                                     defaultButton:@"OK"
+                                   alternateButton:@"Cancel"
+                                       otherButton:nil
+                         informativeTextWithFormat:@""];
+    
+    NSTextField *input = [[NSTextField alloc] initWithFrame:NSMakeRect(0, 0, 200, 24)];
+    [input setStringValue:defaultValue];
+    [alert setAccessoryView:input];
+    NSInteger button = [alert runModal];
+    if (button == NSAlertDefaultReturn) {
+        [input validateEditing];
+        return [input stringValue];
+    } else if (button == NSAlertAlternateReturn) {
+        return nil;
+    } else {
+        NSAssert1(NO, @"Invalid input dialog button %d", button);
+        return nil;
+    }
 }
 
 - (void)saveWindowArrangement
 {
-    if ([self hasWindowArrangement]) {
+    NSString *name = [self _showAlertWithText:@"Name for saved window arrangement:"
+                                 defaultInput:[NSString stringWithFormat:@"Arrangement %d", 1+[WindowArrangements count]]];
+    if (!name) {
+        return;
+    }
+    if ([WindowArrangements hasWindowArrangement:name]) {
         if (NSRunAlertPanel(@"Replace Existing Saved Window Arrangement?",
-                            @"There is an existing saved window arrangement. Would you like to replace it with the current arrangement?",
+                            @"There is an existing saved window arrangement with this name. Would you like to replace it with the current arrangement?",
                             @"Yes",
                             @"No",
                             nil) != NSAlertDefaultReturn) {
@@ -291,23 +312,18 @@ static BOOL IsSnowLeopardOrLater() {
             [terminalArrangements addObject:[terminal arrangement]];
         }
     }
-    NSMutableDictionary* arrangements = [NSMutableDictionary dictionaryWithObject:terminalArrangements
-                                                                           forKey:DEFAULT_ARRANGEMENT_NAME];
-    [[NSUserDefaults standardUserDefaults] setObject:arrangements forKey:WINDOW_ARRANGEMENTS];
 
-    // Post a notification
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"iTermSavedArrangementChanged"
-                                                        object:nil
-                                                      userInfo:nil];
+    [WindowArrangements setArrangement:terminalArrangements withName:name];
 }
 
-- (void)loadWindowArrangement
+- (void)loadWindowArrangementWithName:(NSString *)theName
 {
-    NSDictionary* arrangements = [[NSUserDefaults standardUserDefaults] objectForKey:WINDOW_ARRANGEMENTS];
-    NSArray* terminalArrangements = [arrangements objectForKey:DEFAULT_ARRANGEMENT_NAME];
-    for (NSDictionary* terminalArrangement in terminalArrangements) {
-        PseudoTerminal* term = [PseudoTerminal terminalWithArrangement:terminalArrangement];
-        [self addInTerminals:term];
+    NSArray* terminalArrangements = [WindowArrangements arrangementWithName:theName];
+    if (terminalArrangements) {
+        for (NSDictionary* terminalArrangement in terminalArrangements) {
+            PseudoTerminal* term = [PseudoTerminal terminalWithArrangement:terminalArrangement];
+            [self addInTerminals:term];
+        }
     }
 }
 
@@ -770,7 +786,9 @@ static BOOL IsSnowLeopardOrLater() {
 }
 
 // Executes an addressbook command in new window or tab
-- (id)launchBookmark:(NSDictionary *)bookmarkData inTerminal:(PseudoTerminal *)theTerm
+- (id)launchBookmark:(NSDictionary *)bookmarkData
+               inTerminal:(PseudoTerminal *)theTerm
+    disableLionFullscreen:(BOOL)disableLionFullscreen
 {
     PseudoTerminal *term;
     NSDictionary *aDict;
@@ -790,9 +808,14 @@ static BOOL IsSnowLeopardOrLater() {
     BOOL toggle = NO;
     if (theTerm == nil) {
         [iTermController switchToSpaceInBookmark:aDict];
+        int windowType = [self _windowTypeForBookmark:aDict];
+        if (windowType == WINDOW_TYPE_LION_FULL_SCREEN && disableLionFullscreen) {
+            windowType = WINDOW_TYPE_FULL_SCREEN;
+        }
         term = [[[PseudoTerminal alloc] initWithSmartLayout:YES
-                                                 windowType:[self _windowTypeForBookmark:aDict]
-                                                     screen:[aDict objectForKey:KEY_SCREEN] ? [[aDict objectForKey:KEY_SCREEN] intValue] : -1] autorelease];
+                                                 windowType:windowType
+                                                     screen:[aDict objectForKey:KEY_SCREEN] ? [[aDict objectForKey:KEY_SCREEN] intValue] : -1
+                                                   isHotkey:disableLionFullscreen] autorelease];
         [self addInTerminals:term];
         toggle = ([term windowType] == WINDOW_TYPE_FULL_SCREEN) ||
                  ([term windowType] == WINDOW_TYPE_LION_FULL_SCREEN);
@@ -812,6 +835,11 @@ static BOOL IsSnowLeopardOrLater() {
     }
 
     return session;
+}
+
+- (id)launchBookmark:(NSDictionary *)bookmarkData inTerminal:(PseudoTerminal *)theTerm
+{
+    return [self launchBookmark:bookmarkData inTerminal:theTerm disableLionFullscreen:NO];
 }
 
 // I don't think this function is ever called.
@@ -1114,6 +1142,13 @@ static void RollInHotkeyTerm(PseudoTerminal* term)
             [[[term window] animator] setAlphaValue:1];
             break;
 
+        case WINDOW_TYPE_BOTTOM:
+            rect.origin.y = screenFrame.origin.y;
+            [[NSAnimationContext currentContext] setDuration:[[PreferencePanel sharedInstance] hotkeyTermAnimationDuration]];
+            [[[term window] animator] setFrame:rect display:YES];
+            [[[term window] animator] setAlphaValue:1];
+            break;
+
         case WINDOW_TYPE_LION_FULL_SCREEN:  // Shouldn't happen
         case WINDOW_TYPE_FULL_SCREEN:
             [[NSAnimationContext currentContext] setDuration:[[PreferencePanel sharedInstance] hotkeyTermAnimationDuration]];
@@ -1191,7 +1226,7 @@ static BOOL OpenHotkeyWindow()
                             forKey:KEY_WINDOW_TYPE];
             bookmark = replacement;
         }
-        PTYSession* session = [cont launchBookmark:bookmark inTerminal:nil];
+        PTYSession* session = [cont launchBookmark:bookmark inTerminal:nil disableLionFullscreen:YES];
         PseudoTerminal* term = [[session tab] realParentWindow];
         [term setIsHotKeyWindow:YES];
 
@@ -1203,15 +1238,20 @@ static BOOL OpenHotkeyWindow()
             NSRect rect = [[term window] frame];
             if ([term windowType] == WINDOW_TYPE_TOP) {
                 rect.origin.y = screenFrame.origin.y + screenFrame.size.height + rect.size.height;
+            } else if ([term windowType] == WINDOW_TYPE_BOTTOM) {
+                 rect.origin.y = screenFrame.origin.y - rect.size.height;
             } else {
                 rect.origin.y = -rect.size.height;
                 rect.origin.x = -rect.size.width;
             }
-            if (IsSnowLeopardOrLater()) {
+            if (IsSnowLeopardOrLater() && !IsLionOrLater()) {
                 // TODO: When upgrading to the 10.6 SDK, remove the conditional and the
                 // const below:
                 const int NSWindowCollectionBehaviorStationary = (1 << 4);  // value stolen from 10.6 SDK
                 [[term window] setCollectionBehavior:[[term window] collectionBehavior] | NSWindowCollectionBehaviorStationary];
+            }
+            if (IsLionOrLater()) {
+                [[term window] setCollectionBehavior:[[term window] collectionBehavior] & ~NSWindowCollectionBehaviorFullScreenPrimary];
             }
         }
         RollInHotkeyTerm(term);
@@ -1262,6 +1302,13 @@ static void RollOutHotkeyTerm(PseudoTerminal* term, BOOL itermWasActiveWhenHotke
 
         case WINDOW_TYPE_TOP:
             rect.origin.y = screenFrame.size.height;
+            [[NSAnimationContext currentContext] setDuration:[[PreferencePanel sharedInstance] hotkeyTermAnimationDuration]];
+            [[[term window] animator] setFrame:rect display:YES];
+            [[[term window] animator] setAlphaValue:0];
+            break;
+
+        case WINDOW_TYPE_BOTTOM:
+            rect.origin.y = screenFrame.origin.y-rect.size.height;
             [[NSAnimationContext currentContext] setDuration:[[PreferencePanel sharedInstance] hotkeyTermAnimationDuration]];
             [[[term window] animator] setFrame:rect display:YES];
             [[[term window] animator] setAlphaValue:0];
@@ -1402,6 +1449,12 @@ static void RollOutHotkeyTerm(PseudoTerminal* term, BOOL itermWasActiveWhenHotke
                 HKWLog(@"FAST: Set y=%f", rect.origin.y);
                 [[term window] setFrame:rect display:YES];
                 break;
+            case WINDOW_TYPE_BOTTOM:
+                rect.origin.y = screenFrame.origin.y - rect.size.height;
+                HKWLog(@"FAST: Set y=%f", rect.origin.y);
+                [[term window] setFrame:rect display:YES];
+                break;
+
 
             case WINDOW_TYPE_LION_FULL_SCREEN:  // Shouldn't happen.
             case WINDOW_TYPE_FULL_SCREEN:

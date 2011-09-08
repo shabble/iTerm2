@@ -1209,10 +1209,11 @@ static char* FormatCont(int c)
     case VT100CC_LF:
     case VT100CC_VT:
     case VT100CC_FF:
-        if([self printToAnsi] == YES)
+        if ([self printToAnsi] == YES) {
             [self printStringToAnsi: @"\n"];
-        else
+        } else {
             [self setNewLine];
+        }
         break;
     case VT100CC_CR:  [self setCursorX:0 Y:cursorY]; break;
     case VT100CC_SO:  break;
@@ -1332,8 +1333,10 @@ static char* FormatCont(int c)
             [[SESSION tab] sessionInitiatedResize:SESSION
                                             width:([TERMINAL columnMode] ? 132 : 80)
                                            height:HEIGHT];
-            token.u.csi.p[0]=2; [self eraseInDisplay:token]; //erase the screen
-            token.u.csi.p[0]=token.u.csi.p[1]=0; [self setTopBottom:token]; // reset scroll;
+            token.u.csi.p[0] = 2;
+            [self eraseInDisplay:token];  // erase the screen
+            token.u.csi.p[0] = token.u.csi.p[1] = 0;
+            [self setTopBottom:token];  // reset scroll
         }
 
         break;
@@ -1380,25 +1383,27 @@ static char* FormatCont(int c)
         break;
 
     case ANSICSI_PRINT:
-        switch (token.u.csi.p[0]) {
-            case 4:
-                // print our stuff!!
-                [self doPrint];
-                break;
-            case 5:
-                // allocate a string for the stuff to be printed
-                if (printToAnsiString != nil)
-                    [printToAnsiString release];
-                printToAnsiString = [[NSMutableString alloc] init];
-                [self setPrintToAnsi: YES];
-                break;
-            default:
-                //print out the whole screen
-                if (printToAnsiString != nil)
-                    [printToAnsiString release];
-                printToAnsiString = nil;
-                [self setPrintToAnsi: NO];
-                [self doPrint];
+        if (![[[SESSION addressBookEntry] objectForKey:KEY_DISABLE_PRINTING] boolValue]) {
+            switch (token.u.csi.p[0]) {
+                case 4:
+                    // print our stuff!!
+                    [self doPrint];
+                    break;
+                case 5:
+                    // allocate a string for the stuff to be printed
+                    if (printToAnsiString != nil)
+                        [printToAnsiString release];
+                    printToAnsiString = [[NSMutableString alloc] init];
+                    [self setPrintToAnsi: YES];
+                    break;
+                default:
+                    //print out the whole screen
+                    if (printToAnsiString != nil)
+                        [printToAnsiString release];
+                    printToAnsiString = nil;
+                    [self setPrintToAnsi: NO];
+                    [self doPrint];
+            }
         }
         break;
     case ANSICSI_SCP:
@@ -1641,17 +1646,22 @@ static char* FormatCont(int c)
     temp_buffer = NULL;
 }
 
-- (BOOL) printToAnsi
+- (void)mouseModeDidChange:(MouseMode)mouseMode
+{
+    [display updateCursor:nil];
+}
+
+- (BOOL)printToAnsi
 {
     return printToAnsi;
 }
 
-- (void) setPrintToAnsi: (BOOL) aFlag
+- (void)setPrintToAnsi: (BOOL) aFlag
 {
     printToAnsi = aFlag;
 }
 
-- (void) printStringToAnsi: (NSString *) aString
+- (void)printStringToAnsi: (NSString *) aString
 {
     if ([aString length] > 0) {
         [printToAnsiString appendString: aString];
@@ -2890,7 +2900,9 @@ void DumpBuf(screen_char_t* p, int n) {
     }
 
     // everything between cursorY and SCROLL_BOTTOM is dirty
-    [self setDirtyFromX:0 Y:cursorY toX:WIDTH Y:SCROLL_BOTTOM];
+    if (cursorY <= SCROLL_BOTTOM) {
+        [self setDirtyFromX:0 Y:cursorY toX:WIDTH Y:SCROLL_BOTTOM];
+    }
     DebugLog(@"insertLines");
 }
 
@@ -2992,6 +3004,11 @@ void DumpBuf(screen_char_t* p, int n) {
           __FILE__, __LINE__, flag == YES ? "YES" : "NO");
 #endif
     GROWL = flag;
+}
+
+- (void)setSaveToScrollbackInAlternateScreen:(BOOL)flag
+{
+    saveToScrollbackInAlternateScreen_ = flag;
 }
 
 - (BOOL)growl
@@ -3149,7 +3166,7 @@ void DumpBuf(screen_char_t* p, int n) {
     DebugLog(@"setDirty (doesn't actually set dirty)");
 }
 
-- (void) doPrint
+- (void)doPrint
 {
     if ([printToAnsiString length] > 0) {
         [[SESSION TEXTVIEW] printContent: printToAnsiString];
@@ -3571,8 +3588,11 @@ void DumpBuf(screen_char_t* p, int n) {
 // adds a line to scrollback area. Returns YES if oldest line is lost, NO otherwise
 - (int)_addLineToScrollbackImpl
 {
-    // There was an experiment to try not saving lines to scrollback when in alternate screen mode.
-    // It failed because it broke screen (see bug 1034).
+    if (temp_buffer && !saveToScrollbackInAlternateScreen_) {
+        // Don't save to scrollback in alternate screen mode.
+        return 0;
+    }
+
     int len = WIDTH;
     if (screen_top[WIDTH].code == EOL_HARD) {
         // The line is not continued. Figure out its length by finding the last nonnull char.

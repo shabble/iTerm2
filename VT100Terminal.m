@@ -33,6 +33,7 @@
 #import <iTerm/VT100Screen.h>
 #import <iTerm/NSStringITerm.h>
 #import "iTermApplicationDelegate.h"
+#import "ITAddressBookMgr.h"
 #import "PTYTab.h"
 #import "PseudoTerminal.h"
 #import "WindowControllerInterface.h"
@@ -770,7 +771,7 @@ static VT100TCC decode_xterm(unsigned char *datap,
                 }
             }
             else {
-                *datap++;
+                datap++;
                 datalen--;
                 (*rmlen)++;
             }
@@ -1683,7 +1684,8 @@ static VT100TCC decode_string(unsigned char *datap,
     alternateBackgroundSemantics = YES;
     MOUSE_MODE = MOUSE_REPORTING_NONE;
     MOUSE_FORMAT = MOUSE_FORMAT_XTERM;
-
+    [SCREEN mouseModeDidChange:MOUSE_MODE];
+    
     TRACE = NO;
 
     strictAnsiMode = NO;
@@ -2431,6 +2433,11 @@ static VT100TCC decode_string(unsigned char *datap,
                     }
                     break;
 
+                case 2004:
+                    // Set bracketed paste mode
+                    bracketedPasteMode_ = mode;
+                    break;
+
                 case 47:
                     // alternate screen buffer mode
                     if (!disableSmcupRmcup) {
@@ -2451,6 +2458,7 @@ static VT100TCC decode_string(unsigned char *datap,
                     } else {
                         MOUSE_MODE = MOUSE_REPORTING_NONE;
                     }
+                    [SCREEN mouseModeDidChange:MOUSE_MODE];
                     break;
 
                 case 1005:
@@ -2611,35 +2619,41 @@ static VT100TCC decode_string(unsigned char *datap,
         // The format of this command is "<index>;rgb:<redhex>/<greenhex>/<bluehex>", e.g. "105;rgb:00/cc/ff"
         const char *s = [token.u.string UTF8String];
         int theIndex = 0;
-        while (isdigit(*s))
+        while (isdigit(*s)) {
             theIndex = 10*theIndex + *s++ - '0';
-        if (*s++ != ';')
+        }
+        if (*s++ != ';') {
             return;
-        if (*s++ != 'r')
+        }
+        if (*s++ != 'r') {
             return;
-        if (*s++ != 'g')
+        }
+        if (*s++ != 'g') {
             return;
-        if (*s++ != 'b')
+        }
+        if (*s++ != 'b') {
             return;
-        if (*s++ != ':')
+        }
+        if (*s++ != ':') {
             return;
+        }
         int r = 0, g = 0, b = 0;
 
-        while (isxdigit(*s))
+        while (isxdigit(*s)) {
             r = 16*r + (*s>='a' ? *s++ - 'a' + 10 : *s>='A' ? *s++ - 'A' + 10 : *s++ - '0');
-
-        if (*s++ != '/')
+        }
+        if (*s++ != '/') {
             return;
-
-        while (isxdigit(*s))
+        }
+        while (isxdigit(*s)) {
             g = 16*g + (*s>='a' ? *s++ - 'a' + 10 : *s>='A' ? *s++ - 'A' + 10 : *s++ - '0');
-
-        if (*s++ != '/')
+        }
+        if (*s++ != '/') {
             return;
-
-        while (isxdigit(*s))
+        }
+        while (isxdigit(*s)) {
             b = 16*b + (*s>='a' ? *s++ - 'a' + 10 : *s>='A' ? *s++ - 'A' + 10 : *s++ - '0');
-
+        }
         if (theIndex >= 16 && theIndex <= 255 && // ignore assigns to the systems colors or outside the palette
              r >= 0 && r <= 255 && g >= 0 && g <= 255 && b >= 0 && b <= 255) { // ignore bad colors
             [[SCREEN session] setColorTable:theIndex
@@ -2669,6 +2683,42 @@ static VT100TCC decode_string(unsigned char *datap,
             }
         } else if ([key isEqualToString:@"SetMark"]) {
             [[SCREEN session] saveScrollPosition];
+        } else if ([key isEqualToString:@"StealFocus"]) {
+            [NSApp activateIgnoringOtherApps:YES];
+            [[[SCREEN display] window] makeKeyAndOrderFront:nil];
+        } else if ([key isEqualToString:@"ClearScrollback"]) {
+            [SCREEN clearBuffer];
+        } else if ([key isEqualToString:@"CurrentDir"]) {
+            long long lineNumber = [SCREEN absoluteLineNumberOfCursor];
+            [[[SCREEN session] TEXTVIEW] logWorkingDirectoryAtLine:lineNumber
+                                                     withDirectory:value];
+        } else if ([key isEqualToString:@"SetProfile"]) {
+            Bookmark *newProfile;
+            if ([value length]) {
+                newProfile = [[BookmarkModel sharedInstance] bookmarkWithName:value];
+            } else {
+                newProfile = [[BookmarkModel sharedInstance] defaultBookmark];
+            }
+            if (newProfile) {
+                NSString *name = [[[SCREEN session] addressBookEntry] objectForKey:KEY_NAME];
+                NSMutableDictionary *dict = [NSMutableDictionary dictionaryWithDictionary:newProfile];
+                [dict setObject:name forKey:KEY_NAME];
+                [[SCREEN session] setAddressBookEntry:dict];
+                [[SCREEN session] setPreferencesFromAddressBookEntry:dict];
+                [[SCREEN session] remarry];
+            }
+        } else if ([key isEqualToString:@"CopyToClipboard"]) {
+            if ([value isEqualToString:@"ruler"]) {
+                [[SCREEN session] setPasteboard:NSGeneralPboard];
+            } else if ([value isEqualToString:@"find"]) {
+                [[SCREEN session] setPasteboard:NSFindPboard];
+            } else if ([value isEqualToString:@"font"]) {
+                [[SCREEN session] setPasteboard:NSFontPboard];
+            } else {
+                [[SCREEN session] setPasteboard:NSGeneralPboard];
+            }
+        } else if ([key isEqualToString:@"EndCopy"]) {
+            [[SCREEN session] setPasteboard:nil];
         }
     } else if (token.type == XTERMCC_SET_PALETTE) {
         NSString* argument = token.u.string;
@@ -2750,14 +2800,26 @@ static VT100TCC decode_string(unsigned char *datap,
                 //
                 // Adjusts a color modifier.
                 // class: determines which image class will have its color modifier altered:
-                //   legal values: bg (background), or a number 0-15 (color pallette entries).
+                //   legal values: bg (background), or a number 0-15 (color palette entries).
                 // color: The color component to modify.
                 //   legal values: red, green, or blue.
                 // attribute: how to modify it.
                 //   legal values: brightness
                 // value: the new value for this attribute.
                 //   legal values: decimal integers in 0-255.
-                if ([parts count] == 5) {
+                if ([parts count] == 4) {
+                    NSString* class = [parts objectAtIndex:1];
+                    NSString* color = [parts objectAtIndex:2];
+                    NSString* attribute = [parts objectAtIndex:3];
+                    if ([class isEqualToString:@"bg"] &&
+                        [color isEqualToString:@"*"] &&
+                        [attribute isEqualToString:@"default"]) {
+
+                        NSTabViewItem* tabViewItem = [[[SCREEN session] ptytab] tabViewItem];
+                        id<WindowControllerInterface> term = [[[SCREEN session] ptytab] parentWindow];
+                        [term setTabColor:nil forTabViewItem:tabViewItem];
+                    }
+                } else if ([parts count] == 5) {
                     NSString* class = [parts objectAtIndex:1];
                     NSString* color = [parts objectAtIndex:2];
                     NSString* attribute = [parts objectAtIndex:3];
@@ -2808,6 +2870,11 @@ static VT100TCC decode_string(unsigned char *datap,
 - (void)setDisableSmcupRmcup:(BOOL)value
 {
     disableSmcupRmcup = value;
+}
+
+- (BOOL)bracketedPasteMode
+{
+    return bracketedPasteMode_;
 }
 
 @end

@@ -158,6 +158,7 @@ static const BOOL USE_THIN_SPLITTERS = YES;
     if (self) {
         activeSession_ = session;
         [session setLastActiveAt:[NSDate date]];
+        [[session view] setDimmed:NO];
         root_ = [[MySplitView alloc] init];
         if (USE_THIN_SPLITTERS) {
             [root_ setDividerStyle:NSSplitViewDividerStyleThin];
@@ -370,17 +371,32 @@ static const BOOL USE_THIN_SPLITTERS = YES;
     return nil;
 }
 
+- (SessionView *)_savedViewWithId:(int)i
+{
+    for (NSNumber *k in idMap_) {
+        SessionView *cur = [idMap_ objectForKey:k];
+        if ([cur viewId] == [[viewOrder_ objectAtIndex:i] intValue]) {
+            return cur;
+        }
+    }
+    return nil;
+}
+
 - (void)previousSession
 {
-    if (isMaximized_) {
-        return;
-    }
     --currentViewIndex_;
     if (currentViewIndex_ < 0) {
         currentViewIndex_ = [viewOrder_ count] - 1;
     }
-    SessionView* sv = [self _recursiveSessionViewWithId:[[viewOrder_ objectAtIndex:currentViewIndex_] intValue]
-                                                 atNode:root_];
+    SessionView *sv;
+    if (isMaximized_) {
+        sv = [self _savedViewWithId:currentViewIndex_];
+        [root_ replaceSubview:[[root_ subviews] objectAtIndex:0]
+                         with:sv];
+    } else {
+        sv = [self _recursiveSessionViewWithId:[[viewOrder_ objectAtIndex:currentViewIndex_] intValue]
+                                        atNode:root_];
+    }
     assert(sv);
     if (sv) {
         [self setActiveSessionPreservingViewOrder:[sv session]];
@@ -389,15 +405,19 @@ static const BOOL USE_THIN_SPLITTERS = YES;
 
 - (void)nextSession
 {
-    if (isMaximized_) {
-        return;
-    }
     ++currentViewIndex_;
     if (currentViewIndex_ >= [viewOrder_ count]) {
         currentViewIndex_ = 0;
     }
-    SessionView* sv = [self _recursiveSessionViewWithId:[[viewOrder_ objectAtIndex:currentViewIndex_] intValue]
-                                                 atNode:root_];
+    SessionView *sv;
+    if (isMaximized_) {
+        sv = [self _savedViewWithId:currentViewIndex_];
+        [root_ replaceSubview:[[root_ subviews] objectAtIndex:0]
+                         with:sv];
+    } else {
+        sv = [self _recursiveSessionViewWithId:[[viewOrder_ objectAtIndex:currentViewIndex_] intValue]
+                                        atNode:root_];
+    }
     assert(sv);
     if (sv) {
         [self setActiveSessionPreservingViewOrder:[sv session]];
@@ -717,7 +737,7 @@ static NSString* FormatRect(NSRect r) {
 {
     for (id subview in [node subviews]) {
         if ([subview isKindOfClass:[NSSplitView class]]) {
-            [self _recursiveSessions:sessionViews atNode:(NSSplitView*)subview];
+            [self _recursiveSessionViews:sessionViews atNode:(NSSplitView*)subview];
         } else {
             SessionView* sessionView = (SessionView*)subview;
             if (sessionView) {
@@ -1105,7 +1125,9 @@ static NSString* FormatRect(NSRect r) {
     PtyLog(@"<<<<<<<< end dump");
 }
 
-- (SessionView*)splitVertically:(BOOL)isVertical targetSession:(PTYSession*)targetSession
+- (SessionView*)splitVertically:(BOOL)isVertical
+                         before:(BOOL)before
+                  targetSession:(PTYSession*)targetSession
 {
     if (isMaximized_) {
         [self unmaximize];
@@ -1126,7 +1148,9 @@ static NSString* FormatRect(NSRect r) {
 
         // Set its orientation to vertical and add the new view.
         [parentSplit setVertical:isVertical];
-        [parentSplit addSubview:newView positioned:NSWindowAbove relativeTo:targetSessionView];
+        [parentSplit addSubview:newView
+                     positioned:before ? NSWindowBelow : NSWindowAbove
+                     relativeTo:targetSessionView];
 
         // Resize all subviews the same size to accommodate the new view.
         [self adjustSubviewsOf:parentSplit];
@@ -1147,9 +1171,9 @@ static NSString* FormatRect(NSRect r) {
         [newSplit setVertical:isVertical];
         [[targetSessionView superview] replaceSubview:targetSessionView with:newSplit];
         [newSplit release];
-        [newSplit addSubview:targetSessionView];
+        [newSplit addSubview:before ? newView : targetSessionView];
         [targetSessionView release];
-        [newSplit addSubview:newView];
+        [newSplit addSubview:before ? targetSessionView : newView];
 
         // Resize all subviews the same size to accommodate the new view.
         [self adjustSubviewsOf:parentSplit];
@@ -1158,7 +1182,9 @@ static NSString* FormatRect(NSRect r) {
     } else {
         PtyLog(@"PTYTab splitVertically multiple children");
         // The parent has same-orientation splits and there is more than one child.
-        [parentSplit addSubview:newView positioned:NSWindowAbove relativeTo:targetSessionView];
+        [parentSplit addSubview:newView
+                     positioned:before ? NSWindowBelow : NSWindowAbove
+                     relativeTo:targetSessionView];
 
         // Resize all subviews the same size to accommodate the new view.
         [self adjustSubviewsOf:parentSplit];
@@ -1396,18 +1422,9 @@ static NSString* FormatRect(NSRect r) {
 
 - (void)_drawSession:(PTYSession*)session inImage:(NSImage*)viewImage atOrigin:(NSPoint)origin
 {
-    [[session TEXTVIEW] refresh];
-    NSRect theRect = [[session SCROLLVIEW] documentVisibleRect];
-    NSImage *textviewImage = [[[NSImage alloc] initWithSize:theRect.size] autorelease];
+    NSImage *textviewImage = [session imageOfSession:YES];
 
-    [textviewImage setFlipped:YES];
-    [textviewImage lockFocus];
-    [[session TEXTVIEW] drawBackground:theRect toPoint:NSMakePoint(0, 0)];
-    // Draw the background flipped, which is actually the right way up.
-    NSPoint temp = NSMakePoint(0, 0);
-    [[session TEXTVIEW] drawRect:theRect to:&temp];
-    [textviewImage unlockFocus];
-
+    origin.y = [viewImage size].height - [textviewImage size].height - origin.y;
     [viewImage lockFocus];
     [textviewImage compositeToPoint:origin operation:NSCompositeSourceOver];
     [viewImage unlockFocus];
@@ -1687,10 +1704,59 @@ static NSString* FormatRect(NSRect r) {
         if (idMap) {
             [result setObject:[NSNumber numberWithInt:[idMap count]]
                        forKey:TAB_ARRANGEMENT_ID];
+            [sessionView saveFrameSize];
             [idMap setObject:sessionView forKey:[NSNumber numberWithInt:[idMap count]]];
         }
     }
     return result;
+}
+
++ (void)_recursiveDrawArrangementPreview:(NSDictionary*)arrangement frame:(NSRect)frame
+{
+    NSLog(@"Frame=%@", [NSValue valueWithRect:frame]);
+    if ([[arrangement objectForKey:TAB_ARRANGEMENT_VIEW_TYPE] isEqualToString:VIEW_TYPE_SPLITTER]) {
+        BOOL isVerticalSplitter = [[arrangement objectForKey:SPLITTER_IS_VERTICAL] boolValue];
+        float xExtent = 0;
+        float yExtent = 0;
+        float dx = 0;
+        float dy = 0;
+        float pw, ph;
+        NSArray* subviews = [arrangement objectForKey:SUBVIEWS];
+        if (isVerticalSplitter) {
+            yExtent = frame.size.height;
+            dx = frame.size.width / [subviews count];
+            pw = dx;
+            ph = yExtent;
+        } else {
+            xExtent = frame.size.width;
+            dy = frame.size.height / [subviews count];
+            pw = xExtent;
+            ph = dy;
+        }
+        double x = frame.origin.x;
+        double y = frame.origin.y;
+        for (int i = 0; i < [subviews count]; i++) {
+            NSDictionary* subArrangement = [subviews objectAtIndex:i];
+            NSRect subFrame = NSMakeRect(x, y, pw, ph);
+            [PTYTab _recursiveDrawArrangementPreview:subArrangement frame:subFrame];
+            x += dx;
+            y += dy;
+        }
+        [[NSColor grayColor] set];
+        x = frame.origin.x;
+        y = frame.origin.y;
+        for (int i = 0; i < [subviews count]; i++) {            
+            NSBezierPath *line = [[[NSBezierPath alloc] init] autorelease];
+            [line moveToPoint:NSMakePoint(x, y)];
+            [line lineToPoint:NSMakePoint(x + xExtent, y + yExtent)];
+            [line stroke];
+            x += dx;
+            y += dy;
+//            NSRectFill(NSMakeRect(x, y, x+10, y+10));
+        }
+    } else {
+        [PTYSession drawArrangementPreview:[arrangement objectForKey:TAB_ARRANGEMENT_SESSION] frame:frame];
+    }
 }
 
 + (NSView*)_recusiveRestoreSplitters:(NSDictionary*)arrangement fromMap:(NSDictionary*)theMap
@@ -1715,7 +1781,9 @@ static NSString* FormatRect(NSRect r) {
         return splitter;
     } else {
         if (theMap) {
-            return [[theMap objectForKey:[arrangement objectForKey:TAB_ARRANGEMENT_ID]] retain];
+            SessionView *sv = [[theMap objectForKey:[arrangement objectForKey:TAB_ARRANGEMENT_ID]] retain];
+            [sv restoreFrameSize];
+            return sv;
         } else {
             return [[SessionView alloc] initWithFrame:[PTYTab dictToFrame:[arrangement objectForKey:TAB_ARRANGEMENT_SESSIONVIEW_FRAME]]];
         }
@@ -1755,6 +1823,12 @@ static NSString* FormatRect(NSRect r) {
             return nil;
         }
     }
+}
+
++ (void)drawArrangementPreview:(NSDictionary*)arrangement frame:(NSRect)frame
+{
+    [PTYTab _recursiveDrawArrangementPreview:[arrangement objectForKey:TAB_ARRANGEMENT_ROOT]
+                                       frame:frame];
 }
 
 + (void)openTabWithArrangement:(NSDictionary*)arrangement inTerminal:(PseudoTerminal*)term
@@ -1877,6 +1951,16 @@ static NSString* FormatRect(NSRect r) {
     isMaximized_ = NO;
 
     [[root_ window] makeFirstResponder:[activeSession_ TEXTVIEW]];
+}
+
+- (BOOL)promptOnClose
+{
+    for (PTYSession *aSession in [self sessions]) {
+        if ([aSession promptOnClose]) {
+            return YES;
+        }
+    }
+    return NO;
 }
 
 #pragma mark NSSplitView delegate methods
@@ -2570,7 +2654,7 @@ static void SetAgainstGrainDim(BOOL isVertical, NSSize* dest, CGFloat value)
     }
 
     if (![[self activeSession] growlNewOutput] &&
-        ![[self parentWindow] sendInputToAllSessions] &&
+        [[self realParentWindow] broadcastMode] == BROADCAST_OFF &&
         [[[self activeSession] SCREEN] growl] &&
         [[NSDate date] timeIntervalSinceDate:[SessionView lastResizeDate]] > POST_WINDOW_RESIZE_SILENCE_SEC) {
         [[iTermGrowlDelegate sharedInstance] growlNotify:NSLocalizedStringFromTableInBundle(@"New Output",

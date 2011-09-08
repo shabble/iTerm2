@@ -35,6 +35,9 @@
 - (void)tabView:(NSTabView *)tabView willInsertTabViewItem:(NSTabViewItem *)tabViewItem atIndex:(int) index;
 - (void)tabViewDidChangeNumberOfTabViewItems:(NSTabView *)tabView;
 - (void)tabView:(NSTabView *)tabView doubleClickTabViewItem:(NSTabViewItem *)tabViewItem;
+- (NSDragOperation)tabView:(NSTabView *)tabView draggingEnteredTabBarForSender:(id<NSDraggingInfo>)sender;
+- (BOOL)tabView:(NSTabView *)tabView shouldAcceptDragFromSender:(id<NSDraggingInfo>)sender;
+- (NSTabViewItem *)tabView:(NSTabView *)tabView unknownObjectWasDropped:(id <NSDraggingInfo>)sender;
 @end
 
 @interface PTYTabView : NSTabView {
@@ -56,5 +59,8 @@
 
 // selects a tab from the contextual menu
 - (void) selectTab: (id) sender;
+
+// Override setDelegate so that it accepts PSMTabBarControl without warning
+- (void) setDelegate: (id<PTYTabViewDelegateProtocol>) anObject;
 
 @end

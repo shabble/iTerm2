@@ -27,8 +27,11 @@
 
 #import <Cocoa/Cocoa.h>
 #import "FindViewController.h"
+#import "PTYSession.h"
 
 @class PTYSession;
+@class SplitSelectionView;
+
 @interface SessionView : NSView {
     PTYSession* session_;
     BOOL dim_;
@@ -46,6 +49,13 @@
 
     // Unique per-process id of view, used for ordering them in PTYTab.
     int viewId_;
+
+    // Saved size for unmaximizing.
+    NSSize savedSize_;
+
+    // When moving a pane, a view is put over all sessions to help the user
+    // choose how to split the destination.
+    SplitSelectionView *splitSelectionView_;
 }
 
 + (NSDate*)lastResizeDate;
@@ -62,5 +72,8 @@
 - (void)setBackgroundDimmed:(BOOL)backgroundDimmed;
 - (void)updateDim;
 - (BOOL)backgroundDimmed;
+- (void)saveFrameSize;
+- (void)restoreFrameSize;
+- (void)setSplitSelectionMode:(SplitSelectionMode)mode;
 
 @end

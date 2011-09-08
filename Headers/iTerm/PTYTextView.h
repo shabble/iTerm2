@@ -41,6 +41,8 @@
 
 @class VT100Screen;
 
+// Amount of time to highlight the cursor after beginFindCursor:YES
+static const double kFindCursorHoldTime = 1;
 enum { SELECT_CHAR, SELECT_WORD, SELECT_LINE, SELECT_SMART, SELECT_BOX };
 
 // A collection of data about a font.
@@ -53,6 +55,15 @@ struct PTYFontInfo {
     struct PTYFontInfo* boldVersion;  // may be NULL
 };
 typedef struct PTYFontInfo PTYFontInfo;
+
+@interface FindCursorView : NSView {
+    NSPoint cursor;
+}
+
+@property (nonatomic, assign) NSPoint cursor;
+
+@end
+
 
 @interface PTYTextView : NSView <NSTextInput>
 {
@@ -237,6 +248,9 @@ typedef struct PTYFontInfo PTYFontInfo;
     // Semantic history controller
     Trouter* trouter;
 
+    // Flag to make sure a Trouter drag check is only one once per drag
+    BOOL trouterDragged;
+
     // Array of (line number, pwd) arrays, sorted by line number. Line numbers are absolute.
     NSMutableArray *workingDirectoryAtLines;
 
@@ -256,6 +270,25 @@ typedef struct PTYFontInfo PTYFontInfo;
 
     // Dim everything but the default background color.
     BOOL dimOnlyText_;
+
+    // For find-cursor animation
+    NSWindow *findCursorWindow_;
+    FindCursorView *findCursorView_;
+    NSTimer *findCursorTeardownTimer_;
+    NSTimer *findCursorBlinkTimer_;
+    BOOL autoHideFindCursor_;
+    NSPoint imeCursorLastPos_;
+
+    // Number of fingers currently down (only valid if three finger click
+    // emulates middle button)
+    int numTouches_;
+
+    // If true, ignore the next mouse up because it's due to a three finger
+    // mouseDown.
+    BOOL mouseDownIsThreeFingerClick_;
+
+    // Is the mouse inside our view?
+    BOOL mouseInRect_;
 }
 
 + (NSCursor *)textViewCursor;
@@ -272,6 +305,7 @@ typedef struct PTYFontInfo PTYFontInfo;
 - (void)drawRect:(NSRect)rect to:(NSPoint*)toOrigin;
 - (void)keyDown:(NSEvent *)event;
 - (BOOL)keyIsARepeat;
+- (void)updateCursor:(NSEvent *)event;
 - (void)mouseExited:(NSEvent *)event;
 - (void)mouseEntered:(NSEvent *)event;
 - (void)mouseDown:(NSEvent *)event;
@@ -286,6 +320,12 @@ typedef struct PTYFontInfo PTYFontInfo;
 - (void)rightMouseDragged:(NSEvent *)event;
 - (void)scrollWheel:(NSEvent *)event;
 - (NSString *)contentFromX:(int)startx Y:(int)starty ToX:(int)endx Y:(int)endy pad: (BOOL) pad;
+- (NSString *)contentFromX:(int)startx
+                         Y:(int)starty
+                       ToX:(int)nonInclusiveEndx
+                         Y:(int)endy
+                       pad:(BOOL)pad
+        includeLastNewline:(BOOL)includeLastNewline;
 - (NSString*)contentInBoxFromX:(int)startx Y:(int)starty ToX:(int)nonInclusiveEndx Y:(int)endy pad: (BOOL) pad;
 - (NSString *)selectedText;
 - (NSString *)selectedTextWithPad: (BOOL) pad;
@@ -461,6 +501,11 @@ typedef struct PTYFontInfo PTYFontInfo;
 
 - (void)clearMatches;
 
+- (void)placeFindCursorOnAutoHide;
+- (BOOL)isFindingCursor;
+- (void)beginFindCursor:(BOOL)hold;
+- (void)endFindCursor;
+
 // Clear working directories for when buffer is cleared
 - (void)clearWorkingDirectories;
 - (NSString *)getWordForX:(int)x
@@ -469,6 +514,9 @@ typedef struct PTYFontInfo PTYFontInfo;
                    startY:(int *)starty
                      endX:(int *)endx
                      endY:(int *)endy;
+
+- (double)perceivedBrightness:(NSColor*)c;
+- (void)drawOutlineInRect:(NSRect)rect topOnly:(BOOL)topOnly;
 
 @end
 
@@ -514,11 +562,12 @@ typedef enum {
          overrideColor:(NSColor*)overrideColor;
 
 - (BOOL)_isBlankLine:(int)y;
-- (void)_openURL:(NSString *)aURLString;
-- (void)_openURL:(NSString *)aURLString atLine:(long long)line;
+- (void)_openURL:(NSString *)aURLString inBackground:(BOOL)background;
+- (void)_openURL:(NSString *)aURLString atLine:(long long)line inBackground:(BOOL)background;
 
 // Snapshot working directory for Trouter
 - (void)logWorkingDirectoryAtLine:(long long)line;
+- (void)logWorkingDirectoryAtLine:(long long)line withDirectory:(NSString *)workingDirectory;
 - (NSString *)getWorkingDirectoryAtLine:(long long)line;
 
 // Trouter change directory
@@ -566,6 +615,5 @@ typedef enum {
 // Returns true if any onscreen char is blinking.
 - (BOOL)_markChangedSelectionAndBlinkDirty:(BOOL)redrawBlink width:(int)width;
 
-- (double)_perceivedBrightness:(NSColor*)c;
 @end
 

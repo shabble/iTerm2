@@ -34,8 +34,17 @@
 #import "WindowControllerInterface.h"
 #import "PasteboardHistory.h"
 #import "Autocomplete.h"
+#import "ToolbeltView.h"
 
 @class PTYSession, iTermController, PTToolbarController, PSMTabBarControl;
+@class ToolbeltView;
+
+typedef enum {
+    BROADCAST_OFF,
+    BROADCAST_TO_ALL_PANES,
+    BROADCAST_TO_ALL_TABS,
+    BROADCAST_CUSTOM
+} BroadcastMode;
 
 // The BottomBar's view is of this class. It overrides drawing the background.
 @interface BottomBarView : NSView
@@ -59,7 +68,14 @@
 // This class is 1:1 with windows. It controls the tabs, bottombar, toolbar,
 // fullscreen, and coordinates resizing of sessions (either session-initiated
 // or window-initiated).
-@interface PseudoTerminal : NSWindowController <PTYTabViewDelegateProtocol, PTYWindowDelegateProtocol, WindowControllerInterface>
+// OS 10.5 doesn't support window delegates
+@interface PseudoTerminal : NSWindowController <
+    PTYTabViewDelegateProtocol, 
+    PTYWindowDelegateProtocol,
+#if MAC_OS_X_VERSION_MAX_ALLOWED >= 1060
+NSWindowDelegate,
+#endif
+    WindowControllerInterface >
 {
     NSPoint preferredOrigin_;
     SolidColorView* background_;
@@ -123,12 +139,18 @@
     // When you enter full-screen mode the old frame size is saved here. When
     // full-screen mode is exited that frame is restored.
     NSRect oldFrame_;
+    
+    // When you enter fullscreen mode, the old use transparency setting is
+    // saved, and then restored when you exit FS unless it was changed
+    // by the user.
+    BOOL oldUseTransparency_;
+    BOOL restoreUseTransparency_;
 
     // True if an [init...] method was called.
     BOOL windowInited;
 
-    // True if input is being redirected to all sessions.
-    BOOL sendInputToAllSessions;
+    // How input should be broadcast (or not).
+    BroadcastMode broadcastMode_;
 
     // True if the window title is showing transient information (such as the
     // size during resizing).
@@ -159,7 +181,7 @@
     IBOutlet NSTextField* latestTime;
     IBOutlet NSTextField* currentTime;
 
-    PasteboardHistoryView* pbHistoryView;
+    PasteboardHistoryWindowController* pbHistoryView;
     AutocompleteView* autocompleteView;
 
     // True if preBottomBarFrame is valid.
@@ -197,18 +219,46 @@
     double lastResizeTime_;
 
     BOOL temporarilyShowingTabs_;
+
+    NSMutableSet *broadcastViewIds_;
+    NSTimeInterval findCursorStartTime_;
+
+    // Accumulated pinch magnification amount.
+    double cumulativeMag_;
+
+    // Time of last magnification change.
+    NSTimeInterval lastMagChangeTime_;
+
+    // In 10.7 style full screen mode
+    BOOL lionFullScreen_;
+    
+    // Drawer view, which only exists for window_type normal.
+    NSDrawer *drawer_;
+    
+    // Toolbelt view which goes in the drawer, or perhaps other places in the future.
+    ToolbeltView *toolbelt_;
 }
+
++ (void)drawArrangementPreview:(NSDictionary*)terminalArrangement
+                  screenFrames:(NSArray *)frames;
 
 // Initialize a new PseudoTerminal.
 // smartLayout: If true then position windows using the "smart layout"
 //   algorithm.
 // windowType: WINDOW_TYPE_NORMAL, WINDOW_TYPE_FULL_SCREEN, WINDOW_TYPE_TOP, or
-//   WINDOW_TYPE_LION_FULL_SCREEN.
+//   WINDOW_TYPE_LION_FULL_SCREEN, or WINDOW_TYPE_BOTTOM.
 // screen: An index into [NSScreen screens], or -1 to let the system pick a
 //   screen.
 - (id)initWithSmartLayout:(BOOL)smartLayout
                windowType:(int)windowType
                    screen:(int)screenIndex;
+
+- (id)initWithSmartLayout:(BOOL)smartLayout
+               windowType:(int)windowType
+                   screen:(int)screenNumber
+                 isHotkey:(BOOL)isHotkey;
+
+- (PseudoTerminal *)terminalDraggedFromAnotherWindowAtPoint:(NSPoint)point;
 
 // The window's original screen.
 - (NSScreen*)screen;
@@ -238,6 +288,9 @@
 - (void)selectSessionAtIndexAction:(id)sender;
 
 // Return the index of a tab or NSNotFound.
+// This method is used, for example, in iTermExpose, where PTYTabs are shown
+// side by side, and one needs to determine which index it has, so it can be
+// selected when leaving iTerm expose.
 - (NSInteger)indexOfTab:(PTYTab*)aTab;
 
 // Open a new tab with the bookmark given by the guid in
@@ -254,6 +307,10 @@
 - (void)closeSession:(PTYSession *)aSession;
 
 - (void)toggleFullScreenTabBar;
+
+- (IBAction)openSplitHorizontallySheet:(id)sender;
+- (IBAction)openSplitVerticallySheet:(id)sender;
+- (IBAction)findCursor:(id)sender;
 
 // Close the active session.
 - (IBAction)closeCurrentSession:(id)sender;
@@ -380,6 +437,10 @@
 // Can progress indicators be shown? They're turned off during animation of the tabbar.
 - (BOOL)disableProgressIndicators;
 
+// Does any session want to be prompted for closing?
+- (BOOL)promptOnClose;
+
+- (ToolbeltView *)toolbelt;
 ////////////////////////////////////////////////////////////////////////////////
 // NSTextField Delegate Methods
 
@@ -549,9 +610,6 @@
 // Update irBar.
 - (void)updateInstantReplay;
 
-// accessor
-- (BOOL)sendInputToAllSessions;
-
 -(void)replaySession:(PTYSession *)session;
 
 // WindowControllerInterface protocol
@@ -579,8 +637,16 @@
 // Key actions
 - (void)newWindowWithBookmarkGuid:(NSString*)guid;
 - (void)newTabWithBookmarkGuid:(NSString*)guid;
+
+// Splitting
+- (BOOL)canSplitPaneVertically:(BOOL)isVertical withBookmark:(Bookmark*)theBookmark;
 - (void)splitVertically:(BOOL)isVertical withBookmarkGuid:(NSString*)guid;
 - (void)splitVertically:(BOOL)isVertical withBookmark:(Bookmark*)theBookmark targetSession:(PTYSession*)targetSession;
+- (void)splitVertically:(BOOL)isVertical
+                 before:(BOOL)before
+          addingSession:(PTYSession*)newSession
+          targetSession:(PTYSession*)targetSession
+           performSetup:(BOOL)performSetup;
 
 // selector for menu item to split current session vertically.
 - (IBAction)splitVertically:(id)sender;
@@ -616,6 +682,14 @@
 - (BOOL)isOrderedOut;
 - (void)setIsOrderedOut:(BOOL)value;
 - (void)screenParametersDidChange;
+
+// setter
+- (void)setBroadcastMode:(BroadcastMode)mode;
+- (void)toggleBroadcastingInputToSession:(PTYSession *)session;
+- (BroadcastMode)broadcastMode;
+- (BOOL)broadcastInputToSession:(PTYSession *)session;
+
+- (void)setSplitSelectionMode:(BOOL)mode excludingSession:(PTYSession *)session;
 
 @end
 
@@ -661,6 +735,8 @@
 @end
 
 @interface PseudoTerminal (Private)
+
+- (int)_screenAtPoint:(NSPoint)p;
 
 // Allocate a new session and assign it a bookmark.
 - (PTYSession*)newSessionWithBookmark:(Bookmark*)bookmark;
@@ -780,12 +856,11 @@
 // Returns true if the given menu item is selectable.
 - (BOOL)validateMenuItem:(NSMenuItem *)item;
 
-// setter
-- (void)setSendInputToAllSessions:(BOOL)flag;
-
 // Turn on/off sending of input to all sessions. This causes a bunch of UI
 // to update in addition to flipping the flag.
-- (IBAction)toggleInputToAllSessions:(id)sender;
+- (IBAction)enableSendInputToAllTabs:(id)sender;
+- (IBAction)enableSendInputToAllPanes:(id)sender;
+- (IBAction)disableBroadcasting:(id)sender;
 
 // Show a dialog confirming close. Returns YES if the window should be closed.
 - (BOOL)showCloseWindow;
@@ -793,7 +868,7 @@
 // accessor
 - (PSMTabBarControl*)tabBarControl;
 
-// Called when the tab control's context menu is closed.
+// Called when the "Close tab" contextual menu item is clicked.
 - (void)closeTabContextualMenuAction:(id)sender;
 
 // Move a tab to a new window due to a context menu selection.

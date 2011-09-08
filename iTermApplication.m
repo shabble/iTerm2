@@ -108,9 +108,12 @@
         PTYSession* currentSession = [currentTerminal currentSession];
         NSResponder *responder;
 
-        if (([event modifierFlags] & (NSCommandKeyMask | NSAlternateKeyMask | NSControlKeyMask)) == [prefPanel modifierTagToMask:[prefPanel switchWindowModifier]]) {
+        if (([event modifierFlags] & (NSCommandKeyMask | NSAlternateKeyMask)) == [prefPanel modifierTagToMask:[prefPanel switchWindowModifier]]) {
             // Command-Alt (or selected modifier) + number: Switch to window by number.
             int digit = [[event charactersIgnoringModifiers] intValue];
+            if (!digit) {
+                digit = [[event characters] intValue];
+            }
             if (digit >= 1 && digit <= 9) {
                 PseudoTerminal* termWithNumber = [cont terminalWithNumber:(digit - 1)];
                 if (termWithNumber) {
@@ -148,7 +151,6 @@
             if (inTextView &&
                 [(PTYTextView *)responder hasMarkedText]) {
                 // Let the IM process it
-                NSLog(@"IM is handling it");
                 [(PTYTextView *)responder interpretKeyEvents:[NSArray arrayWithObject:event]];
                 return;
             }
@@ -156,6 +158,9 @@
             const int mask = NSShiftKeyMask | NSControlKeyMask | NSAlternateKeyMask | NSCommandKeyMask;
             if (([event modifierFlags] & mask) == [prefPanel modifierTagToMask:[prefPanel switchTabModifier]]) {
                 int digit = [[event charactersIgnoringModifiers] intValue];
+                if (!digit) {
+                    digit = [[event characters] intValue];
+                }
                 if (digit >= 1 && digit <= [tabView numberOfTabViewItems]) {
                     // Command (or selected modifier)+number: Switch to tab by number.
                     [tabView selectTabViewItemAtIndex:digit-1];
@@ -193,6 +198,16 @@
     }
 
     [super sendEvent: event];
+}
+
+- (NSString *)uriToken
+{
+    return [[self delegate] uriToken];
+}
+
+- (iTermApplicationDelegate *)delegate
+{
+    return [super delegate];
 }
 
 @end

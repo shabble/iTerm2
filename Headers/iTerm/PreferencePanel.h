@@ -27,6 +27,7 @@
 #import <Cocoa/Cocoa.h>
 #import <iTerm/BookmarkModel.h>
 #import "BookmarkListView.h"
+#import "WindowArrangements.h"
 
 #define OPT_NORMAL 0
 #define OPT_META   1
@@ -41,6 +42,14 @@
 #define MOD_TAG_CMD_OPT 6  // both cmd and opt at the same time
 #define MOD_TAG_LEFT_COMMAND 7
 #define MOD_TAG_RIGHT_COMMAND 8
+
+// Constants for KEY_PROMPT_CLOSE
+// Never prompt on close
+#define PROMPT_NEVER 0
+// Always prompt on close
+#define PROMPT_ALWAYS 1
+// Prompt on close if jobs (excluding some in a list) are running.
+#define PROMPT_EX_JOBS 2
 
 @class iTermController;
 
@@ -79,17 +88,21 @@ typedef enum { CURSOR_UNDERLINE, CURSOR_VERTICAL, CURSOR_BOX } ITermCursorType;
     IBOutlet NSButton *selectionCopiesText;
     BOOL defaultCopySelection;
 
+    // Copy includes trailing newline
+    IBOutlet NSButton *copyLastNewline;
+    BOOL defaultCopyLastNewline;
+
     // Middle button paste from clipboard
     IBOutlet NSButton *middleButtonPastesFromClipboard;
     BOOL defaultPasteFromClipboard;
 
+    // Three finger click emulates middle button
+    IBOutlet NSButton *threeFingerEmulatesMiddle;
+    BOOL defaultThreeFingerEmulatesMiddle;
+
     // Hide tab bar when there is only one session
     IBOutlet id hideTab;
     BOOL defaultHideTab;
-
-    // Warn me when a session closes
-    IBOutlet id promptOnClose;
-    BOOL defaultPromptOnClose;
 
     // Warn when quitting
     IBOutlet id promptOnQuit;
@@ -204,10 +217,24 @@ typedef enum { CURSOR_UNDERLINE, CURSOR_VERTICAL, CURSOR_BOX } ITermCursorType;
     IBOutlet NSButton* lionStyleFullscreen;
     BOOL defaultLionStyleFullscreen;
 
+    // Load prefs from custom folder
+    IBOutlet NSButton *loadPrefsFromCustomFolder;
+    BOOL defaultLoadPrefsFromCustomFolder;
+    IBOutlet NSTextField *prefsCustomFolder;
+    NSString *defaultPrefsCustomFolder;
+    IBOutlet NSButton *browseCustomFolder;
+    IBOutlet NSButton *pushToCustomFolder;
+    IBOutlet NSImageView *prefsDirWarning;
+    BOOL customFolderChanged_;
+
     // hide scrollbar and resize
     IBOutlet NSButton *hideScrollbar;
     BOOL defaultHideScrollbar;
 
+    // Disable transparency in fullscreen by default
+    IBOutlet NSButton *disableFullscreenTransparency;
+    BOOL defaultDisableFullscreenTransparency;
+    
     // smart window placement
     IBOutlet NSButton *smartPlacement;
     BOOL defaultSmartPlacement;
@@ -271,12 +298,15 @@ typedef enum { CURSOR_UNDERLINE, CURSOR_VERTICAL, CURSOR_BOX } ITermCursorType;
     IBOutlet NSToolbarItem* appearanceToolbarItem;
     IBOutlet NSTabViewItem* appearanceTabViewItem;
     IBOutlet NSToolbarItem* keyboardToolbarItem;
+    IBOutlet NSToolbarItem* arrangementsToolbarItem;
     IBOutlet NSTabViewItem* keyboardTabViewItem;
+    IBOutlet NSTabViewItem* arrangementsTabViewItem;
     IBOutlet NSToolbarItem* bookmarksToolbarItem;
     IBOutlet NSTabViewItem* bookmarksTabViewItem;
     NSString* globalToolbarId;
     NSString* appearanceToolbarId;
     NSString* keyboardToolbarId;
+    NSString* arrangementsToolbarId;
     NSString* bookmarksToolbarId;
 
     // url handler stuff
@@ -290,21 +320,29 @@ typedef enum { CURSOR_UNDERLINE, CURSOR_VERTICAL, CURSOR_BOX } ITermCursorType;
     IBOutlet NSButton *addBookmarkButton;
 
     // General tab
+    IBOutlet NSTextField *basicsLabel;
     IBOutlet NSTextField *bookmarkName;
     IBOutlet NSPopUpButton *bookmarkShortcutKey;
     IBOutlet NSMatrix *bookmarkCommandType;
     IBOutlet NSTextField *bookmarkCommand;
+    IBOutlet NSTextField *initialText;
     IBOutlet NSMatrix *bookmarkDirectoryType;
     IBOutlet NSTextField *bookmarkDirectory;
     IBOutlet NSTextField *bookmarkShortcutKeyLabel;
     IBOutlet NSTextField *bookmarkShortcutKeyModifiersLabel;
     IBOutlet NSTextField *bookmarkTagsLabel;
     IBOutlet NSTextField *bookmarkCommandLabel;
+    IBOutlet NSTextField *initialTextLabel;
     IBOutlet NSTextField *bookmarkDirectoryLabel;
     IBOutlet NSTextField *bookmarkUrlSchemesHeaderLabel;
     IBOutlet NSTextField *bookmarkUrlSchemesLabel;
     IBOutlet NSPopUpButton* bookmarkUrlSchemes;
+
+    // Only visible in Get Info mode
     IBOutlet NSButton* copyToProfileButton;
+    IBOutlet NSTextField* setProfileLabel;
+    IBOutlet BookmarkListView* setProfileBookmarkListView;
+    IBOutlet NSButton* changeProfileButton;
 
     // Colors tab
     IBOutlet NSColorWell *ansi0Color;
@@ -383,13 +421,13 @@ typedef enum { CURSOR_UNDERLINE, CURSOR_VERTICAL, CURSOR_BOX } ITermCursorType;
     IBOutlet NSButton* flashingBell;
     IBOutlet NSButton* xtermMouseReporting;
     IBOutlet NSButton* disableSmcupRmcup;
+    IBOutlet NSButton* disablePrinting;
     IBOutlet NSButton* scrollbackWithStatusBar;
+    IBOutlet NSButton* scrollbackInAlternateScreen;
     IBOutlet NSButton* bookmarkGrowlNotifications;
     IBOutlet NSTextField* scrollbackLines;
     IBOutlet NSButton* unlimitedScrollback;
     IBOutlet NSComboBox* terminalType;
-    IBOutlet NSButton* sendCodeWhenIdle;
-    IBOutlet NSTextField* idleCode;
     IBOutlet NSPopUpButton* characterEncoding;
 
     // Keyboard tab
@@ -418,6 +456,17 @@ typedef enum { CURSOR_UNDERLINE, CURSOR_VERTICAL, CURSOR_BOX } ITermCursorType;
     IBOutlet NSPopUpButton* bookmarksPopup;
     IBOutlet NSButton* addNewMapping;
 
+    // Session --------------------------------
+    IBOutlet NSTableView *jobsTable_;
+    IBOutlet NSButton *autoLog;
+    IBOutlet NSTextField *logDir;
+    IBOutlet NSButton *changeLogDir;
+    IBOutlet NSImageView *logDirWarning;
+    IBOutlet NSButton* sendCodeWhenIdle;
+    IBOutlet NSTextField* idleCode;
+    IBOutlet NSButton* removeJobButton_;
+    IBOutlet NSMatrix* promptBeforeClosing_;
+
     // Copy Bookmark Settings...
     IBOutlet NSTextField* bulkCopyLabel;
     IBOutlet NSPanel* copyPanel;
@@ -426,6 +475,7 @@ typedef enum { CURSOR_UNDERLINE, CURSOR_VERTICAL, CURSOR_BOX } ITermCursorType;
     IBOutlet NSButton* copyTerminal;
     IBOutlet NSButton* copyWindow;
     IBOutlet NSButton* copyKeyboard;
+    IBOutlet NSButton* copySession;
     IBOutlet BookmarkListView* copyTo;
     IBOutlet NSButton* copyButton;
 
@@ -453,21 +503,38 @@ typedef enum { CURSOR_UNDERLINE, CURSOR_VERTICAL, CURSOR_BOX } ITermCursorType;
     IBOutlet NSTableColumn* globalActionColumn;
     IBOutlet NSButton* globalRemoveMappingButton;
     IBOutlet NSButton* globalAddNewMapping;
+
+    IBOutlet WindowArrangements *arrangements_;
 }
 
-typedef enum { BulkCopyColors, BulkCopyDisplay, BulkCopyWindow, BulkCopyTerminal, BulkCopyKeyboard } BulkCopySettings;
+void LoadPrefsFromCustomFolder(void);
+
+typedef enum {
+    BulkCopyColors,
+    BulkCopyDisplay,
+    BulkCopyWindow,
+    BulkCopyTerminal,
+    BulkCopyKeyboard,
+    BulkCopySession
+} BulkCopySettings;
 
 + (PreferencePanel*)sharedInstance;
 + (PreferencePanel*)sessionsInstance;
 + (BOOL)migratePreferences;
++ (BOOL)loadingPrefsFromCustomFolder;
+- (BOOL)loadPrefs;
 - (id)initWithDataSource:(BookmarkModel*)model userDefaults:(NSUserDefaults*)userDefaults;
 - (void)setOneBokmarkOnly;
 - (void)awakeFromNib;
 - (void)handleWindowWillCloseNotification:(NSNotification *)notification;
 - (void)genericCloseSheet:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void *)contextInfo;
 - (void)editKeyMapping:(id)sender;
+- (IBAction)changeProfile:(id)sender;
+- (IBAction)addJob:(id)sender;
+- (IBAction)removeJob:(id)sender;
 - (IBAction)saveKeyMapping:(id)sender;
 - (BOOL)keySheetIsOpen;
+- (WindowArrangements *)arrangements;
 - (IBAction)closeKeyMapping:(id)sender;
 - (BOOL)validateToolbarItem:(NSToolbarItem *)theItem;
 - (NSToolbarItem *)toolbar:(NSToolbar *)toolbar itemForItemIdentifier:(NSString *)itemIdentifier willBeInsertedIntoToolbar:(BOOL)flag;
@@ -487,14 +554,15 @@ typedef enum { BulkCopyColors, BulkCopyDisplay, BulkCopyWindow, BulkCopyTerminal
 - (void)windowWillClose:(NSNotification *)aNotification;
 - (void)windowDidBecomeKey:(NSNotification *)aNotification;
 - (BOOL)copySelection;
+- (BOOL)copyLastNewline;
 - (void)setCopySelection:(BOOL)flag;
 - (BOOL)pasteFromClipboard;
+- (BOOL)threeFingerEmulatesMiddle;
 - (void)setPasteFromClipboard:(BOOL)flag;
 - (BOOL)hideTab;
 - (void)setTabViewType:(NSTabViewType)type;
 - (NSTabViewType)tabViewType;
 - (int)windowStyle;
-- (BOOL)promptOnClose;
 - (BOOL)promptOnQuit;
 - (BOOL)onlyWhenMoreTabs;
 - (BOOL)focusFollowsMouse;
@@ -513,6 +581,7 @@ typedef enum { BulkCopyColors, BulkCopyDisplay, BulkCopyWindow, BulkCopyTerminal
 - (NSString *)wordChars;
 - (ITermCursorType)legacyCursorType;
 - (BOOL)hideScrollbar;
+- (BOOL)disableFullscreenTransparency;
 - (BOOL)smartPlacement;
 - (BOOL)windowNumber;
 - (BOOL)jobName;
@@ -528,6 +597,7 @@ typedef enum { BulkCopyColors, BulkCopyDisplay, BulkCopyWindow, BulkCopyTerminal
 
 - (BOOL)showWindowBorder;
 - (BOOL)lionStyleFullscreen;
+- (NSString *)loadPrefsFromCustomFolder;
 - (BOOL)dimInactiveSplitPanes;
 - (BOOL)dimBackgroundWindows;
 - (BOOL)animateDimming;
@@ -556,6 +626,11 @@ typedef enum { BulkCopyColors, BulkCopyDisplay, BulkCopyWindow, BulkCopyTerminal
 - (IBAction)displaySelectFont:(id)sender;
 - (void)changeFont:(id)fontManager;
 - (NSString*)_chooseBackgroundImage;
+- (IBAction)browseCustomFolder:(id)sender;
+- (BOOL)prefsDifferFromRemote;
+- (NSString *)remotePrefsLocation;
+- (IBAction)pushToCustomFolder:(id)sender;
+- (BOOL)customFolderChanged;
 - (IBAction)bookmarkSettingChanged:(id)sender;
 - (IBAction)copyToProfile:(id)sender;
 - (IBAction)bookmarkUrlSchemeHandlerChanged:(id)sender;
@@ -564,9 +639,11 @@ typedef enum { BulkCopyColors, BulkCopyDisplay, BulkCopyWindow, BulkCopyTerminal
 - (IBAction)showAppearanceTabView:(id)sender;
 - (IBAction)showBookmarksTabView:(id)sender;
 - (IBAction)showKeyboardTabView:(id)sender;
+- (IBAction)showArrangementsTabView:(id)sender;
 - (void)connectBookmarkWithGuid:(NSString*)guid toScheme:(NSString*)scheme;
 - (void)disconnectHandlerForScheme:(NSString*)scheme;
 - (IBAction)closeWindow:(id)sender;
+- (IBAction)selectLogDir:(id)sender;
 - (void)controlTextDidChange:(NSNotification *)aNotification;
 - (void)textDidChange:(NSNotification *)aNotification;
 - (BOOL)onScreen;
@@ -617,5 +694,12 @@ typedef enum { BulkCopyColors, BulkCopyDisplay, BulkCopyWindow, BulkCopyTerminal
 - (BOOL)dockIconTogglesWindow;
 - (Bookmark*)hotkeyBookmark;
 
+- (BOOL)importColorPresetFromFile:(NSString*)filename;
+
 @end
 
+@interface PreferencePanel (KeyValueCoding)
+- (BOOL)haveJobsForCurrentBookmark;
+- (void)setHaveJobsForCurrentBookmark:(BOOL)value;
+
+@end

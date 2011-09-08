@@ -25,6 +25,7 @@
  **  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 #import "ITAddressBookMgr.h"
+#import "iTerm.h"
 
 #import <iTerm/PreferencePanel.h>
 #import <iTerm/iTermKeyBindingMgr.h>
@@ -282,13 +283,18 @@
 
     // remove host entry from this group
     NSMutableArray* toRemove = [[[NSMutableArray alloc] init] autorelease];
+#ifdef SUPPORT_SFTP
     NSString* sftpName = [NSString stringWithFormat:@"%@-sftp", [aNetService name]];
+#endif
     for (NSNumber* n in [[BookmarkModel sharedInstance] bookmarkIndicesMatchingFilter:@"bonjour"]) {
         int i = [n intValue];
         Bookmark* bookmark = [[BookmarkModel sharedInstance] bookmarkAtIndex:i];
         NSString* bookmarkName = [bookmark objectForKey:KEY_NAME];
-        if ([bookmarkName isEqualToString:[aNetService name]] ||
-            [bookmarkName isEqualToString:sftpName]) {
+        if ([bookmarkName isEqualToString:[aNetService name]]
+#ifdef SUPPORT_SFTP
+            || [bookmarkName isEqualToString:sftpName]
+#endif
+            ) {
             [toRemove addObject:[NSNumber numberWithInt:i]];
         }
     }
@@ -307,6 +313,11 @@
                                              ofType:@"plist"];
     NSDictionary* presetsDict = [NSDictionary dictionaryWithContentsOfFile: plistFile];
     [aDict addEntriesFromDictionary:presetsDict];
+    // Override the terminal type if it's Lion so those users get the best
+    // experience.
+    if (IsLionOrLater()) {
+        [aDict setObject:@"xterm-256color" forKey:KEY_TERMINAL_TYPE];
+    }
 
     NSString *aName;
 
@@ -349,6 +360,7 @@
     [newBookmark removeObjectForKey:KEY_SHORTCUT];
     [[BookmarkModel sharedInstance] addBookmark:newBookmark];
 
+#ifdef SUPPORT_SFTP
     // No bonjour service for sftp. Rides over ssh, so try to detect that
     if ([serviceType isEqualToString:@"ssh"]) {
         [newBookmark setObject:[NSString stringWithFormat:@"%@-sftp", serviceName] forKey:KEY_NAME];
@@ -357,7 +369,7 @@
         [newBookmark setObject:[NSString stringWithFormat:@"sftp %@", ipAddressString] forKey:KEY_COMMAND];
         [[BookmarkModel sharedInstance] addBookmark:newBookmark];
     }
-
+#endif
 }
 // NSNetService delegate
 - (void)netServiceDidResolveAddress:(NSNetService *)sender

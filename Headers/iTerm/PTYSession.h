@@ -59,6 +59,12 @@ static const float kFastTimerIntervalSec = 1.0 / 30.0;
 // TODO(georgen): There's room for improvement here.
 static const float kBackgroundSessionIntervalSec = 1;
 
+typedef enum {
+    kSplitSelectionModeOn,
+    kSplitSelectionModeOff,
+    kSplitSelectionModeCancel
+} SplitSelectionMode;
+
 @class PTYTab;
 @class SessionView;
 @interface PTYSession : NSResponder <FindViewControllerDelegate>
@@ -202,10 +208,15 @@ static const float kBackgroundSessionIntervalSec = 1;
 
     // Time session was created
     NSDate* creationDate_;
-    
+
     // After receiving new output, we keep running the updateDisplay timer for a few seconds to catch
     // changes in job name.
     NSDate* updateDisplayUntil_;
+
+    // If not nil, we're aggregating text to append to a pasteboard. The pasteboard will be
+    // updated when this is set to nil.
+    NSString *pasteboard_;
+    NSMutableData *pbtext_;
 }
 
 // Return the current pasteboard value as a string.
@@ -245,6 +256,7 @@ static const float kBackgroundSessionIntervalSec = 1;
 // Session specific methods
 - (BOOL)setScreenSize:(NSRect)aRect parent:(id<WindowControllerInterface>)parent;
 
++ (void)drawArrangementPreview:(NSDictionary *)arrangement frame:(NSRect)frame;
 + (PTYSession*)sessionFromArrangement:(NSDictionary*)arrangement inView:(SessionView*)sessionView inTab:(PTYTab*)theTab;
 
 - (void)runCommandWithOldCwd:(NSString*)oldCWD;
@@ -296,6 +308,13 @@ static const float kBackgroundSessionIntervalSec = 1;
 // misc
 - (void)setWidth:(int)width height:(int)height;
 
+// Do we need to prompt on close for this session?
+- (BOOL)promptOnClose;
+
+- (void)setSplitSelectionMode:(SplitSelectionMode)mode;
+
+// Array of subprocessess names.
+- (NSArray *)childJobNames;
 
 // Contextual menu
 - (void)menuForEvent:(NSEvent *)theEvent menu: (NSMenu *)theMenu;
@@ -419,6 +438,7 @@ static const float kBackgroundSessionIntervalSec = 1;
 // affect it. Returns the GUID of a divorced bookmark. Does nothing if already
 // divorced, but still returns the divorced GUID.
 - (NSString*)divorceAddressBookEntryFromPreferences;
+- (void)remarry;
 
 // Schedule the screen update timer to run in a specified number of seconds.
 - (void)scheduleUpdateIn:(NSTimeInterval)timeout;
@@ -456,6 +476,14 @@ static const float kBackgroundSessionIntervalSec = 1;
 // Find next/previous occurrence of find string.
 - (void)searchNext;
 - (void)searchPrevious;
+
+// Bitmap of how the session looks.
+- (NSImage *)imageOfSession:(BOOL)flip;
+
+// Image for dragging one session.
+- (NSImage *)dragImage;
+
+- (void)setPasteboard:(NSString *)pbName;
 
 @end
 
