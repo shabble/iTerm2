@@ -1,353 +1,36 @@
-// -*- mode:objc -*-
-/*
- **  PTYTask.m
- **
- **  Copyright (c) 2002, 2003
- **
- **  Author: Fabian, Ujwal S. Setlur
- **      Initial code by Kiichi Kusama
- **
- **  Project: iTerm
- **
- **  Description: Implements the interface to the pty session.
- **
- **  This program is free software; you can redistribute it and/or modify
- **  it under the terms of the GNU General Public License as published by
- **  the Free Software Foundation; either version 2 of the License, or
- **  (at your option) any later version.
- **
- **  This program is distributed in the hope that it will be useful,
- **  but WITHOUT ANY WARRANTY; without even the implied warranty of
- **  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- **  GNU General Public License for more details.
- **
- **  You should have received a copy of the GNU General Public License
- **  along with this program; if not, write to the Free Software
- **  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- */
+
 
 // Debug option
-#define DEBUG_ALLOC         0
-#define DEBUG_METHOD_TRACE  0
 #define PtyTaskDebugLog(fmt, ...)
 // Use this instead to debug this module:
 // #define PtyTaskDebugLog NSLog
 
 #define MAXRW 1024
 
-#import <Foundation/Foundation.h>
-
-#include <unistd.h>
-#include <util.h>
-#include <sys/ioctl.h>
-#include <sys/select.h>
-#include <libproc.h>
-
-#import <iTerm/PTYTask.h>
-#import <iTerm/PreferencePanel.h>
+#import "PTYTask.h"
+#import "Coprocess.h"
+#import "PreferencePanel.h"
 #import "ProcessCache.h"
-
+#import "TaskNotifier.h"
 #include <dlfcn.h>
-#include <sys/mount.h>
-
-#include <sys/time.h>
-#include <sys/user.h>
+#include <libproc.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-@interface TaskNotifier : NSObject
-{
-    NSMutableArray* tasks;
-    // Set to true when an element of 'tasks' was modified
-    BOOL tasksChanged;
-    // Protects 'tasks' and 'tasksChanged'.
-    NSRecursiveLock* tasksLock;
-
-    // A set of NSNumber*s holding pids of tasks that need to be wait()ed on
-    NSMutableSet* deadpool;
-    int unblockPipeR;
-    int unblockPipeW;
-}
-
-+ (TaskNotifier*)sharedInstance;
-
-- (id)init;
-- (void)dealloc;
-
-- (void)registerTask:(PTYTask*)task;
-- (void)deregisterTask:(PTYTask*)task;
-
-- (void)unblock;
-- (void)run;
-
-@end
-
-@implementation TaskNotifier
-
-static TaskNotifier* taskNotifier = nil;
-
-+ (TaskNotifier*)sharedInstance
-{
-    if(!taskNotifier) {
-        taskNotifier = [[TaskNotifier alloc] init];
-        [NSThread detachNewThreadSelector:@selector(run)
-                  toTarget:taskNotifier withObject:nil];
-    }
-    return taskNotifier;
-}
-
-- (id)init
-{
-    if ([super init] == nil) {
-        return nil;
-    }
-
-    deadpool = [[NSMutableSet alloc] init];
-    tasks = [[NSMutableArray alloc] init];
-    tasksLock = [[NSRecursiveLock alloc] init];
-    tasksChanged = NO;
-
-    int unblockPipe[2];
-    if (pipe(unblockPipe) != 0) {
-        return nil;
-    }
-    fcntl(unblockPipe[0], F_SETFL, O_NONBLOCK);
-    unblockPipeR = unblockPipe[0];
-    unblockPipeW = unblockPipe[1];
-
-    return self;
-}
-
-- (void)dealloc
-{
-    taskNotifier = nil;
-    [tasks release];
-    [tasksLock release];
-    [deadpool release];
-    close(unblockPipeR);
-    close(unblockPipeW);
-    [super dealloc];
-}
-
-- (void)registerTask:(PTYTask*)task
-{
-    PtyTaskDebugLog(@"registerTask: lock\n");
-    [tasksLock lock];
-    PtyTaskDebugLog(@"Add task at 0x%x\n", (void*)task);
-    [tasks addObject:task];
-    PtyTaskDebugLog(@"There are now %d tasks\n", [tasks count]);
-    tasksChanged = YES;
-    PtyTaskDebugLog(@"registerTask: unlock\n");
-    [tasksLock unlock];
-    [self unblock];
-}
-
-- (void)deregisterTask:(PTYTask*)task
-{
-    PtyTaskDebugLog(@"deregisterTask: lock\n");
-    [tasksLock lock];
-    PtyTaskDebugLog(@"Begin remove task 0x%x\n", (void*)task);
-    PtyTaskDebugLog(@"Add %d to deadpool", [task pid]);
-    [deadpool addObject:[NSNumber numberWithInt:[task pid]]];
-    [tasks removeObject:task];
-    tasksChanged = YES;
-    PtyTaskDebugLog(@"End remove task 0x%x. There are now %d tasks.\n", (void*)task, [tasks count]);
-    PtyTaskDebugLog(@"deregisterTask: unlock\n");
-    [tasksLock unlock];
-    [self unblock];
-}
-
-- (void)unblock
-{
-    char dummy = 0;
-    write(unblockPipeW, &dummy, 1);
-}
-
-- (void)run
-{
-    NSAutoreleasePool* outerPool = [[NSAutoreleasePool alloc] init];
-
-    fd_set rfds;
-    fd_set wfds;
-    fd_set efds;
-    int highfd;
-    NSEnumerator* iter;
-    PTYTask* task;
-
-    // FIXME: replace this with something better...
-    for(;;) {
-        NSAutoreleasePool* innerPool = [[NSAutoreleasePool alloc] init];
-
-        FD_ZERO(&rfds);
-        FD_ZERO(&wfds);
-        FD_ZERO(&efds);
-
-        // Unblock pipe to interrupt select() whenever a PTYTask register/unregisters
-        highfd = unblockPipeR;
-        FD_SET(unblockPipeR, &rfds);
-        NSMutableSet* handledFds = [[NSMutableSet alloc] initWithCapacity:[tasks count]];
-
-        // Add all the PTYTask pipes
-        PtyTaskDebugLog(@"run1: lock");
-        [tasksLock lock];
-        PtyTaskDebugLog(@"Begin cleaning out dead tasks");
-        int j;
-        for (j = [tasks count] - 1; j >= 0; --j) {
-            PTYTask* theTask = [tasks objectAtIndex:j];
-            if ([theTask fd] < 0) {
-                PtyTaskDebugLog(@"Deregister dead task %d\n", j);
-                [self deregisterTask:theTask];
-            }
-        }
-
-        if ([deadpool count] > 0) {
-            // waitpid() on pids that we think are dead or will be dead soon.
-            NSMutableSet* newDeadpool = [NSMutableSet setWithCapacity:[deadpool count]];
-            for (NSNumber* pid in deadpool) {
-                int statLoc;
-                PtyTaskDebugLog(@"wait on %d", [pid intValue]);
-                if (waitpid([pid intValue], &statLoc, WNOHANG) < 0) {
-                    if (errno != ECHILD) {
-                        PtyTaskDebugLog(@"  wait failed with %d (%s), adding back to deadpool", errno, strerror(errno));
-                        [newDeadpool addObject:pid];
-                    } else {
-                        PtyTaskDebugLog(@"  wait failed with ECHILD, I guess we already waited on it.");
-                    }
-                }
-            }
-            [deadpool release];
-            deadpool = [newDeadpool retain];
-        }
-
-        PtyTaskDebugLog(@"Begin enumeration over %d tasks\n", [tasks count]);
-        iter = [tasks objectEnumerator];
-        int i = 0;
-        // FIXME: this can be converted to ObjC 2.0.
-        while ((task = [iter nextObject])) {
-            PtyTaskDebugLog(@"Got task %d\n", i);
-            int fd = [task fd];
-            if (fd < 0) {
-                PtyTaskDebugLog(@"Task has fd of %d\n", fd);
-            } else {
-                // PtyTaskDebugLog(@"Select on fd %d\n", fd);
-                if (fd > highfd)
-                    highfd = fd;
-                if ([task wantsRead])
-                    FD_SET(fd, &rfds);
-                if ([task wantsWrite])
-                    FD_SET(fd, &wfds);
-                FD_SET(fd, &efds);
-            }
-            ++i;
-            PtyTaskDebugLog(@"About to get task %d\n", i);
-        }
-        PtyTaskDebugLog(@"run1: unlock");
-        [tasksLock unlock];
-
-        // Poll...
-        if (select(highfd+1, &rfds, &wfds, &efds, NULL) <= 0) {
-            switch(errno) {
-                case EAGAIN:
-                case EINTR:
-                default:
-                    goto breakloop;
-                    // If the file descriptor is closed in the main thread there's a race where sometimes you'll get an EBADF.
-            }
-        }
-
-        // Interrupted?
-        if (FD_ISSET(unblockPipeR, &rfds)) {
-            char dummy[32];
-            do {
-                read(unblockPipeR, dummy, sizeof(dummy));
-            } while (errno != EAGAIN);
-        }
-
-        // Check for read events on PTYTask pipes
-        PtyTaskDebugLog(@"run2: lock");
-        [tasksLock lock];
-        PtyTaskDebugLog(@"Iterating over %d tasks\n", [tasks count]);
-        iter = [tasks objectEnumerator];
-        i = 0;
-
-        while ((task = [iter nextObject])) {
-            PtyTaskDebugLog(@"Got task %d\n", i);
-            int fd = [task fd];
-            if (fd >= 0) {
-                // This is mostly paranoia, but if two threads
-                // end up with the same fd (because one closed
-                // and there was a race condition) then trying
-                // to read twice would hang.
-
-                if ([handledFds containsObject:[NSNumber numberWithInt:fd]]) {
-                    PtyTaskDebugLog(@"Duplicate fd %d", fd);
-                    continue;
-                }
-                [handledFds addObject:[NSNumber numberWithInt:fd]];
-
-                if (FD_ISSET(fd, &rfds)) {
-                    PtyTaskDebugLog(@"run/processRead: unlock");
-                    [tasksLock unlock];
-                    [task processRead];
-                    PtyTaskDebugLog(@"run/processRead: lock");
-                    [tasksLock lock];
-                    if (tasksChanged) {
-                        PtyTaskDebugLog(@"Restart iteration\n");
-                        tasksChanged = NO;
-                        iter = [tasks objectEnumerator];
-                    }
-                }
-                if (FD_ISSET(fd, &wfds)) {
-                    PtyTaskDebugLog(@"run/processWrite: unlock");
-                    [tasksLock unlock];
-                    [task processWrite];
-                    PtyTaskDebugLog(@"run/processWrite: lock");
-                    [tasksLock lock];
-                    if (tasksChanged) {
-                        PtyTaskDebugLog(@"Restart iteration\n");
-                        tasksChanged = NO;
-                        iter = [tasks objectEnumerator];
-                    }
-                }
-                if (FD_ISSET(fd, &efds)) {
-                    PtyTaskDebugLog(@"run/brokenPipe: unlock");
-                    [tasksLock unlock];
-                    // brokenPipe will call deregisterTask and add the pid to
-                    // deadpool.
-                    [task brokenPipe];
-                    PtyTaskDebugLog(@"run/brokenPipe: lock");
-                    [tasksLock lock];
-                    if (tasksChanged) {
-                        PtyTaskDebugLog(@"Restart iteration\n");
-                        tasksChanged = NO;
-                        iter = [tasks objectEnumerator];
-                    }
-                }
-            }
-            ++i;
-            PtyTaskDebugLog(@"About to get task %d\n", i);
-        }
-        PtyTaskDebugLog(@"run3: unlock");
-        [tasksLock unlock];
-
-    breakloop:
-        [handledFds release];
-        [innerPool drain];
-    }
-
-    [outerPool drain];
-}
-
-@end
-
-@implementation PTYTask
+#include <sys/ioctl.h>
+#include <sys/mount.h>
+#include <sys/select.h>
+#include <sys/time.h>
+#include <sys/user.h>
+#include <unistd.h>
+#include <util.h>
 
 #define CTRLKEY(c) ((c)-'A'+1)
 
+NSString *kCoprocessStatusChangeNotification = @"kCoprocessStatusChangeNotification";
+
 static void
-setup_tty_param(
-                struct termios* term,
+setup_tty_param(struct termios* term,
                 struct winsize* win,
                 int width,
                 int height,
@@ -375,8 +58,8 @@ setup_tty_param(
     term->c_cc[VDSUSP] = CTRLKEY('Y');
     term->c_cc[VSTART] = CTRLKEY('Q');
     term->c_cc[VSTOP] = CTRLKEY('S');
-    term->c_cc[VLNEXT] = -1;
-    term->c_cc[VDISCARD] = -1;
+    term->c_cc[VLNEXT] = CTRLKEY('V');
+    term->c_cc[VDISCARD] = CTRLKEY('O');
     term->c_cc[VMIN] = 1;
     term->c_cc[VTIME] = 0;
     term->c_cc[VSTATUS] = CTRLKEY('T');
@@ -390,36 +73,49 @@ setup_tty_param(
     win->ws_ypixel = 0;
 }
 
+@interface PTYTask ()
+@property(atomic, assign) BOOL hasMuteCoprocess;
+@end
+
+@implementation PTYTask
+{
+    pid_t pid;
+    int fd;
+    int status;
+    NSString* tty;
+    NSString* path;
+    BOOL hasOutput;
+
+    NSLock* writeLock;  // protects writeBuffer
+    NSMutableData* writeBuffer;
+
+    NSString* logPath;
+    NSFileHandle* logHandle;
+
+    Coprocess *coprocess_;  // synchronized (self)
+    BOOL brokenPipe_;
+    NSString *command_;  // Command that was run if launchWithPath:arguments:etc was called
+    
+    // Number of spins of the select loop left before we tell the delegate we were deregistered.
+    int _spinsNeeded;
+    BOOL _paused;
+}
+
 - (id)init
 {
-#if DEBUG_ALLOC
-    PtyTaskDebugLog(@"%s: 0x%x", __PRETTY_FUNCTION__, self);
-#endif
-    if ([super init] == nil)
-        return nil;
+    self = [super init];
+    if (self) {
+        pid = (pid_t)-1;
+        fd = -1;
 
-    pid = (pid_t)-1;
-    status = 0;
-    delegate = nil;
-    fd = -1;
-    tty = nil;
-    logPath = nil;
-    @synchronized(logHandle) {
-        logHandle = nil;
+        writeBuffer = [[NSMutableData alloc] init];
+        writeLock = [[NSLock alloc] init];
     }
-    hasOutput = NO;
-
-    writeBuffer = [[NSMutableData alloc] init];
-    writeLock = [[NSLock alloc] init];
-
     return self;
 }
 
 - (void)dealloc
 {
-#if DEBUG_ALLOC
-    PtyTaskDebugLog(@"%s: 0x%x", __PRETTY_FUNCTION__, self);
-#endif
     [[TaskNotifier sharedInstance] deregisterTask:self];
 
     if (pid > 0) {
@@ -435,17 +131,86 @@ setup_tty_param(
     [writeBuffer release];
     [tty release];
     [path release];
+        [command_ release];
+
+    @synchronized (self) {
+        [[self coprocess] mainProcessDidTerminate];
+        [coprocess_ release];
+    }
+
     [super dealloc];
 }
 
-static void reapchild(int n)
+- (BOOL)hasBrokenPipe
 {
-  // This intentionally does nothing.
-  // We cannot ignore SIGCHLD because Sparkle (the software updater) opens a
-  // Safari control which uses some buggy Netscape code that calls wait()
-  // until it succeeds. If we wait() on its pid, that process locks because
-  // it doesn't check if wait()'s failure is ECHLD. Instead of wait()ing here,
-  // we reap our children when our select() loop sees that a pipes is broken.
+    return brokenPipe_;
+}
+
+- (BOOL)paused {
+    @synchronized(self) {
+        return _paused;
+    }
+}
+
+- (void)setPaused:(BOOL)paused {
+    @synchronized(self) {
+        _paused = paused;
+    }
+    // Start/stop selecting on our FD
+    [[TaskNotifier sharedInstance] unblock];
+}
+
+static void HandleSigChld(int n)
+{
+    // This is safe to do because write(2) is listed in the sigaction(2) man page
+    // as allowed in a signal handler.
+    [[TaskNotifier sharedInstance] unblock];
+}
+
+- (NSString *)command
+{
+    return command_;
+}
+
+// Returns a NSMutableDictionary containing the key-value pairs defined in the
+// global "environ" variable.
+- (NSMutableDictionary *)mutableEnvironmentDictionary {
+    NSMutableDictionary *result = [NSMutableDictionary dictionary];
+    extern char **environ;
+    if (environ != NULL) {
+        for (int i = 0; environ[i]; i++) {
+            NSString *kvp = [NSString stringWithUTF8String:environ[i]];
+            NSRange equalsRange = [kvp rangeOfString:@"="];
+            if (equalsRange.location != NSNotFound) {
+                NSString *key = [kvp substringToIndex:equalsRange.location];
+                NSString *value = [kvp substringFromIndex:equalsRange.location + 1];
+                result[key] = value;
+            } else {
+                result[kvp] = @"";
+            }
+        }
+    }
+    return result;
+}
+
+// Returns an array of C strings terminated with a null pointer of the form
+// KEY=VALUE that is based on this process's "environ" variable. Values passed
+// in "env" are added or override existing environment vars. Both the returned
+// array and all string pointers within it are malloced and should be free()d
+// by the caller.
+- (char **)environWithOverrides:(NSDictionary *)env {
+    NSMutableDictionary *environmentDict = [self mutableEnvironmentDictionary];
+    for (NSString *k in env) {
+        environmentDict[k] = env[k];
+    }
+    char **environment = malloc(sizeof(char*) * (environmentDict.count + 1));
+    int i = 0;
+    for (NSString *k in environmentDict) {
+        NSString *temp = [NSString stringWithFormat:@"%@=%@", k, environmentDict[k]];
+        environment[i++] = strdup([temp UTF8String]);
+    }
+    environment[i] = NULL;
+    return environment;
 }
 
 - (void)launchWithPath:(NSString*)progpath
@@ -454,78 +219,92 @@ static void reapchild(int n)
                  width:(int)width
                 height:(int)height
                 isUTF8:(BOOL)isUTF8
-        asLoginSession:(BOOL)asLoginSession
 {
     struct termios term;
     struct winsize win;
     char theTtyname[PATH_MAX];
-    int sts;
 
+    [command_ autorelease];
+    command_ = [progpath copy];
     path = [progpath copy];
 
-#if DEBUG_METHOD_TRACE
-    NSLog(@"%s(%d):-[launchWithPath:%@ arguments:%@ environment:%@ width:%d height:%d", __FILE__, __LINE__, progpath, args, env, width, height);
-#endif
-
     setup_tty_param(&term, &win, width, height, isUTF8);
-    // Register a handler for the child death signal.
-    signal(SIGCHLD, reapchild);
+
+    // Register a handler for the child death signal. There is some history here.
+    // Originally, a do-nothing handler was registered with the following comment:
+    //   We cannot ignore SIGCHLD because Sparkle (the software updater) opens a
+    //   Safari control which uses some buggy Netscape code that calls wait()
+    //   until it succeeds. If we wait() on its pid, that process locks because
+    //   it doesn't check if wait()'s failure is ECHLD. Instead of wait()ing here,
+    //   we reap our children when our select() loop sees that a pipes is broken.
+    // In response to bug 2903, wherein select() fails to return despite the file
+    // descriptor having EOF status, I changed the handler to unblock the task
+    // notifier.
+    signal(SIGCHLD, HandleSigChld);
+    const char* argpath;
+    argpath = [[progpath stringByStandardizingPath] UTF8String];
+
+    int max = (args == nil) ? 0 : [args count];
+    const char* argv[max + 2];
+
+    argv[0] = [[progpath stringByStandardizingPath] UTF8String];
+    if (args != nil) {
+        int i;
+        for (i = 0; i < max; ++i) {
+            argv[i + 1] = [[args objectAtIndex:i] cString];
+        }
+    }
+    argv[max + 1] = NULL;
+    char **newEnviron = [self environWithOverrides:env];
+
+    // Note: stringByStandardizingPath will automatically call stringByExpandingTildeInPath.
+    const char *initialPwd = [[[env objectForKey:@"PWD"] stringByStandardizingPath] UTF8String];
     pid = forkpty(&fd, theTtyname, &term, &win);
     if (pid == (pid_t)0) {
-        const char* argpath;
-        argpath = [[progpath stringByStandardizingPath] UTF8String];
         // Do not start the new process with a signal handler.
         signal(SIGCHLD, SIG_DFL);
-        int max = (args == nil) ? 0 : [args count];
-        const char* argv[max + 2];
+        signal(SIGPIPE, SIG_DFL);
+        sigset_t signals;
+        sigemptyset(&signals);
+        sigaddset(&signals, SIGPIPE);
+        sigprocmask(SIG_UNBLOCK, &signals, NULL);
 
-        if (asLoginSession) {
-            argv[0] = [[NSString stringWithFormat:@"-%@", [progpath stringByStandardizingPath]] UTF8String];
-        } else {
-            argv[0] = [[progpath stringByStandardizingPath] UTF8String];
+        // Apple opens files without the close-on-exec flag (e.g., Extras2.rsrc).
+        // See issue 2662.
+        for (int j = 3; j < getdtablesize(); j++) {
+            close(j);
         }
-        if (args != nil) {
-            int i;
-            for (i = 0; i < max; ++i) {
-                argv[i + 1] = [[args objectAtIndex:i] cString];
-            }
-        }
-        argv[max + 1] = NULL;
 
-        if (env != nil) {
-            NSArray* keys = [env allKeys];
-            int i, theMax = [keys count];
-            for (i = 0; i < theMax; ++i) {
-                NSString* key;
-                NSString* value;
-                key = [keys objectAtIndex:i];
-                value = [env objectForKey:key];
-                if (key != nil && value != nil) {
-                    setenv([key UTF8String], [value UTF8String], 1);
-                }
-            }
-        }
-        // Note: stringByStandardizingPath will automatically call stringByExpandingTildeInPath.
-        chdir([[[env objectForKey:@"PWD"] stringByStandardizingPath] UTF8String]);
-        sts = execvp(argpath, (char* const*)argv);
+        chdir(initialPwd);
+
+        // Sub in our environ for the existing one. Since Mac OS doesn't have execvpe, this hack
+        // does the job.
+        extern char **environ;
+        environ = newEnviron;
+        execvp(argpath, (char* const*)argv);
 
         /* exec error */
         fprintf(stdout, "## exec failed ##\n");
-        fprintf(stdout, "%s %s\n", argpath, strerror(errno));
+        fprintf(stdout, "argpath=%s error=%s\n", argpath, strerror(errno));
 
         sleep(1);
         _exit(-1);
     } else if (pid < (pid_t)0) {
         PtyTaskDebugLog(@"%@ %s", progpath, strerror(errno));
-        NSRunCriticalAlertPanel(NSLocalizedStringFromTableInBundle(@"Unable to Fork!",@"iTerm", [NSBundle bundleForClass: [self class]], @"Fork Error"),
-                                NSLocalizedStringFromTableInBundle(@"iTerm cannot launch the program for this session.",@"iTerm", [NSBundle bundleForClass: [self class]], @"Fork Error"),
-                                NSLocalizedStringFromTableInBundle(@"Close Session",@"iTerm", [NSBundle bundleForClass: [self class]], @"Fork Error"),
-                                nil,nil);
-        if ([delegate respondsToSelector:@selector(closeSession:)]) {
-            [delegate performSelector:@selector(closeSession:) withObject:delegate];
-        }
+        NSRunCriticalAlertPanel(@"Unable to Fork!",
+                                @"iTerm cannot launch the program for this session.",
+                                @"OK",
+                                nil,
+                                nil);
         return;
     }
+    for (int j = 0; newEnviron[j]; j++) {
+        free(newEnviron[j]);
+    }
+    free(newEnviron);
+
+    // Make sure the master side of the pty is closed on future exec() calls.
+    fcntl(fd, F_SETFD, fcntl(fd, F_GETFD) | FD_CLOEXEC);
 
     tty = [[NSString stringWithUTF8String:theTtyname] retain];
     NSParameterAssert(tty != nil);
@@ -534,29 +313,39 @@ static void reapchild(int n)
     [[TaskNotifier sharedInstance] registerTask:self];
 }
 
-- (BOOL)wantsRead
-{
-    return YES;
+- (BOOL)wantsRead {
+    return !self.paused;
 }
 
 - (BOOL)wantsWrite
 {
-    return [writeBuffer length] > 0;
+    if (self.paused) {
+        return NO;
+    }
+    [writeLock lock];
+    BOOL wantsWrite = [writeBuffer length] > 0;
+    [writeLock unlock];
+    return wantsWrite;
+}
+
+- (BOOL)writeBufferHasRoom
+{
+    const int kMaxWriteBufferSize = 1024 * 10;
+    [writeLock lock];
+    BOOL hasRoom = [writeBuffer length] < kMaxWriteBufferSize;
+    [writeLock unlock];
+    return hasRoom;
 }
 
 - (void)processRead
 {
-#if DEBUG_METHOD_TRACE
-    NSLog(@"%s(%d):+[PTYTask processRead]", __FILE__, __LINE__);
-#endif
-
-    int iterations = 10;
+    int iterations = 4;
     int bytesRead = 0;
 
-    NSMutableData* data = [NSMutableData dataWithLength:MAXRW * iterations];
+    char buffer[MAXRW * iterations];
     for (int i = 0; i < iterations; ++i) {
         // Only read up to MAXRW*iterations bytes, then release control
-        ssize_t n = read(fd, [data mutableBytes] + bytesRead, MAXRW);
+        ssize_t n = read(fd, buffer + bytesRead, MAXRW);
         if (n < 0) {
             // There was a read error.
             if (errno != EAGAIN && errno != EINTR) {
@@ -579,20 +368,14 @@ static void reapchild(int n)
         }
     }
 
-    [data setLength:bytesRead];
     hasOutput = YES;
 
     // Send data to the terminal
-    [self readTask:data];
+    [self readTask:buffer length:bytesRead];
 }
 
 - (void)processWrite
 {
-#if DEBUG_METHOD_TRACE
-    NSLog(@"%s(%d):-[PTYTask processWrite] with writeBuffer length %d",
-          __FILE__, __LINE__, [writeBuffer length]);
-#endif
-
     // Retain to prevent the object from being released during this method
     // Lock to protect the writeBuffer from the main thread
     [self retain];
@@ -609,7 +392,6 @@ static void reapchild(int n)
     // No data?
     if ((written < 0) && (!(errno == EAGAIN || errno == EINTR))) {
         [self brokenPipe];
-        return;
     } else if (written > 0) {
         // Shrink the writeBuffer
         length = [writeBuffer length] - written;
@@ -627,41 +409,33 @@ static void reapchild(int n)
     return hasOutput;
 }
 
-- (void)setDelegate:(id)object
-{
-    delegate = object;
-}
-
-- (id)delegate
-{
-    return delegate;
-}
-
-- (void)readTask:(NSData*)data
-{
-#if DEBUG_METHOD_TRACE
-    NSLog(@"%s(%d):-[PTYTask readTask:%@]", __FILE__, __LINE__, data);
-#endif
+- (void)logData:(const char *)buffer length:(int)length {
     @synchronized(logHandle) {
         if ([self logging]) {
-            [logHandle writeData:data];
+            [logHandle writeData:[NSData dataWithBytes:buffer
+                                                length:length]];
         }
     }
+}
 
-    // forward the data to our delegate
-    if ([delegate respondsToSelector:@selector(readTask:)]) {
-        [delegate performSelectorOnMainThread:@selector(readTask:)
-                                   withObject:data 
-                                waitUntilDone:YES];
+// The bytes in data were just read from the fd.
+- (void)readTask:(char *)buffer length:(int)length
+{
+    [self logData:buffer length:length];
+
+    // The delegate is responsible for parsing VT100 tokens here and sending them off to the
+    // main thread for execution. If its queues get too large, it can block.
+    [self.delegate threadedReadTask:buffer length:length];
+
+    @synchronized (self) {
+        if (coprocess_) {
+            [coprocess_.outputBuffer appendData:[NSData dataWithBytes:buffer length:length]];
+        }
     }
 }
 
 - (void)writeTask:(NSData*)data
 {
-#if DEBUG_METHOD_TRACE
-    NSLog(@"%s(%d):-[PTYTask writeTask:%@]", __FILE__, __LINE__, data);
-#endif
-
     // Write as much as we can now through the non-blocking pipe
     // Lock to protect the writeBuffer from the IO thread
     [writeLock lock];
@@ -672,11 +446,9 @@ static void reapchild(int n)
 
 - (void)brokenPipe
 {
+    brokenPipe_ = YES;
     [[TaskNotifier sharedInstance] deregisterTask:self];
-    if ([delegate respondsToSelector:@selector(brokenPipe)]) {
-        [delegate performSelectorOnMainThread:@selector(brokenPipe)
-                  withObject:nil waitUntilDone:YES];
-    }
+    [self.delegate threadedTaskBrokenPipe];
 }
 
 - (void)sendSignal:(int)signo
@@ -690,7 +462,7 @@ static void reapchild(int n)
 {
     PtyTaskDebugLog(@"Set terminal size to %dx%d", width, height);
     struct winsize winsize;
-
+    // TODO(georgen): Access to fd should be synchronoized or else it should not be allowed to call this function from the main thread.
     if (fd == -1) {
         return;
     }
@@ -715,16 +487,49 @@ static void reapchild(int n)
 
 - (void)stop
 {
+    self.paused = NO;
+    [self loggingStop];
     [self sendSignal:SIGHUP];
 
     if (fd >= 0) {
         close(fd);
+        [[TaskNotifier sharedInstance] deregisterTask:self];
+        // Require that it spin twice so we can be completely sure that the task won't get called
+        // again. If we add the observer just before select() was going to be called, it wouldn't
+        // mean anything; but after the second call, we know we've been moved into the dead pool.
+        @synchronized(self) {
+            _spinsNeeded = 2;
+        }
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(notifierDidSpin)
+                                                     name:kTaskNotifierDidSpin
+                                                   object:nil];
+        // Force a spin
+        [[TaskNotifier sharedInstance] unblock];
+
+        // This isn't an atomic update, but select() should be resilient to
+        // being passed a half-broken fd. We must change it because after this
+        // function returns, a new task may be created with this fd and then
+        // the select thread wouldn't know which task a fd belongs to.
+        fd = -1;
     }
-    // This isn't an atomic update, but select() should be resilient to
-    // being passed a half-broken fd. We must change it because after this
-    // function returns, a new task may be created with this fd and then
-    // the select thread wouldn't know which task a fd belongs to.
-    fd = -1;
+}
+
+// This runs in TaskNotifier's thread.
+- (void)notifierDidSpin
+{
+    BOOL unblock = NO;
+    @synchronized(self) {
+        unblock = (--_spinsNeeded) > 0;
+    }
+    if (unblock) {
+        // Force select() to return so we get another spin even if there is no
+        // activity on the file descriptors.
+        [[TaskNotifier sharedInstance] unblock];
+    } else {
+        [[NSNotificationCenter defaultCenter] removeObserver:self];
+        [self.delegate taskWasDeregistered];
+    }
 }
 
 - (int)status
@@ -831,11 +636,7 @@ static void reapchild(int n)
 
         pid_t ppid = taskAllInfo.pbsd.pbi_ppid;
         if (ppid == parentPid) {
-#if MAC_OS_X_VERSION_MIN_REQUIRED <= MAC_OS_X_VERSION_10_5
-            long long birthday = taskAllInfo.pbsd.pbi_start.tv_sec * 1000000 + taskAllInfo.pbsd.pbi_start.tv_usec;
-#else
-            long long birthday = taskAllInfo.pbsd.pbi_start_tvsec * 1000000 + taskAllInfo.pbsd.pbi_start_tvusec;  // 10.6 and up
-#endif
+            long long birthday = taskAllInfo.pbsd.pbi_start_tvsec * 1000000 + taskAllInfo.pbsd.pbi_start_tvusec;
             if (birthday < oldestTime || oldestTime == 0) {
                 oldestTime = birthday;
                 oldestPid = pids[i];
@@ -881,6 +682,52 @@ static void reapchild(int n)
         /* All is good */
         return [NSString stringWithUTF8String:vpi.pvi_cdir.vip_path];
     }
+}
+
+- (void)stopCoprocess
+{
+    pid_t thePid = 0;
+    @synchronized (self) {
+        if (coprocess_.pid > 0) {
+            thePid = coprocess_.pid;
+        }
+        [coprocess_ terminate];
+        [coprocess_ release];
+        coprocess_ = nil;
+        self.hasMuteCoprocess = NO;
+    }
+    if (thePid) {
+        [[TaskNotifier sharedInstance] waitForPid:thePid];
+    }
+    [[TaskNotifier sharedInstance] performSelectorOnMainThread:@selector(notifyCoprocessChange)
+                                                    withObject:nil
+                                                 waitUntilDone:NO];
+}
+
+- (void)setCoprocess:(Coprocess *)coprocess
+{
+    @synchronized (self) {
+        [coprocess_ autorelease];
+        coprocess_ = [coprocess retain];
+        self.hasMuteCoprocess = coprocess_.mute;
+    }
+    [[TaskNotifier sharedInstance] unblock];
+}
+
+- (Coprocess *)coprocess
+{
+    @synchronized (self) {
+        return coprocess_;
+    }
+    return nil;
+}
+
+- (BOOL)hasCoprocess
+{
+    @synchronized (self) {
+        return coprocess_ != nil;
+    }
+    return NO;
 }
 
 @end

@@ -8,48 +8,79 @@
 
 #import "FutureMethods.h"
 
-@implementation NSView (Future)
-- (void)futureSetAcceptsTouchEvents:(BOOL)value
-{
-    if ([self respondsToSelector:@selector(setAcceptsTouchEvents:)]) {
-        NSMethodSignature *sig = [[self class] instanceMethodSignatureForSelector:@selector(setAcceptsTouchEvents:)];
-        NSInvocation *inv = [NSInvocation invocationWithMethodSignature:sig];
-        [inv setTarget:self];
-        [inv setSelector:@selector(setAcceptsTouchEvents:)];
-        [inv setArgument:&value atIndex:2];
-        [inv invoke];
-    }
-}
+@implementation NSScreen (future)
 
-- (void)futureSetWantsRestingTouches:(BOOL)value
-{
-    if ([self respondsToSelector:@selector(setWantsRestingTouches:)]) {
-        NSMethodSignature *sig = [[self class] instanceMethodSignatureForSelector:@selector(setWantsRestingTouches:)];
-        NSInvocation *inv = [NSInvocation invocationWithMethodSignature:sig];
-        [inv setTarget:self];
-        [inv setSelector:@selector(setWantsRestingTouches:)];
-        [inv setArgument:&value atIndex:2];
-        [inv invoke];
-    }
-}
-@end
-
-@implementation NSEvent (Future)
-- (NSArray *)futureTouchesMatchingPhase:(int)phase inView:(NSView *)view
-{
-    if ([self respondsToSelector:@selector(touchesMatchingPhase:inView:)]) {
-        NSMethodSignature *sig = [[self class] instanceMethodSignatureForSelector:@selector(touchesMatchingPhase:inView:)];
-        NSInvocation *inv = [NSInvocation invocationWithMethodSignature:sig];
-        [inv setTarget:self];
-        [inv setSelector:@selector(touchesMatchingPhase:inView:)];
-        [inv setArgument:&phase atIndex:2];
-        [inv setArgument:&view atIndex:3];
-        [inv invoke];
-        NSArray *result;
-        [inv getReturnValue:&result];
-		return result;
++ (BOOL)futureScreensHaveSeparateSpaces {
+    if ([self respondsToSelector:@selector(screensHaveSeparateSpaces)]) {
+        return [self screensHaveSeparateSpaces];
     } else {
-		return [NSArray array];
-	}
+        return NO;
+    }
+}
+
+@end
+
+static void *GetFunctionByName(NSString *library, char *func) {
+    CFBundleRef bundle;
+    CFURLRef bundleURL = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, (CFStringRef) library, kCFURLPOSIXPathStyle, true);
+    CFStringRef functionName = CFStringCreateWithCString(kCFAllocatorDefault, func, kCFStringEncodingASCII);
+    bundle = CFBundleCreate(kCFAllocatorDefault, bundleURL);
+    void *f = NULL;
+    if (bundle) {
+        f = CFBundleGetFunctionPointerForName(bundle, functionName);
+        CFRelease(bundle);
+    }
+    CFRelease(functionName);
+    CFRelease(bundleURL);
+    return f;
+}
+
+CGSSetWindowBackgroundBlurRadiusFunction* GetCGSSetWindowBackgroundBlurRadiusFunction(void) {
+    static BOOL tried = NO;
+    static CGSSetWindowBackgroundBlurRadiusFunction *function = NULL;
+    if (!tried) {
+        function  = GetFunctionByName(@"/System/Library/Frameworks/ApplicationServices.framework",
+                                      "CGSSetWindowBackgroundBlurRadius");
+        tried = YES;
+    }
+    return function;
+}
+
+@implementation NSOpenPanel (Utility)
+- (NSArray *)legacyFilenames {
+    NSMutableArray *filenames = [NSMutableArray array];
+    for (NSURL *url in self.URLs) {
+        [filenames addObject:url.path];
+    }
+    return filenames;
 }
 @end
+
+@implementation NSSavePanel (Utility)
+- (NSInteger)legacyRunModalForDirectory:(NSString *)path file:(NSString *)name types:(NSArray *)fileTypes {
+    if (path) {
+        self.directoryURL = [NSURL fileURLWithPath:path];
+    }
+    if (name) {
+        self.nameFieldStringValue = name;
+    }
+    if (fileTypes) {
+        self.allowedFileTypes = fileTypes;
+    }
+    return [self runModal];
+}
+
+- (NSInteger)legacyRunModalForDirectory:(NSString *)path file:(NSString *)name {
+    return [self legacyRunModalForDirectory:path file:name types:nil];
+}
+
+- (NSString *)legacyDirectory {
+    return [[self directoryURL] path];
+}
+
+- (NSString *)legacyFilename {
+    return [[self URL] path];
+}
+
+@end
+

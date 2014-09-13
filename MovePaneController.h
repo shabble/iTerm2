@@ -24,8 +24,12 @@
 @property (nonatomic, assign) PTYSession *session;
 
 + (MovePaneController *)sharedInstance;
-// Iniate click-to-move mode.
+// Initiate click-to-move mode.
 - (void)movePane:(PTYSession *)session;
+
+// Initiate click-to-swap mode.
+- (void)swapPane:(PTYSession *)session;
+
 - (void)exitMovePaneMode;
 // Initiate dragging.
 - (void)beginDrag:(PTYSession *)session;
@@ -38,7 +42,13 @@
            half:(SplitSessionHalf)half
         atPoint:(NSPoint)point;
 
-// Returns a retained session view. Add the session view to something useful and release it.
+// Clears the session so that the normal drop handler (e.g., -[SessionView draggedImage:endedAt:operation:])
+// doesn't do anything.
+- (void)clearSession;
+
+// Returns an autoreleased session view. Add the session view to something useful and release it.
 - (SessionView *)removeAndClearSession;
+- (void)moveSessionToNewWindow:(PTYSession *)movingSession
+                       atPoint:(NSPoint)point;
 
 @end

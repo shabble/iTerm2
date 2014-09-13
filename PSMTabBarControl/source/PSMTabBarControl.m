@@ -11,12 +11,12 @@
 #import "PSMOverflowPopUpButton.h"
 #import "PSMRolloverButton.h"
 #import "PSMTabStyle.h"
-#import "PSMMetalTabStyle.h"
-#import "PSMAquaTabStyle.h"
-#import "PSMUnifiedTabStyle.h"
-#import "PSMAdiumTabStyle.h"
+#import "PSMYosemiteTabStyle.h"
 #import "PSMTabDragAssistant.h"
 #import "PTYTask.h"
+
+NSString *const kPSMModifierChangedNotification = @"kPSMModifierChangedNotification";
+NSString *const kPSMTabModifierKey = @"TabModifier";
 
 @interface PSMTabBarControl (Private)
 // characteristics
@@ -29,14 +29,15 @@
 
     // accessors
 - (NSEvent *)lastMouseDownEvent;
+- (NSEvent *)lastMiddleMouseDownEvent;
 - (void)setLastMouseDownEvent:(NSEvent *)event;
+- (void)setLastMiddleMouseDownEvent:(NSEvent *)event;
 
     // contents
 - (void)addTabViewItem:(NSTabViewItem *)item;
 - (void)removeTabForCell:(PSMTabBarCell *)cell;
 
     // draw
-- (void)update;
 - (void)update:(BOOL)animate;
 - (void)_removeCellTrackingRects;
 - (void)_finishCellUpdate:(NSArray *)newWidths;
@@ -72,7 +73,7 @@
 @implementation PSMTabBarControl
 #pragma mark -
 #pragma mark Characteristics
-+ (NSBundle *)bundle;
++ (NSBundle *)bundle
 {
     static NSBundle *bundle = nil;
     if (!bundle) bundle = [NSBundle bundleForClass:[PSMTabBarControl class]];
@@ -107,7 +108,6 @@
     // default config
     _currentStep = kPSMIsNotBeingResized;
     _orientation = PSMTabBarHorizontalOrientation;
-    _canCloseOnlyTab = NO;
     _disableTabClose = NO;
     _showAddTabButton = NO;
     _hideForSingleTab = NO;
@@ -124,7 +124,7 @@
     _cellMaxWidth = 280;
     _cellOptimumWidth = 130;
     _tabLocation = PSMTab_TopTab;
-    style = [[PSMMetalTabStyle alloc] init];
+    style = [[PSMYosemiteTabStyle alloc] init];
 
     // the overflow button/menu
     NSRect overflowButtonRect = NSMakeRect([self frame].size.width - [style rightMarginForTabBarControl] + 1, 0, [style rightMarginForTabBarControl] - 1, [self frame].size.height);
@@ -132,6 +132,7 @@
     if(_overflowPopUpButton){
         // configure
         [_overflowPopUpButton setAutoresizingMask:NSViewNotSizable|NSViewMinXMargin];
+        [[_overflowPopUpButton cell] accessibilitySetOverrideValue:NSLocalizedStringFromTableInBundle(@"More tabs", @"iTerm", [NSBundle bundleForClass:[self class]], @"VoiceOver label for the button displaying menu of additional overflown tabs on click") forAttribute:NSAccessibilityDescriptionAttribute];
     }
 
     // new tab button
@@ -179,7 +180,10 @@
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(windowDidMove:) name:NSWindowDidMoveNotification object:[self window]];
 
         // modifier for changing tabs changed (iTerm2 addon)
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(modifierChanged:) name:@"iTermModifierChanged" object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(modifierChanged:)
+                                                     name:kPSMModifierChangedNotification
+                                                   object:nil];
     }
     [self setTarget:self];
     return self;
@@ -203,6 +207,7 @@
     [_addTabButton release];
     [partnerView release];
     [_lastMouseDownEvent release];
+    [_lastMiddleMouseDownEvent release];
     [style release];
 
     [self unregisterDraggedTypes];
@@ -244,12 +249,24 @@
     _lastMouseDownEvent = event;
 }
 
-- (id)delegate
+- (NSEvent *)lastMiddleMouseDownEvent
+{
+    return _lastMiddleMouseDownEvent;
+}
+
+- (void)setLastMiddleMouseDownEvent:(NSEvent *)event
+{
+    [event retain];
+    [_lastMiddleMouseDownEvent release];
+    _lastMiddleMouseDownEvent = event;
+}
+
+- (id<PSMTabBarControlDelegate>)delegate
 {
     return delegate;
 }
 
-- (void)setDelegate:(id)object
+- (void)setDelegate:(id<PSMTabBarControlDelegate>)object
 {
     delegate = object;
 
@@ -306,23 +323,6 @@
     [self update:_automaticallyAnimates];
 }
 
-- (void)setStyleNamed:(NSString *)name
-{
-    id <PSMTabStyle> newStyle;
-    if ([name isEqualToString:@"Aqua"]) {
-        newStyle = [[PSMAquaTabStyle alloc] init];
-    } else if ([name isEqualToString:@"Unified"]) {
-        newStyle = [[PSMUnifiedTabStyle alloc] init];
-    } else if ([name isEqualToString:@"Adium"]) {
-        newStyle = [[PSMAdiumTabStyle alloc] init];
-    } else {
-        newStyle = [[PSMMetalTabStyle alloc] init];
-    }
-
-    [self setStyle:newStyle];
-    [newStyle release];
-}
-
 - (PSMTabBarOrientation)orientation
 {
     return _orientation;
@@ -338,19 +338,6 @@
     }
 
     if (lastOrientation != _orientation) {
-        [self update];
-    }
-}
-
-- (BOOL)canCloseOnlyTab
-{
-    return _canCloseOnlyTab;
-}
-
-- (void)setCanCloseOnlyTab:(BOOL)value
-{
-    _canCloseOnlyTab = value;
-    if ([_cells count] == 1) {
         [self update];
     }
 }
@@ -461,6 +448,16 @@
 - (void)setTabLocation:(int)value
 {
     _tabLocation = value;
+    switch (value) {
+        case PSMTab_TopTab:
+        case PSMTab_BottomTab:
+            [self setOrientation:PSMTabBarHorizontalOrientation];
+            break;
+
+        case PSMTab_LeftTab:
+            [self setOrientation:PSMTabBarVerticalOrientation];
+            break;
+    }
 }
 
 - (BOOL)allowsBackgroundTabClosing
@@ -543,7 +540,7 @@
 
 - (void)removeTabForCell:(PSMTabBarCell *)cell
 {
-    NSObjectController *item = [[cell representedObject] identifier];
+    NSObjectController *item = (NSObjectController *)[[cell representedObject] identifier];
 
     // unbind
     [[cell indicator] unbind:@"animate"];
@@ -839,7 +836,38 @@
 
 - (void)drawRect:(NSRect)rect
 {
-    [style drawTabBar:self inRect:rect];
+    for (PSMTabBarCell *cell in [self cells]) {
+        [cell setIsLast:NO];
+    }
+    [[[self cells] lastObject] setIsLast:YES];
+    [style drawTabBar:self inRect:rect horizontal:(_orientation == PSMTabBarHorizontalOrientation)];
+}
+
+- (void)moveTabAtIndex:(NSInteger)sourceIndex toIndex:(NSInteger)destIndex
+{
+    NSTabViewItem *theItem = [tabView tabViewItemAtIndex:sourceIndex];
+    BOOL reselect = ([tabView selectedTabViewItem] == theItem);
+
+    id<NSTabViewDelegate> tempDelegate = [tabView delegate];
+    [tabView setDelegate:nil];
+    [theItem retain];
+    [tabView removeTabViewItem:theItem];
+    [tabView insertTabViewItem:theItem atIndex:destIndex];
+    [theItem release];
+
+    id cell = [_cells objectAtIndex:sourceIndex];
+    [cell retain];
+    [_cells removeObjectAtIndex:sourceIndex];
+    [_cells insertObject:cell atIndex:destIndex];
+    [cell release];
+    
+    [tabView setDelegate:tempDelegate];
+
+    if (reselect) {
+        [tabView selectTabViewItem:theItem];
+    }
+    
+    [self update:YES];
 }
 
 - (void)update
@@ -882,13 +910,6 @@
         PSMTabBarCell *cell = [_cells objectAtIndex:i];
         float width;
 
-        // supress close button?
-        if ( (cellCount == 1 && [self canCloseOnlyTab] == NO) || ([self disableTabClose] == YES) ) {
-            [cell setCloseButtonSuppressed:YES];
-        } else {
-            [cell setCloseButtonSuppressed:NO];
-        }
-
         if ([self orientation] == PSMTabBarHorizontalOrientation) {
             // Determine cell width
             if (_sizeCellsToFit) {
@@ -907,7 +928,6 @@
                 if (!_useOverflowMenu) {
                     int j, averageWidth = (availableWidth / cellCount);
 
-                    numberOfVisibleCells = cellCount;
                     [newWidths removeAllObjects];
 
                     for (j = 0; j < cellCount; j++) {
@@ -992,8 +1012,6 @@
                         if (totalOccupiedWidth < availableWidth) {
                             [newWidths replaceObjectAtIndex:0 withObject:[NSNumber numberWithFloat:availableWidth - [cellWidth floatValue]]];
                         }
-
-                        numberOfVisibleCells = 2;
                     }
 
                     break; // done assigning widths; remaining cells go in overflow menu
@@ -1259,7 +1277,7 @@
             }
 
             if ([cell hasIcon]) {
-                [menuItem setImage:[[[cell representedObject] identifier] icon]];
+                [menuItem setImage:[(id)[[cell representedObject] identifier] icon]];
             }
 
             if ([cell count] > 0) {
@@ -1343,6 +1361,12 @@
 - (BOOL)acceptsFirstMouse:(NSEvent *)theEvent
 {
     return YES;
+}
+
+- (void)otherMouseDown:(NSEvent *)theEvent {
+    if ([theEvent buttonNumber] == 2) {
+        [self setLastMiddleMouseDownEvent:theEvent];
+    }
 }
 
 - (void)mouseDown:(NSEvent *)theEvent
@@ -1441,6 +1465,22 @@
                 [[self delegate] tabView:tabView shouldDragTabViewItem:[cell representedObject] fromTabBar:self]) {
             _didDrag = YES;
             [[PSMTabDragAssistant sharedDragAssistant] startDraggingCell:cell fromTabBar:self withMouseDownEvent:[self lastMouseDownEvent]];
+        }
+    }
+}
+
+- (void)otherMouseUp:(NSEvent *)theEvent
+{
+    // Middle click closes a tab, even if the click is not on the close button.
+    if ([theEvent buttonNumber] == 2 && !_resizing) {
+        NSPoint mousePt = [self convertPoint:[theEvent locationInWindow] fromView:nil];
+        NSRect cellFrame;
+        PSMTabBarCell *cell = [self cellForPoint:mousePt cellFrame:&cellFrame];
+        NSRect mouseDownCellFrame;
+        PSMTabBarCell *mouseDownCell = [self cellForPoint:[self convertPoint:[[self lastMiddleMouseDownEvent] locationInWindow] fromView:nil]
+                                                cellFrame:&mouseDownCellFrame];
+        if (cell && cell == mouseDownCell) {
+            [self closeTabClick:cell];
         }
     }
 }
@@ -1590,7 +1630,7 @@
 {
     // validate the drag operation only if there's a valid tab bar to drop into
     BOOL badType = [[[sender draggingPasteboard] types] indexOfObject:@"PSMTabBarControlItemPBType"] == NSNotFound;
-    if (badType && [[self delegate] respondsToSelector:@selector(tabView:shouldAcceptDragFromSender:sender:)] &&
+    if (badType && [[self delegate] respondsToSelector:@selector(tabView:shouldAcceptDragFromSender:)] &&
         ![[self delegate] tabView:tabView shouldAcceptDragFromSender:sender]) {
         badType = YES;
     }
@@ -1643,9 +1683,8 @@
 - (void)closeTabClick:(id)sender
 {
     NSTabViewItem *item = [sender representedObject];
-    [sender retain];
-    if(([_cells count] == 1) && (![self canCloseOnlyTab]))
-        return;
+    [[sender retain] autorelease];
+    [[item retain] autorelease];
 
     if(([self delegate]) && ([[self delegate] respondsToSelector:@selector(tabView:shouldCloseTabViewItem:)])){
         if(![[self delegate] tabView:tabView shouldCloseTabViewItem:item]){
@@ -1655,13 +1694,9 @@
         }
     }
 
-    [item retain];
     if(([self delegate]) && ([[self delegate] respondsToSelector:@selector(closeTab:)])){
-        [(id<PTYTaskDelegate>)[self delegate] closeTab:[item identifier]];
+        [[self delegate] closeTab:[item identifier]];
     }
-
-    [item release];
-    [sender release];
 }
 
 - (void)tabClick:(id)sender
@@ -1858,6 +1893,7 @@
             [[self delegate] tabView: aTabView didSelectTabViewItem: tabViewItem];
         }
     }
+    NSAccessibilityPostNotification(self, NSAccessibilityValueChangedNotification);
 }
 
 - (void) tabView:(NSTabView *)tabView doubleClickTabViewItem:(NSTabViewItem *)tabViewItem
@@ -1940,7 +1976,7 @@
     return NO;
 }
 
-- (NSTabViewItem *)tabView:(NSTabView *)tabView unknownObjectWasDropped:(id <NSDraggingInfo>)sender;
+- (NSTabViewItem *)tabView:(NSTabView *)tabView unknownObjectWasDropped:(id <NSDraggingInfo>)sender
 {
     return nil;
 }
@@ -1969,7 +2005,6 @@
         [aCoder encodeObject:_addTabButton forKey:@"PSMaddTabButton"];
         [aCoder encodeObject:style forKey:@"PSMstyle"];
         [aCoder encodeInt:_orientation forKey:@"PSMorientation"];
-        [aCoder encodeBool:_canCloseOnlyTab forKey:@"PSMcanCloseOnlyTab"];
         [aCoder encodeBool:_disableTabClose forKey:@"PSMdisableTabClose"];
         [aCoder encodeBool:_hideForSingleTab forKey:@"PSMhideForSingleTab"];
         [aCoder encodeBool:_allowsBackgroundTabClosing forKey:@"PSMallowsBackgroundTabClosing"];
@@ -1986,6 +2021,7 @@
         [aCoder encodeObject:partnerView forKey:@"PSMpartnerView"];
         [aCoder encodeBool:_awakenedFromNib forKey:@"PSMawakenedFromNib"];
         [aCoder encodeObject:_lastMouseDownEvent forKey:@"PSMlastMouseDownEvent"];
+        [aCoder encodeObject:_lastMiddleMouseDownEvent forKey:@"PSMlastMiddleMouseDownEvent"];
         [aCoder encodeObject:delegate forKey:@"PSMdelegate"];
         [aCoder encodeBool:_useOverflowMenu forKey:@"PSMuseOverflowMenu"];
         [aCoder encodeBool:_automaticallyAnimates forKey:@"PSMautomaticallyAnimates"];
@@ -2004,7 +2040,6 @@
             _addTabButton = [[aDecoder decodeObjectForKey:@"PSMaddTabButton"] retain];
             style = [[aDecoder decodeObjectForKey:@"PSMstyle"] retain];
             _orientation = [aDecoder decodeIntForKey:@"PSMorientation"];
-            _canCloseOnlyTab = [aDecoder decodeBoolForKey:@"PSMcanCloseOnlyTab"];
             _disableTabClose = [aDecoder decodeBoolForKey:@"PSMdisableTabClose"];
             _hideForSingleTab = [aDecoder decodeBoolForKey:@"PSMhideForSingleTab"];
             _allowsBackgroundTabClosing = [aDecoder decodeBoolForKey:@"PSMallowsBackgroundTabClosing"];
@@ -2021,6 +2056,7 @@
             partnerView = [[aDecoder decodeObjectForKey:@"PSMpartnerView"] retain];
             _awakenedFromNib = [aDecoder decodeBoolForKey:@"PSMawakenedFromNib"];
             _lastMouseDownEvent = [[aDecoder decodeObjectForKey:@"PSMlastMouseDownEvent"] retain];
+            _lastMiddleMouseDownEvent = [[aDecoder decodeObjectForKey:@"PSMlastMiddleMouseDownEvent"] retain];
             _useOverflowMenu = [aDecoder decodeBoolForKey:@"PSMuseOverflowMenu"];
             _automaticallyAnimates = [aDecoder decodeBoolForKey:@"PSMautomaticallyAnimates"];
             delegate = [[aDecoder decodeObjectForKey:@"PSMdelegate"] retain];
@@ -2158,8 +2194,9 @@
 {
     int i, cellCount = [_cells count];
     for(i = 0; i < cellCount; i++){
-        if([[_cells objectAtIndex:i] isInOverflowMenu])
-            return i+1;
+        if ([[_cells objectAtIndex:i] isInOverflowMenu]) {
+            return i;
+        }
     }
     return cellCount;
 }
@@ -2171,12 +2208,45 @@
     return NO;
 }
 
+- (NSArray*)accessibilityAttributeNames
+{
+    static NSArray *attributes = nil;
+    if (!attributes) {
+        NSSet *set = [NSSet setWithArray:[super accessibilityAttributeNames]];
+        set = [set setByAddingObjectsFromArray:[NSArray arrayWithObjects:
+                                                NSAccessibilityTabsAttribute,
+                                                NSAccessibilityValueAttribute,
+                                                nil]];
+        attributes = [[set allObjects] retain];
+    }
+    return attributes;
+}
+
 - (id)accessibilityAttributeValue:(NSString *)attribute {
     id attributeValue = nil;
     if ([attribute isEqualToString: NSAccessibilityRoleAttribute]) {
-        attributeValue = NSAccessibilityGroupRole;
+        attributeValue = NSAccessibilityTabGroupRole;
     } else if ([attribute isEqualToString: NSAccessibilityChildrenAttribute]) {
+        NSMutableArray *children = [NSMutableArray arrayWithArray:[_cells objectsAtIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, [self numberOfVisibleTabs])]]];
+        if (![_overflowPopUpButton isHidden]) {
+            [children addObject:_overflowPopUpButton];
+        }
+        if (![_addTabButton isHidden]) {
+            [children addObject:_addTabButton];
+        }
+        attributeValue = NSAccessibilityUnignoredChildren(children);
+    } else if ([attribute isEqualToString: NSAccessibilityTabsAttribute]) {
         attributeValue = NSAccessibilityUnignoredChildren(_cells);
+    } else if ([attribute isEqualToString:NSAccessibilityValueAttribute]) {
+        NSTabViewItem *tabViewItem = [tabView selectedTabViewItem];
+        for (NSActionCell *cell in _cells) {
+            if ([cell representedObject] == tabViewItem)
+                attributeValue = cell;
+        }
+        if (!attributeValue)
+        {
+            NSLog(@"WARNING: seems no tab cell is currently selected");
+        }
     } else {
         attributeValue = [super accessibilityAttributeValue:attribute];
     }
@@ -2203,26 +2273,7 @@
     return hitTestResult;
 }
 
-#pragma mark -
-#pragma mark iTerm Add On
-
-- (void)setLabelColor:(NSColor *)aColor forTabViewItem:(NSTabViewItem *) tabViewItem
-{
-    BOOL updated = NO;
-
-    NSEnumerator *e = [_cells objectEnumerator];
-    PSMTabBarCell *cell;
-    while ( (cell = [e nextObject])) {
-        if ([cell representedObject] == tabViewItem) {
-            if ([cell labelColor] != aColor) {
-                updated = YES;
-                [cell setLabelColor: aColor];
-            }
-        }
-    }
-
-    if (updated) [self update: NO];
-}
+#pragma mark - iTerm Add On
 
 - (void)setTabColor:(NSColor *)aColor forTabViewItem:(NSTabViewItem *) tabViewItem
 {
@@ -2258,7 +2309,7 @@
 
 - (void)modifierChanged:(NSNotification *)aNotification
 {
-    int mask = ([[[aNotification userInfo] objectForKey:@"TabModifier"] intValue]);
+    int mask = ([[[aNotification userInfo] objectForKey:kPSMTabModifierKey] intValue]);
     [self setModifier:mask];
 }
 

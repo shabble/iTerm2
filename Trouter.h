@@ -27,17 +27,22 @@
 
 #import <Cocoa/Cocoa.h>
 
+@protocol TrouterDelegate
+- (void)trouterLaunchCoprocessWithCommand:(NSString *)command;
+@end
+
 @interface Trouter : NSObject {
-    NSString *editor;
+    NSDictionary *prefs_;
     NSFileManager *fileManager;
-    NSString *externalScript;
+	id<TrouterDelegate> delegate_;
 }
+
+@property (nonatomic, copy) NSDictionary *prefs;
+@property (nonatomic, assign) id<TrouterDelegate> delegate;
+@property (nonatomic, readonly) BOOL activatesOnAnyString;  // Doesn't have to be a real file?
 
 - (Trouter*)init;
 - (void)dealloc;
-- (void)determineEditor;
-- (BOOL)applicationExists:(NSString *)bundle_id;
-- (BOOL)applicationExists:(NSString *)bundle_id path:(NSString **)path;
 - (BOOL)isTextFile:(NSString *)path;
 - (BOOL)file:(NSString *)path conformsToUTI:(NSString *)uti;
 - (BOOL)isDirectory:(NSString *)path;
@@ -46,6 +51,18 @@
          workingDirectory:(NSString *)workingDirectory
                lineNumber:(NSString **)lineNumber;
 - (BOOL)openFileInEditor:(NSString *) path lineNumber:(NSString *)lineNumber;
-- (BOOL)openPath:(NSString *)path workingDirectory:(NSString *)workingDirectory;
+- (BOOL)canOpenPath:(NSString *)path workingDirectory:(NSString *)workingDirectory;
+- (BOOL)openPath:(NSString *)path
+    workingDirectory:(NSString *)workingDirectory
+    prefix:(NSString *)prefix
+    suffix:(NSString *)suffix;
+
+// Do a brute force search by putting together suffixes of beforeString with prefixes of afterString
+// to find an existing file in |workingDirectory|. |charsSTakenFromPrefixPtr| will be filled in with
+// the number of characters from beforeString used.
+- (NSString *)pathOfExistingFileFoundWithPrefix:(NSString *)beforeStringIn
+                                         suffix:(NSString *)afterStringIn
+                               workingDirectory:(NSString *)workingDirectory
+                           charsTakenFromPrefix:(int *)charsTakenFromPrefixPtr;
 
 @end

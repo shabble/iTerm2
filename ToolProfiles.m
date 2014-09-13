@@ -9,22 +9,23 @@
 #import "ToolProfiles.h"
 #import "PseudoTerminal.h"
 #import "iTermController.h"
-#import "BookmarkModel.h"
+#import "ProfileModel.h"
+
+static const int kVerticalMargin = 5;
+static const int kMargin = 0;
+static const int kPopupHeight = 26;
 
 @implementation ToolProfiles
 
 - (id)initWithFrame:(NSRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
-        const int kVerticalMargin = 5;
-        const int kMargin = 0;
-        const int kPopupHeight = 26;
-
-        listView_ = [[BookmarkListView alloc] initWithFrame:NSMakeRect(kMargin, 0, frame.size.width - kMargin * 2, frame.size.height - kPopupHeight - kVerticalMargin)];
+        listView_ = [[ProfileListView alloc] initWithFrame:NSMakeRect(kMargin, 0, frame.size.width - kMargin * 2, frame.size.height - kPopupHeight - kVerticalMargin)];
         [listView_ setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
         [listView_ setDelegate:self];
         [listView_ setFont:[NSFont systemFontOfSize:[NSFont smallSystemFontSize]]];
         [listView_ disableArrowHandler];
+        [listView_.tableView setHeaderView:nil];
 
         [self addSubview:listView_];
         [listView_ release];
@@ -62,6 +63,13 @@
     [super dealloc];
 }
 
+- (void)relayout
+{
+    NSRect frame = self.frame;
+    listView_.frame = NSMakeRect(kMargin, 0, frame.size.width - kMargin * 2, frame.size.height - kPopupHeight - kVerticalMargin);
+    popup_.frame = NSMakeRect(0, frame.size.height - kPopupHeight, frame.size.width, kPopupHeight);
+}
+
 - (BOOL)isFlipped
 {
     return YES;
@@ -71,7 +79,7 @@
 {
     PseudoTerminal* terminal = [[iTermController sharedInstance] currentTerminal];
     for (NSString* guid in [listView_ selectedGuids]) {
-        Bookmark* bookmark = [[BookmarkModel sharedInstance] bookmarkWithGuid:guid];
+        Profile* bookmark = [[ProfileModel sharedInstance] bookmarkWithGuid:guid];
         [[iTermController sharedInstance] launchBookmark:bookmark
                                               inTerminal:terminal];
     }    
@@ -80,7 +88,7 @@
 - (void)toolProfilesNewWindow:(id)sender
 {
     for (NSString* guid in [listView_ selectedGuids]) {
-        Bookmark* bookmark = [[BookmarkModel sharedInstance] bookmarkWithGuid:guid];
+        Profile* bookmark = [[ProfileModel sharedInstance] bookmarkWithGuid:guid];
         [[iTermController sharedInstance] launchBookmark:bookmark
                                               inTerminal:nil];
     }    
@@ -102,7 +110,7 @@
     }
 }
 
-- (void)bookmarkTableRowSelected:(id)bookmarkTable
+- (void)profileTableRowSelected:(id)profileTable
 {
     NSEvent *event = [[NSApplication sharedApplication] currentEvent];
     if ([event modifierFlags] & (NSControlKeyMask)) {
@@ -114,6 +122,15 @@
     } else {
         [self toolProfilesNewTab:nil];
     }
+}
+
+- (void)shutdown
+{
+}
+
+- (CGFloat)minimumHeight
+{
+    return 88;
 }
 
 @end

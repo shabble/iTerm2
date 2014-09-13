@@ -1,23 +1,26 @@
-//
-//  ToolbeltView.h
-//  iTerm
-//
-//  Created by George Nachman on 9/5/11.
-//  Copyright 2011 Georgetech. All rights reserved.
-//
-
 #import <Cocoa/Cocoa.h>
+#import "ToolWrapper.h"
+#import "FutureMethods.h"
 
+@class ToolCapturedOutputView;
+@class ToolCommandHistoryView;
+@class ToolDirectoriesView;
+@class ToolbeltSplitView;
 @class PseudoTerminal;
 
-@protocol ToolbeltTool
-@end
+extern NSString *kCommandHistoryToolName;
+extern NSString *kCapturedOutputToolName;
 
-@interface ToolbeltView : NSView {
-    NSSplitView *splitter_;
+// Notification posted when all windows should hide their toolbelts.
+extern NSString *const kToolbeltShouldHide;
+
+@interface ToolbeltView : NSView <NSSplitViewDelegate, ToolWrapperDelegate> {
+    ToolbeltSplitView *splitter_;
     NSMutableDictionary *tools_;
     PseudoTerminal *term_;   // weak
 }
+
++ (NSArray *)configuredTools;
 
 + (void)registerToolWithName:(NSString *)name withClass:(Class)c;
 + (void)populateMenu:(NSMenu *)menu;
@@ -25,7 +28,6 @@
 + (int)numberOfVisibleTools;
 
 - (id)initWithFrame:(NSRect)frame term:(PseudoTerminal *)term;
-
 
 // Is the tool visible?
 - (BOOL)showingToolWithName:(NSString *)theName;
@@ -37,5 +39,11 @@
 
 - (BOOL)haveOnlyOneTool;
 - (void)shutdown;
+
+- (ToolCommandHistoryView *)commandHistoryView;
+- (ToolDirectoriesView *)directoriesView;
+- (ToolCapturedOutputView *)capturedOutputView;
+
+- (void)relayoutAllTools;
 
 @end

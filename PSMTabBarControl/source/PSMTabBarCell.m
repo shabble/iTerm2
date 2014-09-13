@@ -11,6 +11,7 @@
 #import "PSMTabStyle.h"
 #import "PSMProgressIndicator.h"
 #import "PSMTabDragAssistant.h"
+#import "FutureMethods.h"
 
 @interface PSMTabBarControl (Private)
 - (void)update;
@@ -18,6 +19,8 @@
 @end
 
 @implementation PSMTabBarCell
+
+@synthesize isLast = _isLast;
 
 #pragma mark -
 #pragma mark Creation/Destruction
@@ -34,10 +37,8 @@
         [_indicator setAutoresizingMask:NSViewMinYMargin];
         [_indicator setControlSize:NSSmallControlSize];
         _hasCloseButton = YES;
-        _isCloseButtonSuppressed = NO;
         _count = 0;
         _isPlaceholder = NO;
-        _labelColor = nil;
         _tabColor = nil;
         _modifierString = [@"" copy];
     }
@@ -63,9 +64,7 @@
         _closeButtonPressed = NO;
         _indicator = nil;
         _hasCloseButton = YES;
-        _isCloseButtonSuppressed = NO;
         _count = 0;
-        _labelColor = nil;
         _tabColor = nil;
         _modifierString = [@"" copy];
         if (value) {
@@ -81,11 +80,15 @@
 {
     [_modifierString release];
     [_indicator release];
-    if (_labelColor)
-        [_labelColor release];
     if (_tabColor)
         [_tabColor release];
     [super dealloc];
+}
+
+// we don't want this to be the first responder in the chain
+- (BOOL)acceptsFirstResponder
+{
+  return NO;
 }
 
 #pragma mark -
@@ -94,6 +97,10 @@
 - (id)controlView
 {
     return _controlView;
+}
+
+- (id<PSMTabBarControlProtocol>)psmTabControlView {
+    return (id<PSMTabBarControlProtocol>)_controlView;
 }
 
 - (void)setControlView:(id)view
@@ -150,15 +157,10 @@
     return _stringSize;
 }
 
-- (NSAttributedString *)attributedStringValue
-{
-    NSMutableAttributedString *aString = [[[NSMutableAttributedString alloc] initWithAttributedString:[(id <PSMTabStyle>)[_controlView style] attributedStringValueForTabCell:self]] autorelease];
-
-    if (_labelColor) {
-        [aString addAttribute:NSForegroundColorAttributeName value:_labelColor range:NSMakeRange(0, [aString length])];
-    }
-
-    return aString;
+- (NSAttributedString *)attributedStringValue {
+    PSMTabBarControl *control = _controlView;
+    id <PSMTabStyle> tabStyle = [control style];
+    return [tabStyle attributedStringValueForTabCell:self];
 }
 
 - (int)tabState
@@ -211,19 +213,9 @@
     return _hasCloseButton;
 }
 
-- (void)setHasCloseButton:(BOOL)set;
+- (void)setHasCloseButton:(BOOL)set
 {
     _hasCloseButton = set;
-}
-
-- (void)setCloseButtonSuppressed:(BOOL)suppress;
-{
-    _isCloseButtonSuppressed = suppress;
-}
-
-- (BOOL)isCloseButtonSuppressed;
-{
-    return _isCloseButtonSuppressed;
 }
 
 - (BOOL)hasIcon
@@ -253,7 +245,7 @@
     return _isPlaceholder;
 }
 
-- (void)setIsPlaceholder:(BOOL)value;
+- (void)setIsPlaceholder:(BOOL)value
 {
     _isPlaceholder = value;
 }
@@ -299,22 +291,22 @@
 
 - (NSRect)indicatorRectForFrame:(NSRect)cellFrame
 {
-    return [(id <PSMTabStyle>)[_controlView style] indicatorRectForTabCell:self];
+    return [(id <PSMTabStyle>)[(PSMTabBarControl *)_controlView style] indicatorRectForTabCell:self];
 }
 
 - (NSRect)closeButtonRectForFrame:(NSRect)cellFrame
 {
-    return [(id <PSMTabStyle>)[_controlView style] closeButtonRectForTabCell:self];
+    return [(id <PSMTabStyle>)[(PSMTabBarControl *)_controlView style] closeButtonRectForTabCell:self];
 }
 
 - (float)minimumWidthOfCell
 {
-    return [(id <PSMTabStyle>)[_controlView style] minimumWidthOfTabCell:self];
+    return [(id <PSMTabStyle>)[(PSMTabBarControl *)_controlView style] minimumWidthOfTabCell:self];
 }
 
 - (float)desiredWidthOfCell
 {
-    return [(id <PSMTabStyle>)[_controlView style] desiredWidthOfTabCell:self];
+    return [(id <PSMTabStyle>)[(PSMTabBarControl *)_controlView style] desiredWidthOfTabCell:self];
 }
 
 #pragma mark -
@@ -328,7 +320,7 @@
         return;
     }
 
-    [(id <PSMTabStyle>)[_controlView style] drawTabCell:self];
+    [(id <PSMTabStyle>)[(PSMTabBarControl *)_controlView style] drawTabCell:self];
 }
 
 #pragma mark -
@@ -370,11 +362,10 @@
 
 - (NSImage *)dragImage
 {
-    NSRect cellFrame = [(id <PSMTabStyle>)[_controlView style] dragRectForTabCell:self orientation:[(PSMTabBarControl *)_controlView orientation]];
-    //NSRect cellFrame = [self frame];
+    NSRect cellFrame = [(id <PSMTabStyle>)[(PSMTabBarControl *)_controlView style] dragRectForTabCell:self orientation:[(PSMTabBarControl *)_controlView orientation]];
 
     [_controlView lockFocus];
-    NSBitmapImageRep *rep = [[NSBitmapImageRep alloc] initWithFocusedViewRect:cellFrame];
+    NSBitmapImageRep *rep = [[[NSBitmapImageRep alloc] initWithFocusedViewRect:cellFrame] autorelease];
     [_controlView unlockFocus];
     NSImage *image = [[[NSImage alloc] initWithSize:[rep size]] autorelease];
     [image addRepresentation:rep];
@@ -411,7 +402,6 @@
         [aCoder encodeObject:_indicator forKey:@"indicator"];
         [aCoder encodeBool:_isInOverflowMenu forKey:@"isInOverflowMenu"];
         [aCoder encodeBool:_hasCloseButton forKey:@"hasCloseButton"];
-        [aCoder encodeBool:_isCloseButtonSuppressed forKey:@"isCloseButtonSuppressed"];
         [aCoder encodeBool:_hasIcon forKey:@"hasIcon"];
         [aCoder encodeInt:_count forKey:@"count"];
     }
@@ -434,7 +424,6 @@
             _indicator = [[aDecoder decodeObjectForKey:@"indicator"] retain];
             _isInOverflowMenu = [aDecoder decodeBoolForKey:@"isInOverflowMenu"];
             _hasCloseButton = [aDecoder decodeBoolForKey:@"hasCloseButton"];
-            _isCloseButtonSuppressed = [aDecoder decodeBoolForKey:@"isCloseButtonSuppressed"];
             _hasIcon = [aDecoder decodeBoolForKey:@"hasIcon"];
             _count = [aDecoder decodeIntForKey:@"count"];
         }
@@ -449,11 +438,26 @@
     return NO;
 }
 
+- (NSArray*)accessibilityAttributeNames
+{
+    static NSArray *attributes = nil;
+    if (!attributes) {
+        NSSet *set = [NSSet setWithArray:[super accessibilityAttributeNames]];
+        set = [set setByAddingObjectsFromArray:[NSArray arrayWithObjects:
+                                                   NSAccessibilityTitleAttribute,
+                                                   NSAccessibilityValueAttribute,
+                                                   nil]];
+        attributes = [[set allObjects] retain];
+    }
+    return attributes;
+}
+
+
 - (id)accessibilityAttributeValue:(NSString *)attribute {
     id attributeValue = nil;
 
     if ([attribute isEqualToString: NSAccessibilityRoleAttribute]) {
-        attributeValue = NSAccessibilityButtonRole;
+        attributeValue = NSAccessibilityRadioButtonRole;
     } else if ([attribute isEqualToString: NSAccessibilityHelpAttribute]) {
         if ([[[self controlView] delegate] respondsToSelector:@selector(accessibilityStringForTabView:objectCount:)]) {
             attributeValue = [NSString stringWithFormat:@"%@, %i %@", [self stringValue],
@@ -462,7 +466,18 @@
         } else {
             attributeValue = [self stringValue];
         }
-    } else if ([attribute isEqualToString: NSAccessibilityFocusedAttribute]) {
+    } else if ([attribute isEqualToString:NSAccessibilityPositionAttribute] || [attribute isEqualToString:NSAccessibilitySizeAttribute]) {
+        NSRect rect = [self frame];
+        rect = [[self controlView] convertRect:rect toView:nil];
+        rect = [[self controlView] convertRectToScreen:rect];
+        if ([attribute isEqualToString:NSAccessibilityPositionAttribute]) {
+            attributeValue = [NSValue valueWithPoint:rect.origin];
+        } else {
+            attributeValue = [NSValue valueWithSize:rect.size];
+        }
+    } else if ([attribute isEqualToString:NSAccessibilityTitleAttribute]) {
+        attributeValue = [self stringValue];
+    } else if ([attribute isEqualToString: NSAccessibilityValueAttribute]) {
         attributeValue = [NSNumber numberWithBool:([self tabState] == 2)];
     } else {
         attributeValue = [super accessibilityAttributeValue:attribute];
@@ -493,7 +508,8 @@
 - (void)accessibilityPerformAction:(NSString *)action {
     if ([action isEqualToString:NSAccessibilityPressAction]) {
         // this tab was selected
-        [_controlView performSelector:@selector(tabClick:) withObject:self];
+        [[self psmTabControlView] performSelector:@selector(tabClick:)
+                                       withObject:self];
     }
 }
 
@@ -505,23 +521,7 @@
     return NSAccessibilityUnignoredAncestor(self);
 }
 
-#pragma mark -
-#pragma mark iTerm Add-on
-
-- (NSColor *)labelColor
-{
-    return _labelColor;
-}
-
-- (void)setLabelColor:(NSColor *)aColor
-{
-    if (_labelColor != aColor) {
-        if (_labelColor) {
-            [_labelColor release];
-        }
-        _labelColor = aColor ? [aColor retain] : nil;
-    }
-}
+#pragma mark - iTerm Add-on
 
 - (NSColor*)tabColor
 {

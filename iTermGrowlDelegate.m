@@ -1,6 +1,3 @@
-// -*- mode:objc -*- vim: filetype=objcpp
-// $Id: iTermGrowlDelegate.m,v 1.10 2006-10-09 22:24:52 yfabian Exp $
-//
 /*
  **  iTermGrowlDelegate.m
  **
@@ -28,134 +25,127 @@
  **  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#import <iTermGrowlDelegate.h>
-#import <PreferencePanel.h>
+#import "iTermGrowlDelegate.h"
+#import "Growl.framework/Headers/GrowlApplicationBridge.h"
+#import "PTYSession.h"
+#import "PTYTab.h"
+#import "PreferencePanel.h"
+#import "PseudoTerminal.h"
+#import "iTermController.h"
 
-/**
- **  The category is used to extend iTermGrowlDelegate with private methods.
- **
- **  Any methods that should not be exposed to the 'outside world' by being
- **  included in the class header file should be declared here and implemented
- **  in @implementation.
- */
-@interface
-    iTermGrowlDelegate (PrivateMethods)
-@end
+static NSString *const kGrowlAppName = @"iTerm";
+static NSString *const kDefaultNotification = @"Miscellaneous";
 
 @implementation iTermGrowlDelegate
 
-+ (id)sharedInstance
-{
-    static iTermGrowlDelegate* shared = nil;
-    if(!shared)
-        shared = [iTermGrowlDelegate new];
-    return shared;
++ (id)sharedInstance {
+    static iTermGrowlDelegate *instance;
+    static dispatch_once_t once;
+    dispatch_once(&once, ^{
+        instance = [[self alloc] init];
+    });
+    return instance;
 }
 
-- (id)init
-{
+- (id)init {
     self = [super init];
     if (self) {
-        notifications = [[NSArray arrayWithObjects:OURNOTIFICATIONS,
-                          nil] retain];
+        NSBundle *myBundle = [NSBundle bundleForClass:[iTermGrowlDelegate class]];
+        NSString *growlPath =
+            [[myBundle privateFrameworksPath] stringByAppendingPathComponent:@"Growl.framework"];
+        NSBundle *growlBundle = [NSBundle bundleWithPath:growlPath];
+        if (growlBundle && [growlBundle load]) {
+            // Register ourselves as a Growl delegate
+            [GrowlApplicationBridge setGrowlDelegate:self];
+        } else {
+            NSLog(@"Could not load Growl.framework");
+        }
 
-        [GrowlApplicationBridge setGrowlDelegate:self];
         [self registrationDictionaryForGrowl];
-        [self setEnabled:YES];
-
-        return self;
-    } else {
-        return nil;
     }
+    return self;
 }
 
-- (void)dealloc
-{
-    [notifications release];
-    [super dealloc];
-}
-
-- (BOOL)isEnabled
-{
-    if ([GrowlApplicationBridge isGrowlInstalled]) {
-        return enabled;
-    } else {
-        return NO;
-    }
-}
-
-- (void)setEnabled:(BOOL)newState
-{
-    enabled = newState;
+- (void)growlNotify:(NSString *)title {
+    [self growlNotify:title withDescription:nil];
 }
 
 - (void)growlNotify:(NSString *)title
-{
-    if (![self isEnabled]) {
-        //NSLog(@"%s(%d):-[Growl not enabled.]",  __FILE__, __LINE__);
-        return;
-    }
-
-    if ([[PreferencePanel sharedInstance] enableGrowl]) {
-        [GrowlApplicationBridge
-            notifyWithTitle:title
-                description:nil
-           notificationName:DEFAULTNOTIFICATION
-                   iconData:nil
-                   priority:0
-                   isSticky:NO
-               clickContext:nil];
-    }
-}
-
-- (void)growlNotify:(NSString *)title
-     withDescription:(NSString *)description
-{
-    if (![self isEnabled]) {
-        //NSLog(@"%s(%d):-[Growl not enabled.]",  __FILE__, __LINE__);
-        return;
-    }
-
-    if ([[PreferencePanel sharedInstance] enableGrowl]) {
-        [GrowlApplicationBridge notifyWithTitle:title
-                                    description:description
-                               notificationName:DEFAULTNOTIFICATION
-                                       iconData:nil
-                                       priority:0
-                                       isSticky:NO
-                                   clickContext:nil];
-    }
+     withDescription:(NSString *)description {
+    [self growlNotify:title
+      withDescription:description
+      andNotification:kDefaultNotification];
 }
 
 - (void)growlNotify:(NSString *)title
     withDescription:(NSString *)description
-    andNotification:(NSString *)notification
-{
-    if (![self isEnabled]) {
-        //NSLog(@"%s(%d):-[Growl not enabled.]",  __FILE__, __LINE__);
-        return;
-    }
-
-    if ([[PreferencePanel sharedInstance] enableGrowl]) {
-        [GrowlApplicationBridge notifyWithTitle:title
-                                    description:description
-                               notificationName:notification
-                                       iconData:nil
-                                       priority:0
-                                       isSticky:NO
-                                   clickContext:nil];
-    }
+    andNotification:(NSString *)notification {
+      [self growlNotify:title
+        withDescription:description
+        andNotification:notification
+            windowIndex:-1
+               tabIndex:-1
+              viewIndex:-1];
 }
 
-- (NSDictionary *)registrationDictionaryForGrowl
-{
-    NSDictionary *regDict = [NSDictionary dictionaryWithObjectsAndKeys:
-        OURGROWLAPPNAME, GROWL_APP_NAME,
-        notifications, GROWL_NOTIFICATIONS_ALL,
-        notifications, GROWL_NOTIFICATIONS_DEFAULT,
-        nil];
+- (BOOL)growlNotify:(NSString *)title
+    withDescription:(NSString *)description
+    andNotification:(NSString *)notification
+        windowIndex:(int)windowIndex
+           tabIndex:(int)tabIndex
+          viewIndex:(int)viewIndex {
+    NSDictionary *context = nil;
+    if (windowIndex >= 0) {
+        context = @{ @"win": @(windowIndex),
+                     @"tab": @(tabIndex),
+                     @"view": @(viewIndex) };
+    }
 
-    return regDict;
+    [GrowlApplicationBridge notifyWithTitle:title
+                                description:description
+                           notificationName:notification
+                                   iconData:nil
+                                   priority:0
+                                   isSticky:NO
+                               clickContext:context];
+    return YES;
+}
+
+- (void)growlNotificationWasClicked:(id)clickContext {
+    int win = [[clickContext objectForKey:@"win"] intValue];
+    int tab = [[clickContext objectForKey:@"tab"] intValue];
+    int view = [[clickContext objectForKey:@"view"] intValue];
+
+    iTermController *controller = [iTermController sharedInstance];
+    if (win >= [controller numberOfTerminals]) {
+        NSBeep();
+        return;
+    }
+    PseudoTerminal *terminal = [controller terminalAtIndex:win];
+    PTYTabView *tabView = [terminal tabView];
+    if (tab >= [tabView numberOfTabViewItems]) {
+        NSBeep();
+        return;
+    }
+    PTYTab *theTab = [[tabView tabViewItemAtIndex:tab] identifier];
+    PTYSession *theSession = [theTab sessionWithViewId:view];
+    [theSession reveal];
+}
+
+- (NSDictionary *)registrationDictionaryForGrowl {
+    NSArray *notifications = @[ @"Bells",
+                                @"Broken Pipes",
+                                @"Miscellaneous",
+                                @"Idle",
+                                @"New Output",
+                                @"Customized Message" ];
+    return @{ GROWL_APP_NAME: kGrowlAppName,
+              GROWL_NOTIFICATIONS_ALL: notifications,
+              GROWL_NOTIFICATIONS_DEFAULT: notifications };
+}
+
+- (void)growlIsReady {
+    NSLog(@"Growl is ready");
 }
 
 @end

@@ -1,4 +1,3 @@
-// -*- mode:objc -*-
 /*
  **  DVRDecoder.m
  **
@@ -28,20 +27,32 @@
  */
 
 #import "DVRDecoder.h"
+#import "DebugLogging.h"
 #import "DVRIndexEntry.h"
 #import "LineBuffer.h"
+
+@interface DVRDecoder ()
+
+// Seek directly to a particular key.
+- (void)_seekToEntryWithKey:(long long)key;
+
+// Load a key or diff frame from a particular key.
+- (void)_loadKeyFrameWithKey:(long long)key;
+- (void)_loadDiffFrameWithKey:(long long)key;
+
+@end
 
 @implementation DVRDecoder
 
 - (id)initWithBuffer:(DVRBuffer*)buffer
 {
-    if ([super init] == nil) {
-        return nil;
+    self = [super init];
+    if (self) {
+        buffer_ = buffer;
+        frame_ = 0;
+        length_ = 0;
+        key_ = -1;
     }
-    buffer_ = buffer;
-    frame_ = 0;
-    length_ = 0;
-    key_ = -1;
     return self;
 }
 
@@ -120,9 +131,23 @@
     return info_;
 }
 
-@end
+#pragma mark - Private
 
-@implementation DVRDecoder (Private)
+- (NSString *)stringForFrame
+{
+    NSMutableString *s = [NSMutableString string];
+    screen_char_t *lines = (screen_char_t *)frame_;
+    int i = 0;
+    for (int y = 0; y < info_.height; y++) {
+        for (int x = 0; x < info_.width; x++) {
+            screen_char_t c = lines[i++];
+            [s appendFormat:@"%c", c.code];
+        }
+        [s appendString:@"\n"];
+        i++;
+    }
+    return s;
+}
 
 - (void)debug:(NSString*)prefix buffer:(char*)buffer length:(int)length
 {
@@ -194,13 +219,14 @@
     }
     char* data = [buffer_ blockForKey:key];
     info_ = entry->info;
+    DLog(@"Frame with key %lld has size %dx%d", key, info_.width, info_.height);
     memcpy(frame_,  data, length_);
 }
 
 - (void)_loadDiffFrameWithKey:(long long)key
 {
 #ifdef DVRDEBUG
-    NSLog(@"Load diff frame at index %d", theIndex);
+    NSLog(@"Load diff frame at index %lld", key);
 #endif
     DVRIndexEntry* entry = [buffer_ entryForKey:key];
     info_ = entry->info;
@@ -213,7 +239,7 @@
                 memcpy(&n, diff + i, sizeof(n));
                 i += sizeof(n);
 #ifdef DVRDEBUG
-                [self debug:@"same seq" buffer:frame_ + o length:n];
+                NSLog(@"%d bytes of sameness at offset %d", n, o);
 #endif
                 o += n;
                 break;
@@ -221,9 +247,10 @@
             case kDiffSequence:
                 memcpy(&n, diff + i, sizeof(n));
                 i += sizeof(n);
+                assert(o + n - 1 < length_);
                 memcpy(frame_ + o, diff + i, n);
 #ifdef DVRDEBUG
-                [self debug:@"diff seq" buffer:frame_ + o length:n];
+                NSLog(@"%d bytes of difference at offset %d", n, o);
 #endif
                 o += n;
                 i += n;

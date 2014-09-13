@@ -29,7 +29,8 @@
 #import "iTermController.h"
 #import "PseudoTerminal.h"
 #import "ITAddressBookMgr.h"
-#import "BookmarksWindow.h"
+#import "ProfilesWindow.h"
+#import "ProfileModel.h"
 
 NSString *NewToolbarItem = @"New";
 NSString *BookmarksToolbarItem = @"Profiles";
@@ -37,7 +38,7 @@ NSString *CloseToolbarItem = @"Close";
 NSString *ConfigToolbarItem = @"Info";
 NSString *CommandToolbarItem = @"Command";
 
-@interface PTToolbarController (Private)
+@interface PTToolbarController ()
 - (void)setupToolbar;
 - (void)buildToolbarItemPopUpMenu:(NSToolbarItem *)toolbarItem forToolbar:(NSToolbar *)toolbar;
 - (NSToolbarItem*)toolbarItemWithIdentifier:(NSString*)identifier;
@@ -45,22 +46,23 @@ NSString *CommandToolbarItem = @"Command";
 
 @implementation PTToolbarController
 
-- (id)initWithPseudoTerminal:(PseudoTerminal*)terminal;
-{
+- (id)initWithPseudoTerminal:(PseudoTerminal*)terminal {
     self = [super init];
-    _pseudoTerminal = terminal; // don't retain;
+    if (self) {
+        _pseudoTerminal = terminal; // don't retain;
 
-    // Add ourselves as an observer for notifications to reload the addressbook.
-    [[NSNotificationCenter defaultCenter] addObserver: self
-                                             selector: @selector(reloadAddressBookMenu:)
-                                                 name: @"iTermReloadAddressBook"
-                                               object: nil];
+        // Add ourselves as an observer for notifications to reload the addressbook.
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(reloadAddressBookMenu:)
+                                                     name:kReloadAddressBookNotification
+                                                   object:nil];
 
-    [self setupToolbar];
+        [self setupToolbar];
+    }
     return self;
 }
 
-- (void)dealloc;
+- (void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [iconMenu_ release];
@@ -69,37 +71,28 @@ NSString *CommandToolbarItem = @"Command";
     [super dealloc];
 }
 
-- (NSArray *)toolbarDefaultItemIdentifiers: (NSToolbar *) toolbar
-{
-    NSMutableArray* itemIdentifiers= [[[NSMutableArray alloc]init] autorelease];
-
-    [itemIdentifiers addObject: NewToolbarItem];
-    [itemIdentifiers addObject: ConfigToolbarItem];
-    [itemIdentifiers addObject: NSToolbarSeparatorItemIdentifier];
-    [itemIdentifiers addObject: NSToolbarCustomizeToolbarItemIdentifier];
-    [itemIdentifiers addObject: CloseToolbarItem];
-    [itemIdentifiers addObject: NSToolbarSeparatorItemIdentifier];
-    [itemIdentifiers addObject: CommandToolbarItem];
-    [itemIdentifiers addObject: BookmarksToolbarItem];
-
-    return itemIdentifiers;
+- (NSArray *)toolbarDefaultItemIdentifiers:(NSToolbar *)toolbar {
+    return @[ NewToolbarItem,
+              ConfigToolbarItem,
+              NSToolbarSeparatorItemIdentifier,
+              NSToolbarCustomizeToolbarItemIdentifier,
+              CloseToolbarItem,
+              NSToolbarSeparatorItemIdentifier,
+              CommandToolbarItem,
+              BookmarksToolbarItem ];
 }
 
 - (NSArray *)toolbarAllowedItemIdentifiers: (NSToolbar *) toolbar
 {
-    NSMutableArray* itemIdentifiers = [[[NSMutableArray alloc]init] autorelease];
-
-    [itemIdentifiers addObject: NewToolbarItem];
-    [itemIdentifiers addObject: BookmarksToolbarItem];
-    [itemIdentifiers addObject: ConfigToolbarItem];
-    [itemIdentifiers addObject: NSToolbarCustomizeToolbarItemIdentifier];
-    [itemIdentifiers addObject: CloseToolbarItem];
-    [itemIdentifiers addObject: CommandToolbarItem];
-    [itemIdentifiers addObject: NSToolbarFlexibleSpaceItemIdentifier];
-    [itemIdentifiers addObject: NSToolbarSpaceItemIdentifier];
-    [itemIdentifiers addObject: NSToolbarSeparatorItemIdentifier];
-
-    return itemIdentifiers;
+    return @[ NewToolbarItem,
+              BookmarksToolbarItem,
+              ConfigToolbarItem,
+              NSToolbarCustomizeToolbarItemIdentifier,
+              CloseToolbarItem,
+              CommandToolbarItem,
+              NSToolbarFlexibleSpaceItemIdentifier,
+              NSToolbarSpaceItemIdentifier,
+              NSToolbarSeparatorItemIdentifier ];
 }
 
 - (NSToolbarItem *)toolbar:(NSToolbar *)toolbar
@@ -188,14 +181,12 @@ NSString *CommandToolbarItem = @"Command";
 
 - (IBAction)toggleBookmarksView:(id)sender
 {
-    [[BookmarksWindow sharedInstance] showWindow:self];
+    [[ProfilesWindow sharedInstance] showWindow:self];
 }
 
-@end
+#pragma mark - Private
 
-@implementation PTToolbarController (Private)
-
-- (void)setupToolbar;
+- (void)setupToolbar
 {
     _toolbar = [[NSToolbar alloc] initWithIdentifier:@"Terminal Toolbar"];
     [_toolbar setVisible:false];
@@ -306,8 +297,8 @@ NSString *CommandToolbarItem = @"Command";
         params.alternateOpenAllSelector = @selector(newSessionsInWindow:);
         params.target = [iTermController sharedInstance];
 
-        [BookmarkModel applyJournal:[aNotification userInfo] toMenu:iconMenu_ startingAtItem:1 params:&params];
-        [BookmarkModel applyJournal:[aNotification userInfo] toMenu:textMenu_ params:&params];
+        [ProfileModel applyJournal:[aNotification userInfo] toMenu:iconMenu_ startingAtItem:1 params:&params];
+        [ProfileModel applyJournal:[aNotification userInfo] toMenu:textMenu_ params:&params];
     }
 }
 

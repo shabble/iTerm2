@@ -10,7 +10,8 @@
  **
  **  Project: iTerm
  **
- **  Description: Implements the delegate for Growl notifications.
+ **  Description: Implements the delegate for Growl notifications. When
+ **      available, Notifiation Center is used as a fallback.
  **
  **  Usage:
  **      In your class header file, add the following @class directive
@@ -54,51 +55,35 @@
  */
 
 #import <Cocoa/Cocoa.h>
-#import <Growl.h>
+#import "Growl.framework/Headers/GrowlApplicationBridge.h"
 
-#define OURGROWLAPPNAME  @"iTerm"
-#define DEFAULTNOTIFICATION @"Miscellaneous"
-#define OURNOTIFICATIONS	@"Bells",			\
-							@"Broken Pipes",	\
-							@"Miscellaneous",	\
-							@"Idle",			\
-							@"New Output",      \
-                            @"Customized Message"
+@interface iTermGrowlDelegate : NSObject <
+  GrowlApplicationBridgeDelegate,
+  NSUserNotificationCenterDelegate>
 
-@interface iTermGrowlDelegate : NSObject <GrowlApplicationBridgeDelegate> {
-	BOOL enabled;
-	NSArray * notifications;
-}
++ (id)sharedInstance;
 
-+ (id) sharedInstance;
+// Generate a Growl message with no description and a notification type
+// of "Miscellaneous".
+- (void)growlNotify:(NSString *)title;
 
-  /**
-   **  Used by the class to indicate the current status of the Growl preference
-   **  in iTerm.
-   **  This is generally only for use with the class.
-   **/
-- (BOOL) isEnabled;
+// Generate a Growl message with a notification type of "Miscellaneous".
+- (void)growlNotify:(NSString *)title withDescription:(NSString *)description;
 
-  /**
-   **  Used by the prefs class to toggle the Growl state when the user makes
-   **  changes to the iTerm prefs that impact Growl.
-   **/
-- (void) setEnabled: (BOOL) newState;
+//  Generate a 'full' Growl message with a specified notification type.
+- (void)growlNotify:(NSString *)title
+    withDescription:(NSString *)description
+    andNotification:(NSString *)notification;
 
-  /**
-   **  Generate a Growl message with no description and a notification type
-   **  of "Miscellaneous".
-   **/
-- (void) growlNotify: (NSString *) title;
-
-  /**
-   **  Generate a Growl message with a notification type of "Miscellaneous".
-   **/
-- (void) growlNotify: (NSString *) title withDescription: (NSString *) description;
-
-  /**
-   **  Generate a 'full' Growl message with a specified notification type.
-   **/
-- (void) growlNotify: (NSString *) title withDescription: (NSString *) description andNotification: (NSString *) notification;
+// Generate a 'full' Growl message with a specified notification type,
+// associated with a particular window/tab/view.
+//
+// Returns YES if the notification was posted.
+- (BOOL)growlNotify:(NSString *)title
+    withDescription:(NSString *)description
+    andNotification:(NSString *)notification
+        windowIndex:(int)windowIndex
+           tabIndex:(int)tabIndex
+          viewIndex:(int)viewIndex;
 
 @end

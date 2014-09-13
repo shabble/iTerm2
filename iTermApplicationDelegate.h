@@ -29,22 +29,15 @@
 
 #import <Cocoa/Cocoa.h>
 #import <Carbon/Carbon.h>
-
-//#define GENERAL_VERBOSE_LOGGING
-#ifdef GENERAL_VERBOSE_LOGGING
-#define DLog NSLog
-#else
-#define DLog(args...) \
-do { \
-if (gDebugLogging) { \
-DebugLog([NSString stringWithFormat:args]); \
-} \
-} while (0)
-#endif
+#import "DebugLogging.h"
 
 @class PseudoTerminal;
-extern BOOL gDebugLogging;
-void DebugLog(NSString* value);
+extern NSString *kUseBackgroundPatternIndicatorChangedNotification;
+extern NSString *const kMultiLinePasteWarningUserDefaultsKey;
+extern NSString *const kSavedArrangementDidChangeNotification;
+extern NSString *const kNonTerminalWindowBecameKeyNotification;
+
+int DebugLogImpl(const char *file, int line, const char *function, NSString* value);
 
 @interface iTermAboutWindow : NSPanel
 {
@@ -64,7 +57,8 @@ void DebugLog(NSString* value);
     // Menu items
     IBOutlet NSMenu     *bookmarkMenu;
     IBOutlet NSMenu     *toolbeltMenu;
-    IBOutlet NSMenuItem *showToolbeltItem;
+    NSMenuItem *downloadsMenu_;
+    NSMenuItem *uploadsMenu_;
     IBOutlet NSMenuItem *selectTab;
     IBOutlet NSMenuItem *previousTerminal;
     IBOutlet NSMenuItem *nextTerminal;
@@ -94,7 +88,15 @@ void DebugLog(NSString* value);
     // Cross app request forgery prevention token. Get this with applescript and then include
     // in a URI request.
     NSString *token_;
+
+    // Set to YES when applicationDidFinishLaunching: is called.
+    BOOL finishedLaunching_;
+
+    BOOL userHasInteractedWithAnySession_;  // Disables min 10-second running time
 }
+
+@property(nonatomic, readonly) BOOL workspaceSessionActive;
+@property(nonatomic, readonly) BOOL isApplescriptTestApp;
 
 - (void)awakeFromNib;
 
@@ -112,24 +114,29 @@ void DebugLog(NSString* value);
 - (void)applicationDidBecomeActive:(NSNotification *)aNotification;
 - (void)applicationDidResignActive:(NSNotification *)aNotification;
 
-- (IBAction)toggleToolbelt:(id)sender;
+- (IBAction)undo:(id)sender;
+- (IBAction)toggleToolbeltTool:(NSMenuItem *)menuItem;
 - (IBAction)toggleFullScreenTabBar:(id)sender;
 - (IBAction)maximizePane:(id)sender;
 - (IBAction)toggleUseTransparency:(id)sender;
 - (IBAction)toggleSecureInput:(id)sender;
 
 - (IBAction)newWindow:(id)sender;
+- (IBAction)newSessionWithSameProfile:(id)sender;
 - (IBAction)newSession:(id)sender;
 - (IBAction)buildScriptMenu:(id)sender;
 
 - (IBAction)debugLogging:(id)sender;
+- (IBAction)openQuickly:(id)sender;
 
-- (IBAction)toggleSecureInput:(id)sender;
 - (void)updateMaximizePaneMenuItem;
 - (void)updateUseTransparencyMenuItem;
 
     // About window
 - (IBAction)showAbout:(id)sender;
+
+- (IBAction)makeDefaultTerminal:(id)sender;
+- (IBAction)unmakeDefaultTerminal:(id)sender;
 
 - (IBAction)saveWindowArrangement:(id)sender;
 - (IBAction)loadWindowArrangement:(id)sender;
@@ -154,44 +161,36 @@ void DebugLog(NSString* value);
 - (IBAction) biggerFont: (id) sender;
 - (IBAction) smallerFont: (id) sender;
 
+// Paste speed control
+- (IBAction)pasteFaster:(id)sender;
+- (IBAction)pasteSlower:(id)sender;
+- (IBAction)pasteSlowlyFaster:(id)sender;
+- (IBAction)pasteSlowlySlower:(id)sender;
+
+- (IBAction)toggleMultiLinePasteWarning:(id)sender;
+
 // size
 - (IBAction)returnToDefaultSize:(id)sender;
 - (IBAction)exposeForTabs:(id)sender;
 - (IBAction)editCurrentSession:(id)sender;
 
-- (void)makeHotKeyWindowKeyIfOpen;
+- (IBAction)toggleUseBackgroundPatternIndicator:(id)sender;
+- (BOOL)useBackgroundPatternIndicator;
 
-// Implements the 10.6 api but is callable in 10.5 and tries to implement
-// some subset of the flags.
-- (void)setFutureApplicationPresentationOptions:(int)flags unset:(int)antiflags;
+- (void)makeHotKeyWindowKeyIfOpen;
 
 - (void)updateBroadcastMenuState;
 
-- (BOOL)showToolbelt;
+// Call this when the user has any nontrivial interaction with a session, such as typing in it or closing a window.
+- (void)userDidInteractWithASession;
+- (BOOL)warnBeforeMultiLinePaste;
 
-@end
+- (NSMenu *)downloadsMenu;
+- (NSMenu *)uploadsMenu;
 
-// Scripting support
-@interface iTermApplicationDelegate (KeyValueCoding)
-
-- (BOOL)application:(NSApplication *)sender delegateHandlesKey:(NSString *)key;
+- (void)openPasswordManagerToAccountName:(NSString *)name;
 
 - (PseudoTerminal *)currentTerminal;
-- (NSString *)uriToken;
-
-// accessors for to-many relationships:
--(NSArray*)terminals;
--(void)setTerminals: (NSArray*)terminals;
-- (void) setCurrentTerminal: (PseudoTerminal *) aTerminal;
-
--(id)valueInTerminalsAtIndex:(unsigned)index;
--(void)replaceInTerminals:(PseudoTerminal *)object atIndex:(unsigned)index;
-- (void) addInTerminals: (PseudoTerminal *) object;
-- (void) insertInTerminals: (PseudoTerminal *) object;
--(void)insertInTerminals:(PseudoTerminal *)object atIndex:(unsigned)index;
--(void)removeFromTerminalsAtIndex:(unsigned)index;
-
-// a class method to provide the keys for KVC:
-+(NSArray*)kvcKeys;
+- (NSArray*)terminals;
 
 @end

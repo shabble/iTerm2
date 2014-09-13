@@ -27,72 +27,62 @@
  */
 
 #import <Cocoa/Cocoa.h>
+#import "FutureMethods.h"
 
 @protocol FindViewControllerDelegate
+
+// Returns true if there is a text area to search.
+- (BOOL)canSearch;
 
 // Delegate should call resetFindCursor in textview.
 - (void)resetFindCursor;
 
-// Return [[[self currentSession] TEXTVIEW] findInProgress]
+// Return [[[self currentSession] textview] findInProgress]
 - (BOOL)findInProgress;
 
-// Call [[[self currentSession] TEXTVIEW] continueFind];
-- (BOOL)continueFind;
+// Call [[[self currentSession] textview] continueFind];
+- (BOOL)continueFind:(double *)progress;
 
-// Call [[self currentSession] TEXTVIEW] growSelectionLeft]
+// Call [[self currentSession] textview] growSelectionLeft]
 - (BOOL)growSelectionLeft;
 
-// call [[[self currentSession] TEXTVIEW] growSelectionRight];
+// call [[[self currentSession] textview] growSelectionRight];
 - (void)growSelectionRight;
 
-// Return [[[self currentSession] TEXTVIEW] selectedText];
+// Return [[[self currentSession] textview] selectedText];
 - (NSString*)selectedText;
 
 // Return [textview selectedTextWithPad:NO]
 - (NSString*)unpaddedSelectedText;
 
-// call [[[self currentSession] TEXTVIEW] copy:self];
+// call [[[self currentSession] textview] copy:self];
 - (void)copySelection;
 
 // call [[self currentSession] pasteString:text];
 - (void)pasteString:(NSString*)string;
 
-// call [[self window] makeFirstResponder:[[self currentSession] TEXTVIEW]];
+// call [[self window] makeFirstResponder:[[self currentSession] textview]];
 - (void)takeFocus;
 
 // Remove highlighted matches
 - (void)clearHighlights;
+
+// Preform a search
+- (void)findString:(NSString *)aString
+  forwardDirection:(BOOL)direction
+      ignoringCase:(BOOL)ignoreCase
+             regex:(BOOL)regex
+        withOffset:(int)offset;
+
 @end
 
 
-@interface FindViewController : NSViewController {
-    IBOutlet NSSearchField* findBarTextField_;
-    IBOutlet NSProgressIndicator* findBarProgressIndicator_;
-    // These pointers are just "prototypes" and do not refer to any actual menu
-    // items.
-    IBOutlet NSMenuItem* ignoreCaseMenuItem_;
-    IBOutlet NSMenuItem* regexMenuItem_;
-    BOOL ignoreCase_;
-    BOOL regex_;
-
-    // Find happens incrementally. This remembers the string to search for.
-    NSMutableString* previousFindString_;
-
-    // Find runs out of a timer so that if you have a huge buffer then it
-    // doesn't lock up. This timer runs the show.
-    NSTimer* timer_;
-    
-    id<FindViewControllerDelegate> delegate_;
-    NSRect fullFrame_;
-    NSSize textFieldSize_;
-    NSSize textFieldSmallSize_;
-}
-
+@interface FindViewController : NSViewController <NSTextFieldDelegate>
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil;
 - (void)dealloc;
 - (void)close;
 - (void)open;
-- (void)toggleVisibility;
+- (void)makeVisible;
 - (void)setFrameOrigin:(NSPoint)p;
 
 - (IBAction)closeFindView:(id)sender;
@@ -101,9 +91,16 @@
 - (IBAction)toggleRegex:(id)sender;
 - (void)searchNext;
 - (void)searchPrevious;
-- (void)findString:(NSString*)string;
+- (void)setFindString:(NSString*)string;
 
 - (void)setDelegate:(id<FindViewControllerDelegate>)delegate;
 - (id<FindViewControllerDelegate>)delegate;
 
+// Performs a "temporary" search. The current state (case sensitivity, regex)
+// is saved and the find view is hidden. A search is performed and the user can
+// navigate with with next-previous. When the find window is opened, the state
+// is restored.
+- (void)closeViewAndDoTemporarySearchForString:(NSString *)string
+                                  ignoringCase:(BOOL)ignoringCase
+                                         regex:(BOOL)regex;
 @end

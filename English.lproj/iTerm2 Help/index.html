@@ -458,6 +458,7 @@ html.no-js .back-to-top { float: right; }
   <li><a href="#/section/documentation/fonts">Fonts</a></li>
   <li><a href="#/section/documentation/shell_tips">Shell Tips</a></li>
   <li><a href="#/section/documentation/escape_codes">Proprietary Escape Codes</a></li>
+  <li><a href="#/section/documentation/licenses">Licenses</a></li>
 </ul>
 
 <p><br/>
@@ -574,7 +575,7 @@ html.no-js .back-to-top { float: right; }
 
 <p>There are two ways to select text to copy to the clipboard: you can use the mouse, or you can use the find feature's "mouseless copy" feature. Text selection by mouse is described above in <a href="/section/documentation/general">General Usage</a> section.</p>
 
-<p>To select text without using the mouse, press cmd-f to open the find field. Enter the beginning fo the text you wish to copy and the find feature will select it in your window. Then press tab and the end of the selection will advance by a word. To advance the beginning of the selection to the left, press shift-tab. At most one line of text can be selected this way</p>
+<p>To select text without using the mouse, press cmd-f to open the find field. Enter the beginning of the text you wish to copy and the find feature will select it in your window. Then press tab and the end of the selection will advance by a word. To advance the beginning of the selection to the left, press shift-tab. At most one line of text can be selected this way.</p>
 
 <p><br/>
 <br/></p>
@@ -741,6 +742,13 @@ set t_Co=256
 
 <p><br/><br/></p>
 
+<h4>Edit &gt; Paste Special &gt; Paste with Literal Tabs (ctrl-v tab)</h4>
+
+<p>"Paste with Literal Tabs (ctrl-v tab)" pastes the current string in the clipboard, but places a CTRL-V character (ASCII 22/SYN) before each tab.</p>
+<p>Many shells (e.g. bash) use the tab character as the command completion key, so it is not possible to paste text containing tabs directly onto the shell command-line without first disabling the tab key binding in some way. When a CTRL-V is received prior to a tab however, the shell interprets the tab character literally and inserts it into the text.</p>
+
+<p><br/><br/></p>
+
 <h4>Edit &gt; Paste Slowly</h4>
 
 <p>"Paste Slowly" pastes the current string in the clipboard, but it doesn't send the whole string at once. It is sent in batches of 16 bytes with a 125ms delay between batches. These values can be tweaked with hidden settings. For example:</p>
@@ -849,6 +857,12 @@ set t_Co=256
 <h4>Smart window placement</h4>
 
 <p>If enabled, new windows will be opened where they least overlap existing windows.</p>
+
+<p><br/><br/></p>
+
+<h4>Adjust window size when changing font size</h4>
+
+<p>If enabled, the window size is adjusted when increasing or decreasing the font size.</p>
 
 <p><br/><br/></p>
 
@@ -1092,6 +1106,12 @@ set t_Co=256
 <h4>Draw bold text in bright colors</h4>
 
 <p>If selected, bold text will be drawn in a bright version of its color.</p>
+
+<p><br/><br/></p>
+
+<h4>Draw italic text in italic font</h4>
+
+<p>If selected, italic text will be drawn in an italic version of the selected font. If the font does not have an italic version, then the normal font will be used.</p>
 
 <p><br/><br/></p>
 
@@ -1776,5 +1796,58 @@ echo -e "\033]6;1;bg;blue;brightness;255\a"
 <pre>
 echo -e "\033]Pg4040ff\033\\"
 </pre>
+
+<h4>Dock Icon Activity Notification</h4>
+
+<p>Causes the iTerm2 Dock icon to bounce up and down in the standard
+OS X "This application wants attention" fashion.</p>
+
+<p><strong>Note:</strong> The Dock icon Notification will only occur if iTerm2
+is <em>not</em> the currently active application, and will continue until
+either iTerm2 is made active again, or the "cancel" sequence is received.
+</p>
+
+<pre>
+^[]50;RequestAttention=N^G
+</pre>
+
+<p>where N=0 or 1.</p>
+<ul>
+<li>1 = Bounce Dock Icon continuously until iTerm2 made active</li>
+<li>0 = Cancel Existing Bouncing. No-op if not bouncing.</li>
+</ul>
+
+<p><br/>
+<br/>
+<br/>
+<a name="/section/documentation/licenses">
+</a></p>
+
+<h2>Licenses</h2>
+<hr/>
+
+<h3>Solarized color presets</h3>
+<pre>
+Copyright (c) 2011 Ethan Schoonover
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+</pre>
+
 </div>
 </body>

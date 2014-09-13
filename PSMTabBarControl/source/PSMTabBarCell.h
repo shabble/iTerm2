@@ -12,6 +12,11 @@
 @class PSMTabBarControl;
 @class PSMProgressIndicator;
 
+@protocol PSMTabBarControlProtocol <NSObject>
+@optional
+- (void)tabClick:(id)sender;
+@end
+
 @interface PSMTabBarCell : NSActionCell {
     // sizing
     NSRect              _frame;
@@ -28,15 +33,18 @@
     PSMProgressIndicator *_indicator;
     BOOL                _isInOverflowMenu;
     BOOL                _hasCloseButton;
-    BOOL                _isCloseButtonSuppressed;
     BOOL                _hasIcon;
     int                 _count;
 
     //iTerm add-on
-    NSColor             *_labelColor;
     NSColor             *_tabColor;
     NSString            *_modifierString;
+
+    BOOL _isLast;
 }
+
+// Is this the last cell? Only valid while drawing.
+@property (nonatomic, assign) BOOL isLast;
 
 // creation/destruction
 - (id)initWithControlView:(PSMTabBarControl *)controlView;
@@ -67,8 +75,6 @@
 - (void)setCloseButtonOver:(BOOL)value;
 - (BOOL)hasCloseButton;
 - (void)setHasCloseButton:(BOOL)set;
-- (void)setCloseButtonSuppressed:(BOOL)suppress;
-- (BOOL)isCloseButtonSuppressed;
 - (BOOL)hasIcon;
 - (void)setHasIcon:(BOOL)value;
 - (int)count;
@@ -101,8 +107,6 @@
 - (id)initWithCoder:(NSCoder *)aDecoder;
 
 // iTerm add-on
-- (NSColor *)labelColor;
-- (void)setLabelColor:(NSColor *)aColor;
 - (NSColor *)tabColor;
 - (void)setTabColor:(NSColor *)aColor;
 

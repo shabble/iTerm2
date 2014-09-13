@@ -7,6 +7,7 @@
 //
 
 #import "WindowArrangements.h"
+#import "iTermApplicationDelegate.h"
 #import "PreferencePanel.h"
 
 static NSString* WINDOW_ARRANGEMENTS = @"Window Arrangements";
@@ -30,11 +31,11 @@ static NSString* DEFAULT_ARRANGEMENT_KEY = @"Default Arrangement Name";
     [self updateActionsEnabled];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(updateTableView:)
-                                                 name:@"iTermSavedArrangementChanged"
+                                                 name:kSavedArrangementDidChangeNotification
                                                object:nil];
 }
 
-+ (BOOL)hasWindowArrangement:(NSString *)name;
++ (BOOL)hasWindowArrangement:(NSString *)name
 {
     NSDictionary *arrangements = [[NSUserDefaults standardUserDefaults] objectForKey:WINDOW_ARRANGEMENTS];
     return [arrangements objectForKey:name] != nil;
@@ -59,7 +60,7 @@ static NSString* DEFAULT_ARRANGEMENT_KEY = @"Default Arrangement Name";
 
 + (void)postChangeNotification
 {
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"iTermSavedArrangementChanged"
+    [[NSNotificationCenter defaultCenter] postNotificationName:kSavedArrangementDidChangeNotification
                                                         object:nil
                                                       userInfo:nil];
 }

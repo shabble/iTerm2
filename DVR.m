@@ -2,7 +2,7 @@
 /*
  **  DVR.m
  **
- **  Copyright 20101
+ **  Copyright 2010
  **
  **  Author: George Nachman
  **
@@ -35,17 +35,15 @@
 
 - (id)initWithBufferCapacity:(int)bytes
 {
-    if ([super init] == nil) {
-        return nil;
+    self = [super init];
+    if (self) {
+        buffer_ = [DVRBuffer alloc];
+        [buffer_ initWithBufferCapacity:bytes];
+        capacity_ = bytes;
+        decoders_ = [[NSMutableArray alloc] init];
+        encoder_ = [DVREncoder alloc];
+        [encoder_ initWithBuffer:buffer_];
     }
-
-    buffer_ = [DVRBuffer alloc];
-    [buffer_ initWithBufferCapacity:bytes];
-    capacity_ = bytes;
-    decoders_ = [[NSMutableArray alloc] init];
-    encoder_ = [DVREncoder alloc];
-    [encoder_ initWithBuffer:buffer_];
-
     return self;
 }
 
@@ -57,7 +55,7 @@
     [super dealloc];
 }
 
-- (void)appendFrame:(char*)buffer length:(int)length info:(DVRFrameInfo*)info
+- (void)appendFrame:(NSArray*)frameLines length:(int)length info:(DVRFrameInfo*)info
 {
     if (length > [buffer_ capacity] / 2) {
         // Protect the buffer from overflowing if you have a really big window.
@@ -73,7 +71,7 @@
             }
         }
     }
-    [encoder_ appendFrame:buffer length:length info:info];
+    [encoder_ appendFrame:frameLines length:length info:info];
 }
 
 - (DVRDecoder*)getDecoder

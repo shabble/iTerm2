@@ -28,29 +28,37 @@
 
 
 #import "TextViewWrapper.h"
-#import "iTerm/PTYTextView.h"
+#import "PTYTextView.h"
 
-@implementation TextViewWrapper
+@implementation TextViewWrapper {
+    PTYTextView* child_;
+}
 
 - (void)drawRect:(NSRect)rect
 {
-    [child_ drawFlippedBackground:NSMakeRect(0,
-                                      [[child_ enclosingScrollView] documentVisibleRect].origin.y - VMARGIN,
-                                      [self frame].size.width,
-                                      VMARGIN)
-                   toPoint:NSMakePoint(0, VMARGIN)];
-
-    [child_ drawOutlineInRect:rect topOnly:YES];
+    [child_.delegate textViewDrawBackgroundImageInView:self
+                                              viewRect:rect
+                                blendDefaultBackground:YES];
 }
 
-- (void)addSubview:(PTYTextView*)child
+- (void)addSubview:(NSView *)child
 {
     [super addSubview:child];
-    child_ = child;
-    [self setFrame:NSMakeRect(0, 0, [child frame].size.width, [child frame].size.height)];
-    [child setFrameOrigin:NSMakePoint(0, 0)];
-    [self setPostsFrameChangedNotifications:YES];
-    [self setPostsBoundsChangedNotifications:YES];
+    if ([child isKindOfClass:[PTYTextView class]]) {
+      child_ = (PTYTextView *)child;
+      [self setFrame:NSMakeRect(0, 0, [child frame].size.width, [child frame].size.height)];
+      [child setFrameOrigin:NSMakePoint(0, 0)];
+      [self setPostsFrameChangedNotifications:YES];
+      [self setPostsBoundsChangedNotifications:YES];
+    }
+}
+
+- (void)willRemoveSubview:(NSView *)subview
+{
+  if (subview == child_) {
+    child_ = nil;
+  }
+  [super willRemoveSubview:subview];
 }
 
 - (NSRect)adjustScroll:(NSRect)proposedVisibleRect

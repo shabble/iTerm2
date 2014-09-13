@@ -26,6 +26,7 @@
  */
 
 #import <Cocoa/Cocoa.h>
+#import "FutureMethods.h"
 
 extern NSString *NewToolbarItem;
 extern NSString *ABToolbarItem;
@@ -35,7 +36,7 @@ extern NSString *CommandToolbarItem;
 
 @class PseudoTerminal;
 
-@interface PTToolbarController : NSObject
+@interface PTToolbarController : NSObject <NSToolbarDelegate>
 {
     NSToolbar* _toolbar;
     PseudoTerminal* _pseudoTerminal;

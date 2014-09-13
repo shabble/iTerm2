@@ -65,6 +65,7 @@
  */
 
 #import "ProcessCache.h"
+#import "iTerm.h"
 #include <libproc.h>
 #include <sys/sysctl.h>
 
@@ -82,6 +83,7 @@ NSString *PID_INFO_NAME = @"name";
                                                selector:@selector(_run)
                                                  object:nil];
     [thread start];
+    // The analyzer flags this as a leak but it's really just a singleton.
 }
 
 - (id)init
@@ -112,14 +114,14 @@ NSString *PID_INFO_NAME = @"name";
     int mib[4] = { CTL_KERN, KERN_PROC, KERN_PROC_PID, thePid };
     struct kinfo_proc kp;
     size_t bufSize = sizeof(kp);
-    
+
     kp.kp_proc.p_comm[0] = 0;
     @synchronized ([ProcessCache class]) {
         if (sysctl(mib, 4, &kp, &bufSize, NULL, 0) < 0) {
-            return 0;
+            return nil;
         }
     }
-    
+
     // has a controlling terminal and
     // process group id = tty process group id
     if (isForeground) {
@@ -166,26 +168,29 @@ NSString *PID_INFO_NAME = @"name";
     return pidsArray;
 }
 
-+ (BOOL)getInfoForPid:(pid_t)thePid taskAllInfo:(struct proc_taskallinfo *)taskAllInfo
+// Returns 0 on failure. Not reliable before OS 10.7.
++ (pid_t)ppidForPid:(pid_t)thePid
 {
-    memset(taskAllInfo, 0, sizeof(*taskAllInfo));
+    struct proc_bsdshortinfo taskShortInfo;
+    memset(&taskShortInfo, 0, sizeof(taskShortInfo));
     int rc;
     @synchronized ([ProcessCache class]) {
-        rc = proc_pidinfo(thePid,
-                          PROC_PIDTASKALLINFO,
-                          0,
-                          taskAllInfo,
-                          sizeof(*taskAllInfo));
+      rc = proc_pidinfo(thePid,
+                        PROC_PIDT_SHORTBSDINFO,
+                        0,
+                        &taskShortInfo,
+                        sizeof(taskShortInfo));
     }
     if (rc <= 0) {
-        return NO;
+      return 0;
+    } else {
+      return taskShortInfo.pbsi_ppid;
     }
-    return YES;
 }
 
 - (NSDictionary *)dictionaryOfTaskInfoForPid:(pid_t)thePid
 {
-    BOOL isForeground;
+    BOOL isForeground = NO;
     NSString* name = [self getNameOfPid:thePid isForeground:&isForeground];
     return [NSDictionary dictionaryWithObjectsAndKeys:
             [NSNumber numberWithBool:isForeground], PID_INFO_IS_FOREGROUND,
@@ -218,10 +223,9 @@ NSString *PID_INFO_NAME = @"name";
     
     // parentage maps ppid -> {pid, pid, ...}
     for (NSNumber *n in allPids) {
-        struct proc_taskallinfo taskAllInfo;
-        if ([ProcessCache getInfoForPid:[n intValue]
-                            taskAllInfo:&taskAllInfo]) {
-            NSNumber *ppid = [NSNumber numberWithInt:taskAllInfo.pbsd.pbi_ppid];
+        pid_t parentPid = [ProcessCache ppidForPid:[n intValue]];
+        if (parentPid) {
+            NSNumber *ppid = [NSNumber numberWithInt:parentPid];
             NSMutableSet *children = [parentage objectForKey:ppid];
             if (!children) {
                 children = [NSMutableSet set];
@@ -257,20 +261,21 @@ NSString *PID_INFO_NAME = @"name";
     for (NSNumber *n in allPids) {
         pid_t thePid = [n intValue];
 
-        struct proc_taskallinfo taskAllInfo;
-        if (![ProcessCache getInfoForPid:thePid taskAllInfo:&taskAllInfo]) {
+        pid_t ppid = [ProcessCache ppidForPid:thePid];
+        if (!ppid) {
             continue;
         }
-        
-        pid_t ppid = taskAllInfo.pbsd.pbi_ppid;
+
         BOOL isForeground;
         NSString* name = [self getNameOfPid:thePid isForeground:&isForeground];
-        if (isForeground) {
-            [temp setObject:name forKey:[NSNumber numberWithInt:thePid]];
+        if (name) {
+            if (isForeground) {
+                [temp setObject:name forKey:[NSNumber numberWithInt:thePid]];
+            }
+            [ancestry setObject:[NSNumber numberWithInt:ppid] forKey:n];
         }
-        [ancestry setObject:[NSNumber numberWithInt:ppid] forKey:n];
     }
-    
+
     // For each pid in 'temp', follow the parent pid chain in 'ancestry' and add a map of
     // ancestorPid->job name to 'cache' for all ancestors of the job with that name.
     for (NSNumber* tempPid in temp) {

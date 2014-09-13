@@ -28,9 +28,12 @@
 
 #include <wctype.h>
 #import "PasteboardHistory.h"
-#import "iTerm/iTermController.h"
 #import "NSDateFormatterExtras.h"
-#import "PreferencePanel.h"
+#import "PopupModel.h"
+#import "iTermController.h"
+#import "iTermPreferences.h"
+#import "iTermAdvancedSettingsModel.h"
+
 #define PBHKEY_ENTRIES @"Entries"
 #define PBHKEY_VALUE @"Value"
 #define PBHKEY_TIMESTAMP @"Timestamp"
@@ -55,11 +58,18 @@
 
 @implementation PasteboardHistory
 
++ (int)maxEntries
+{
+    return [iTermAdvancedSettingsModel pasteHistoryMaxOptions];
+}
+
 + (PasteboardHistory*)sharedInstance
 {
     static PasteboardHistory* instance;
     if (!instance) {
-        int maxEntries = 20;
+        int maxEntries = [PasteboardHistory maxEntries];
+        // MaxPasteHistoryEntries is a legacy thing. I'm not removing it because it's a security
+        // issue for some people.
         if ([[NSUserDefaults standardUserDefaults] objectForKey:@"MaxPasteHistoryEntries"]) {
             maxEntries = [[NSUserDefaults standardUserDefaults] integerForKey:@"MaxPasteHistoryEntries"];
             if (maxEntries < 0) {
@@ -73,21 +83,20 @@
 
 - (id)initWithMaxEntries:(int)maxEntries
 {
-    if (![super init]) {
-        return nil;
+    self = [super init];
+    if (self) {
+        maxEntries_ = maxEntries;
+        entries_ = [[NSMutableArray alloc] init];
+
+
+        path_ = [NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) lastObject];
+        NSString *appname = [[NSBundle mainBundle] objectForInfoDictionaryKey:(NSString *)kCFBundleNameKey];
+        path_ = [path_ stringByAppendingPathComponent:appname];
+        [[NSFileManager defaultManager] createDirectoryAtPath:path_ withIntermediateDirectories:YES attributes:nil error:NULL];
+        path_ = [[path_ stringByAppendingPathComponent:@"pbhistory.plist"] copyWithZone:[self zone]];
+
+        [self _loadHistoryFromDisk];
     }
-    maxEntries_ = maxEntries;
-    entries_ = [[NSMutableArray alloc] init];
-
-
-    path_ = [NSSearchPathForDirectoriesInDomains(NSApplicationSupportDirectory, NSUserDomainMask, YES) lastObject];
-    NSString *appname = [[NSBundle mainBundle] objectForInfoDictionaryKey:(NSString *)kCFBundleNameKey];
-    path_ = [path_ stringByAppendingPathComponent:appname];
-    [[NSFileManager defaultManager] createDirectoryAtPath:path_ withIntermediateDirectories:YES attributes:nil error:NULL];
-    path_ = [[path_ stringByAppendingPathComponent:@"pbhistory.plist"] copyWithZone:[self zone]];
-
-    [self _loadHistoryFromDisk];
-
     return self;
 }
 
@@ -138,7 +147,7 @@
 
 - (void)_writeHistoryToDisk
 {
-    if ([[PreferencePanel sharedInstance] savePasteHistory]) {
+    if ([iTermPreferences boolForKey:kPreferenceKeySavePasteAndCommandHistory]) {
         [NSKeyedArchiver archiveRootObject:[self _entriesToDict] toFile:path_];
     }
 }
@@ -196,11 +205,12 @@
 
 - (id)init
 {
-    self = [super initWithWindowNibName:@"PasteboardHistory" tablePtr:&table_ model:[[[PopupModel alloc] init] autorelease]];
+    self = [super initWithWindowNibName:@"PasteboardHistory" tablePtr:nil model:[[[PopupModel alloc] init] autorelease]];
     if (!self) {
         return nil;
     }
 
+    [self setTableView:table_];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(pasteboardHistoryDidChange:)
                                                  name:kPasteboardHistoryDidChange
@@ -252,7 +262,8 @@
         [minuteRefreshTimer_ invalidate];
         minuteRefreshTimer_ = nil;
     }
-    [self setSession:nil];
+    [self.delegate popupWillClose:self];
+    [self setDelegate:nil];
 }
 
 - (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex
@@ -267,7 +278,7 @@
     }
 }
 
-- (void)rowSelected:(id)sender;
+- (void)rowSelected:(id)sender
 {
     if ([table_ selectedRow] >= 0) {
         PasteboardEntry* entry = [[self model] objectAtIndex:[self convertIndex:[table_ selectedRow]]];

@@ -9,35 +9,41 @@
 #import "ToolWrapper.h"
 #import "ToolbeltView.h"
 
-static const CGFloat kTitleHeight = 17;
-static const CGFloat kMargin = 4;
-static const CGFloat kLeftMargin = 14;
+static const CGFloat kTitleHeight = 19;
+static const CGFloat kMargin = 4;  // Margin between title bar and content
+static const CGFloat kLeftMargin = 4;
 static const CGFloat kRightMargin = 4;
 static const CGFloat kBottomMargin = 8;
 static const CGFloat kButtonSize = 17;
+static const CGFloat kTopMargin = 3;  // Margin above title bar and close button
+static const CGFloat kCloseButtonLeftMargin = 5;
+
 @implementation ToolWrapper
 
 @synthesize name;
 @synthesize container = container_;
 @synthesize term;
+@synthesize delegate = delegate_;
 
 - (id)initWithFrame:(NSRect)frame
 {
     self = [super initWithFrame:frame];
     if (self) {
-        title_ = [[NSTextField alloc] initWithFrame:NSMakeRect(kButtonSize, 0, frame.size.width - kButtonSize - kRightMargin, kTitleHeight)];
+        title_ = [[NSTextField alloc] initWithFrame:NSMakeRect(kCloseButtonLeftMargin + kButtonSize,
+                                                               0,
+                                                               frame.size.width - kButtonSize - kRightMargin - kCloseButtonLeftMargin,
+                                                               kTitleHeight)];
+        [title_ setEditable:NO];
         [title_ bind:@"value" toObject:self withKeyPath:@"name" options:nil];
-        [self addSubview:title_];
+        title_.backgroundColor = [NSColor clearColor];
         [title_ setAutoresizingMask:NSViewWidthSizable | NSViewMaxYMargin];
         [title_ setAlignment:NSCenterTextAlignment];
-        [title_ setBackgroundColor:[NSColor windowBackgroundColor]];
-        [title_ setEditable:NO];
         [title_ setBezeled:NO];
+        [self addSubview:title_];
         [title_ release];
 
-        NSImage *closeImage = [[NSImage alloc] initWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"closebutton"
-                                                                                                      ofType:@"tif"]];
-        closeButton_ = [[NSButton alloc] initWithFrame:NSMakeRect(0, 0, kButtonSize, kButtonSize)];
+        NSImage *closeImage = [NSImage imageNamed:@"closebutton"];
+        closeButton_ = [[NSButton alloc] initWithFrame:NSMakeRect(kCloseButtonLeftMargin, 10, kButtonSize, kButtonSize)];
         [closeButton_ setButtonType:NSMomentaryPushInButton];
         [closeButton_ setImage:closeImage];
         [closeButton_ setTarget:self];
@@ -47,39 +53,55 @@ static const CGFloat kButtonSize = 17;
         [self addSubview:closeButton_];
         [closeButton_ release];
 
-        container_ = [[NSView alloc] initWithFrame:NSMakeRect(kLeftMargin, kTitleHeight + kMargin, frame.size.width - kLeftMargin - kRightMargin, frame.size.height - kTitleHeight - kMargin - kBottomMargin)];
+        container_ = [[[NSView alloc] initWithFrame:NSMakeRect(kLeftMargin,
+                                                               kTitleHeight + kMargin,
+                                                               frame.size.width - kLeftMargin - kRightMargin,
+                                                               frame.size.height - kTitleHeight - kMargin - kBottomMargin)] autorelease];
         [container_ setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
         [self addSubview:container_];
-        [container_ release];
-        
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(someWrapperDidClose:) name:@"iTermToolWrapperDidClose" object:nil];
+        [self relayout];
     }
     return self;
 }
 
 - (void)dealloc
 {
-    [self.name release];
+    [name release];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [super dealloc];
 }
 
-- (void)bindCloseButton
-{
-    [closeButton_ bind:@"hidden"
-              toObject:self.superview.superview
-           withKeyPath:@"haveOnlyOneTool"
-               options:nil];
+- (NSString *)description {
+    return [NSString stringWithFormat:@"<%@: %p frame=%@>", [self class], self, [NSValue valueWithRect:self.frame]];
 }
 
-- (void)unbind
+- (void)relayout
 {
-    [title_ unbind:@"value"];
-    [closeButton_ unbind:@"hidden"];
-    NSObject *subview = [[container_ subviews] objectAtIndex:0];
-    if ([subview respondsToSelector:@selector(shutdown)]) {
-        [subview performSelector:@selector(shutdown)];
+    NSRect frame = [self frame];
+    title_.frame = NSMakeRect(kCloseButtonLeftMargin + kButtonSize,
+                              kTopMargin,
+                              frame.size.width - kButtonSize - kRightMargin - kCloseButtonLeftMargin,
+                              kTitleHeight - kTopMargin);
+    closeButton_.frame = NSMakeRect(kCloseButtonLeftMargin, kTopMargin, kButtonSize, kButtonSize);
+    container_.frame = NSMakeRect(kLeftMargin,
+                                  kTitleHeight + kMargin,
+                                  MAX(0, frame.size.width - kLeftMargin - kRightMargin),
+                                  MAX(0, frame.size.height - kTitleHeight - kMargin - kBottomMargin));
+
+    NSObject<ToolbeltTool> *tool = [self tool];
+    if ([tool respondsToSelector:@selector(relayout)]) {
+        [tool relayout];
     }
+}
+
+- (CGFloat)minimumHeight {
+    return [self.tool minimumHeight] + kTitleHeight + kMargin + kBottomMargin;
+}
+
+- (void)removeToolSubviews {
+    [container_ removeFromSuperview];
+    container_ = nil;
+    [title_ unbind:@"value"];
 }
 
 - (BOOL)isFlipped
@@ -89,13 +111,10 @@ static const CGFloat kButtonSize = 17;
 
 - (void)close:(id)sender
 {
-    [ToolbeltView toggleShouldShowTool:self.name];
-}
-
-- (void)someWrapperDidClose
-{
-    if ([[[self superview] subviews] count] == 1) {
-        [closeButton_ setEnabled:NO];
+    if ([delegate_ haveOnlyOneTool]) {
+        [delegate_ hideToolbelt];
+    } else {
+        [delegate_ toggleShowToolWithName:self.name];
     }
 }
 
@@ -109,6 +128,14 @@ static const CGFloat kButtonSize = 17;
 - (void)setTitleEditable
 {
     [title_ setEditable:NO];
+}
+
+- (NSObject<ToolbeltTool> *)tool
+{
+    if ([[container_ subviews] count] == 0) {
+        return nil;
+    }
+    return (NSObject<ToolbeltTool>*) [[container_ subviews] objectAtIndex:0];
 }
 
 @end

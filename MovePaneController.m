@@ -10,8 +10,12 @@
 #import "PseudoTerminal.h"
 #import "PTYTab.h"
 #import "SessionView.h"
+#import "TmuxController.h"
 
-@implementation MovePaneController
+@implementation MovePaneController {
+    // If set then moving pane; otherwise swapping.
+    BOOL isMove_;
+}
 
 @synthesize dragFailed = dragFailed_;
 @synthesize session = session_;
@@ -25,29 +29,51 @@
     return inst;
 }
 
-- (void)movePane:(PTYSession *)session
-{
+- (id)init {
+    self = [super init];
+    if (self) {
+        isMove_ = YES;
+    }
+    return self;
+}
+
+- (void)startWithSession:(PTYSession *)session move:(BOOL)move {
+    isMove_ = move;
     session_ = [session liveSession];
     if (!session_) {
         session_ = session;
     }
     for (PseudoTerminal *term in [[iTermController sharedInstance] terminals]) {
-        [term setSplitSelectionMode:YES excludingSession:session_];
+        [term setSplitSelectionMode:YES excludingSession:session_ move:move];
     }
+}
+
+- (void)movePane:(PTYSession *)session {
+    [self startWithSession:session move:YES];
+}
+
+- (void)swapPane:(PTYSession *)session {
+    [self startWithSession:session move:NO];
 }
 
 - (void)exitMovePaneMode
 {
     for (PseudoTerminal *term in [[iTermController sharedInstance] terminals]) {
-        [term setSplitSelectionMode:NO excludingSession:nil];
+        [term setSplitSelectionMode:NO excludingSession:nil move:NO];
     }
     session_ = nil;
 }
 
 - (void)moveSessionToNewWindow:(PTYSession *)movingSession atPoint:(NSPoint)point
 {
+    if ([movingSession isTmuxClient]) {
+        [[movingSession tmuxController] breakOutWindowPane:[movingSession tmuxPane]
+                                                   toPoint:point];
+        return;
+    }
     PTYTab *theTab = [movingSession tab];
-    PseudoTerminal *term = [[theTab realParentWindow] terminalDraggedFromAnotherWindowAtPoint:point];
+    NSWindowController<iTermWindowController> * term =
+        [[theTab realParentWindow] terminalDraggedFromAnotherWindowAtPoint:point];
 
     SessionView *oldView = [movingSession view];
     [oldView retain];
@@ -58,7 +84,14 @@
 
     [term insertSession:movingSession atIndex:0];
     [oldView autorelease];
+    [theTab numberOfSessionsDidChange];
+    [[term currentTab] numberOfSessionsDidChange];
  }
+
+- (void)clearSession
+{
+    session_ = nil;
+}
 
 - (SessionView *)removeAndClearSession
 {
@@ -71,7 +104,7 @@
         [[theTab realParentWindow] closeTab:theTab];
     }
     session_ = nil;
-    return oldView;
+    return [oldView autorelease];
 }
 
 - (BOOL)dropTab:(PTYTab *)tab
@@ -91,14 +124,16 @@
 
 // This function is either called once or twice at the end of a drag.
 // If only one call is made, then dest will be nil and the session will be moved to a new window.
-// If two calls are made, the first has dest non-null and will perform a split. The second call will
-// be ignored.
-// It isn't called at all if a session is dragged into an existing tab bar, though.
+// If two calls are made, the both have dest non-null but only the first call will perform a split.
+// The second call will do nothing.
+// It isn't called at all if a session is dragged into an existing tab bar.
 - (BOOL)dropInSession:(PTYSession *)dest
                  half:(SplitSessionHalf)half
               atPoint:(NSPoint)point
 {
-    if (dest == session_ || !session_) {
+    if ((dest && ![session_ isCompatibleWith:dest]) ||  // Would create hetero-tmuxual splits in tab
+        dest == session_ ||  // move to self
+        !session_) {         // no source (?)
         didSplit_ = YES;
         return NO;
     }
@@ -108,33 +143,53 @@
         [self moveSessionToNewWindow:session_ atPoint:point];
         return YES;
     } else if (!dest) {
-        // This is the second call and a split has already been performed.
+        // This is the second call and a split has already been performed/aborted.
         return NO;
     }
 
     didSplit_ = YES;
 
-    PTYSession *movingSession = session_;
-    BOOL isVertical = (half == kWestHalf || half == kEastHalf);
-    if (![[[dest tab] realParentWindow] canSplitPaneVertically:isVertical
-                                                  withBookmark:[movingSession addressBookEntry]]) {
-        return NO;
+    if ([self.session isTmuxClient]) {
+        // Do this after setting didSplit becasue a second call to this method
+        // will happen no matter what and we want it to do nothing if we get
+        // here.
+        if (isMove_) {
+            [[self.session tmuxController] movePane:[self.session tmuxPane]
+                                           intoPane:[dest tmuxPane]
+                                         isVertical:(half == kEastHalf || half == kWestHalf)
+                                             before:(half == kNorthHalf || half == kWestHalf)];
+        } else {
+            [[self.session tmuxController] swapPane:[self.session tmuxPane]
+                                           withPane:[dest tmuxPane]];
+        }
+        return YES;
     }
 
-    SessionView *oldView = [movingSession view];
-    [oldView retain];
-    PTYTab *theTab = [movingSession tab];
-    [[movingSession tab] removeSession:movingSession];
-    if ([[theTab sessions] count] == 0) {
-        [[theTab realParentWindow] closeTab:theTab];
+    if (isMove_) {
+        PTYSession *movingSession = session_;
+        BOOL isVertical = (half == kWestHalf || half == kEastHalf);
+        if (![[[dest tab] realParentWindow] canSplitPaneVertically:isVertical
+                                                      withBookmark:[movingSession profile]]) {
+            return NO;
+        }
+
+        SessionView *oldView = [movingSession view];
+        [oldView retain];
+        PTYTab *theTab = [movingSession tab];
+        [[movingSession tab] removeSession:movingSession];
+        if ([[theTab sessions] count] == 0) {
+            [[theTab realParentWindow] closeTab:theTab];
+        }
+        [[[dest tab] realParentWindow] splitVertically:isVertical
+                                                before:(half == kNorthHalf || half == kWestHalf)
+                                         addingSession:movingSession
+                                         targetSession:dest
+                                          performSetup:NO];
+        [oldView release];
+        [[dest tab] fitSessionToCurrentViewSize:movingSession];
+    } else {
+        [[dest tab] swapSession:dest withSession:session_];
     }
-    [[[dest tab] realParentWindow] splitVertically:isVertical
-                                            before:(half == kNorthHalf || half == kWestHalf)
-                                     addingSession:movingSession
-                                     targetSession:dest
-                                      performSetup:NO];
-    [oldView release];
-    [[dest tab] fitSessionToCurrentViewSize:movingSession];
     return YES;
 }
 
@@ -143,8 +198,8 @@
     return session_ == s;
 }
 
-- (void)beginDrag:(PTYSession *)session
-{
+- (void)beginDrag:(PTYSession *)session {
+    isMove_ = YES;
     [self exitMovePaneMode];
     session_ = session;
     self.dragFailed = NO;

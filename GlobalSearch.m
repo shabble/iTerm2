@@ -27,33 +27,36 @@
  */
 
 #import "GlobalSearch.h"
-#import "VT100Screen.h"
+#import "PTYSession.h"
 #import "PTYTextView.h"
-#import "iTerm/PseudoTerminal.h"
-#import "iTerm/PTYSession.h"
+#import "PTYTextView.h"
+#import "PseudoTerminal.h"
+#import "SearchResult.h"
+#import "VT100Screen.h"
 #import "iTermController.h"
 #import "iTermExpose.h"
-#import "PTYTextView.h"
 #import "iTermSearchField.h"
+#import "iTermSelection.h"
+#import "iTermTextExtractor.h"
 
 const double GLOBAL_SEARCH_MARGIN = 10;
 
 @interface GlobalSearchInstance : NSObject
 {
     PTYTextView* textView_;
-    VT100Screen* theScreen_;
+    id<PTYTextViewDataSource> textViewDataSource_;
     PTYSession* theSession_;
     NSMutableArray* results_;
     BOOL more_;
     NSString* findString_;
     NSString* label_;
-    FindContext findContext_;
+    FindContext *findContext_;
     NSMutableSet* matchLocations_;
 }
 
-- (id)initWithTextView:(PTYTextView*)textView
-            findString:(NSString*)findString
-                 label:(NSString*)label;
+- (id)initWithSession:(PTYSession *)session
+           findString:(NSString*)findString
+                label:(NSString*)label;
 - (void)dealloc;
 - (BOOL)more;
 - (NSArray*)results;
@@ -91,7 +94,13 @@ const double GLOBAL_SEARCH_MARGIN = 10;
 
 @implementation GlobalSearchResult
 
-- (id)initWithInstance:(GlobalSearchInstance*)instance context:(NSString*)theContext x:(int)x absY:(long long)absY endX:(int)endX y:(long long)absEndY findString:(NSString*)findString;
+- (id)initWithInstance:(GlobalSearchInstance*)instance
+               context:(NSString*)theContext
+                     x:(int)x
+                  absY:(long long)absY
+                  endX:(int)endX
+                     y:(long long)absEndY
+            findString:(NSString*)findString
 {
     assert(findString);
     assert(theContext);
@@ -166,7 +175,7 @@ const double GLOBAL_SEARCH_MARGIN = 10;
 
 @implementation GlobalSearchInstance
 
-- (id)initWithTextView:(PTYTextView*)textView
+- (id)initWithSession:(PTYSession *)session
             findString:(NSString*)findString
                  label:(NSString*)label
 {
@@ -177,20 +186,22 @@ const double GLOBAL_SEARCH_MARGIN = 10;
         results_ = [[NSMutableArray alloc] init];
         findString_ = [findString copy];
         more_ = YES;
-        textView_ = textView;
-        theScreen_ = [textView dataSource];  // TODO: this is a weak ref. Be on the lookout for its death.
-        theSession_ = [theScreen_ session];
+        textView_ = [session textview];
+        textViewDataSource_ = [session screen];
+        theSession_ = session;
         label_ = [label retain];
-        [theScreen_ initFindString:findString_
-                  forwardDirection:NO
-                      ignoringCase:YES
-                             regex:NO
-                       startingAtX:0
-                       startingAtY:(long long)([theScreen_ numberOfLines] + 1) + [theScreen_ totalScrollbackOverflow]
-                        withOffset:0  // 1?
-                         inContext:&findContext_
-                   multipleResults:NO];
+        findContext_ = [[FindContext alloc] init];
+        [textViewDataSource_ setFindString:findString_
+                          forwardDirection:NO
+                              ignoringCase:YES
+                                     regex:NO
+                               startingAtX:0
+                               startingAtY:(long long)([textViewDataSource_ numberOfLines] + 1) + [textViewDataSource_ totalScrollbackOverflow]
+                                withOffset:0  // 1?
+                                 inContext:findContext_
+                           multipleResults:NO];
         matchLocations_ = [[NSMutableSet alloc] init];
+        findContext_.maxTime = 0.01;
         findContext_.hasWrapped = YES;
     }
     return self;
@@ -202,6 +213,7 @@ const double GLOBAL_SEARCH_MARGIN = 10;
     [results_ release];
     [findString_ release];
     [label_ release];
+    [findContext_ release];
     [super dealloc];
 }
 
@@ -220,73 +232,49 @@ const double GLOBAL_SEARCH_MARGIN = 10;
     return label_;
 }
 
-- (BOOL)_emitResultFromX:(int)startX y:(int)startY toX:(int)endX y:(int)endY
+- (BOOL)_emitResultFromX:(int)startX absY:(int)absY toX:(int)endX absY:(int)absEndY
 {
     // Don't add the same line twice.
-    long long absY = startY + [[textView_ dataSource] totalScrollbackOverflow];
     NSNumber* setObj = [NSNumber numberWithLongLong:absY];
     if ([matchLocations_ containsObject:setObj]) {
         return NO;
     }
     [matchLocations_ addObject:setObj];
-    
-    NSString* theContext = [textView_ contentFromX:0
-                                                 Y:startY
-                                               ToX:[theScreen_ width] - 1
-                                                 Y:endY
-                                               pad:NO];
+
+    VT100GridCoordRange theRange =
+        VT100GridCoordRangeMake(0,
+                                absY,
+                                [textViewDataSource_ width] - 1,
+                                absEndY - [[textView_ dataSource] totalScrollbackOverflow]);
+    iTermTextExtractor *extractor =
+        [iTermTextExtractor textExtractorWithDataSource:textViewDataSource_];
+    NSString* theContext = [extractor contentInRange:VT100GridWindowedRangeMake(theRange, 0, 0)
+                                          nullPolicy:kiTermTextExtractorNullPolicyFromStartToFirst
+                                                 pad:NO
+                                  includeLastNewline:NO
+                              trimTrailingWhitespace:YES
+                                        cappedAtSize:-1];
     theContext = [theContext stringByReplacingOccurrencesOfString:@"\n"
                                                        withString:@" "];
-    [results_ addObject:[[GlobalSearchResult alloc] initWithInstance:self
-                                                             context:theContext 
-                                                                   x:startX
-                                                                absY:absY
-                                                                endX:endX
-                                                                   y:endY + [[textView_ dataSource] totalScrollbackOverflow]
-                                                          findString:findString_]];
+    [results_ addObject:[[[GlobalSearchResult alloc] initWithInstance:self
+                                                              context:theContext
+                                                                    x:startX
+                                                                 absY:absY
+                                                                 endX:endX
+                                                                    y:absEndY
+                                                           findString:findString_] autorelease]];
     return YES;
 }
 
 - (int)doSearch
 {
-    BOOL more;
-    BOOL found;
-    int newResults = 0;
-    NSDate* begin = [NSDate date];
-    NSDate* now;
-    const double kMaxTime = 0.01;
-    do {
-        int startX;
-        int startY;
-        int endX;
-        int endY;
-        more = [theScreen_ continueFindResultAtStartX:&startX
-                                             atStartY:&startY
-                                               atEndX:&endX
-                                               atEndY:&endY
-                                                found:&found
-                                            inContext:&findContext_];
-
-        if (found) {
-            if ([self _emitResultFromX:startX y:startY toX:endX y:endY]) {
-                ++newResults;
-            }
-            [theScreen_ initFindString:findString_
-                      forwardDirection:NO
-                          ignoringCase:YES
-                                 regex:NO
-                           startingAtX:startX
-                           startingAtY:startY
-                            withOffset:1
-                             inContext:&findContext_
-                       multipleResults:NO];
-            findContext_.hasWrapped = YES;
-        }
-        now = [NSDate date];
-    } while ((found || more) && [now timeIntervalSinceDate:begin] < kMaxTime);
-
-    more_ = (found || more);
-    return newResults;    
+    NSMutableArray *results = [NSMutableArray array];
+    more_ = [textViewDataSource_ continueFindAllResults:results inContext:findContext_];
+    for (SearchResult *result in results) {
+        [self _emitResultFromX:result->startX absY:result->absStartY toX:result->endX absY:result->absEndY];
+    }
+    // TODO Test this! It used to use the deprecated API.
+    return results.count;
 }
 
 - (PTYTextView*)textView
@@ -539,7 +527,7 @@ const double GLOBAL_SEARCH_MARGIN = 10;
     }
     int i = 0;
     for (PseudoTerminal* aTerminal in [[iTermController sharedInstance] terminals]) {
-        for (PTYSession* aSession in [aTerminal sessions]) {
+        for (PTYSession* aSession in [aTerminal allSessions]) {
             NSArray* tabs = [aTerminal tabs];
             int j;
             for (j = 0; j < [tabs count]; ++j) {
@@ -548,11 +536,11 @@ const double GLOBAL_SEARCH_MARGIN = 10;
                 }
             }
             GlobalSearchInstance* aSearch;
-            aSearch = [[GlobalSearchInstance alloc] initWithTextView:[aSession TEXTVIEW]
-                                                          findString:findString
-                                                               label:[iTermExpose labelForTab:[aSession tab]
-                                                                                 windowNumber:i+1
-                                                                                    tabNumber:j+1]];
+            aSearch = [[[GlobalSearchInstance alloc] initWithSession:aSession
+                                                           findString:findString
+                                                                label:[iTermExpose labelForTab:[aSession tab]
+                                                                                  windowNumber:i+1
+                                                                                     tabNumber:j+1]] autorelease];
             [searches_ addObject:aSearch];
         }
         i++;
@@ -701,7 +689,7 @@ const double GLOBAL_SEARCH_MARGIN = 10;
 
 }
 
-- (void)setDelegate:(id<GlobalSearchDelegate>)delegate;
+- (void)setDelegate:(id<GlobalSearchDelegate>)delegate
 {
     delegate_ = delegate;
 }
@@ -717,9 +705,18 @@ const double GLOBAL_SEARCH_MARGIN = 10;
         theResult = [combinedResults_ objectAtIndex:i];
         inst = [theResult instance];
         tv = [inst textView];
-        [tv setSelectionFromX:[theResult x] fromY:[theResult y] toX:[theResult endX]+1 toY:[theResult endY]];
+        [tv.selection clearSelection];
+        VT100GridCoordRange theRange =
+            VT100GridCoordRangeMake([theResult x],
+                                    [theResult y],
+                                    [theResult endX] + 1,
+                                    [theResult endY]);
+        iTermSubSelection *sub;
+        sub = [iTermSubSelection subSelectionWithRange:VT100GridWindowedRangeMake(theRange, 0, 0)
+                                                  mode:kiTermSelectionModeCharacter];
+        [tv.selection addSubSelection:sub];
         [tv scrollToSelection];
-        session = [[tv dataSource] session];
+        session = [inst session];
     } else {
         theResult = nil;
     }

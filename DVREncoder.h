@@ -1,4 +1,3 @@
-// -*- mode:objc -*-
 /*
  **  DVREncoder.h
  **
@@ -28,7 +27,7 @@
 
 
 #import <Cocoa/Cocoa.h>
-#import <DVRBuffer.h>
+#import "DVRBuffer.h"
 
 @interface DVREncoder : NSObject
 {
@@ -58,10 +57,10 @@
 - (void)dealloc;
 
 // Encoded a frame into the DVRBuffer. Call -[reserve:] first.
-//   buffer: points to an array of screen_char_t described by info.
+//   frameLines: An array of screen lines
 //   length: number of bytes (not elements) in buffer.
 //   info: screen state.
-- (void)appendFrame:(char*)buffer length:(int)length info:(DVRFrameInfo*)info;
+- (void)appendFrame:(NSArray *)frameLines length:(int)length info:(DVRFrameInfo*)info;
 
 // Allocate some number of bytes for an upcoming appendFrame call.
 // Returns true if some frames were freed to make room. The caller should
@@ -69,21 +68,3 @@
 - (BOOL)reserve:(int)length;
 
 @end
-
-@interface DVREncoder (Private)
-// Save a key frame into DVRBuffer.
-- (void)_appendKeyFrame:(char*)buffer length:(int)length info:(DVRFrameInfo*)info;
-
-// Save a diff frame into DVRBuffer.
-- (void)_appendDiffFrame:(char*)buffer length:(int)length info:(DVRFrameInfo*)info;
-
-// Save a frame into DVRBuffer.
-- (void)_appendFrameImpl:(char*)buffer length:(int)length type:(DVRFrameType)type info:(DVRFrameInfo*)info;
-
-// Calculate the diff between buffer,length and the previous frame. Saves results into
-// scratch. Won't use more than maxSize bytes in scratch. Returns number of bytes used or
-// -1 if the diff was larger than maxSize.
-- (int)_computeDiff:(char*)buffer length:(int)length dest:(char*)scratch maxSize:(int)maxSize;
-
-@end
-

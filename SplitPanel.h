@@ -8,24 +8,23 @@
 
 #import <Cocoa/Cocoa.h>
 
-@class BookmarkListView;
-@class PseudoTerminal;
+@class ProfileListView;
 
 @interface SplitPanel : NSWindowController {
-    PseudoTerminal *parent_;
+    NSWindowController *parent_;
     IBOutlet NSTextField *label_;
     IBOutlet NSButton *splitButton_;
     BOOL isVertical_;
-    IBOutlet BookmarkListView *bookmarks_;
+    IBOutlet ProfileListView *bookmarks_;
     NSString *guid_;
 }
 
-@property (nonatomic, retain) PseudoTerminal *parent;
+@property (nonatomic, retain) NSWindowController *parent;
 @property (nonatomic, assign) BOOL isVertical;
 @property (nonatomic, readonly) NSTextField *label;
 @property (nonatomic, copy) NSString *guid;
 
-+ (NSString *)showPanelWithParent:(PseudoTerminal *)parent isVertical:(BOOL)vertical;
++ (NSString *)showPanelWithParent:(NSWindowController *)parent isVertical:(BOOL)vertical;
 - (IBAction)cancel:(id)sender;
 - (IBAction)split:(id)sender;
 

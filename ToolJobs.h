@@ -8,17 +8,28 @@
 
 #import <Cocoa/Cocoa.h>
 #import "ToolWrapper.h"
+#import "FutureMethods.h"
 
-@interface ToolJobs : NSView {
+@interface SignalPicker : NSComboBox <NSComboBoxDataSource>
+
+- (BOOL)isValid;
+
+@end
+
+@interface ToolJobs : NSView <
+  ToolbeltTool,
+  NSComboBoxDelegate,
+  NSTableViewDelegate,
+  NSTableViewDataSource> {
     NSScrollView *scrollView_;
     NSTableView *tableView_;
     NSButton *kill_;
-    NSPopUpButton *signal_;
+    SignalPicker *signal_;
     NSTimer *timer_;
     NSMutableArray *names_;
-    NSMutableArray *pids_;
-    BOOL hasSelection;
+    NSArray *pids_;
+    BOOL shutdown_;
+    NSTimeInterval timerInterval_;
 }
 
-@property (nonatomic, assign) BOOL hasSelection;
 @end

@@ -11,67 +11,77 @@
 #include <sys/types.h>
 #include <sys/sysctl.h>
 
-unsigned	UKPhysicalRAMSize()
+unsigned	UKPhysicalRAMSize(void)
 {
-	long		ramSize;
-	
-	if( Gestalt( gestaltPhysicalRAMSizeInMegabytes, &ramSize ) == noErr )
-		return ramSize;
-	else
-		return 0;
+	 return (unsigned) (([NSProcessInfo.processInfo physicalMemory] / 1024ULL) / 1024ULL);
 }
 
 
-NSString*	UKSystemVersionString()
+NSString*        UKSystemVersionString(void)
 {
-	long		vMajor = 10, vMinor = 0, vBugfix = 0;
-	UKGetSystemVersionComponents( &vMajor, &vMinor, &vBugfix );
-	
-	return [NSString stringWithFormat: @"%ld.%ld.%ld", vMajor, vMinor, vBugfix];
+    static NSString*        sSysVersionCocoaStr = nil;
+    if( !sSysVersionCocoaStr )
+    {
+        sSysVersionCocoaStr = [[[NSDictionary dictionaryWithContentsOfFile:@"/System/Library/CoreServices/SystemVersion.plist"] objectForKey:@"ProductVersion"] retain];
+    }
+    return sSysVersionCocoaStr;
 }
 
 
-void	UKGetSystemVersionComponents( long* outMajor, long* outMinor, long* outBugfix )
+void        UKGetSystemVersionComponents( SInt32* outMajor, SInt32* outMinor, SInt32* outBugfix )
 {
-	long		sysVersion = UKSystemVersion();
-	if( sysVersion >= MAC_OS_X_VERSION_10_4 )
-	{
-		Gestalt( gestaltSystemVersionMajor, outMajor );
-		Gestalt( gestaltSystemVersionMinor, outMinor );
-		Gestalt( gestaltSystemVersionBugFix, outBugfix );
-	}
-	else
-	{
-		*outMajor = ((sysVersion & 0x0000F000) >> 12) * 10 + ((sysVersion & 0x00000F00) >> 8);
-		*outMinor = (sysVersion & 0x000000F0) >> 4;
-		*outBugfix = sysVersion & 0x0000000F;
-	}
+    NSArray                *        sysVersionComponents = [UKSystemVersionString() componentsSeparatedByString: @"."];
+
+    if( sysVersionComponents.count > 0 )
+        *outMajor = [[sysVersionComponents objectAtIndex: 0] intValue];
+    if( sysVersionComponents.count > 1 )
+        *outMinor = [[sysVersionComponents objectAtIndex: 1] intValue];
+    if( sysVersionComponents.count > 2 )
+        *outBugfix = [[sysVersionComponents objectAtIndex: 2] intValue];
 }
 
 
-long	UKSystemVersion()
+
+long        UKSystemVersion(void)
 {
-	long		sysVersion = 0;
-	
-	if( Gestalt( gestaltSystemVersion, &sysVersion ) != noErr )
-		return 0;
-	
-	return sysVersion;
+        SInt32                sysVersion, major = 0, minor = 0, bugfix = 0, bcdMajor = 0;
+        
+        UKGetSystemVersionComponents( &major, &minor, &bugfix );
+        
+        if( bugfix > 9 )
+                bugfix = 9;
+        if( minor > 9 )
+                minor = 9;
+        bcdMajor = major % 10;
+        while( major >= 10 )
+        {
+                major -= 10;
+                bcdMajor += 16;
+        }
+        
+        sysVersion = (bcdMajor << 8) | (minor << 4) | bugfix;
+        printf( "%x\n", sysVersion );
+        
+        return sysVersion;
 }
 
 
-unsigned	UKClockSpeed()
+unsigned        UKClockSpeed(void)
 {
-	long		speed;
-	
-	if( Gestalt( gestaltProcClkSpeed, &speed ) == noErr )
-		return speed / 1000000;
-	else
-		return 0;
+        long long        count = 0;
+        size_t                size = sizeof(count);
+
+    if( sysctlbyname( "hw.cpufrequency_max", &count, &size, NULL, 0 ) ) {
+        NSLog(@"%s", strerror(errno));
+                return 1;
+    }
+
+        return count / 1000000;
 }
 
 
-unsigned	UKCountCores()
+
+unsigned	UKCountCores(void)
 {
 	unsigned	count = 0;
 	size_t		size = sizeof(count);
@@ -83,18 +93,18 @@ unsigned	UKCountCores()
 }
 
 
-NSString*	UKMachineName()
+NSString*	UKMachineName(void)
 {
 	static NSString*	cpuName = nil;
 	if( cpuName )
 		return cpuName;
-	
-	char*				machineName = NULL;
-	
-	if( Gestalt( gestaltUserVisibleMachineName, (long*) &machineName ) == noErr )
-	{
-		NSString*	internalName = [NSString stringWithCString: machineName +1 length: machineName[0]];
 		
+    char temp[1000];
+    size_t tempLen = sizeof(temp) - 1;
+    if (!sysctlbyname("hw.model", temp, &tempLen, 0, 0)) {
+        temp[tempLen] = 0;
+        NSString *internalName = [NSString stringWithUTF8String:temp];
+        
 		NSDictionary* translationDictionary = [[NSDictionary alloc] initWithObjectsAndKeys:
 					@"PowerMac 8500/8600",@"AAPL,8500",
 					@"PowerMac 9500/9600",@"AAPL,9500",
@@ -177,7 +187,7 @@ NSString*	UKMachineName()
 		NSEnumerator	*e=[[[translationDictionary allKeys]
 									sortedArrayUsingSelector:@selector(compare:)]
 									objectEnumerator];
-		while( aKey = [e nextObject] )
+		while( (aKey = [e nextObject]) )
 		{
 			r = [internalName rangeOfString: aKey];
 			if( r.location != NSNotFound )
@@ -198,121 +208,37 @@ NSString*	UKMachineName()
 			cpuName = [[NSString stringWithFormat: @"Unknown (%@)", internalName] retain];
 		else
 			cpuName = humanReadableName;
+        
+                [translationDictionary release];
 	}
 	
 	return cpuName;
 }
 
 
-NSString*	UKCPUName()
+NSString*	UKCPUName(void)
 {
 	return UKAutoreleasedCPUName( NO );
 }
 
 
-NSString*	UKAutoreleasedCPUName( BOOL releaseIt )
+NSString*        UKAutoreleasedCPUName( BOOL dontCache )
 {
-	long				cpu;
-	static NSString*	cpuName = nil;
-	
-	if( Gestalt( gestaltNativeCPUtype, &cpu ) == noErr )
-	{
-		if( !cpuName )
-		{
-			NSDictionary* dict = [NSDictionary dictionaryWithObjectsAndKeys:
-										@"Motorola 68000", [NSNumber numberWithLong: gestaltCPU68000],
-										@"Motorola 68010", [NSNumber numberWithLong: gestaltCPU68010],
-										@"Motorola 68020", [NSNumber numberWithLong: gestaltCPU68020],
-										@"Motorola 68030", [NSNumber numberWithLong: gestaltCPU68030],
-										@"Motorola 68040", [NSNumber numberWithLong: gestaltCPU68040],
-										@"PowerPC 601", [NSNumber numberWithLong: gestaltCPU601],
-										@"PowerPC 603", [NSNumber numberWithLong: gestaltCPU603],
-										@"PowerPC 604", [NSNumber numberWithLong: gestaltCPU604],
-										@"PowerPC 603e", [NSNumber numberWithLong: gestaltCPU603e],
-										@"PowerPC 603ev", [NSNumber numberWithLong: gestaltCPU603ev],
-										@"PowerPC G3", [NSNumber numberWithLong: gestaltCPU750],
-										@"PowerPC 604e", [NSNumber numberWithLong: gestaltCPU604e],
-										@"PowerPC 604ev", [NSNumber numberWithLong: gestaltCPU604ev],
-										@"PowerPC G4", [NSNumber numberWithLong: gestaltCPUG4],
-										@"PowerPC G4", [NSNumber numberWithLong: gestaltCPUG47450],
-										nil
-									];
-			cpuName = [dict objectForKey: [NSNumber numberWithLong: cpu]];
-		}
-		if( cpuName == nil )
-		{
-			char	cpuCStr[5] = { 0 };
-			memmove( cpuCStr, &cpu, 4 );
-			if( (cpu & 0xff000000) >= 0x20000000 && (cpu & 0x00ff0000) >= 0x00200000
-				&& (cpu & 0x0000ff00) >= 0x00002000 && (cpu & 0x000000ff) >= 0x00000020)	// All valid as characters?
-				cpuName = [NSString stringWithFormat: @"Unknown (%d/%s)", cpu, &cpu];
-			else
-				cpuName = [NSString stringWithFormat: @"Unknown (%d)", cpu, &cpu];
-		}
-		[cpuName retain];		// Yeah, I know, I'm paranoid.
-	}
+        static NSString        *        sCPUName = nil;
+        
+        if( dontCache || !sCPUName )
+        {
+                char                cpuName[256] = {};
+                size_t                size = sizeof(cpuName) -1;
 
-	if( releaseIt )
-	{
-		NSString*	cn = cpuName;
-		[cpuName autorelease];
-		cpuName = nil;
-		return cn;
-	}
-	
-	return cpuName;
+                if( sysctlbyname( "machdep.cpu.brand_string", cpuName, &size, NULL, 0 ) != 0 )
+                        return nil;
+
+                [sCPUName release];
+                sCPUName = [[NSString alloc] initWithUTF8String: cpuName];
+        }
+        
+        return sCPUName;
 }
 
-
-/*NSString*	UKSystemSerialNumber()
-{
-	mach_port_t				masterPort;
-	kern_return_t			kr = noErr;
-	io_registry_entry_t		entry;
-	CFTypeRef				prop;
-	CFTypeID				propID;
-	NSString*				str = nil;
-
-	kr = IOMasterPort(MACH_PORT_NULL, &masterPort);
-	if( kr != noErr )
-		goto cleanup;
-	entry = IORegistryGetRootEntry( masterPort );
-	if( entry == MACH_PORT_NULL )
-		goto cleanup;
-	prop = IORegistryEntrySearchCFProperty(entry, kIODeviceTreePlane, CFSTR("serial-number"), nil, kIORegistryIterateRecursively);
-	if( prop == nil )
-		goto cleanup;
-	propID = CFGetTypeID( prop );
-	if( propID != CFDataGetTypeID() )
-		goto cleanup;
-	
-	const char*	buf = [(NSData*)prop bytes];
-	int			len = [(NSData*)prop length],
-				 x;
-	
-	char	secondPart[256];
-	char	firstPart[256];
-	char*	currStr = secondPart;
-	int		y = 0;
-	
-	for( x = 0; x < len; x++ )
-	{
-		if( buf[x] > 0 && (y < 255) )
-			currStr[y++] = buf[x];
-		else if( currStr == secondPart )
-		{
-			currStr[y] = 0;		// Terminate string.
-			currStr = firstPart;
-			y = 0;
-		}
-	}
-	currStr[y] = 0;	// Terminate string.
-	
-	str = [NSString stringWithFormat: @"%s%s", firstPart, secondPart];
-	
-cleanup:
-	mach_port_deallocate( mach_task_self(), masterPort );
-	
-	return str;
-}*/
 

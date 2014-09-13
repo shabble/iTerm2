@@ -10,15 +10,16 @@
 #import "NSDateFormatterExtras.h"
 #import "iTermController.h"
 #import "ToolWrapper.h"
+#import "PseudoTerminal.h"
+
+static const CGFloat kButtonHeight = 23;
+static const CGFloat kMargin = 4;
 
 @implementation ToolPasteHistory
 
 - (id)initWithFrame:(NSRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
-        const CGFloat kButtonHeight = 23;
-        const CGFloat kMargin = 4;
-
         clear_ = [[NSButton alloc] initWithFrame:NSMakeRect(0, frame.size.height - kButtonHeight, frame.size.width, kButtonHeight)];
         [clear_ setButtonType:NSMomentaryPushInButton];
         [clear_ setTitle:@"Clear All"];
@@ -38,14 +39,14 @@
 
         tableView_ = [[NSTableView alloc] initWithFrame:NSMakeRect(0, 0, contentSize.width, contentSize.height)];
         NSTableColumn *col;
-        col = [[NSTableColumn alloc] initWithIdentifier:@"contents"];
+        col = [[[NSTableColumn alloc] initWithIdentifier:@"contents"] autorelease];
         [col setEditable:NO];
         [tableView_ addTableColumn:col];
         [[col headerCell] setStringValue:@"Contents"];
         NSFont *theFont = [NSFont systemFontOfSize:[NSFont smallSystemFontSize]];
         [[col dataCell] setFont:theFont];
         [tableView_ setRowHeight:[[[[NSLayoutManager alloc] init] autorelease] defaultLineHeightForFont:theFont]];
-
+        [tableView_ setHeaderView:nil];
         [tableView_ setDataSource:self];
         [tableView_ setDelegate:self];
 
@@ -85,9 +86,19 @@
 
 - (void)shutdown
 {
+    shutdown_ = YES;
     [[NSNotificationCenter defaultCenter] removeObserver:self];
     [minuteRefreshTimer_ invalidate];
     minuteRefreshTimer_ = nil;
+}
+
+- (void)relayout
+{
+    NSRect frame = self.frame;
+    [clear_ setFrame:NSMakeRect(0, frame.size.height - kButtonHeight, frame.size.width, kButtonHeight)];
+    [scrollView_ setFrame:NSMakeRect(0, 0, frame.size.width, frame.size.height - kButtonHeight - kMargin)];
+    NSSize contentSize = [scrollView_ contentSize];
+    [tableView_ setFrame:NSMakeRect(0, 0, contentSize.width, contentSize.height)];
 }
 
 - (BOOL)isFlipped
@@ -122,8 +133,11 @@
 
 - (void)fixCursor
 {
+    if (shutdown_) {
+        return;
+    }
     ToolWrapper *wrapper = (ToolWrapper *)[[self superview] superview];
-    [[[wrapper.term currentSession] TEXTVIEW] updateCursor:[[NSApplication sharedApplication] currentEvent]];
+	[[[wrapper.term currentSession] textview] updateCursor:[[NSApplication sharedApplication] currentEvent]];
 }
 
 - (void)doubleClickOnTableView:(id)sender
@@ -146,6 +160,11 @@
     [tableView_ reloadData];
     // Updating the table data causes the cursor to change into an arrow!
     [self performSelector:@selector(fixCursor) withObject:nil afterDelay:0];
+}
+
+- (CGFloat)minimumHeight
+{
+    return 60;
 }
 
 @end

@@ -29,11 +29,6 @@
 #import <Cocoa/Cocoa.h>
 
 @class PTYTextView;
-@interface TextViewWrapper : NSView {
-    PTYTextView* child_;
-}
 
-- (void)addSubview:(PTYTextView*)child;
-- (NSRect)adjustScroll:(NSRect)proposedVisibleRect;
-
+@interface TextViewWrapper : NSView
 @end
